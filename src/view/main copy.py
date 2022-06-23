@@ -5,6 +5,7 @@ import customtkinter
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
+
 class App(customtkinter.CTk):
 
     WIDTH = 780
@@ -91,7 +92,7 @@ class App(customtkinter.CTk):
         self.label_info_1 = customtkinter.CTkLabel(master=self.frame_info,
                                                    text="CTkLabel: Lorem ipsum dolor sit,\n" +
                                                         "amet consetetur sadipscing elitr,\n" +
-                                                        "sed diam nonumy eirmod tempor" ,
+                                                        "sed diam nonumy eirmod tempor",
                                                    height=100,
                                                    fg_color=("white", "gray38"),  # <- custom tuple-color
                                                    justify=tkinter.LEFT)

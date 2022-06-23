@@ -5,6 +5,7 @@ import customtkinter
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
+
 class App(customtkinter.CTk):
 
     WIDTH = 780
@@ -64,8 +65,8 @@ class App(customtkinter.CTk):
         self.button_3.grid(row=4, column=0, pady=10, padx=20)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
-                                                text="Dark Mode",
-                                                command=self.change_mode)
+                                              text="Dark Mode",
+                                              command=self.change_mode)
         self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
 
         # ============ frame_right ============
