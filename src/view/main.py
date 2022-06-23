@@ -70,13 +70,21 @@ class App(customtkinter.CTk):
         self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
 
         # ============ frame_right ============
+        # TODO: create a variable that instantiates an instance of a custom Frame class (e.g.,
+        # cerberus_frame = CerberusFrame(parent=self.frame_right)
+        # zulrah_frame = ZulrahFrame(parent=self.frame_right)
+        # THEN, create a function that will be a button handler for a Script button that will hide other frames
+        # before placing the new one at the top. E.g.,
+        # show_cerberus_view():
+        #   hide_all_frames() (involves {frame variable}.pack_forget() )
+        #   cerberus_frame.pack(fill="both", expand=1)
+        #
+        # These should be functions of a root controller. Each view should have its own controller for
+        # manipulating scripts, and everything should be terminated upon switching scripts.
 
-        # configure grid layout (2x1)
-        self.frame_right.rowconfigure(0, weight=0)  # Contains the view for settings/control
-        self.frame_right.rowconfigure(1, weight=1)  # Contains the view for progress log (resizable)
-
-        # ============ frame_right ============
-        # CONTENTS REMOVED
+        # TODO: The following should be configurations within custom Frame classes
+        # parent.rowconfigure(0, weight=0)  # Contains the view for settings/control
+        # parent.rowconfigure(1, weight=1)  # Contains the view for progress log (resizable)
 
     def button_event(self):
         print("Button pressed")
