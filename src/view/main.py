@@ -20,7 +20,7 @@ class App(customtkinter.CTk):
 
         # ============ create two frames ============
 
-        # configure grid layout (2x1)
+        # configure grid layout (1x2)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -34,7 +34,7 @@ class App(customtkinter.CTk):
 
         # ============ frame_left ============
 
-        # configure grid layout (1x11)
+        # configure grid layout (11x1)
         self.frame_left.grid_rowconfigure(0, minsize=10)   # empty row with minsize as spacing (top padding above title)
         self.frame_left.grid_rowconfigure(5, weight=1)  # empty row as spacing (resizable spacing between buttons and switches)
         self.frame_left.grid_rowconfigure(8, minsize=20)    # empty row with minsize as spacing (adds a top padding to switch section)
@@ -73,7 +73,7 @@ class App(customtkinter.CTk):
 
         # ============ frame_right ============
 
-        # configure grid layout (3x7)
+        # configure grid layout (7x3)
         self.frame_right.rowconfigure((0, 1, 2, 3), weight=1)  # first 4 rows will resize
         self.frame_right.rowconfigure(7, weight=10)  # big spacing for row 7 (heavier weight means it'll use more extra space than other components)
         self.frame_right.columnconfigure((0, 1), weight=1)
