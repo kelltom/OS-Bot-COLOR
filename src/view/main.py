@@ -1,8 +1,9 @@
 import tkinter
 import tkinter.messagebox
 import customtkinter
-import cerberus_view as cerb
-import zulrah_view as zul
+from script_views.cerberus_view import CerberusView
+from script_views.zulrah_view import ZulrahView
+
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -84,8 +85,8 @@ class App(customtkinter.CTk):
         # These should be functions of a root controller. Each view should have its own controller for
         # manipulating scripts, and everything should be terminated upon switching scripts.
 
-        self.cerberus_frame = cerb.CerberusView(parent=self.frame_right)
-        self.zulrah_frame = zul.ZulrahView(parent=self.frame_right)
+        self.cerberus_frame = CerberusView(parent=self.frame_right)
+        self.zulrah_frame = ZulrahView(parent=self.frame_right)
 
         # TODO: The following should be configurations within custom Frame classes
         # parent.rowconfigure(0, weight=0)  # Contains the view for settings/control
