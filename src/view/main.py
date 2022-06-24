@@ -16,18 +16,6 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        def hide_all_frames():
-            cerberus_frame.pack_forget()
-            zulrah_frame.pack_forget()
-
-        def show_cerberus_view():
-            hide_all_frames()
-            cerberus_frame.pack(fill="both", expand=1)
-
-        def show_zulrah_view():
-            hide_all_frames()
-            zulrah_frame.pack(fill="both", expand=1)
-
         self.title("OSNR Bot")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
 
@@ -63,7 +51,7 @@ class App(customtkinter.CTk):
         self.button_1 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Cerberus",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
-                                                command=show_cerberus_view)
+                                                command=self.show_cerberus_view)
         self.button_1.grid(row=2, column=0, pady=10, padx=20)
 
         self.button_2 = customtkinter.CTkButton(master=self.frame_left,
@@ -75,7 +63,7 @@ class App(customtkinter.CTk):
         self.button_3 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Zulrah",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
-                                                command=show_zulrah_view)
+                                                command=self.show_zulrah_view)
         self.button_3.grid(row=4, column=0, pady=10, padx=20)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
@@ -96,12 +84,24 @@ class App(customtkinter.CTk):
         # These should be functions of a root controller. Each view should have its own controller for
         # manipulating scripts, and everything should be terminated upon switching scripts.
 
-        cerberus_frame = cerb.CerberusView(parent=self.frame_right)
-        zulrah_frame = zul.ZulrahView(parent=self.frame_right)
+        self.cerberus_frame = cerb.CerberusView(parent=self.frame_right)
+        self.zulrah_frame = zul.ZulrahView(parent=self.frame_right)
 
         # TODO: The following should be configurations within custom Frame classes
         # parent.rowconfigure(0, weight=0)  # Contains the view for settings/control
         # parent.rowconfigure(1, weight=1)  # Contains the view for progress log (resizable)
+
+    def hide_all_frames(self):
+        self.cerberus_frame.pack_forget()
+        self.zulrah_frame.pack_forget()
+
+    def show_cerberus_view(self):
+        self.hide_all_frames()
+        self.cerberus_frame.pack(fill="both", expand=1)
+
+    def show_zulrah_view(self):
+        self.hide_all_frames()
+        self.zulrah_frame.pack(fill="both", expand=1)
 
     def button_event(self):
         print("Button pressed")
