@@ -1,6 +1,9 @@
 import tkinter
 import tkinter.messagebox
 import customtkinter
+from script_views.cerberus_view import CerberusView
+from script_views.zulrah_view import ZulrahView
+
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -49,7 +52,7 @@ class App(customtkinter.CTk):
         self.button_1 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Cerberus",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
-                                                command=self.button_event)
+                                                command=self.show_cerberus_view)
         self.button_1.grid(row=2, column=0, pady=10, padx=20)
 
         self.button_2 = customtkinter.CTkButton(master=self.frame_left,
@@ -61,7 +64,7 @@ class App(customtkinter.CTk):
         self.button_3 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Zulrah",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
-                                                command=self.button_event)
+                                                command=self.show_zulrah_view)
         self.button_3.grid(row=4, column=0, pady=10, padx=20)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
@@ -70,22 +73,26 @@ class App(customtkinter.CTk):
         self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
 
         # ============ frame_right ============
-        # TODO: create a variable that instantiates an instance of a custom Frame class (e.g.,
-        # cerberus_frame = CerberusFrame(parent=self.frame_right)
-        # zulrah_frame = ZulrahFrame(parent=self.frame_right)
-        # THEN, create a function that will be a button handler for a Script button that will hide other frames
-        # before placing the new one at the top. E.g.,
-        # show_cerberus_view():
-        #   hide_all_frames() (involves {frame variable}.pack_forget() )
-        #   cerberus_frame.pack(fill="both", expand=1)
-        #
-        # These should be functions of a root controller. Each view should have its own controller for
-        # manipulating scripts, and everything should be terminated upon switching scripts.
+        # These views are toggled via button handlers
+        self.cerberus_frame = CerberusView(parent=self.frame_right)
+        self.zulrah_frame = ZulrahView(parent=self.frame_right)
 
-        # TODO: The following should be configurations within custom Frame classes
-        # parent.rowconfigure(0, weight=0)  # Contains the view for settings/control
-        # parent.rowconfigure(1, weight=1)  # Contains the view for progress log (resizable)
+    # ============ Script button handlers ============
+    def hide_all_frames(self):
+        self.cerberus_frame.pack_forget()
+        self.zulrah_frame.pack_forget()
 
+    # TODO: These functions should call controller functions from the views to stop
+    # any scripts that are still running before switching to a new one.
+    def show_cerberus_view(self):
+        self.hide_all_frames()
+        self.cerberus_frame.pack(fill="both", expand=1)
+
+    def show_zulrah_view(self):
+        self.hide_all_frames()
+        self.zulrah_frame.pack(fill="both", expand=1)
+
+    # ============ Misc handlers ============
     def button_event(self):
         print("Button pressed")
 
