@@ -77,10 +77,6 @@ class App(customtkinter.CTk):
         self.cerberus_frame = CerberusView(parent=self.frame_right)
         self.zulrah_frame = ZulrahView(parent=self.frame_right)
 
-        # TODO: The following should be configurations within custom Frame classes
-        # parent.rowconfigure(0, weight=0)  # Contains the view for settings/control
-        # parent.rowconfigure(1, weight=1)  # Contains the view for progress log (resizable)
-
     # ============ Script button handlers ============
     def hide_all_frames(self):
         self.cerberus_frame.pack_forget()
