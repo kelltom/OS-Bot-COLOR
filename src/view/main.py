@@ -73,18 +73,7 @@ class App(customtkinter.CTk):
         self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
 
         # ============ frame_right ============
-        # TODO: create a variable that instantiates an instance of a custom Frame class (e.g.,
-        # cerberus_frame = CerberusFrame(parent=self.frame_right)
-        # zulrah_frame = ZulrahFrame(parent=self.frame_right)
-        # THEN, create a function that will be a button handler for a Script button that will hide other frames
-        # before placing the new one at the top. E.g.,
-        # show_cerberus_view():
-        #   hide_all_frames() (involves {frame variable}.pack_forget() )
-        #   cerberus_frame.pack(fill="both", expand=1)
-        #
-        # These should be functions of a root controller. Each view should have its own controller for
-        # manipulating scripts, and everything should be terminated upon switching scripts.
-
+        # These views are toggled via button handlers
         self.cerberus_frame = CerberusView(parent=self.frame_right)
         self.zulrah_frame = ZulrahView(parent=self.frame_right)
 
@@ -92,10 +81,13 @@ class App(customtkinter.CTk):
         # parent.rowconfigure(0, weight=0)  # Contains the view for settings/control
         # parent.rowconfigure(1, weight=1)  # Contains the view for progress log (resizable)
 
+    # ============ Script button handlers ============
     def hide_all_frames(self):
         self.cerberus_frame.pack_forget()
         self.zulrah_frame.pack_forget()
 
+    # TODO: These functions should call controller functions from the views to stop
+    # any scripts that are still running before switching to a new one.
     def show_cerberus_view(self):
         self.hide_all_frames()
         self.cerberus_frame.pack(fill="both", expand=1)
@@ -104,6 +96,7 @@ class App(customtkinter.CTk):
         self.hide_all_frames()
         self.zulrah_frame.pack(fill="both", expand=1)
 
+    # ============ Misc handlers ============
     def button_event(self):
         print("Button pressed")
 
