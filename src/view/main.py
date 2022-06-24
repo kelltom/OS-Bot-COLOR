@@ -1,6 +1,8 @@
 import tkinter
 import tkinter.messagebox
 import customtkinter
+import cerberus_view as cerb
+import zulrah_view as zul
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -13,6 +15,18 @@ class App(customtkinter.CTk):
 
     def __init__(self):
         super().__init__()
+
+        def hide_all_frames():
+            cerberus_frame.pack_forget()
+            zulrah_frame.pack_forget()
+
+        def show_cerberus_view():
+            hide_all_frames()
+            cerberus_frame.pack(fill="both", expand=1)
+
+        def show_zulrah_view():
+            hide_all_frames()
+            zulrah_frame.pack(fill="both", expand=1)
 
         self.title("OSNR Bot")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
@@ -49,7 +63,7 @@ class App(customtkinter.CTk):
         self.button_1 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Cerberus",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
-                                                command=self.button_event)
+                                                command=show_cerberus_view)
         self.button_1.grid(row=2, column=0, pady=10, padx=20)
 
         self.button_2 = customtkinter.CTkButton(master=self.frame_left,
@@ -61,7 +75,7 @@ class App(customtkinter.CTk):
         self.button_3 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Zulrah",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
-                                                command=self.button_event)
+                                                command=show_zulrah_view)
         self.button_3.grid(row=4, column=0, pady=10, padx=20)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
@@ -81,6 +95,9 @@ class App(customtkinter.CTk):
         #
         # These should be functions of a root controller. Each view should have its own controller for
         # manipulating scripts, and everything should be terminated upon switching scripts.
+
+        cerberus_frame = cerb.CerberusView(parent=self.frame_right)
+        zulrah_frame = zul.ZulrahView(parent=self.frame_right)
 
         # TODO: The following should be configurations within custom Frame classes
         # parent.rowconfigure(0, weight=0)  # Contains the view for settings/control
