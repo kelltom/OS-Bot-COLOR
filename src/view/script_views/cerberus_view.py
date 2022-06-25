@@ -16,7 +16,7 @@ class CerberusView(customtkinter.CTkFrame):
         super().__init__(parent)
 
         # configure grid layout (3x7)
-        self.rowconfigure((0, 1, 2, 3, 4), weight=1)  # first 5 rows will not resize
+        self.rowconfigure((0, 1, 2, 3, 4), weight=0)  # first 5 rows will not resize
         self.rowconfigure(7, weight=10)  # big spacing for row 7 (heavier weight means it'll use more extra space than other components)
         self.columnconfigure((0, 1), weight=1)  # first 2 cols will resize
         self.columnconfigure(2, weight=0)  # last column will remain the size required to fit its contents
