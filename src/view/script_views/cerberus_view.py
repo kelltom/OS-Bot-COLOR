@@ -31,7 +31,7 @@ class CerberusView(customtkinter.CTkFrame):
                                                    height=100,
                                                    fg_color=("white", "gray38"),  # <- custom tuple-color
                                                    justify=tkinter.LEFT)
-        self.label_info_1.grid(column=0, row=0, sticky="nwe", padx=15, pady=15)
+        self.label_info_1.grid(column=0, row=0, sticky="nwes", padx=15, pady=15)
 
         # -- script info box progress bar and slider
         self.progressbar = customtkinter.CTkProgressBar(master=self.frame_info)
