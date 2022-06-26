@@ -1,5 +1,5 @@
-import tkinter
-import tkinter.messagebox
+# import tkinter
+# import tkinter.messagebox
 import customtkinter
 from script_views.cerberus_view import CerberusView
 from script_views.zulrah_view import ZulrahView
@@ -11,7 +11,7 @@ customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "gre
 
 class App(customtkinter.CTk):
 
-    WIDTH = 780
+    WIDTH = 650
     HEIGHT = 520
 
     def __init__(self):
@@ -19,6 +19,8 @@ class App(customtkinter.CTk):
 
         self.title("OSNR Bot")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
+        self.update()
+        self.minsize(self.winfo_width(), self.winfo_height())
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)  # call .on_closing() when app gets closed
 
