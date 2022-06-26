@@ -15,16 +15,19 @@ class CerberusView(customtkinter.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        # configure grid layout (nx1) - row count TBD
-        self.rowconfigure((0, 1, 2, 3, 4), weight=0)  # first 5 rows will not resize
+        # configure grid layout (3x1)
+        self.rowconfigure(0, weight=0)  # info row will not resize
+        self.rowconfigure(1, weight=1)  # settings row will resize
+        self.rowconfigure(2, weight=2)  # log row will resize but take more space
         self.columnconfigure(0, weight=1)
         # script log should resize, weight 1
 
         # ---------- TOP HALF (script info and control buttons) ----------
         # -- row-spanning frame
         self.frame_info = customtkinter.CTkFrame(master=self)
-        self.frame_info.grid(row=0, column=0, rowspan=5, pady=15, padx=15, sticky="nsew")
+        self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
 
+        self.frame_info.rowconfigure((0, 1, 2, 3, 4), weight=0)  # rows will not resize
         self.frame_info.columnconfigure(0, weight=1, minsize=200)
         self.frame_info.columnconfigure(1, weight=0)
 
@@ -58,8 +61,10 @@ class CerberusView(customtkinter.CTkFrame):
         self.radio_var = tkinter.IntVar(value=0)
 
         self.label_radio_group = customtkinter.CTkLabel(master=self.frame_info,
-                                                        text="Controls:")
-        self.label_radio_group.grid(row=0, column=1, columnspan=1, padx=10, sticky="")
+                                                        text="Controls",
+                                                        justify=tkinter.LEFT,
+                                                        text_font=("default_theme", 12))
+        self.label_radio_group.grid(row=0, column=1, sticky="wns")
 
         self.radio_button_1 = customtkinter.CTkRadioButton(master=self.frame_info,
                                                            variable=self.radio_var,
@@ -73,7 +78,7 @@ class CerberusView(customtkinter.CTkFrame):
 
         self.radio_button_3 = customtkinter.CTkRadioButton(master=self.frame_info,
                                                            variable=self.radio_var,
-                                                           value=2)
+                                                           value=1)
         self.radio_button_3.grid(row=3, column=1, pady=10, padx=20, sticky="n")
 
         # # ------- script configuration options -------
