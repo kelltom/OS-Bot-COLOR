@@ -5,7 +5,7 @@ Should also use the script1_controller.
 
 import customtkinter
 import tkinter
-# from PIL import Image, ImageTk  # <- import PIL for the images
+from PIL import Image, ImageTk
 import pathlib
 
 PATH = pathlib.Path(__file__).parent.parent.resolve()
@@ -20,7 +20,6 @@ class CerberusView(customtkinter.CTkFrame):
         self.rowconfigure(1, weight=1)  # settings row will resize
         self.rowconfigure(2, weight=2)  # log row will resize but take more space
         self.columnconfigure(0, weight=1)
-        # script log should resize, weight 1
 
         # ---------- TOP HALF (script info and control buttons) ----------
         # -- row-spanning frame
@@ -58,28 +57,32 @@ class CerberusView(customtkinter.CTkFrame):
         self.progressbar.grid(row=4, column=0, sticky="ew", padx=15, pady=(0, 15))
 
         # -- right-side control buttons
-        self.radio_var = tkinter.IntVar(value=0)
+        # -- images
+        img_size = 20
+        img_play = ImageTk.PhotoImage(Image.open(f"{PATH}/images/play.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        img_pause = ImageTk.PhotoImage(Image.open(f"{PATH}/images/pause.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        img_stop = ImageTk.PhotoImage(Image.open(f"{PATH}/images/stop.png").resize((img_size, img_size)), Image.ANTIALIAS)
 
-        self.label_radio_group = customtkinter.CTkLabel(master=self.frame_info,
-                                                        text="Controls",
-                                                        justify=tkinter.LEFT,
-                                                        text_font=("default_theme", 12))
-        self.label_radio_group.grid(row=0, column=1, sticky="wns")
+        self.lbl_controls_title = customtkinter.CTkLabel(master=self.frame_info,
+                                                         text="Controls",
+                                                         justify=tkinter.LEFT,
+                                                         text_font=("default_theme", 12))
+        self.lbl_controls_title.grid(row=0, column=1, sticky="wns")
 
-        self.radio_button_1 = customtkinter.CTkRadioButton(master=self.frame_info,
-                                                           variable=self.radio_var,
-                                                           value=0)
-        self.radio_button_1.grid(row=1, column=1, pady=10, padx=20, sticky="n")
+        self.btn_play = customtkinter.CTkButton(master=self.frame_info,
+                                                text="Play [F1]",
+                                                image=img_play)
+        self.btn_play.grid(row=1, column=1, pady=10, padx=20, sticky="n")
 
-        self.radio_button_2 = customtkinter.CTkRadioButton(master=self.frame_info,
-                                                           variable=self.radio_var,
-                                                           value=1)
-        self.radio_button_2.grid(row=2, column=1, pady=10, padx=20, sticky="n")
+        self.btn_pause = customtkinter.CTkButton(master=self.frame_info,
+                                                 text="Pause [F2]",
+                                                 image=img_pause)
+        self.btn_pause.grid(row=2, column=1, pady=10, padx=20, sticky="n")
 
-        self.radio_button_3 = customtkinter.CTkRadioButton(master=self.frame_info,
-                                                           variable=self.radio_var,
-                                                           value=1)
-        self.radio_button_3.grid(row=3, column=1, pady=10, padx=20, sticky="n")
+        self.btn_abort = customtkinter.CTkButton(master=self.frame_info,
+                                                 text="Stop [ESC]",
+                                                 image=img_stop)
+        self.btn_abort.grid(row=3, column=1, pady=10, padx=20, sticky="n")
 
         # # ------- script configuration options -------
         # # -- script iterations
