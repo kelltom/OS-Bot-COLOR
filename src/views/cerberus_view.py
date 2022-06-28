@@ -4,7 +4,7 @@ Should also use the script1_controller.
 '''
 
 import customtkinter
-from script_views.custom_views.info_frame import InfoFrame
+from views.reusable_views.info_frame import InfoFrame
 
 
 class CerberusView(customtkinter.CTkFrame):

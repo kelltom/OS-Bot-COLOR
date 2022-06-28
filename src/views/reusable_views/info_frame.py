@@ -61,7 +61,8 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_play = customtkinter.CTkButton(master=self,
                                                 text="Play [F1]",
                                                 text_color="white",
-                                                image=img_play)
+                                                image=img_play,
+                                                command=self.play_btn_clicked)
         self.btn_play.grid(row=1, column=1, pady=10, padx=20, sticky="nsew")
 
         self.btn_abort = customtkinter.CTkButton(master=self,

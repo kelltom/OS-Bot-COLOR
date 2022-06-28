@@ -1,7 +1,7 @@
 import customtkinter
-from ..controller.cerberus_controller import CerberusController
-from script_views.cerberus_view import CerberusView
-from script_views.zulrah_view import ZulrahView
+from controller.cerberus_controller import CerberusController
+from views.cerberus_view import CerberusView
+from views.zulrah_view import ZulrahView
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
