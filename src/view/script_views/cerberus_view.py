@@ -4,11 +4,7 @@ Should also use the script1_controller.
 '''
 
 import customtkinter
-import tkinter
-from PIL import Image, ImageTk
-import pathlib
-
-PATH = pathlib.Path(__file__).parent.parent.resolve()
+from script_views.custom_views.info_frame import InfoFrame
 
 
 class CerberusView(customtkinter.CTkFrame):
@@ -22,67 +18,12 @@ class CerberusView(customtkinter.CTkFrame):
         self.columnconfigure(0, weight=1)
 
         # ---------- TOP HALF (script info and control buttons) ----------
-        # -- row-spanning frame
-        self.frame_info = customtkinter.CTkFrame(master=self)
+        info_text = ("This is just me typing about the script and this text should wrap " +
+                     "according to the length of the label. I'm just gonna keep typing to " +
+                     "make this a really long label.")
+        # TODO: pass controller to info_frame
+        self.frame_info = InfoFrame(parent=self, title="Cerberus", info=info_text)
         self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
-
-        self.frame_info.rowconfigure((0, 1, 2, 3, 4), weight=0)  # rows will not resize
-        self.frame_info.columnconfigure(0, weight=1, minsize=200)
-        self.frame_info.columnconfigure(1, weight=0)
-
-        # -- script title
-        self.lbl_script_title = customtkinter.CTkLabel(master=self.frame_info,
-                                                       text="Cerberus Bot",
-                                                       justify=tkinter.LEFT,
-                                                       text_font=("default_theme", 12))
-        self.lbl_script_title.grid(column=0, row=0, sticky="wns", padx=15, pady=15)
-
-        # -- script description
-        self.lbl_script_desc = customtkinter.CTkLabel(master=self.frame_info,
-                                                      text="This is just me typing about the script and this text should wrap " +
-                                                      "according to the length of the label. I'm just gonna keep typing to make " +
-                                                      "this a really long label.",
-                                                      # bg_color="gray38",
-                                                      justify=tkinter.CENTER)
-        self.lbl_script_desc.grid(column=0, row=1, rowspan=2, sticky="nwes", padx=15)
-        self.lbl_script_desc.bind('<Configure>', lambda e: self.lbl_script_desc.config(wraplength=self.lbl_script_desc.winfo_width()-10))
-
-        # -- script progress bar
-        self.lbl_progress = customtkinter.CTkLabel(master=self.frame_info,
-                                                   text="Progress: 50%",
-                                                   justify=tkinter.CENTER)
-        self.lbl_progress.grid(row=3, column=0, sticky="ew")
-
-        self.progressbar = customtkinter.CTkProgressBar(master=self.frame_info)
-        self.progressbar.grid(row=4, column=0, sticky="ew", padx=15, pady=(0, 15))
-
-        # -- right-side control buttons
-        # -- images
-        img_size = 20
-        img_play = ImageTk.PhotoImage(Image.open(f"{PATH}/images/play.png").resize((img_size, img_size)), Image.ANTIALIAS)
-        img_pause = ImageTk.PhotoImage(Image.open(f"{PATH}/images/pause.png").resize((img_size, img_size)), Image.ANTIALIAS)
-        img_stop = ImageTk.PhotoImage(Image.open(f"{PATH}/images/stop.png").resize((img_size, img_size)), Image.ANTIALIAS)
-
-        self.lbl_controls_title = customtkinter.CTkLabel(master=self.frame_info,
-                                                         text="Controls",
-                                                         justify=tkinter.LEFT,
-                                                         text_font=("default_theme", 12))
-        self.lbl_controls_title.grid(row=0, column=1, sticky="wns")
-
-        self.btn_play = customtkinter.CTkButton(master=self.frame_info,
-                                                text="Play [F1]",
-                                                image=img_play)
-        self.btn_play.grid(row=1, column=1, pady=10, padx=20, sticky="n")
-
-        self.btn_pause = customtkinter.CTkButton(master=self.frame_info,
-                                                 text="Pause [F2]",
-                                                 image=img_pause)
-        self.btn_pause.grid(row=2, column=1, pady=10, padx=20, sticky="n")
-
-        self.btn_abort = customtkinter.CTkButton(master=self.frame_info,
-                                                 text="Stop [ESC]",
-                                                 image=img_stop)
-        self.btn_abort.grid(row=3, column=1, pady=10, padx=20, sticky="n")
 
         # # ------- script configuration options -------
         # # -- script iterations
