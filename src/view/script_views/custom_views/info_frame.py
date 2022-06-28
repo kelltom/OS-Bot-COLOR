@@ -79,3 +79,15 @@ class InfoFrame(customtkinter.CTkFrame):
                                                    hover_color="#b36602",
                                                    image=img_restart)
         self.btn_restart.grid(row=3, column=1, pady=10, padx=20, sticky="nsew")
+
+        self.controller = None
+
+    def set_controller(self, controller):
+        self.controller = controller
+
+    def play_btn_clicked(self):
+        self.controller.play()
+
+    def update_progress(self, progress):
+        self.progressbar.set(progress)
+        self.lbl_progress.config(text=f"Progress: {progress}")

@@ -25,6 +25,8 @@ class CerberusView(customtkinter.CTkFrame):
         self.frame_info = InfoFrame(parent=self, title="Cerberus", info=info_text)
         self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
 
+        self.controller = None
+
         # # ------- script configuration options -------
         # # -- script iterations
         # self.iteration_label = customtkinter.CTkLabel(master=self,
@@ -56,3 +58,10 @@ class CerberusView(customtkinter.CTkFrame):
         #                                                           fg_color=("gray75", "gray30"))
         # self.iteration_decrement_button.grid(row=0, column=0)
         # self.iteration_increment_button.grid(row=0, column=2)
+
+    def set_controller(self, controller):
+        self.controller = controller
+        self.frame_info.set_controller(controller=controller)
+
+    def update_progress(self, progress):
+        self.frame_info.update_progress(progress=progress)
