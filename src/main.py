@@ -1,8 +1,7 @@
-# import tkinter
-# import tkinter.messagebox
 import customtkinter
-from script_views.cerberus_view import CerberusView
-from script_views.zulrah_view import ZulrahView
+from controller.cerberus_controller import CerberusController
+from views.cerberus_view import CerberusView
+from views.zulrah_view import ZulrahView
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -75,8 +74,11 @@ class App(customtkinter.CTk):
         self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
 
         # ============ frame_right ============
-        # These views are toggled via button handlers
+        # Cerberus Script
         self.cerberus_frame = CerberusView(parent=self.frame_right)
+        self.cerberus_controller = CerberusController(model=None, view=self.cerberus_frame)
+        self.cerberus_frame.set_controller(self.cerberus_controller)
+        # Zulrah Script
         self.zulrah_frame = ZulrahView(parent=self.frame_right)
 
     # ============ Script button handlers ============
