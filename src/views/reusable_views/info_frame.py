@@ -89,6 +89,12 @@ class InfoFrame(customtkinter.CTkFrame):
     def play_btn_clicked(self):
         self.controller.play()
 
+    def abort_btn_clicked(self):
+        self.controller.abort()
+
+    def restart_btn_clicked(self):
+        self.controller.restart()
+
     def update_progress(self, progress):
         self.progressbar.set(progress)
         self.lbl_progress.config(text=f"Progress: {progress}")
