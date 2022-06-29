@@ -62,5 +62,8 @@ class CerberusView(customtkinter.CTkFrame):
         self.controller = controller
         self.frame_info.set_controller(controller=controller)
 
+    def update_status(self, status):
+        self.frame_info.update_status(status=status)
+
     def update_progress(self, progress):
         self.frame_info.update_progress(progress=progress)

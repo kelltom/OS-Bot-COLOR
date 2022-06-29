@@ -3,6 +3,8 @@ import pathlib
 from PIL import Image, ImageTk
 import tkinter
 
+from model.bot import BotStatus
+
 
 class InfoFrame(customtkinter.CTkFrame):
     def __init__(self, parent, title, info):
@@ -48,9 +50,10 @@ class InfoFrame(customtkinter.CTkFrame):
         # -- right-side control buttons
         # -- images
         img_size = 18
-        img_play = ImageTk.PhotoImage(Image.open(f"{PATH}/images/play.png").resize((img_size, img_size)), Image.ANTIALIAS)
-        img_stop = ImageTk.PhotoImage(Image.open(f"{PATH}/images/stop2.png").resize((img_size, img_size)), Image.ANTIALIAS)
-        img_restart = ImageTk.PhotoImage(Image.open(f"{PATH}/images/restart.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        self.img_play = ImageTk.PhotoImage(Image.open(f"{PATH}/images/play.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        self.img_pause = ImageTk.PhotoImage(Image.open(f"{PATH}/images/pause.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        self.img_stop = ImageTk.PhotoImage(Image.open(f"{PATH}/images/stop2.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        self.img_restart = ImageTk.PhotoImage(Image.open(f"{PATH}/images/restart.png").resize((img_size, img_size)), Image.ANTIALIAS)
 
         self.lbl_controls_title = customtkinter.CTkLabel(master=self,
                                                          text="Controls",
@@ -61,7 +64,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_play = customtkinter.CTkButton(master=self,
                                                 text="Play [F1]",
                                                 text_color="white",
-                                                image=img_play,
+                                                image=self.img_play,
                                                 command=self.play_btn_clicked)
         self.btn_play.grid(row=1, column=1, pady=10, padx=20, sticky="nsew")
 
@@ -70,7 +73,7 @@ class InfoFrame(customtkinter.CTkFrame):
                                                  text_color="white",
                                                  fg_color="#910101",
                                                  hover_color="#690101",
-                                                 image=img_stop,
+                                                 image=self.img_stop,
                                                  command=self.stop_btn_clicked)
         self.btn_abort.grid(row=2, column=1, pady=10, padx=20, sticky="nsew")
 
@@ -79,8 +82,14 @@ class InfoFrame(customtkinter.CTkFrame):
                                                    text_color="white",
                                                    fg_color="#d97b00",
                                                    hover_color="#b36602",
-                                                   image=img_restart)
+                                                   image=self.img_restart,
+                                                   command=self.restart_btn_clicked)
         self.btn_restart.grid(row=3, column=1, pady=10, padx=20, sticky="nsew")
+
+        self.lbl_status = customtkinter.CTkLabel(master=self,
+                                                 text="Status: Idle",
+                                                 justify=tkinter.CENTER)
+        self.lbl_status.grid(row=4, column=1, sticky="we")
 
         self.controller = None
 
@@ -88,13 +97,25 @@ class InfoFrame(customtkinter.CTkFrame):
         self.controller = controller
 
     def play_btn_clicked(self):
-        self.controller.play()
+        self.controller.play_pause()
 
     def stop_btn_clicked(self):
         self.controller.stop()
 
     def restart_btn_clicked(self):
         self.controller.restart()
+
+    def update_status(self, status):
+        if status == BotStatus.RUNNING:
+            self.btn_play.config(image=self.img_pause)
+            self.btn_play.config(text="Pause [F1]")
+            self.lbl_status.config(text="Status: Running")
+        elif status == BotStatus.PAUSED:
+            self.btn_play.config(image=self.img_play)
+            self.btn_play.config(text="Play [F1]")
+            self.lbl_status.config(text="Status: Paused")
+        elif status == BotStatus.STOPPED:
+            self.lbl_status.config(text="Status: Stopped")
 
     def update_progress(self, progress):
         self.progressbar.set(progress)

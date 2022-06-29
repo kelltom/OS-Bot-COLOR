@@ -1,29 +1,33 @@
 
 
 class CerberusController(object):
-    """
-    CerberusController class.
-    """
-
     def __init__(self, model, view):
-        """
+        '''
         Constructor.
-        """
+        '''
         self.model = model
         self.view = view
 
-    def play(self):
-        """
-        Play btn clicked on view.
-        """
-        self.model.play()
-        # # generate random number between 0 and 1 and store it in a variable called progress
-        # progress = random.randint(0, 100)
-        # # update the progress bar on the view
-        # self.view.update_progress(progress/100.0)
+    def play_pause(self):
+        '''
+        Play/pause btn clicked on view.
+        '''
+        self.model.play_pause()
+        self.view.update_status(self.model.status)
 
     def stop(self):
+        '''
+        Stop btn clicked on view.
+        '''
         self.model.stop()
+        self.view.update_status(self.model.status)
+
+    def restart(self):
+        '''
+        Restart btn clicked on view.
+        '''
+        self.model.restart()
+        self.view.update_status(self.model.status)
 
     # TODO:
     # I need a function that, when the bot is running, constantly checks a queue within the model for

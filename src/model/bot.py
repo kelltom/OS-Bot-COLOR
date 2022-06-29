@@ -27,11 +27,11 @@ class Bot(ABC):
         self.thread = thread
 
     @abstractmethod
-    def play(self):
+    def play_pause(self):
         pass
 
     @abstractmethod
-    def pause(self):
+    def restart(self):
         pass
 
     @abstractmethod
