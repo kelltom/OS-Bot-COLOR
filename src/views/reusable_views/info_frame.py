@@ -70,7 +70,8 @@ class InfoFrame(customtkinter.CTkFrame):
                                                  text_color="white",
                                                  fg_color="#910101",
                                                  hover_color="#690101",
-                                                 image=img_stop)
+                                                 image=img_stop,
+                                                 command=self.stop_btn_clicked)
         self.btn_abort.grid(row=2, column=1, pady=10, padx=20, sticky="nsew")
 
         self.btn_restart = customtkinter.CTkButton(master=self,
@@ -89,8 +90,8 @@ class InfoFrame(customtkinter.CTkFrame):
     def play_btn_clicked(self):
         self.controller.play()
 
-    def abort_btn_clicked(self):
-        self.controller.abort()
+    def stop_btn_clicked(self):
+        self.controller.stop()
 
     def restart_btn_clicked(self):
         self.controller.restart()

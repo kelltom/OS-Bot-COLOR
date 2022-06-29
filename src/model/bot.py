@@ -5,6 +5,7 @@ The script should be able to be configured to use a specific key to start, pause
 '''
 from abc import ABC, abstractmethod
 from enum import Enum
+from threading import Thread
 
 
 class BotStatus(Enum):
@@ -17,11 +18,13 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
-    def __init__(self, name, status: BotStatus = BotStatus.STOPPED, iterations: int = 0, breaks: bool = False):
-        self.name = name
+    @abstractmethod
+    def __init__(self, status: BotStatus = BotStatus.STOPPED, iterations: int = 0, current_iter: int = 0, breaks: bool = False, thread: Thread = None):
         self.status = status
         self.iterations = iterations
+        self.current_iter = current_iter
         self.breaks = breaks
+        self.thread = thread
 
     @abstractmethod
     def play(self):
@@ -38,6 +41,3 @@ class Bot(ABC):
     @abstractmethod
     def main_loop(self):
         pass
-
-    def __str__(self):
-        return f"{self.name} - {self.status} - {self.iterations} - {self.breaks}"

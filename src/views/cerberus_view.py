@@ -21,7 +21,6 @@ class CerberusView(customtkinter.CTkFrame):
         info_text = ("This is just me typing about the script and this text should wrap " +
                      "according to the length of the label. I'm just gonna keep typing to " +
                      "make this a really long label.")
-        # TODO: pass controller to info_frame
         self.frame_info = InfoFrame(parent=self, title="Cerberus", info=info_text)
         self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
 
