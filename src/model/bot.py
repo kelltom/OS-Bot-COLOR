@@ -39,25 +39,5 @@ class Bot(ABC):
     def main_loop(self):
         pass
 
-    @property
-    def name(self):
-        return self.name
-
-    @property
-    def status(self) -> BotStatus:
-        return self.status
-
-    @property
-    def iterations(self) -> int:
-        return self.iterations
-
-    @iterations.setter
-    def iterations(self, iterations: int):
-        self.iterations = iterations
-
-    @property
-    def breaks(self) -> bool:
-        return self.breaks
-
     def __str__(self):
         return f"{self.name} - {self.status} - {self.iterations} - {self.breaks}"
