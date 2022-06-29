@@ -11,9 +11,6 @@ class CerberusController(object):
         Constructor.
         """
         self.model = model
-        # The view itself is going to have internal functions that update the UI when called.
-        # That's why we need a reference to it here, so that when the controller is done doing
-        # its thing, it can tell the UI to update.
         self.view = view
 
     def run(self):
