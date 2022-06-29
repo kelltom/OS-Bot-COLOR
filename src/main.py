@@ -1,5 +1,6 @@
 import customtkinter
 from controller.cerberus_controller import CerberusController
+from model.cerberus import Cerberus
 from views.cerberus_view import CerberusView
 from views.zulrah_view import ZulrahView
 
@@ -76,7 +77,8 @@ class App(customtkinter.CTk):
         # ============ frame_right ============
         # Cerberus Script
         self.cerberus_frame = CerberusView(parent=self.frame_right)
-        self.cerberus_controller = CerberusController(model=None, view=self.cerberus_frame)
+        self.cerberus_model = Cerberus(name="Cerberus")
+        self.cerberus_controller = CerberusController(model=self.cerberus_model, view=self.cerberus_frame)
         self.cerberus_frame.set_controller(self.cerberus_controller)
         # Zulrah Script
         self.zulrah_frame = ZulrahView(parent=self.frame_right)
