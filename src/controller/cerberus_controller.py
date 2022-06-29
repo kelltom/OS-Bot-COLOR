@@ -17,9 +17,9 @@ class CerberusController(object):
         '''
         while self.should_poll:
             # Check if there is data in the queue.
-            if self.model.queue.qsize() > 0:
+            if self.model.queue:
                 # Get the data from the queue.
-                data = self.model.queue.get()
+                data = self.model.queue.popleft()
                 # Determine if data is a status update or a script output.
                 if data[0] == 'status':
                     # Update the status on the view.
