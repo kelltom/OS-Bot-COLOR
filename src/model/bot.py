@@ -16,7 +16,7 @@ class BotStatus(Enum):
 
 
 class Bot():
-    def __init__(self, name, status: BotStatus, iterations, breaks: bool):
+    def __init__(self, name, status: BotStatus = BotStatus.STOPPED, iterations: int = 0, breaks: bool = True):
         self.name = name
         self.status = status
         self.iterations = iterations
@@ -26,32 +26,28 @@ class Bot():
     def name(self):
         return self.name
 
-    @name.setter
-    def name(self, name):
-        self.name = name
-
     @property
-    def status(self, status):
-        self.status = status
+    def status(self) -> BotStatus:
+        return self.status
 
     @status.setter
-    def status(self, status):
+    def status(self, status: BotStatus):
         self.status = status
 
     @property
-    def iterations(self):
+    def iterations(self) -> int:
         return self.iterations
 
     @iterations.setter
-    def iterations(self, iterations):
+    def iterations(self, iterations: int):
         self.iterations = iterations
 
     @property
-    def breaks(self):
+    def breaks(self) -> bool:
         return self.breaks
 
     @breaks.setter
-    def breaks(self, breaks):
+    def breaks(self, breaks: bool):
         self.breaks = breaks
 
     def __str__(self):
