@@ -13,12 +13,6 @@ class CerberusController(object):
         self.model = model
         self.view = view
 
-    def run(self):
-        """
-        Run the controller.
-        """
-        pass
-
     def play(self):
         """
         Play btn clicked on view.
