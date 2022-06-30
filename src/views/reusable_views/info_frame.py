@@ -40,12 +40,13 @@ class InfoFrame(customtkinter.CTkFrame):
 
         # -- script progress bar
         self.lbl_progress = customtkinter.CTkLabel(master=self,
-                                                   text="Progress: 50%",
+                                                   text="Progress: 0%",
                                                    justify=tkinter.CENTER)
         self.lbl_progress.grid(row=3, column=0, sticky="ew")
 
         self.progressbar = customtkinter.CTkProgressBar(master=self)
         self.progressbar.grid(row=4, column=0, sticky="ew", padx=15, pady=(0, 15))
+        self.progressbar.set(0)
 
         # -- right-side control buttons
         # -- images
@@ -115,8 +116,10 @@ class InfoFrame(customtkinter.CTkFrame):
             self.btn_play.config(text="Play [F1]")
             self.lbl_status.config(text="Status: Paused")
         elif status == BotStatus.STOPPED:
+            self.btn_play.config(image=self.img_play)
+            self.btn_play.config(text="Play [F1]")
             self.lbl_status.config(text="Status: Stopped")
 
     def update_progress(self, progress):
         self.progressbar.set(progress)
-        self.lbl_progress.config(text=f"Progress: {progress}")
+        self.lbl_progress.config(text=f"Progress: {progress*100:.0f}%")
