@@ -7,7 +7,7 @@ import customtkinter
 from views.reusable_views.info_frame import InfoFrame
 
 
-class CerberusView(customtkinter.CTkFrame):
+class FiremakingView(customtkinter.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -21,7 +21,7 @@ class CerberusView(customtkinter.CTkFrame):
         info_text = ("This is just me typing about the script and this text should wrap " +
                      "according to the length of the label. I'm just gonna keep typing to " +
                      "make this a really long label.")
-        self.frame_info = InfoFrame(parent=self, title="Cerberus", info=info_text)
+        self.frame_info = InfoFrame(parent=self, title="Firemaking", info=info_text)
         self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
 
         self.controller = None

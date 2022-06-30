@@ -1,7 +1,7 @@
 import customtkinter
 from controller.bot_controller import BotController
-from model.cerberus import Cerberus
-from views.cerberus_view import CerberusView
+from model.firemaking import Firemaking
+from views.firemaking_view import FiremakingView
 from views.zulrah_view import ZulrahView
 
 
@@ -52,26 +52,26 @@ class App(customtkinter.CTk):
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         self.button_list = []
-        self.button_1 = customtkinter.CTkButton(master=self.frame_left,
-                                                text="Cerberus",
-                                                fg_color=("gray75", "gray30"),
-                                                command=self.show_cerberus_view)
-        self.button_1.grid(row=2, column=0, pady=10, padx=20)
-        self.button_list.append(self.button_1)
+        self.btn_firemaking = customtkinter.CTkButton(master=self.frame_left,
+                                                      text="Firemaking",
+                                                      fg_color=("gray75", "gray30"),
+                                                      command=self.show_firemaking_view)
+        self.btn_firemaking.grid(row=2, column=0, pady=10, padx=20)
+        self.button_list.append(self.btn_firemaking)
 
-        self.button_2 = customtkinter.CTkButton(master=self.frame_left,
-                                                text="Overloads",
-                                                fg_color=("gray75", "gray30"),
-                                                command=self.button_event)
-        self.button_2.grid(row=3, column=0, pady=10, padx=20)
-        self.button_list.append(self.button_2)
+        self.btn_woodcutting = customtkinter.CTkButton(master=self.frame_left,
+                                                       text="Woodcutting",
+                                                       fg_color=("gray75", "gray30"),
+                                                       command=self.show_woodcutting_view)
+        self.btn_woodcutting.grid(row=3, column=0, pady=10, padx=20)
+        self.button_list.append(self.btn_woodcutting)
 
-        self.button_3 = customtkinter.CTkButton(master=self.frame_left,
-                                                text="Zulrah",
-                                                fg_color=("gray75", "gray30"),
-                                                command=self.show_zulrah_view)
-        self.button_3.grid(row=4, column=0, pady=10, padx=20)
-        self.button_list.append(self.button_3)
+        self.btn_zulrah = customtkinter.CTkButton(master=self.frame_left,
+                                                  text="Zulrah",
+                                                  fg_color=("gray75", "gray30"),
+                                                  command=self.show_zulrah_view)
+        self.btn_zulrah.grid(row=4, column=0, pady=10, padx=20)
+        self.button_list.append(self.btn_zulrah)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
                                               text="Dark Mode",
@@ -80,36 +80,38 @@ class App(customtkinter.CTk):
         self.switch.select()
 
         # ============ frame_right ============
-        # Cerberus Script
-        self.cerberus_frame = CerberusView(parent=self.frame_right)
-        self.cerberus_model = Cerberus()
-        self.cerberus_controller = BotController(model=self.cerberus_model, view=self.cerberus_frame)
-        self.cerberus_frame.set_controller(self.cerberus_controller)
+        # Firemaking Script
+        self.firemaking_frame = FiremakingView(parent=self.frame_right)
+        self.firemaking_model = Firemaking()
+        self.firemaking_controller = BotController(model=self.firemaking_model, view=self.firemaking_frame)
+        self.firemaking_frame.set_controller(self.firemaking_controller)
         # Zulrah Script
         self.zulrah_frame = ZulrahView(parent=self.frame_right)
 
     # ============ Script button handlers ============
     def hide_all_frames(self):
+        # TODO: stop running threads
         # set all buttons to default color
         for button in self.button_list:
             button.config(fg_color=("gray75", "gray30"))
-        self.cerberus_frame.pack_forget()
+        self.firemaking_frame.pack_forget()
         self.zulrah_frame.pack_forget()
 
-    # TODO: These functions should call controller functions from the views to stop
-    # any scripts that are still running before switching to a new one.
-    def show_cerberus_view(self):
+    def show_firemaking_view(self):
         self.hide_all_frames()
-        # set button color to indicate active script
-        self.button_1.config(fg_color=self.button_1.hover_color)
-        self.cerberus_frame.pack(fill="both", expand=1)
+        self.btn_firemaking.config(fg_color=self.btn_firemaking.hover_color)
+        self.firemaking_frame.pack(fill="both", expand=1)
+
+    def show_woodcutting_view(self):
+        self.hide_all_frames()
+        self.btn_woodcutting.config(fg_color=self.btn_woodcutting.hover_color)
 
     def show_zulrah_view(self):
         self.hide_all_frames()
-        self.button_3.config(fg_color=self.button_3.hover_color)
+        self.btn_zulrah.config(fg_color=self.btn_zulrah.hover_color)
         self.zulrah_frame.pack(fill="both", expand=1)
 
-    # ============ Misc handlers ============
+    # ============ Misc handler ============
     def button_event(self):
         print("Button pressed")
 

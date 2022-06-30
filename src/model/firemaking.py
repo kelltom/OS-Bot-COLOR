@@ -2,7 +2,7 @@ from model.bot import Bot, BotStatus
 import time
 
 
-class Cerberus(Bot):
+class Firemaking(Bot):
     def __init__(self):
         super().__init__()
         self.iterations = 10
@@ -15,26 +15,26 @@ class Cerberus(Bot):
         while self.current_iter < self.iterations and self.status != BotStatus.STOPPED:
             pause_limit = 10  # TODO: 10 second pause limit, remove later
             self.increment_iter()
-            print(f"main_loop() from cerberus.py - iteration: {self.current_iter} out of {self.iterations}")
+            print(f"main_loop() from firemaking.py - iteration: {self.current_iter} out of {self.iterations}")
             # if status is stopped, break and print message
             if self.status == BotStatus.STOPPED:
-                print("main_loop() from cerberus.py - bot is stopped, breaking...")
+                print("main_loop() from firemaking.py - bot is stopped, breaking...")
                 break
             # if status is paused, sleep for one second and continue until timeout
             while self.status == BotStatus.PAUSED:
-                print("main_loop() from cerberus.py - bot is paused, sleeping...")
+                print("main_loop() from firemaking.py - bot is paused, sleeping...")
                 time.sleep(1)
                 # if bot is stopped, break
                 if self.status == BotStatus.STOPPED:
-                    print("main_loop() from cerberus.py - bot is stopped, breaking from pause...")
+                    print("main_loop() from firemaking.py - bot is stopped, breaking from pause...")
                     break
                 pause_limit -= 1
                 if pause_limit == 0:
-                    print("main_loop() from cerberus.py - bot is paused, timeout reached, stopping...")
+                    print("main_loop() from firemaking.py - bot is paused, timeout reached, stopping...")
                     self.stop()
                     break
             time.sleep(1)
-        print("main_loop() from cerberus.py - bot has terminated or reached the end of its iterations")
+        print("main_loop() from firemaking.py - bot has terminated or reached the end of its iterations")
         # if bot hasn't been stopped yet...
         if self.status != BotStatus.STOPPED:
             self.set_status(BotStatus.STOPPED)
