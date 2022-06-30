@@ -1,5 +1,5 @@
 import customtkinter
-from controller.cerberus_controller import CerberusController
+from controller.bot_controller import BotController
 from model.cerberus import Cerberus
 from views.cerberus_view import CerberusView
 from views.zulrah_view import ZulrahView
@@ -73,12 +73,13 @@ class App(customtkinter.CTk):
                                               text="Dark Mode",
                                               command=self.change_mode)
         self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
+        self.switch.select()
 
         # ============ frame_right ============
         # Cerberus Script
         self.cerberus_frame = CerberusView(parent=self.frame_right)
         self.cerberus_model = Cerberus()
-        self.cerberus_controller = CerberusController(model=self.cerberus_model, view=self.cerberus_frame)
+        self.cerberus_controller = BotController(model=self.cerberus_model, view=self.cerberus_frame)
         self.cerberus_frame.set_controller(self.cerberus_controller)
         # Zulrah Script
         self.zulrah_frame = ZulrahView(parent=self.frame_right)
