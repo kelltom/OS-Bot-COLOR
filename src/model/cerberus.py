@@ -1,5 +1,4 @@
 from model.bot import Bot, BotStatus
-from threading import Thread
 import time
 
 
@@ -7,42 +6,6 @@ class Cerberus(Bot):
     def __init__(self):
         super().__init__()
         self.iterations = 10
-
-    def play_pause(self):
-        # if the bot is stopped, start it
-        if self.status == BotStatus.STOPPED:
-            print("play() from bot.py - starting bot")
-            self.set_status(BotStatus.RUNNING)
-            self.thread = Thread(target=self.main_loop)
-            self.thread.setDaemon(True)
-            self.thread.start()
-        # otherwise, if bot is already running, pause it and return status
-        elif self.status == BotStatus.RUNNING:
-            print("play() from bot.py - pausing bot")
-            self.set_status(BotStatus.PAUSED)
-        # otherwise, if bot is paused, resume it and return status
-        elif self.status == BotStatus.PAUSED:
-            print("play() from bot.py - resuming bot")
-            self.set_status(BotStatus.RUNNING)
-
-    def stop(self):
-        '''
-        If the bot's status is not stopped, set it to stopped, reset the current iteration to 0, and stop the thread.
-        '''
-        if self.status != BotStatus.STOPPED:
-            print("stop() from bot.py - stopping bot")
-            self.set_status(BotStatus.STOPPED)
-            self.reset_iter()
-            self.thread.join()
-            print("stop() from bot.py - bot stopped")
-
-    def restart(self):
-        '''
-        Runs the stop() function and then the play() function.
-        '''
-        print("restart() from bot.py - bot restarted")
-        self.stop()
-        self.play_pause()
 
     def main_loop(self):
         '''

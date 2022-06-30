@@ -28,35 +28,60 @@ class Bot(ABC):
         self.thread = thread
 
     @abstractmethod
-    def play_pause(self):
-        pass
-
-    @abstractmethod
-    def restart(self):
-        pass
-
-    @abstractmethod
-    def stop(self):
-        pass
-
-    @abstractmethod
     def main_loop(self):
         pass
 
+    def play_pause(self):
+        # if the bot is stopped, start it
+        if self.status == BotStatus.STOPPED:
+            print("play() from bot.py - starting bot")
+            self.set_status(BotStatus.RUNNING)
+            self.thread = Thread(target=self.main_loop)
+            self.thread.setDaemon(True)
+            self.thread.start()
+        # otherwise, if bot is already running, pause it and return status
+        elif self.status == BotStatus.RUNNING:
+            print("play() from bot.py - pausing bot")
+            self.set_status(BotStatus.PAUSED)
+        # otherwise, if bot is paused, resume it and return status
+        elif self.status == BotStatus.PAUSED:
+            print("play() from bot.py - resuming bot")
+            self.set_status(BotStatus.RUNNING)
+
+    def stop(self):
+        '''
+        If the bot's status is not stopped, set it to stopped, reset the current iteration to 0, and stop the thread.
+        '''
+        if self.status != BotStatus.STOPPED:
+            print("stop() from bot.py - stopping bot")
+            self.set_status(BotStatus.STOPPED)
+            self.reset_iter()
+            self.thread.join()
+            print("stop() from bot.py - bot stopped")
+
+    def restart(self):
+        '''
+        Runs the stop() function and then the play() function.
+        '''
+        print("restart() from bot.py - bot restarted")
+        self.stop()
+        self.play_pause()
+
+    # ---- Functions that notify the controller of changes ----
     def reset_iter(self):
         self.current_iter = 0
-        self.trigger_update()
+        self.__trigger_update()
 
     def increment_iter(self):
         self.current_iter += 1
-        self.trigger_update()
+        self.__trigger_update()
 
     def set_status(self, status: BotStatus):
         self.status = status
-        self.trigger_update()
+        self.__trigger_update()
 
     def set_controller(self, controller):
         self.controller = controller
 
-    def trigger_update(self):
+    def __trigger_update(self):
         self.controller.update()
