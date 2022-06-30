@@ -4,5 +4,6 @@
     "python.linting.lintOnSave": true,
     "python.linting.flake8Args": [
         "--max-line-length=160"
-    ]
+    ],
+    "files.autoSave": "onFocusChange"
 }
