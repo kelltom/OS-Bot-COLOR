@@ -51,23 +51,27 @@ class App(customtkinter.CTk):
                                               text_font=("Roboto Medium", -16))  # font name and size in px
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
+        self.button_list = []
         self.button_1 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Cerberus",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
                                                 command=self.show_cerberus_view)
         self.button_1.grid(row=2, column=0, pady=10, padx=20)
+        self.button_list.append(self.button_1)
 
         self.button_2 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Overloads",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
                                                 command=self.button_event)
         self.button_2.grid(row=3, column=0, pady=10, padx=20)
+        self.button_list.append(self.button_2)
 
         self.button_3 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Zulrah",
                                                 fg_color=("gray75", "gray30"),  # <- custom tuple-color
                                                 command=self.show_zulrah_view)
         self.button_3.grid(row=4, column=0, pady=10, padx=20)
+        self.button_list.append(self.button_3)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
                                               text="Dark Mode",
@@ -86,6 +90,9 @@ class App(customtkinter.CTk):
 
     # ============ Script button handlers ============
     def hide_all_frames(self):
+        # set all buttons to default color
+        for button in self.button_list:
+            button.config(fg_color=("gray75", "gray30"))
         self.cerberus_frame.pack_forget()
         self.zulrah_frame.pack_forget()
 
@@ -93,10 +100,13 @@ class App(customtkinter.CTk):
     # any scripts that are still running before switching to a new one.
     def show_cerberus_view(self):
         self.hide_all_frames()
+        # set button color to indicate active script
+        self.button_1.config(fg_color=self.button_1.hover_color)
         self.cerberus_frame.pack(fill="both", expand=1)
 
     def show_zulrah_view(self):
         self.hide_all_frames()
+        self.button_3.config(fg_color=self.button_3.hover_color)
         self.zulrah_frame.pack(fill="both", expand=1)
 
     # ============ Misc handlers ============
