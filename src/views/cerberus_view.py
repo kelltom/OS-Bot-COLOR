@@ -59,11 +59,26 @@ class CerberusView(customtkinter.CTkFrame):
         # self.iteration_increment_button.grid(row=0, column=2)
 
     def set_controller(self, controller):
+        '''
+        Sets the controller of this view, as well as the controller of the child view(s).
+        '''
         self.controller = controller
         self.frame_info.set_controller(controller=controller)
 
+    def get_settings(self) -> dict:
+        '''
+        Extracts all settings from view to a dictionary.
+        '''
+        return {}
+
     def update_status(self, status):
+        '''
+        Called from controller. Calls function of child view to update status.
+        '''
         self.frame_info.update_status(status=status)
 
     def update_progress(self, progress):
+        '''
+        Called from controller. Calls function of child view to update progress.
+        '''
         self.frame_info.update_progress(progress=progress)
