@@ -4,7 +4,6 @@ The script can also be configured to run for a certain number of iterations. The
 The script should be able to be configured to use a specific key to start, pause and abort. The script will return text information about its progress.
 '''
 from abc import ABC, abstractmethod
-from collections import deque
 from enum import Enum
 from threading import Thread
 
@@ -21,13 +20,12 @@ class BotStatus(Enum):
 
 class Bot(ABC):
     @abstractmethod
-    def __init__(self, status: BotStatus = BotStatus.STOPPED, iterations: int = 0, current_iter: int = 0, breaks: bool = False, thread: Thread = None, queue: deque = None):
+    def __init__(self, status: BotStatus = BotStatus.STOPPED, iterations: int = 0, current_iter: int = 0, breaks: bool = False, thread: Thread = None):
         self.status = status
         self.iterations = iterations
         self.current_iter = current_iter
         self.breaks = breaks
         self.thread = thread
-        self.queue = queue
 
     @abstractmethod
     def play_pause(self):
@@ -44,3 +42,21 @@ class Bot(ABC):
     @abstractmethod
     def main_loop(self):
         pass
+
+    def reset_iter(self):
+        self.current_iter = 0
+        self.trigger_update()
+
+    def increment_iter(self):
+        self.current_iter += 1
+        self.trigger_update()
+
+    def set_status(self, status: BotStatus):
+        self.status = status
+        self.trigger_update()
+
+    def set_controller(self, controller):
+        self.controller = controller
+
+    def trigger_update(self):
+        self.controller.update()
