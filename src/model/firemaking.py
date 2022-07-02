@@ -31,7 +31,7 @@ class Firemaking(Bot):
                 pause_limit -= 1
                 if pause_limit == 0:
                     print("main_loop() from firemaking.py - bot is paused, timeout reached, stopping...")
-                    self.stop()
+                    self.current_iter = self.iterations
                     break
             time.sleep(1)
         print("main_loop() from firemaking.py - bot has terminated or reached the end of its iterations")
