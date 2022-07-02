@@ -80,13 +80,16 @@ class App(customtkinter.CTk):
         self.switch.select()
 
         # ============ frame_right ============
-        # Firemaking Script
+        self.view_list = []
+        # Firemaking
         self.firemaking_frame = FiremakingView(parent=self.frame_right)
         self.firemaking_model = Firemaking()
         self.firemaking_controller = BotController(model=self.firemaking_model, view=self.firemaking_frame)
         self.firemaking_frame.set_controller(self.firemaking_controller)
-        # Zulrah Script
+        self.view_list.append(self.firemaking_frame)
+        # Zulrah
         self.zulrah_frame = ZulrahView(parent=self.frame_right)
+        self.view_list.append(self.zulrah_frame)
 
     # ============ Script button handlers ============
     def hide_all_frames(self):
@@ -94,8 +97,8 @@ class App(customtkinter.CTk):
         # set all buttons to default color
         for button in self.button_list:
             button.config(fg_color=("gray75", "gray30"))
-        self.firemaking_frame.pack_forget()
-        self.zulrah_frame.pack_forget()
+        for view in self.view_list:
+            view.pack_forget()
 
     def show_firemaking_view(self):
         self.hide_all_frames()
