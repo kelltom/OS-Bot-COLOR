@@ -33,9 +33,6 @@ class OutputLogFrame(customtkinter.CTkFrame):
                                     spacing3=4,  # spacing after a line / wrapped line
                                     cursor="arrow")
         self.txt_log.grid(row=1, column=0, padx=(15, 0), pady=(0, 15), sticky="nsew")
-        # insert text
-        self.txt_log.insert(tkinter.END, "This is just me typing about the script and this text should wrap. Lonnnnng line here :).\n")
-        self.txt_log.insert(tkinter.END, "Here's another line.")
         self.txt_log.configure(state=tkinter.DISABLED)
 
         # Scrollbar
@@ -50,3 +47,15 @@ class OutputLogFrame(customtkinter.CTkFrame):
 
     def set_controller(self, controller):
         self.controller = controller
+
+    def update_log(self, msg):
+        self.txt_log.configure(state=tkinter.NORMAL)
+        self.txt_log.insert(tkinter.END, msg + '\n')
+        self.txt_log.configure(state=tkinter.DISABLED)
+        self.txt_log.see(tkinter.END)
+
+    def clear_log(self):
+        self.txt_log.configure(state=tkinter.NORMAL)
+        self.txt_log.delete(1.0, tkinter.END)
+        self.txt_log.configure(state=tkinter.DISABLED)
+        self.txt_log.see(tkinter.END)

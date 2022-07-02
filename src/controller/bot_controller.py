@@ -29,14 +29,30 @@ class BotController(object):
         self.__save_settings(settings)
         self.model.restart()
 
-    # TODO: Maybe divide this function to reduce redundancy
-    def update(self):
+    def update_status(self):
         '''
-        Called from model. Tells view to update.
+        Called from model. Tells view to update status.
         '''
         self.view.update_status(self.model.status)
+
+    def update_progress(self):
+        '''
+        Called from model. Tells view to update progress.
+        '''
         progress = self.model.current_iter / self.model.iterations
         self.view.update_progress(progress)
+
+    def update_log(self, msg: str):
+        '''
+        Called from model. Tells view to update log.
+        '''
+        self.view.update_log(msg)
+
+    def clear_log(self):
+        '''
+        Called from model. Tells view to clear log.
+        '''
+        self.view.clear_log()
 
     def __save_settings(self, settings: dict):
         '''
