@@ -5,6 +5,7 @@ Should also use the script1_controller.
 
 import customtkinter
 from views.reusable_views.info_frame import InfoFrame
+from views.reusable_views.output_log_frame import OutputLogFrame
 
 
 class FiremakingView(customtkinter.CTkFrame):
@@ -14,7 +15,7 @@ class FiremakingView(customtkinter.CTkFrame):
         # configure grid layout (3x1)
         self.rowconfigure(0, weight=0)  # info row will not resize
         self.rowconfigure(1, weight=1)  # settings row will resize
-        self.rowconfigure(2, weight=2)  # log row will resize but take more space
+        self.rowconfigure(2, weight=1)  # log row will resize but take more space
         self.columnconfigure(0, weight=1)
 
         # ---------- TOP HALF (script info and control buttons) ----------
@@ -23,6 +24,10 @@ class FiremakingView(customtkinter.CTkFrame):
                      "make this a really long label.")
         self.frame_info = InfoFrame(parent=self, title="Firemaking", info=info_text)
         self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
+
+        # ---------- BOTTOM HALF (log text box) ----------
+        self.output_log = OutputLogFrame(parent=self)
+        self.output_log.grid(row=2, column=0, pady=15, padx=15, sticky="nsew")
 
         self.controller = None
 
@@ -64,6 +69,7 @@ class FiremakingView(customtkinter.CTkFrame):
         '''
         self.controller = controller
         self.frame_info.set_controller(controller=controller)
+        self.output_log.set_controller(controller=controller)
 
     def get_settings(self) -> dict:
         '''
