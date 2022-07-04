@@ -82,14 +82,12 @@ class App(customtkinter.CTk):
         # ============ frame_right ============
         self.view_list = {}
         # Firemaking
-        self.firemaking_frame = FiremakingView(parent=self.frame_right)
+        self.view_list["Firemaking"] = FiremakingView(parent=self.frame_right)
         self.firemaking_model = Firemaking()
-        self.firemaking_controller = BotController(model=self.firemaking_model, view=self.firemaking_frame)
-        self.firemaking_frame.set_controller(self.firemaking_controller)
-        self.view_list["Firemaking"] = self.firemaking_frame
+        self.firemaking_controller = BotController(model=self.firemaking_model, view=self.view_list["Firemaking"])
+        self.view_list["Firemaking"].set_controller(self.firemaking_controller)
         # Zulrah
-        self.zulrah_frame = ZulrahView(parent=self.frame_right)
-        self.view_list["Zulrah"] = self.zulrah_frame
+        self.view_list["Zulrah"] = ZulrahView(parent=self.frame_right)
 
     # ============ Script button handlers ============
     def hide_all_frames(self):
