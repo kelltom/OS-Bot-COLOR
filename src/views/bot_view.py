@@ -21,8 +21,8 @@ class BotView(customtkinter.CTkFrame):
 
         # configure grid layout (3x1)
         self.rowconfigure(0, weight=0)  # info row will not resize
-        self.rowconfigure(1, weight=1)  # options row will resize
-        self.rowconfigure(2, weight=1)  # log row will resize but take more space
+        self.rowconfigure(1, weight=0)  # options row will not resize
+        self.rowconfigure(2, weight=1)  # log row will resize
         self.columnconfigure(0, weight=1)
 
         # ---------- TOP HALF (script info and control buttons) ----------
@@ -51,7 +51,7 @@ class BotView(customtkinter.CTkFrame):
         self.frame_output_log.set_controller(controller=controller)
 
         self.frame_options = options_view
-        self.frame_options.grid(row=1, column=0, pady=15, padx=15, sticky="nsew")
+        self.frame_options.grid(row=1, column=0, padx=15, sticky="nsew")
         self.frame_options.set_controller(controller=controller)
 
     def get_settings(self) -> dict:

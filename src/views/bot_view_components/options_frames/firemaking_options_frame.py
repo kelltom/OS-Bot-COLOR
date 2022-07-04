@@ -1,4 +1,5 @@
 import customtkinter
+import tkinter
 from views.bot_view_components.options_frames.abstract_options import AbstractOptions
 
 
@@ -6,13 +7,13 @@ class FiremakingOptionsFrame(customtkinter.CTkFrame, AbstractOptions):
     def __init__(self, parent):
         super().__init__(master=parent)
 
-        # configure one row that will resize
         self.rowconfigure(0, weight=1)
 
-        # add a label that says "firemaking options"
         self.firemaking_options_label = customtkinter.CTkLabel(master=self,
-                                                               text="Firemaking options")
-        self.firemaking_options_label.grid(row=0, column=0, sticky="nsew")
+                                                               text="FM Options",
+                                                               justify=tkinter.LEFT,
+                                                               text_font=("default_theme", 12))
+        self.firemaking_options_label.grid(row=0, column=0, sticky="wns", padx=15, pady=15)
 
         # # ------- script configuration options -------
         # # -- script iterations
