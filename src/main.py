@@ -1,8 +1,9 @@
 import customtkinter
 from controller.bot_controller import BotController
 from model.firemaking import Firemaking
-from views.firemaking_view import FiremakingView
+from views.bot_view import BotView
 from views.zulrah_view import ZulrahView
+from views.bot_view_components.options_frames.firemaking_options_frame import FiremakingOptionsFrame
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -82,10 +83,13 @@ class App(customtkinter.CTk):
         # ============ frame_right ============
         self.view_list = {}
         # Firemaking
-        self.view_list["Firemaking"] = FiremakingView(parent=self.frame_right)
+        self.view_list["Firemaking"] = BotView(parent=self.frame_right)
         self.firemaking_model = Firemaking()
         self.firemaking_controller = BotController(model=self.firemaking_model, view=self.view_list["Firemaking"])
-        self.view_list["Firemaking"].set_controller(self.firemaking_controller)
+        self.view_list["Firemaking"].setup(controller=self.firemaking_controller,
+                                           options_view=FiremakingOptionsFrame(parent=self.view_list["Firemaking"]),
+                                           title=self.firemaking_model.title,
+                                           description=self.firemaking_model.description)
         # Zulrah
         self.view_list["Zulrah"] = ZulrahView(parent=self.frame_right)
 

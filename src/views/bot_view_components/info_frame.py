@@ -97,6 +97,10 @@ class InfoFrame(customtkinter.CTkFrame):
     def set_controller(self, controller):
         self.controller = controller
 
+    def setup(self, title, description):
+        self.lbl_script_title.config(text=title)
+        self.lbl_script_desc.config(text=description)
+
     def play_btn_clicked(self):
         self.controller.play_pause()
 

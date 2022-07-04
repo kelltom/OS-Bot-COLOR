@@ -1,35 +1,19 @@
-'''
-Should provide the view(s) to be returned to the main view.
-Should also use the script1_controller.
-'''
-
 import customtkinter
-from views.reusable_views.info_frame import InfoFrame
-from views.reusable_views.output_log_frame import OutputLogFrame
+import tkinter
+from views.bot_view_components.options_frames.abstract_options import AbstractOptions
 
 
-class FiremakingView(customtkinter.CTkFrame):
+class FiremakingOptionsFrame(customtkinter.CTkFrame, AbstractOptions):
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(master=parent)
 
-        # configure grid layout (3x1)
-        self.rowconfigure(0, weight=0)  # info row will not resize
-        self.rowconfigure(1, weight=1)  # settings row will resize
-        self.rowconfigure(2, weight=1)  # log row will resize but take more space
-        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
 
-        # ---------- TOP HALF (script info and control buttons) ----------
-        info_text = ("This is just me typing about the script and this text should wrap " +
-                     "according to the length of the label. I'm just gonna keep typing to " +
-                     "make this a really long label.")
-        self.frame_info = InfoFrame(parent=self, title="Firemaking", info=info_text)
-        self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
-
-        # ---------- BOTTOM HALF (log text box) ----------
-        self.output_log = OutputLogFrame(parent=self)
-        self.output_log.grid(row=2, column=0, pady=15, padx=15, sticky="nsew")
-
-        self.controller = None
+        self.firemaking_options_label = customtkinter.CTkLabel(master=self,
+                                                               text="FM Options",
+                                                               justify=tkinter.LEFT,
+                                                               text_font=("default_theme", 12))
+        self.firemaking_options_label.grid(row=0, column=0, sticky="wns", padx=15, pady=15)
 
         # # ------- script configuration options -------
         # # -- script iterations
@@ -64,39 +48,7 @@ class FiremakingView(customtkinter.CTkFrame):
         # self.iteration_increment_button.grid(row=0, column=2)
 
     def set_controller(self, controller):
-        '''
-        Sets the controller of this view, as well as the controller of the child view(s).
-        '''
         self.controller = controller
-        self.frame_info.set_controller(controller=controller)
-        self.output_log.set_controller(controller=controller)
 
-    def get_settings(self) -> dict:
-        '''
-        Extracts all settings from view to a dictionary.
-        '''
-        return {}
-
-    def update_status(self, status):
-        '''
-        Called from controller. Calls function of child view to update status.
-        '''
-        self.frame_info.update_status(status=status)
-
-    def update_progress(self, progress):
-        '''
-        Called from controller. Calls function of child view to update progress.
-        '''
-        self.frame_info.update_progress(progress=progress)
-
-    def update_log(self, msg):
-        '''
-        Called from controller. Calls function of child view to update log.
-        '''
-        self.output_log.update_log(msg=msg)
-
-    def clear_log(self):
-        '''
-        Called from controller. Calls function of child view to clear log.
-        '''
-        self.output_log.clear_log()
+    def get_options(self):
+        pass
