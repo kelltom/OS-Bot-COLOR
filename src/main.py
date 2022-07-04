@@ -106,9 +106,6 @@ class App(customtkinter.CTk):
         self.view_list[name].pack(fill="both", expand=1)
 
     # ============ Misc handler ============
-    def button_event(self):
-        print("Button pressed")
-
     def change_mode(self):
         if self.switch.get() == 1:
             customtkinter.set_appearance_mode("dark")
