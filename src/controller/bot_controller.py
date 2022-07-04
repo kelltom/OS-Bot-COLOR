@@ -1,3 +1,4 @@
+from model.bot import BotStatus
 
 
 class BotController(object):
@@ -9,11 +10,13 @@ class BotController(object):
         self.view = view
         self.model.set_controller(self)
 
-    def play_pause(self, settings: dict):
+    def play_pause(self):
         '''
         Play/pause btn clicked on view.
         '''
-        self.__save_settings(settings)
+        if self.model.status == BotStatus.STOPPED:
+            settings = self.view.get_settings()
+            self.model.save_settings(settings)
         self.model.play_pause()
 
     def stop(self):
@@ -22,11 +25,12 @@ class BotController(object):
         '''
         self.model.stop()
 
-    def restart(self, settings: dict):
+    def restart(self):
         '''
         Restart btn clicked on view.
         '''
-        self.__save_settings(settings)
+        settings = self.view.get_settings()
+        self.model.save_settings(settings)
         self.model.restart()
 
     def update_status(self):
@@ -53,10 +57,3 @@ class BotController(object):
         Called from model. Tells view to clear log.
         '''
         self.view.clear_log()
-
-    def __save_settings(self, settings: dict):
-        '''
-        Private function, saves settings from a dict to the model.
-        '''
-        # TODO: iterate through all settings and save them to the model
-        pass

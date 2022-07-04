@@ -31,6 +31,10 @@ class Bot(ABC):
     def main_loop(self):
         pass
 
+    @abstractmethod
+    def save_settings(self, settings: dict):
+        pass
+
     def play_pause(self):  # sourcery skip: extract-method
         # if the bot is stopped, start it
         if self.status == BotStatus.STOPPED:

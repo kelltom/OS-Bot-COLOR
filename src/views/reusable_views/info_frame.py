@@ -98,15 +98,13 @@ class InfoFrame(customtkinter.CTkFrame):
         self.controller = controller
 
     def play_btn_clicked(self):
-        settings = self.master.get_settings()
-        self.controller.play_pause(settings)
+        self.controller.play_pause()
 
     def stop_btn_clicked(self):
         self.controller.stop()
 
     def restart_btn_clicked(self):
-        settings = self.master.get_settings()
-        self.controller.restart(settings)
+        self.controller.restart()
 
     def update_status(self, status):
         if status == BotStatus.RUNNING:

@@ -7,6 +7,9 @@ class Firemaking(Bot):
         super().__init__()
         self.iterations = 10
 
+    def save_settings(self, settings: dict):
+        pass
+
     def main_loop(self):
         '''
         Main bot loop. This function should be called on another thread. It will run according to the bot's status.
