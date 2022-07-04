@@ -4,10 +4,11 @@ import time
 
 class Firemaking(Bot):
     def __init__(self):
-        super().__init__()
-        self.title = "Firemaking"
-        self.description = ("This bot automates the firemaking skill. The bot will automatically position the player " +
-                            "character in a safe area and start the firemaking based on the options you select below.")
+        title = "Firemaking"
+        description = ("This bot automates the firemaking skill. The bot will automatically position the player " +
+                       "character in a safe area and start the firemaking based on the options you select below.")
+        super().__init__(title=title, description=description)
+
         self.iterations = 10
 
     def save_settings(self, settings: dict):

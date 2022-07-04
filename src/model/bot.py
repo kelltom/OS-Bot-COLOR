@@ -19,13 +19,16 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
-    name: str = ""
-    description: str = ""
     status = BotStatus.STOPPED
     iterations: int = 0
     current_iter: int = 0
     breaks: bool = False
     thread: Thread = None
+
+    @abstractmethod
+    def __init__(self, title, description):
+        self.title = title
+        self.description = description
 
     @abstractmethod
     def main_loop(self):
