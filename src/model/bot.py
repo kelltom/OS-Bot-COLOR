@@ -31,11 +31,12 @@ class Bot(ABC):
     def main_loop(self):
         pass
 
-    def play_pause(self):
+    def play_pause(self):  # sourcery skip: extract-method
         # if the bot is stopped, start it
         if self.status == BotStatus.STOPPED:
             print("play() from bot.py - starting bot")
             self.set_status(BotStatus.RUNNING)
+            self.clear_log()
             self.thread = Thread(target=self.main_loop)
             self.thread.setDaemon(True)
             self.thread.start()
@@ -56,7 +57,7 @@ class Bot(ABC):
             print("stop() from bot.py - stopping bot")
             self.set_status(BotStatus.STOPPED)
             self.reset_iter()
-            self.thread.join()
+            # self.thread.join()  # Causing a deadlock when calling for log updates
             print("stop() from bot.py - bot stopped")
 
     def restart(self):
@@ -70,18 +71,21 @@ class Bot(ABC):
     # ---- Functions that notify the controller of changes ----
     def reset_iter(self):
         self.current_iter = 0
-        self.__trigger_update()
+        self.controller.update_progress()
 
     def increment_iter(self):
         self.current_iter += 1
-        self.__trigger_update()
+        self.controller.update_progress()
 
     def set_status(self, status: BotStatus):
         self.status = status
-        self.__trigger_update()
+        self.controller.update_status()
+
+    def log_msg(self, msg: str):
+        self.controller.update_log(msg)
+
+    def clear_log(self):
+        self.controller.clear_log()
 
     def set_controller(self, controller):
         self.controller = controller
-
-    def __trigger_update(self):
-        self.controller.update()

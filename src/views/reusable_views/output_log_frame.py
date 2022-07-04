@@ -24,11 +24,16 @@ class OutputLogFrame(customtkinter.CTkFrame):
         # Text Box
         self.txt_log = tkinter.Text(master=self,
                                     wrap=tkinter.WORD,
-                                    font=("Consalas", 10),
+                                    font=("Roboto", 10),
+                                    bg="#343638",
+                                    fg="#ffffff",
+                                    padx=5,
+                                    pady=5,
+                                    spacing1=4,  # spacing before a line
+                                    spacing3=4,  # spacing after a line / wrapped line
                                     cursor="arrow")
         self.txt_log.grid(row=1, column=0, padx=(15, 0), pady=(0, 15), sticky="nsew")
-        self.txt_log.insert(tkinter.END, "Log Messages will appear here.\n")
-        self.txt_log.insert(tkinter.END, "ENNDDD.")
+        self.txt_log.configure(state=tkinter.DISABLED)
 
         # Scrollbar
         self.scrollbar = customtkinter.CTkScrollbar(master=self,
@@ -42,3 +47,15 @@ class OutputLogFrame(customtkinter.CTkFrame):
 
     def set_controller(self, controller):
         self.controller = controller
+
+    def update_log(self, msg):
+        self.txt_log.configure(state=tkinter.NORMAL)
+        self.txt_log.insert(tkinter.END, msg + '\n')
+        self.txt_log.configure(state=tkinter.DISABLED)
+        self.txt_log.see(tkinter.END)
+
+    def clear_log(self):
+        self.txt_log.configure(state=tkinter.NORMAL)
+        self.txt_log.delete(1.0, tkinter.END)
+        self.txt_log.configure(state=tkinter.DISABLED)
+        self.txt_log.see(tkinter.END)

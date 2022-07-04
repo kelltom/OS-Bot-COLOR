@@ -88,3 +88,15 @@ class FiremakingView(customtkinter.CTkFrame):
         Called from controller. Calls function of child view to update progress.
         '''
         self.frame_info.update_progress(progress=progress)
+
+    def update_log(self, msg):
+        '''
+        Called from controller. Calls function of child view to update log.
+        '''
+        self.output_log.update_log(msg=msg)
+
+    def clear_log(self):
+        '''
+        Called from controller. Calls function of child view to clear log.
+        '''
+        self.output_log.clear_log()
