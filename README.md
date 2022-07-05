@@ -2,7 +2,7 @@
  A program that can execute a variety of automation tools for Old School Near Reality.
 
 # Instructions for adding new bots
-These instructions are only valid as of July 4th 2022.
+These instructions are only valid as of July 5th 2022.
 
 Much of the boilerplate code is already in place. You just need to add and modify a few files to add a new bot. Before jumping the gun, make sure you have a good understanding of the codebase and have finished reading this guide.
 
