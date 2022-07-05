@@ -54,7 +54,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.img_play = ImageTk.PhotoImage(Image.open(f"{PATH}/images/play.png").resize((img_size, img_size)), Image.ANTIALIAS)
         self.img_pause = ImageTk.PhotoImage(Image.open(f"{PATH}/images/pause.png").resize((img_size, img_size)), Image.ANTIALIAS)
         self.img_stop = ImageTk.PhotoImage(Image.open(f"{PATH}/images/stop2.png").resize((img_size, img_size)), Image.ANTIALIAS)
-        self.img_restart = ImageTk.PhotoImage(Image.open(f"{PATH}/images/restart.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        self.img_options = ImageTk.PhotoImage(Image.open(f"{PATH}/images/restart.png").resize((img_size, img_size)), Image.ANTIALIAS)
 
         self.lbl_controls_title = customtkinter.CTkLabel(master=self,
                                                          text="Controls",
@@ -78,14 +78,14 @@ class InfoFrame(customtkinter.CTkFrame):
                                                  command=self.stop_btn_clicked)
         self.btn_abort.grid(row=2, column=1, pady=10, padx=20, sticky="nsew")
 
-        self.btn_restart = customtkinter.CTkButton(master=self,
-                                                   text="Restart [F4]",
+        self.btn_options = customtkinter.CTkButton(master=self,
+                                                   text="Options",
                                                    text_color="white",
                                                    fg_color="#d97b00",
                                                    hover_color="#b36602",
-                                                   image=self.img_restart,
-                                                   command=self.restart_btn_clicked)
-        self.btn_restart.grid(row=3, column=1, pady=10, padx=20, sticky="nsew")
+                                                   image=self.img_options,
+                                                   command=self.options_btn_clicked)
+        self.btn_options.grid(row=3, column=1, pady=10, padx=20, sticky="nsew")
 
         self.lbl_status = customtkinter.CTkLabel(master=self,
                                                  text="Status: Idle",
@@ -107,19 +107,22 @@ class InfoFrame(customtkinter.CTkFrame):
     def stop_btn_clicked(self):
         self.controller.stop()
 
-    def restart_btn_clicked(self):
-        self.controller.restart()
+    def options_btn_clicked(self):
+        self.controller.set_options()
 
     def update_status(self, status):
         if status == BotStatus.RUNNING:
+            self.btn_options.config(state=tkinter.DISABLED)
             self.btn_play.config(image=self.img_pause)
             self.btn_play.config(text="Pause [F1]")
             self.lbl_status.config(text="Status: Running")
         elif status == BotStatus.PAUSED:
+            self.btn_options.config(state=tkinter.DISABLED)
             self.btn_play.config(image=self.img_play)
             self.btn_play.config(text="Play [F1]")
             self.lbl_status.config(text="Status: Paused")
         elif status == BotStatus.STOPPED:
+            self.btn_options.config(state=tkinter.NORMAL)
             self.btn_play.config(image=self.img_play)
             self.btn_play.config(text="Play [F1]")
             self.lbl_status.config(text="Status: Stopped")
