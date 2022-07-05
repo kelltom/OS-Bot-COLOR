@@ -2,7 +2,6 @@ import customtkinter
 from controller.bot_controller import BotController
 from model.firemaking import Firemaking
 from views.bot_view import BotView
-from views.zulrah_view import ZulrahView
 from views.bot_view_components.options_frames.firemaking_options_frame import FiremakingOptionsFrame
 
 
@@ -91,7 +90,7 @@ class App(customtkinter.CTk):
                                            title=self.firemaking_model.title,
                                            description=self.firemaking_model.description)
         # Zulrah
-        self.view_list["Zulrah"] = ZulrahView(parent=self.frame_right)
+        self.view_list["Zulrah"] = BotView(parent=self.frame_right)
 
     # ============ Script button handlers ============
     def hide_all_frames(self):
