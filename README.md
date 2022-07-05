@@ -58,7 +58,6 @@ To finalize the BotView UI, you must call the setup() method. This will establis
 
 ```python
 self.view_list["Woodcutting"].setup(controller=self.wc_controller,
-                                    options_view=WoodcuttingOptionsFrame(parent=self.view_list["Woodcutting"]),
                                     title=self.wc_model.title,
                                     description=self.wc_model.description)
 ```
@@ -82,7 +81,6 @@ self.wc_model = Woodcutting()
 self.wc_controller = BotController(model=self.wc_model,
                                    view=self.view_list["Woodcutting"])
 self.view_list["Woodcutting"].setup(controller=self.wc_controller,
-                                    options_view=WoodcuttingOptionsFrame(parent=self.view_list["Woodcutting"]),
                                     title=self.wc_model.title,
                                     description=self.wc_model.description)
 ```
