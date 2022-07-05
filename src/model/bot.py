@@ -35,7 +35,7 @@ class Bot(ABC):
     def main_loop(self):
         '''
         Main logic of the bot. This function is called in a separate thread.
-        The main loop should requently check the status of the bot and terminate when the status is STOPPED.
+        The main loop should frequently check the status of the bot and terminate when the status is STOPPED.
         '''
         pass
 
