@@ -22,7 +22,7 @@ class Bot(ABC):
     status = BotStatus.STOPPED
     iterations: int = 0
     current_iter: int = 0
-    breaks: bool = False
+    options_set: bool = False
     thread: Thread = None
 
     @abstractmethod
@@ -32,15 +32,29 @@ class Bot(ABC):
 
     @abstractmethod
     def main_loop(self):
+        '''
+        Main logic of the bot. This function is called in a separate thread.
+        The main loop should requently check the status of the bot and terminate when the status is STOPPED.
+        '''
         pass
 
     @abstractmethod
-    def save_settings(self, settings: dict):
+    def set_options(self) -> bool:
+        '''
+        Runs PyAutoGUI message boxes to set the options for the bot.
+        Should return true if the options were set successfully.
+        '''
         pass
 
     def play_pause(self):  # sourcery skip: extract-method
         # if the bot is stopped, start it
         if self.status == BotStatus.STOPPED:
+            if not self.options_set:
+                res = self.set_options()
+                if not res:
+                    self.log_msg("Options failed to set. Bot cannot start.")
+                    print("play_pause() from bot.py - options failed to set, returning...")
+                    return
             print("play() from bot.py - starting bot")
             self.set_status(BotStatus.RUNNING)
             self.clear_log()
@@ -66,14 +80,6 @@ class Bot(ABC):
             self.reset_iter()
             # self.thread.join()  # Causing a deadlock when calling for log updates
             print("stop() from bot.py - bot stopped")
-
-    def restart(self):
-        '''
-        Runs the stop() function and then the play() function.
-        '''
-        print("restart() from bot.py - bot restarted")
-        self.stop()
-        self.play_pause()
 
     # ---- Functions that notify the controller of changes ----
     def reset_iter(self):
