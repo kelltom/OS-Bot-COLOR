@@ -93,7 +93,7 @@ from model.bot import Bot, BotStatus
 
 class Woodcutting(Bot):
     def __init__(self):
-        title = "Firemaking"
+        title = "Woodcutting"
         description = ("Some " + "description")
         super().__init__(title=title, description=description)
     
