@@ -99,13 +99,16 @@ class Woodcutting(Bot):
     
     def main_loop(self):
         '''
-        Main logic of the bot. This function is called in a separate thread. The main loop should frequently check the status of the bot and terminate when the status is STOPPED.
+        Main logic of the bot. This function is called in a separate thread. The main loop should frequently
+        check the status of the bot and terminate when the status is STOPPED.
         '''
         pass
 
     def set_options_gui(self):
         '''
-        Runs PyAutoGUI message boxes to set the options for the bot. This function is called on a separate thread. Collect all necessary information from the user and set the bot's options. This function should log messages to the controller upon failure or success, and set the options_set flag to True if successful.
+        Runs PyAutoGUI message boxes to set the options for the bot. This function is called on a separate thread.
+        Collect all necessary information from the user and set the bot's options. This function should log messages
+        to the controller upon failure or success, and set the options_set flag to True if successful.
         '''
         pass
 ```
