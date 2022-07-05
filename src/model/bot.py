@@ -22,8 +22,9 @@ class Bot(ABC):
     status = BotStatus.STOPPED
     iterations: int = 0
     current_iter: int = 0
-    breaks: bool = False
-    thread: Thread = None
+    options_set: bool = False
+    bot_thread: Thread = None
+    options_thread: Thread = None
 
     @abstractmethod
     def __init__(self, title, description):
@@ -32,21 +33,41 @@ class Bot(ABC):
 
     @abstractmethod
     def main_loop(self):
+        '''
+        Main logic of the bot. This function is called in a separate thread.
+        The main loop should frequently check the status of the bot and terminate when the status is STOPPED.
+        '''
         pass
 
     @abstractmethod
-    def save_settings(self, settings: dict):
+    def set_options_gui(self):
+        '''
+        Runs PyAutoGUI message boxes to set the options for the bot. This function is called on a separate thread.
+        Collect all necessary information from the user and set the bot's options. This function should log messages
+        to the controller upon failure or success, and set the options_set flag to True if successful.
+        '''
         pass
 
+    def set_options(self):
+        '''
+        Calls a function on the model to set the options for the bot via a GUI. That function is called on a separate thread.
+        '''
+        self.options_thread = Thread(target=self.set_options_gui)
+        self.options_thread.setDaemon(True)
+        self.options_thread.start()
+
     def play_pause(self):  # sourcery skip: extract-method
+        '''
+        Depending on the bot status, this function either starts a bot's main_loop() on a new thread, or pauses it.
+        '''
         # if the bot is stopped, start it
         if self.status == BotStatus.STOPPED:
             print("play() from bot.py - starting bot")
             self.set_status(BotStatus.RUNNING)
             self.clear_log()
-            self.thread = Thread(target=self.main_loop)
-            self.thread.setDaemon(True)
-            self.thread.start()
+            self.bot_thread = Thread(target=self.main_loop)
+            self.bot_thread.setDaemon(True)
+            self.bot_thread.start()
         # otherwise, if bot is already running, pause it and return status
         elif self.status == BotStatus.RUNNING:
             print("play() from bot.py - pausing bot")
@@ -66,14 +87,6 @@ class Bot(ABC):
             self.reset_iter()
             # self.thread.join()  # Causing a deadlock when calling for log updates
             print("stop() from bot.py - bot stopped")
-
-    def restart(self):
-        '''
-        Runs the stop() function and then the play() function.
-        '''
-        print("restart() from bot.py - bot restarted")
-        self.stop()
-        self.play_pause()
 
     # ---- Functions that notify the controller of changes ----
     def reset_iter(self):

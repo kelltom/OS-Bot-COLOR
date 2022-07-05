@@ -2,7 +2,6 @@ import customtkinter
 from controller.bot_controller import BotController
 from model.firemaking import Firemaking
 from views.bot_view import BotView
-from views.bot_view_components.options_frames.firemaking_options_frame import FiremakingOptionsFrame
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -86,7 +85,6 @@ class App(customtkinter.CTk):
         self.firemaking_model = Firemaking()
         self.firemaking_controller = BotController(model=self.firemaking_model, view=self.view_list["Firemaking"])
         self.view_list["Firemaking"].setup(controller=self.firemaking_controller,
-                                           options_view=FiremakingOptionsFrame(parent=self.view_list["Firemaking"]),
                                            title=self.firemaking_model.title,
                                            description=self.firemaking_model.description)
         # Zulrah

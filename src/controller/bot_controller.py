@@ -1,4 +1,3 @@
-from model.bot import BotStatus
 
 
 class BotController(object):
@@ -14,9 +13,6 @@ class BotController(object):
         '''
         Play/pause btn clicked on view.
         '''
-        if self.model.status == BotStatus.STOPPED:
-            settings = self.view.get_settings()
-            self.model.save_settings(settings)
         self.model.play_pause()
 
     def stop(self):
@@ -25,13 +21,11 @@ class BotController(object):
         '''
         self.model.stop()
 
-    def restart(self):
+    def set_options(self):
         '''
-        Restart btn clicked on view.
+        Options btn clicked on view.
         '''
-        settings = self.view.get_settings()
-        self.model.save_settings(settings)
-        self.model.restart()
+        self.model.set_options()
 
     def update_status(self):
         '''
