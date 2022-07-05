@@ -1,7 +1,6 @@
 import customtkinter
 from views.bot_view_components.info_frame import InfoFrame
 from views.bot_view_components.output_log_frame import OutputLogFrame
-from views.bot_view_components.options_frames.abstract_options import AbstractOptions
 
 
 class BotView(customtkinter.CTkFrame):
@@ -9,13 +8,9 @@ class BotView(customtkinter.CTkFrame):
         '''
         A base frame for all bot views. This frame contains the following:
             - Info frame (frame_info)
-            - Options frame (frame_options)
             - Output log frame (frame_output_log)
-        The options frame is null by default, as it is unique to each individual bot.
-        The options frame must be inserted using insert_options_view() from the place where
-        this frame was instantiated. This should be followed by a call to setup_view() to
-        populate fields based on the bot's title and description, as well as setting
-        controllers for the child views.
+        This view needs to be configured using setup() to populate fields based
+        on the bot's title and description, as well as setting controllers for the child views.
         '''
         super().__init__(parent)
 
@@ -28,12 +23,9 @@ class BotView(customtkinter.CTkFrame):
         self.frame_info = InfoFrame(parent=self, title="Title", info="Description")
         self.frame_info.grid(row=0, column=0, pady=15, padx=15, sticky="nsew")
 
-        # ---------- OPTIONS SECTION ----------
-        self.frame_options: AbstractOptions = None
-
         # ---------- BOTTOM HALF (log text box) ----------
         self.frame_output_log = OutputLogFrame(parent=self)
-        self.frame_output_log.grid(row=2, column=0, pady=15, padx=15, sticky="nsew")
+        self.frame_output_log.grid(row=2, column=0, pady=(0, 15), padx=15, sticky="nsew")
 
         self.controller = None
 
