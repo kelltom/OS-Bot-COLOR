@@ -54,7 +54,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.img_play = ImageTk.PhotoImage(Image.open(f"{PATH}/images/play.png").resize((img_size, img_size)), Image.ANTIALIAS)
         self.img_pause = ImageTk.PhotoImage(Image.open(f"{PATH}/images/pause.png").resize((img_size, img_size)), Image.ANTIALIAS)
         self.img_stop = ImageTk.PhotoImage(Image.open(f"{PATH}/images/stop2.png").resize((img_size, img_size)), Image.ANTIALIAS)
-        self.img_options = ImageTk.PhotoImage(Image.open(f"{PATH}/images/restart.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        self.img_options = ImageTk.PhotoImage(Image.open(f"{PATH}/images/options2.png").resize((img_size, img_size)), Image.ANTIALIAS)
 
         self.lbl_controls_title = customtkinter.CTkLabel(master=self,
                                                          text="Controls",
