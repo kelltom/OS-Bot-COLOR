@@ -9,10 +9,13 @@ class Firemaking(Bot):
                        "character in a safe area and start the firemaking based on the options you select below.")
         super().__init__(title=title, description=description)
 
+    def set_options(self) -> bool:
+        # TODO: implement this
         self.iterations = 10
-
-    def save_settings(self, settings: dict):
-        pass
+        # log message that options set successfully
+        print("set_options() from firemaking.py - options set successfully")
+        self.log_msg("Options set successfully.")
+        return True
 
     def main_loop(self):
         '''
