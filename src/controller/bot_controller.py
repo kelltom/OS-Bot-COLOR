@@ -40,11 +40,11 @@ class BotController(object):
         progress = self.model.current_iter / self.model.iterations
         self.view.update_progress(progress)
 
-    def update_log(self, msg: str):
+    def update_log(self, msg: str, overwrite: bool = False):
         '''
         Called from model. Tells view to update log.
         '''
-        self.view.update_log(msg)
+        self.view.update_log(msg, overwrite)
 
     def clear_log(self):
         '''

@@ -35,49 +35,63 @@ class ExampleBot(Bot):
         print(msg)
 
     def main_loop(self):
-        if not self.options_set:
-            self.log_msg("Options not set. Please set options before starting.")
-            self.set_status(BotStatus.STOPPED)
-            return
-        self.reset_iter()
+        '''
+        When implementing this function, you have the following responsibilities:
+        1. Frequently check the status of the bot throughout the loop and...
+            1.1. Terminate the function if the status is STOPPED.
+            1.2. Enter a pause loop if the status is PAUSED.
+                1.1.1. Within the pause loop, check the status of the bot to terminate or continue.
+                1.1.2. Implement a timeout mechanism to prevent the bot from being stuck in a pause loop.
+        2. The controller is not listening for changes, it must be told. If you need to halt the bot from
+           within the main_loop() without the user having manually requested it, be sure to set the status
+           to STOPPED by using self.set_status() before returning.
+        3. Frequently log relevant messages to the controller to be delivered to the UI.
+        4. Make sure to use self.increment_iter() to increment the current iteration counter. This will increment
+           the iteration counter by 1 while notifying the controller.
+
+        Additional notes:
+        1. By default, the current iterations (and progress bar) are reset upon manual stops and starts. It's
+           typically a good idea to NOT reset the iterations when the bot stops due to 'natural causes' (E.g.,
+           reaching a timeout, naturally finishing, etc.). This way, if the user was AFK, they'll see where
+           the progress bar left off before the bot stopped itself. If you want to reset the current iteration for
+           the user's sake for any reason, use self.reset_iter().
+        2. TODO: Make use of the BotUtils class. It has many functions to simplify commonly used bot commands.
+        3. A bot's main_loop() is called on a daemon thread, so it will terminate when the program is closed.
+        '''
+        # This example bot loop simulates a character moving between Location A and B for 10 iterations
+        # (unless the user changes this via the options interface). Time.sleep() is used to simulate the
+        # bot waiting for conditions.
+        self.player_position = "A"
         while self.current_iter < self.iterations and self.status != BotStatus.STOPPED:
-            pause_limit = 10  # TODO: 10 second pause limit, remove later
-            self.increment_iter()
-            msg = f"main_loop() from example.py - iteration: {self.current_iter} out of {self.iterations}"
-            self.log_msg(msg)
-            print(msg)
-            # if status is stopped, break and print message
-            if self.status == BotStatus.STOPPED:
-                msg = "main_loop() from example.py - bot is stopped, breaking..."
-                self.log_msg(msg)
-                print(msg)
-                return
-            # if status is paused, sleep for one second and continue until timeout
-            while self.status == BotStatus.PAUSED:
-                msg = "main_loop() from example.py - bot is paused, sleeping..."
-                self.log_msg(msg)
-                print(msg)
-                time.sleep(1)
-                # if bot is stopped, break
-                if self.status == BotStatus.STOPPED:
-                    msg = "main_loop() from example.py - bot is stopped, breaking from pause..."
-                    self.log_msg(msg)
-                    print(msg)
-                    return
-                pause_limit -= 1
-                if pause_limit == 0:
-                    msg = "main_loop() from example.py - bot is paused, timeout reached, stopping..."
-                    self.log_msg(msg)
-                    print(msg)
-                    self.set_status(BotStatus.STOPPED)
-                    return
             time.sleep(1)
-        # if the bot was stopped manually, reset iterations
-        if self.current_iter < self.iterations:
-            self.reset_iter()
-        msg = "main_loop() from example.py - bot has reached the end of its iterations"
-        self.log_msg(msg)
-        print(msg)
-        # if bot hasn't been stopped yet...
-        if self.status != BotStatus.STOPPED:
+            # Character is at point A
+            self.log_msg("Character is at point A")
+            # Move character to B
+            self.steps = 4  # Lets pretend it takes 3 steps to move from A to B
+            while self.player_position != "B":
+                # This function is best used within inner loops to check for status and keyboard interrupts
+                if not self.status_check_passed():
+                    return
+                self.steps -= 1
+                time.sleep(1.5)
+                if self.steps == 3:
+                    self.log_msg("Character is walking to point B...")
+                elif self.steps == 2:
+                    self.log_msg("Character is almost there...")
+                elif self.steps == 1:
+                    self.log_msg("Character is very close to B...")
+                elif self.steps == 0:
+                    self.log_msg("Character is at point B")
+                    self.player_position = "B"
+            time.sleep(1)
+            # msg character is teleporting back to point A
+            self.log_msg("Character is teleporting back to point A...")
+            time.sleep(1)
+            self.increment_iter()
+            self.player_position = "A"
+        # If the bot reaches here, it means it has completed all of its iterations.
+        if self.status == BotStatus.STOPPED:
+            self.log_msg("Bot has been stopped by the user.")
+        else:
+            self.log_msg("Bot has completed all of its iterations.")
             self.set_status(BotStatus.STOPPED)

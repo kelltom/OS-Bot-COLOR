@@ -53,11 +53,11 @@ class BotView(customtkinter.CTkFrame):
         '''
         self.frame_info.update_progress(progress=progress)
 
-    def update_log(self, msg):
+    def update_log(self, msg, overwrite):
         '''
         Called from controller. Calls function of child view to update log.
         '''
-        self.frame_output_log.update_log(msg=msg)
+        self.frame_output_log.update_log(msg=msg, overwrite=overwrite)
 
     def clear_log(self):
         '''

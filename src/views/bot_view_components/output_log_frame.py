@@ -48,9 +48,11 @@ class OutputLogFrame(customtkinter.CTkFrame):
     def set_controller(self, controller):
         self.controller = controller
 
-    def update_log(self, msg):
+    def update_log(self, msg, overwrite=False):
         self.txt_log.configure(state=tkinter.NORMAL)
-        self.txt_log.insert(tkinter.END, msg + '\n')
+        if overwrite:
+            self.txt_log.delete("end-1c linestart", "end")
+        self.txt_log.insert(tkinter.END, '\n'+msg)
         self.txt_log.configure(state=tkinter.DISABLED)
         self.txt_log.see(tkinter.END)
 

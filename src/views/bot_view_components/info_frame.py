@@ -63,7 +63,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_controls_title.grid(row=0, column=1, sticky="wns")
 
         self.btn_play = customtkinter.CTkButton(master=self,
-                                                text="Play [F1]",
+                                                text="Play",
                                                 text_color="white",
                                                 image=self.img_play,
                                                 command=self.play_btn_clicked)
@@ -119,12 +119,12 @@ class InfoFrame(customtkinter.CTkFrame):
         elif status == BotStatus.PAUSED:
             self.btn_options.config(state=tkinter.DISABLED)
             self.btn_play.config(image=self.img_play)
-            self.btn_play.config(text="Play [F1]")
+            self.btn_play.config(text="Play")
             self.lbl_status.config(text="Status: Paused")
         elif status == BotStatus.STOPPED:
             self.btn_options.config(state=tkinter.NORMAL)
             self.btn_play.config(image=self.img_play)
-            self.btn_play.config(text="Play [F1]")
+            self.btn_play.config(text="Play")
             self.lbl_status.config(text="Status: Stopped")
 
     def update_progress(self, progress):
