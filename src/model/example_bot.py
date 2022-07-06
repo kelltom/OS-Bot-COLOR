@@ -53,7 +53,7 @@ class ExampleBot(Bot):
         2. TODO: Make use of the BotUtils class. It has many functions to simplify commonly used bot commands.
         3. A bot's main_loop() is called on a daemon thread, so it will terminate when the program is closed.
         '''
-        # This example bot loop simulates a character moving between Location A and B. Time.sleep() is used to 
+        # This example bot loop simulates a character moving between Location A and B. Time.sleep() is used to
         # simulate the bot waiting for conditions.
         self.player_position = "A"
         while self.current_iter < self.iterations and self.status != BotStatus.STOPPED:
