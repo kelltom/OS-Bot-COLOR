@@ -1,6 +1,6 @@
 import customtkinter
 from controller.bot_controller import BotController
-from model.firemaking import Firemaking
+from model.example_bot import ExampleBot
 from views.bot_view import BotView
 
 
@@ -51,26 +51,19 @@ class App(customtkinter.CTk):
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         self.button_list = []
-        self.btn_firemaking = customtkinter.CTkButton(master=self.frame_left,
-                                                      text="Firemaking",
-                                                      fg_color=("gray75", "gray30"),
-                                                      command=lambda: self.show_frame("Firemaking", self.btn_firemaking))
-        self.btn_firemaking.grid(row=2, column=0, pady=10, padx=20)
-        self.button_list.append(self.btn_firemaking)
-
-        self.btn_woodcutting = customtkinter.CTkButton(master=self.frame_left,
-                                                       text="Woodcutting",
+        self.btn_example_bot = customtkinter.CTkButton(master=self.frame_left,
+                                                       text="Example",
                                                        fg_color=("gray75", "gray30"),
-                                                       command=None)
-        self.btn_woodcutting.grid(row=3, column=0, pady=10, padx=20)
-        self.button_list.append(self.btn_woodcutting)
+                                                       command=lambda: self.show_frame("Example", self.btn_example_bot))
+        self.btn_example_bot.grid(row=2, column=0, pady=10, padx=20)
+        self.button_list.append(self.btn_example_bot)
 
-        self.btn_zulrah = customtkinter.CTkButton(master=self.frame_left,
-                                                  text="Zulrah",
-                                                  fg_color=("gray75", "gray30"),
-                                                  command=lambda: self.show_frame("Zulrah", self.btn_zulrah))
-        self.btn_zulrah.grid(row=4, column=0, pady=10, padx=20)
-        self.button_list.append(self.btn_zulrah)
+        self.btn_example_bot2 = customtkinter.CTkButton(master=self.frame_left,
+                                                        text="Example 2",
+                                                        fg_color=("gray75", "gray30"),
+                                                        command=lambda: self.show_frame("Example 2", self.btn_example_bot2))
+        self.btn_example_bot2.grid(row=3, column=0, pady=10, padx=20)
+        self.button_list.append(self.btn_example_bot2)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
                                               text="Dark Mode",
@@ -80,15 +73,15 @@ class App(customtkinter.CTk):
 
         # ============ frame_right ============
         self.view_list = {}
-        # Firemaking
-        self.view_list["Firemaking"] = BotView(parent=self.frame_right)
-        self.firemaking_model = Firemaking()
-        self.firemaking_controller = BotController(model=self.firemaking_model, view=self.view_list["Firemaking"])
-        self.view_list["Firemaking"].setup(controller=self.firemaking_controller,
-                                           title=self.firemaking_model.title,
-                                           description=self.firemaking_model.description)
-        # Zulrah
-        self.view_list["Zulrah"] = BotView(parent=self.frame_right)
+        # Example Bot
+        self.view_list["Example"] = BotView(parent=self.frame_right)
+        self.example_model = ExampleBot()
+        self.example_controller = BotController(model=self.example_model, view=self.view_list["Example"])
+        self.view_list["Example"].setup(controller=self.example_controller,
+                                        title=self.example_model.title,
+                                        description=self.example_model.description)
+        # Example Bot 2
+        self.view_list["Example 2"] = BotView(parent=self.frame_right)
 
     # ============ Script button handlers ============
     def hide_all_frames(self):
