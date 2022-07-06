@@ -11,7 +11,7 @@ from model.bot import Bot, BotStatus
 import time
 
 
-class Example(Bot):
+class ExampleBot(Bot):
     def __init__(self):
         title = "Example Bot"
         description = ("This is where the description of the bot goes. Briefly describe how the bot works " +

@@ -1,6 +1,6 @@
 import customtkinter
 from controller.bot_controller import BotController
-from model.example import Example
+from model.example_bot import ExampleBot
 from views.bot_view import BotView
 
 
@@ -75,7 +75,7 @@ class App(customtkinter.CTk):
         self.view_list = {}
         # Example Bot
         self.view_list["Example"] = BotView(parent=self.frame_right)
-        self.example_model = Example()
+        self.example_model = ExampleBot()
         self.example_controller = BotController(model=self.example_model, view=self.view_list["Example"])
         self.view_list["Example"].setup(controller=self.example_controller,
                                         title=self.example_model.title,

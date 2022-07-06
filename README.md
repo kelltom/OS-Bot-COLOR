@@ -39,7 +39,7 @@ self.view_list["Woodcutting"] = BotView(parent=self.frame_right)
 **At this point, you can run the app to see the base UI and functionality that this creates. The buttons on the right-side view should not work at this stage.**
 
 ### Step 3: Create an instance of your bot's model in main.py
-Directly below the BotView you created in main.py, create a new instance of your bot's model. For instructions on how to create a model, see the [Bot logic section](#bot-logic). If you have not yet implemented a bot model, you can use the ExampleBot class as a substitute.
+Directly below the BotView you created in main.py, create a new instance of your bot's model. For instructions on how to create a model, see the [Bot logic section](#bot-logic). If you have not yet implemented a bot model, you can use the [ExampleBot](src/model/example.py) class as a substitute.
 
 ```python
 self.wc_model = Woodcutting()
@@ -62,7 +62,7 @@ self.view_list["Woodcutting"].setup(controller=self.wc_controller,
                                     description=self.wc_model.description)
 ```
 
-If you used the ExampleBot model as a substitute, your UI should be fairly functional. Otherwise, see the next section for how to implement a custom bot model.
+If you used the [ExampleBot](src/model/example_bot.py) model as a substitute, your UI should be fairly functional. Otherwise, see the next section for how to implement a custom bot model.
 
 ### Here's what it should look like when you're done:
 ```python
@@ -115,7 +115,7 @@ class Woodcutting(Bot):
 
 The *init()* function requires you to specify a bot title and description and pass them along to the base class. You can also declare any other attributes/options you want to use in your bot (E.g., for a Woodcutting bot, you may want to have a reference to the type of log to burn).
 
-The *main_loop()* function is where your bot's logic will go. It will run on a separate thread. Be sure to have many spots in your loop that will check for the [status](src/model/bot.py) of your bot such that you can decide what should happen when it is paused or stopped. When the status of the bot is set to *BotStatus.STOPPED*, your main loop should do its best to reach the end of the code block or return so the thread can terminate. See ExampleBot for an example of how to do this.
+The *main_loop()* function is where your bot's logic will go. It will run on a separate thread. Be sure to have many spots in your loop that will check for the [status](src/model/bot.py) of your bot such that you can decide what should happen when it is paused or stopped. When the status of the bot is set to *BotStatus.STOPPED*, your main loop should do its best to reach the end of the code block or return so the thread can terminate. See [ExampleBot](src/model/example_bot.py) for an example of how to do this.
 
 ```python
 if self.status == BotStatus.STOPPED:
