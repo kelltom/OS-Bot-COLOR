@@ -1,0 +1,1 @@
+pyinstaller --noconfirm --onedir --windowed --add-data "C:/Users/Kell/Documents/NR Bots/osnr-bot/env/lib/site-packages/customtkinter;customtkinter/"  "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/main.py"
