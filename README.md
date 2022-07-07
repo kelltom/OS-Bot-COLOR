@@ -29,7 +29,7 @@ self.btn_wc.grid(row=3, column=0, pady=10, padx=20)
 ```
 
 ### Step 2: Create the BotView in main.py
-Navigate main.py to find the section where all the other BotViews exist and add a new BotView. You should instantiate this new view as a member of the view_list dictionary. The key that you assign this object to should be the name of your bot. The parent argument should always be *self.frame_right*.
+Navigate main.py to find the section where all the other BotViews exist and add a new BotView. You should instantiate this new view as a member of the views dictionary. The key that you assign this object to should be the name of your bot. The parent argument should always be *self.frame_right*.
 
 ```python
 self.views["Woodcutting"] = BotView(parent=self.frame_right)
