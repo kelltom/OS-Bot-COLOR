@@ -23,18 +23,16 @@ Find the section where all the other script buttons exist and add a new button. 
 self.btn_wc = customtkinter.CTkButton(master=self.frame_left,
                                       text="Woodcutting",
                                       fg_color=("gray75", "gray30"),
-                                      command=lambda: self.show_frame("Woodcutting", self.btn_wc))
+                                      command=lambda: self.toggle_frame_by_name("Woodcutting", self.btn_wc))
 # Set row argument according to position of button in left panel
 self.btn_wc.grid(row=3, column=0, pady=10, padx=20)
-# Make sure to append the button to the button list
-self.button_list.append(self.btn_wc)
 ```
 
 ### Step 2: Create the BotView in main.py
 Navigate main.py to find the section where all the other BotViews exist and add a new BotView. You should instantiate this new view as a member of the view_list dictionary. The key that you assign this object to should be the name of your bot. The parent argument should always be *self.frame_right*.
 
 ```python
-self.view_list["Woodcutting"] = BotView(parent=self.frame_right)
+self.views["Woodcutting"] = BotView(parent=self.frame_right)
 ```
 **At this point, you can run the app to see the base UI and functionality that this creates. The buttons on the right-side view should not work at this stage.**
 
@@ -50,16 +48,16 @@ The bot controller is entirely prewritten. You just need to create an instance o
 
 ```python
 self.wc_controller = BotController(model=self.wc_model,
-                                   view=self.view_list["Woodcutting"])
+                                   view=self.views["Woodcutting"])
 ```
 
 ### Step 5: Call the setup() method on the BotView in main.py
 To finalize the BotView UI, you must call the setup() method. This will establish the connection between the model and the view via the controller, and update the name/description in the information panel.
 
 ```python
-self.view_list["Woodcutting"].setup(controller=self.wc_controller,
-                                    title=self.wc_model.title,
-                                    description=self.wc_model.description)
+self.views["Woodcutting"].setup(controller=self.wc_controller,
+                                title=self.wc_model.title,
+                                description=self.wc_model.description)
 ```
 
 If you used the [ExampleBot](src/model/example_bot.py) model as a substitute, your UI should be fairly functional. Otherwise, see the next section for how to implement a custom bot model.
@@ -67,22 +65,20 @@ If you used the [ExampleBot](src/model/example_bot.py) model as a substitute, yo
 ### Here's what it should look like when you're done:
 ```python
 # --- Buttons ---
-self.button_list = []
 self.btn_wc = customtkinter.CTkButton(master=self.frame_left,
                                       text="Woodcutting",
                                       fg_color=("gray75", "gray30"),
-                                      command=lambda: self.show_frame("Woodcutting", self.btn_w))
+                                      command=lambda: self.toggle_frame_by_name("Woodcutting", self.btn_wc))
 self.btn_wc.grid(row=?, column=0, pady=10, padx=20)
-self.button_list.append(self.btn_wc)
 # --- Views ---
-self.view_list = {}
-self.view_list["Woodcutting"] = BotView(parent=self.frame_right)
+self.views = {}
+self.views["Woodcutting"] = BotView(parent=self.frame_right)
 self.wc_model = Woodcutting()
 self.wc_controller = BotController(model=self.wc_model,
-                                   view=self.view_list["Woodcutting"])
-self.view_list["Woodcutting"].setup(controller=self.wc_controller,
-                                    title=self.wc_model.title,
-                                    description=self.wc_model.description)
+                                   view=self.views["Woodcutting"])
+self.views["Woodcutting"].setup(controller=self.wc_controller,
+                                title=self.wc_model.title,
+                                description=self.wc_model.description)
 ```
 
 ## Bot logic
