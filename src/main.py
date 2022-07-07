@@ -3,6 +3,7 @@ from controller.bot_controller import BotController
 from model.example_bot import ExampleBot
 import tkinter
 from views.bot_view import BotView
+from views.default_view import DefaultView
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -48,7 +49,7 @@ class App(customtkinter.CTk):
 
         self.label_1 = customtkinter.CTkLabel(master=self.frame_left,
                                               text="Scripts",
-                                              text_font=("Roboto Medium", -16))
+                                              text_font=("Roboto Medium", 14))
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         # script buttons
@@ -71,7 +72,12 @@ class App(customtkinter.CTk):
         self.switch.select()
 
         # ============ frame_right ============
+        self.default_view = DefaultView(parent=self.frame_right)
+        self.default_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+
+        # Create Bot Views here
         self.views = {}
+
         # Example Bot
         self.views["Example"] = BotView(parent=self.frame_right)
         self.example_model = ExampleBot()
@@ -82,7 +88,7 @@ class App(customtkinter.CTk):
         # Example Bot 2
         self.views["Example 2"] = BotView(parent=self.frame_right)
 
-        self.current_view: BotView = None
+        self.current_view = None
         self.current_btn = None
 
     # ============ Script button handlers ============
@@ -94,6 +100,7 @@ class App(customtkinter.CTk):
                 self.current_view = None
                 self.current_btn.config(fg_color=("gray75", "gray30"))
                 self.current_btn = None
+                self.default_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
             # If a different script is selected, hide it and show the new one
             elif self.current_view is not None:
                 self.current_view.pack_forget()
@@ -104,6 +111,7 @@ class App(customtkinter.CTk):
                 self.current_btn.config(fg_color=btn.hover_color)
             # If no script is selected, show the new one
             else:
+                self.default_view.pack_forget()
                 self.current_view = self.views[name]
                 self.current_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
                 self.current_btn = btn
