@@ -18,8 +18,19 @@ class ExampleBot(Bot):
         description = ("This is where the description of the bot goes. Briefly describe how the bot works " +
                        "and any important information the user needs to know before starting it.")
         super().__init__(title=title, description=description)
+        # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
 
     def set_options(self):
+        '''
+        How to format this function:
+        1. Begin this function by letting the user know that they are configuring the bot. Set the options_set flag
+           to False, and signal to the user that configuration has begun by setting the status to CONFIGURING and logging
+           a message.
+        2. For each bot option (including the iterations option), prompt the user for the option's value using PyAutoGUI
+           message boxes. You can handle failed attempts using while loops as shown below.
+            2.1. Make sure to handle aborts too. BotStatus should be set to STOPPED before returning.
+        3. If the user successfully sets all options, set the options_set flag to True, and set the status to STOPPED.
+        '''
         self.options_set = False
         self.log_msg("Setting options...")
         self.set_status(BotStatus.CONFIGURING)
