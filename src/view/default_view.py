@@ -14,7 +14,7 @@ class DefaultView(customtkinter.CTkFrame):
         self.grid_rowconfigure(2, weight=0)  # - Desc
         self.grid_rowconfigure(3, weight=0)  # - Login
         self.grid_rowconfigure(4, weight=0)  # - Copy text
-        self.grid_rowconfigure(5, weight=2)  # Spacing
+        self.grid_rowconfigure(5, weight=1)  # Spacing
 
         # title label
         self.label_title = customtkinter.CTkLabel(master=self,
