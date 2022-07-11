@@ -28,7 +28,6 @@ class BotController(object):
         Called from view. Preps model for configuring of options.
         '''
         self.model.set_status(BotStatus.CONFIGURING)
-        self.update_status()
         self.view.frame_info.show_options()
 
     def save_options(self, options):
@@ -36,6 +35,7 @@ class BotController(object):
         Called from view. Tells model to save options.
         '''
         self.model.save_options(options)
+        self.model.set_status(BotStatus.STOPPED)
 
     def abort_options(self):
         '''
@@ -43,7 +43,6 @@ class BotController(object):
         '''
         self.update_log("Bot configuration aborted.")
         self.model.set_status(BotStatus.STOPPED)
-        return
 
     def update_status(self):
         '''

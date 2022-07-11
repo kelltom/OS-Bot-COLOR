@@ -19,7 +19,12 @@ class ExampleBot(Bot):
         super().__init__(title=title, description=description)
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
 
-    def save_options(self, options):
+    def save_options(self, options: dict):
+        '''
+        For each option in the dictionary, if it is an expected option, save the value as a property of the bot.
+        If any unexpected options are found, log a warning. If an option is missing, set the options_set flag to
+        False. No need to set bot status.
+        '''
         for option in options:
             if option == "iterations":
                 self.iterations = options[option]
@@ -31,7 +36,6 @@ class ExampleBot(Bot):
         # TODO: if options are invalid, set options_set flag to false
 
         self.log_msg("Options set successfully.")
-        self.set_status(BotStatus.STOPPED)
 
     def main_loop(self):
         '''

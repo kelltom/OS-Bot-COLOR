@@ -42,7 +42,10 @@ class Bot(ABC):
         pass
 
     @abstractmethod
-    def save_options(self):
+    def save_options(self, options: dict):
+        '''
+        Given a dictionary of options, this function should save the options to the model's properties.
+        '''
         pass
 
     def play_pause(self):  # sourcery skip: extract-method
