@@ -91,13 +91,15 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_status.grid(row=4, column=1, sticky="we")
 
         self.controller = None
+        self.options_class = None
 
     def set_controller(self, controller):
         self.controller = controller
 
-    def setup(self, title, description):
+    def setup(self, title, description, options_class):
         self.lbl_script_title.config(text=title)
         self.lbl_script_desc.config(text=description)
+        self.options_class = options_class
 
     def play_btn_clicked(self):
         self.controller.play_pause()
@@ -120,9 +122,7 @@ class InfoFrame(customtkinter.CTkFrame):
         window.geometry("400x200")
         window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
 
-        # create label on CTkToplevel window
-        label = customtkinter.CTkLabel(window, text="CTkToplevel window")
-        label.pack(side="top", fill="both", expand=True, padx=40, pady=40)
+        self.options_class(parent=window).pack(side="top", fill="both", expand=True, padx=40, pady=40)
 
     def update_status_running(self):
         self.__toggle_buttons(True)
