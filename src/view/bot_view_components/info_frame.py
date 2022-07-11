@@ -106,7 +106,23 @@ class InfoFrame(customtkinter.CTkFrame):
         self.controller.stop()
 
     def options_btn_clicked(self):
-        self.controller.set_options()
+        self.controller.options_btn_clicked()
+
+    def on_options_closing(self, window):
+        self.__toggle_buttons(True)
+        window.destroy()
+
+    def show_options(self):
+        '''
+        Creates a new TopLevel view to display bot options.
+        '''
+        window = customtkinter.CTkToplevel(master=self)
+        window.geometry("400x200")
+        window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
+
+        # create label on CTkToplevel window
+        label = customtkinter.CTkLabel(window, text="CTkToplevel window")
+        label.pack(side="top", fill="both", expand=True, padx=40, pady=40)
 
     def update_status_running(self):
         self.__toggle_buttons(True)

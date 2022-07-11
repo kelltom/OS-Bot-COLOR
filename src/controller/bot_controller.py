@@ -23,6 +23,14 @@ class BotController(object):
         '''
         self.model.stop()
 
+    def options_btn_clicked(self):
+        '''
+        Called from view. Preps model for configuring of options.
+        '''
+        self.model.set_status(BotStatus.CONFIGURING)
+        self.update_status()
+        self.view.frame_info.show_options()
+
     def set_options(self):
         '''
         Options btn clicked on view.
