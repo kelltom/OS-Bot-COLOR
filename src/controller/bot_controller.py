@@ -31,11 +31,11 @@ class BotController(object):
         self.update_status()
         self.view.frame_info.show_options()
 
-    def set_options(self):
+    def save_options(self, options):
         '''
-        Options btn clicked on view.
+        Called from view. Tells model to save options.
         '''
-        self.model.set_options()
+        self.model.save_options(options)
 
     def update_status(self):
         '''

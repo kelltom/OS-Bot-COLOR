@@ -8,7 +8,6 @@ the README/Wiki.
 '''
 
 from model.bot import Bot, BotStatus
-import pyautogui as pag
 import time
 
 
@@ -20,36 +19,22 @@ class ExampleBot(Bot):
         super().__init__(title=title, description=description)
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
 
-    def set_options(self):
-        '''
-        How to format this function:
-        1. Begin this function by letting the user know that they are configuring the bot. Set the options_set flag
-           to False, and signal to the user that configuration has begun by setting the status to CONFIGURING and logging
-           a message.
-        2. For each bot option (including the iterations option), prompt the user for the option's value using PyAutoGUI
-           message boxes. You can handle failed attempts using while loops as shown below.
-            2.1. Make sure to handle aborts too. BotStatus should be set to STOPPED before returning.
-        3. If the user successfully sets all options, set the options_set flag to True, and set the status to STOPPED.
-        '''
-        self.options_set = False
-        self.log_msg("Setting options...")
-        self.set_status(BotStatus.CONFIGURING)
+    def save_options(self, options):
+        if not options:
+            self.log_msg("Bot configuration aborted.")
+            self.set_status(BotStatus.STOPPED)
+            return
 
-        # Get number of iterations from user
-        iterations = ""
-        while not iterations.isdigit():
-            iterations = pag.prompt(text="Please enter the number of iterations for the bot to run", title="Iterations")
-            if iterations is None:
-                self.log_msg("User cancelled the bot's configuration. Options not set.")
-                self.set_status(BotStatus.STOPPED)
-                return
-            if iterations.isdigit():
-                self.iterations = int(iterations)
+        for option in options:
+            if option == "iterations":
+                self.iterations = options[option]
                 self.log_msg(f"Iterations set to: {self.iterations}")
             else:
-                self.log_msg("Please enter an integer value for number of iterations.")
-
+                self.log_msg(f"Unknown option: {option}")
         self.options_set = True
+
+        # TODO: if options are invalid, set options_set flag to false
+
         self.log_msg("Options set successfully.")
         self.set_status(BotStatus.STOPPED)
 

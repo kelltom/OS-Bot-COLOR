@@ -111,7 +111,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.controller.options_btn_clicked()
 
     def on_options_closing(self, window):
-        self.__toggle_buttons(True)
+        self.controller.save_options(None)
         window.destroy()
 
     def show_options(self):
@@ -122,7 +122,7 @@ class InfoFrame(customtkinter.CTkFrame):
         window.geometry("400x200")
         window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
 
-        self.options_class(parent=window).pack(side="top", fill="both", expand=True, padx=40, pady=40)
+        self.options_class(parent=window, controller=self.controller).pack(side="top", fill="both", expand=True, padx=40, pady=40)
 
     def update_status_running(self):
         self.__toggle_buttons(True)
