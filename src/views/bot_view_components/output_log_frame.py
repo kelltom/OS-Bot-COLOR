@@ -49,6 +49,10 @@ class OutputLogFrame(customtkinter.CTkFrame):
         self.controller = controller
 
     def update_log(self, msg, overwrite=False):
+        '''
+        Called from controller. Updates the log with given message. If overwrite is True,
+        the last line will be cleared before the message is added.
+        '''
         self.txt_log.configure(state=tkinter.NORMAL)
         if overwrite:
             self.txt_log.delete("end-1c linestart", "end")
@@ -57,6 +61,9 @@ class OutputLogFrame(customtkinter.CTkFrame):
         self.txt_log.see(tkinter.END)
 
     def clear_log(self):
+        '''
+        Called from controller. Clears the log.
+        '''
         self.txt_log.configure(state=tkinter.NORMAL)
         self.txt_log.delete(1.0, tkinter.END)
         self.txt_log.configure(state=tkinter.DISABLED)

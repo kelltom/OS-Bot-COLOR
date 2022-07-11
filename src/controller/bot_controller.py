@@ -1,3 +1,5 @@
+from model.bot import Bot, BotStatus
+from views.bot_view import BotView
 
 
 class BotController(object):
@@ -5,8 +7,8 @@ class BotController(object):
         '''
         Constructor.
         '''
-        self.model = model
-        self.view = view
+        self.model: Bot = model
+        self.view: BotView = view
         self.model.set_controller(self)
 
     def play_pause(self):
@@ -31,23 +33,31 @@ class BotController(object):
         '''
         Called from model. Tells view to update status.
         '''
-        self.view.update_status(self.model.status)
+        status = self.model.status
+        if status == BotStatus.RUNNING:
+            self.view.frame_info.update_status_running()
+        elif status == BotStatus.PAUSED:
+            self.view.frame_info.update_status_paused()
+        elif status == BotStatus.STOPPED:
+            self.view.frame_info.update_status_stopped()
+        elif status == BotStatus.CONFIGURING:
+            self.view.frame_info.update_status_configuring()
 
     def update_progress(self):
         '''
         Called from model. Tells view to update progress.
         '''
         progress = self.model.current_iter / self.model.iterations
-        self.view.update_progress(progress)
+        self.view.frame_info.update_progress(progress)
 
     def update_log(self, msg: str, overwrite: bool = False):
         '''
         Called from model. Tells view to update log.
         '''
-        self.view.update_log(msg, overwrite)
+        self.view.frame_output_log.update_log(msg, overwrite)
 
     def clear_log(self):
         '''
         Called from model. Tells view to clear log.
         '''
-        self.view.clear_log()
+        self.view.frame_output_log.clear_log()
