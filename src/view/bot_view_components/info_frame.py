@@ -111,7 +111,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.controller.options_btn_clicked()
 
     def on_options_closing(self, window):
-        self.controller.save_options(None)
+        self.controller.abort_options()
         window.destroy()
 
     def show_options(self):

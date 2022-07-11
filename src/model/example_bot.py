@@ -20,11 +20,6 @@ class ExampleBot(Bot):
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
 
     def save_options(self, options):
-        if not options:
-            self.log_msg("Bot configuration aborted.")
-            self.set_status(BotStatus.STOPPED)
-            return
-
         for option in options:
             if option == "iterations":
                 self.iterations = options[option]

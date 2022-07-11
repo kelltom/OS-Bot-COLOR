@@ -37,6 +37,14 @@ class BotController(object):
         '''
         self.model.save_options(options)
 
+    def abort_options(self):
+        '''
+        Called from view when options window is closed manually.
+        '''
+        self.update_log("Bot configuration aborted.")
+        self.model.set_status(BotStatus.STOPPED)
+        return
+
     def update_status(self):
         '''
         Called from model. Tells view to update status.
