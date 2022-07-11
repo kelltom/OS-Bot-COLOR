@@ -30,7 +30,9 @@ class ExampleBot(Bot):
             msg = "Options set successfully"
         else:
             msg = "Failed to set options"
+        time.sleep(2)
         self.log_msg(msg)
+        self.set_status(BotStatus.STOPPED)
 
     def main_loop(self):
         '''

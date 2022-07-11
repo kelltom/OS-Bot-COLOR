@@ -17,7 +17,7 @@ class BotStatus(Enum):
     RUNNING = 1
     PAUSED = 2
     STOPPED = 3
-    IDLE = 4
+    CONFIGURING = 4
 
 
 class Bot(ABC):
@@ -47,16 +47,18 @@ class Bot(ABC):
         '''
         Runs PyAutoGUI message boxes to set the options for the bot. This function is called on a separate thread.
         Collect all necessary information from the user and set the bot's options. This function should log messages
-        to the controller upon failure or success, and set the options_set flag to True if successful.
+        to the controller upon failure or success, set the options_set flag to True if successful, and set the bot status
+        to STOPPED.
         '''
         pass
 
     # ---- Bot Control Functions - Do Not Change ----
     def set_options(self):
         '''
-        Calls a function on the model to set the options for the bot via a GUI.That function is called on a separate
-        thread.
+        Calls a function on the model to set the options for the bot via a GUI. That function is called on a separate
+        thread. Sets the bot status to CONFIGURING.
         '''
+        self.set_status(BotStatus.CONFIGURING)
         self.options_thread = Thread(target=self.set_options_gui)
         self.options_thread.setDaemon(True)
         self.options_thread.start()
