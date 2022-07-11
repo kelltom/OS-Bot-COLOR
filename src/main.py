@@ -2,8 +2,8 @@ import customtkinter
 from controller.bot_controller import BotController
 from model.example_bot import ExampleBot
 import tkinter
-from views.bot_view import BotView
-from views.default_view import DefaultView
+from view.bot_view import BotView
+from view.default_view import DefaultView
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"

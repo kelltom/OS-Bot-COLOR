@@ -1,5 +1,5 @@
 from model.bot import Bot, BotStatus
-from views.bot_view import BotView
+from view.bot_view import BotView
 
 
 class BotController(object):
