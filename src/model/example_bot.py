@@ -45,7 +45,8 @@ class ExampleBot(Bot):
     def main_loop(self):
         '''
         When implementing this function, you have the following responsibilities:
-        1. Frequently check the status of the bot throughout the loop using self.status_check_passed().
+        1. Frequently check the status of the bot throughout the loop using self.status_check_passed(). Call it
+           before your bot makes any major moves to prevent unwanted side affects.
             1.1. If the status check fails, simply return. Log messages are already handled.
         2. The controller is not listening for changes, it must be told. If you need to halt the bot from
            within the main_loop() without the user having manually requested it, be sure to set the status
@@ -53,9 +54,10 @@ class ExampleBot(Bot):
         3. Frequently log relevant messages to the controller to be delivered to the UI.
         4. Make sure to use self.increment_iter() to increment the current iteration counter. This will increment
            the iteration counter by 1 while notifying the controller.
+        5. At the end of the main loop, make sure to set the status to STOPPED.
 
         Additional notes:
-        1. By default, the current iterations (and progress bar) are reset upon manual stops and starts. It's
+        1. By default, the current iterations (and progress bar) are reset upon MANUAL stops and starts. It's
            typically a good idea to NOT reset the iterations when the bot stops due to 'natural causes' (E.g.,
            reaching a timeout, naturally finishing, etc.). This way, if the user was AFK, they'll see where
            the progress bar left off before the bot stopped itself. If you want to reset the current iteration for
