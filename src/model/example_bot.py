@@ -8,6 +8,7 @@ the README/Wiki.
 '''
 
 from model.bot import Bot, BotStatus
+import pyautogui as pag
 import time
 
 
@@ -18,20 +19,27 @@ class ExampleBot(Bot):
                        "and any important information the user needs to know before starting it.")
         super().__init__(title=title, description=description)
 
-    def set_options_gui(self):
-        # TODO: implement disabling the UI buttons when the options menu is open.
+    def set_options(self):
         self.options_set = False
+        self.log_msg("Setting options...")
+        self.set_status(BotStatus.CONFIGURING)
 
-        # TODO: implement this
-        self.iterations = 5
+        # Get number of iterations from user
+        iterations = ""
+        while not iterations.isdigit():
+            iterations = pag.prompt(text="Please enter the number of iterations for the bot to run", title="Iterations")
+            if iterations is None:
+                self.log_msg("User cancelled the bot's configuration. Options not set.")
+                self.set_status(BotStatus.STOPPED)
+                return
+            if iterations.isdigit():
+                self.iterations = int(iterations)
+                self.log_msg(f"Iterations set to: {self.iterations}")
+            else:
+                self.log_msg("Please enter an integer value for number of iterations.")
+
         self.options_set = True
-
-        if self.options_set:
-            msg = "Options set successfully"
-        else:
-            msg = "Failed to set options"
-        time.sleep(2)
-        self.log_msg(msg)
+        self.log_msg("Options set successfully.")
         self.set_status(BotStatus.STOPPED)
 
     def main_loop(self):

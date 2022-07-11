@@ -25,8 +25,7 @@ class Bot(ABC):
     iterations: int = 0
     current_iter: int = 0
     options_set: bool = False
-    bot_thread: Thread = None
-    options_thread: Thread = None
+    thread: Thread = None
 
     # ---- Abstract Functions ----
     @abstractmethod
@@ -43,25 +42,13 @@ class Bot(ABC):
         pass
 
     @abstractmethod
-    def set_options_gui(self):
-        '''
-        Runs PyAutoGUI message boxes to set the options for the bot. This function is called on a separate thread.
-        Collect all necessary information from the user and set the bot's options. This function should log messages
-        to the controller upon failure or success, set the options_set flag to True if successful, and set the bot status
-        to STOPPED.
-        '''
-        pass
-
-    # ---- Bot Control Functions - Do Not Change ----
     def set_options(self):
         '''
-        Calls a function on the model to set the options for the bot via a GUI. That function is called on a separate
-        thread. Sets the bot status to CONFIGURING.
+        Runs PyAutoGUI message boxes to set the options for the bot. Collect all necessary information from the user and
+        set the bot's options. This function should log messages to the controller upon failure or success, set the
+        options_set flag to True if successful, and set the bot status to STOPPED.
         '''
-        self.set_status(BotStatus.CONFIGURING)
-        self.options_thread = Thread(target=self.set_options_gui)
-        self.options_thread.setDaemon(True)
-        self.options_thread.start()
+        pass
 
     def play_pause(self):  # sourcery skip: extract-method
         '''
@@ -75,9 +62,9 @@ class Bot(ABC):
             self.log_msg("Starting bot...")
             self.reset_iter()
             self.set_status(BotStatus.RUNNING)
-            self.bot_thread = Thread(target=self.main_loop)
-            self.bot_thread.setDaemon(True)
-            self.bot_thread.start()
+            self.thread = Thread(target=self.main_loop)
+            self.thread.setDaemon(True)
+            self.thread.start()
         elif self.status == BotStatus.RUNNING:
             self.log_msg("Pausing bot...")
             self.set_status(BotStatus.PAUSED)
