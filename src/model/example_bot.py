@@ -58,7 +58,7 @@ class ExampleBot(Bot):
         # This example bot loop simulates a character moving between Location A and B. Time.sleep() is used to
         # simulate the bot waiting for conditions.
         self.player_position = "A"
-        while self.current_iter < self.iterations and self.status != BotStatus.STOPPED:
+        while self.current_iter < self.iterations:
             time.sleep(1)
             # Character is at point A
             self.log_msg("Character is at point A")
@@ -80,14 +80,13 @@ class ExampleBot(Bot):
                     self.log_msg("Character is at point B")
                     self.player_position = "B"
             time.sleep(1)
-            # msg character is teleporting back to point A
             self.log_msg("Character is teleporting back to point A...")
             time.sleep(1)
             self.increment_iter()
             self.player_position = "A"
-        # If the bot reaches here with a non-stopped status, it means it has completed all of its iterations.
-        if self.status == BotStatus.STOPPED:
-            self.log_msg("Bot has been stopped by the user.")
-        else:
-            self.log_msg("Bot has completed all of its iterations.")
-            self.set_status(BotStatus.STOPPED)
+            # Check once more for status and keyboard interrupts
+            if not self.status_check_passed():
+                return
+        # If the bot reaches here it has completed all of its iterations.
+        self.log_msg("Bot has completed all of its iterations.")
+        self.set_status(BotStatus.STOPPED)
