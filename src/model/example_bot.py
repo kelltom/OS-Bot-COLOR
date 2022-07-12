@@ -29,6 +29,12 @@ class ExampleBot(Bot):
             if option == "iterations":
                 self.iterations = options[option]
                 self.log_msg(f"Iterations set to: {self.iterations}")
+            elif option == "multi_select_example":
+                self.multi_select_example = options[option]
+                self.log_msg(f"Multi-select example set to: {self.multi_select_example}")
+            elif option == "menu_example":
+                self.menu_example = options[option]
+                self.log_msg(f"Menu example set to: {self.menu_example}")
             else:
                 self.log_msg(f"Unknown option: {option}")
         self.options_set = True
