@@ -17,11 +17,14 @@ class ExampleBotOptions(customtkinter.CTkFrame):
                                                               text_font=("Roboto Medium", 14))
         self.lbl_example_bot_options.grid(row=0, column=0, pady=10, padx=10)
 
+        for i in range(1, 4):
+            customtkinter.CTkLabel(master=self, text="Hello").grid(row=i, column=0, pady=10, padx=10)
+
         # Save button
         self.btn_save = customtkinter.CTkButton(master=self,
                                                 text="Save",
                                                 command=lambda: self.save(window=parent))
-        self.btn_save.grid(row=1, column=0, pady=10, padx=20)
+        self.btn_save.grid(row=4, column=0, pady=10, padx=20)
 
     def save(self, window):
         '''

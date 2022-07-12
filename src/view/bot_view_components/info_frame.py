@@ -122,10 +122,10 @@ class InfoFrame(customtkinter.CTkFrame):
         Creates a new TopLevel view to display bot options.
         '''
         window = customtkinter.CTkToplevel(master=self)
-        window.geometry("400x200")
+        window.title("Options")
         window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
 
-        self.options_class(parent=window, controller=self.controller).pack(side="top", fill="both", expand=True, padx=40, pady=40)
+        self.options_class(parent=window, controller=self.controller).pack(side="top", fill="both", expand=True, padx=20, pady=20)
 
     # ---- Status Handlers ----
     def update_status_running(self):
