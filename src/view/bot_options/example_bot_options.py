@@ -65,6 +65,14 @@ class ExampleBotOptions(customtkinter.CTkFrame):
                                                                     text="Option 3")
         self.chk_multi_select_example_3.grid(row=0, column=2, sticky="ew", padx=5, pady=5)
 
+        # ------------- Menu Example -------------
+        self.lbl_menu_example = customtkinter.CTkLabel(master=self,
+                                                       text="Menu Example")
+        self.lbl_menu_example.grid(row=3, column=0, sticky='nsew', padx=(10, 0), pady=20)
+        self.menu = customtkinter.CTkOptionMenu(master=self,
+                                                values=["Option 1", "Option 2", "Option 3"])
+        self.menu.grid(row=3, column=1, sticky="ew", padx=(0, 10))
+
         # Save button
         self.btn_save = customtkinter.CTkButton(master=self,
                                                 text="Save",
@@ -88,6 +96,8 @@ class ExampleBotOptions(customtkinter.CTkFrame):
             self.options["multi_select_example"].append(2)
         if self.chk_multi_select_example_3.get():
             self.options["multi_select_example"].append(3)
+        # Get menu
+        self.options["menu_example"] = self.menu.get()
 
         # Send to controller
         self.controller.save_options(self.options)
