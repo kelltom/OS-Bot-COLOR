@@ -23,11 +23,26 @@ class BotController(object):
         '''
         self.model.stop()
 
-    def set_options(self):
+    def options_btn_clicked(self):
         '''
-        Options btn clicked on view.
+        Called from view. Preps model for configuring of options.
         '''
-        self.model.set_options()
+        self.model.set_status(BotStatus.CONFIGURING)
+        self.view.frame_info.show_options()
+
+    def save_options(self, options):
+        '''
+        Called from view. Tells model to save options.
+        '''
+        self.model.save_options(options)
+        self.model.set_status(BotStatus.STOPPED)
+
+    def abort_options(self):
+        '''
+        Called from view when options window is closed manually.
+        '''
+        self.update_log("Bot configuration aborted.")
+        self.model.set_status(BotStatus.STOPPED)
 
     def update_status(self):
         '''

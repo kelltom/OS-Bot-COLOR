@@ -3,6 +3,7 @@ from controller.bot_controller import BotController
 from model.example_bot import ExampleBot
 import tkinter
 from view.bot_view import BotView
+from view.bot_options.example_bot_options import ExampleBotOptions
 from view.default_view import DefaultView
 
 
@@ -84,7 +85,8 @@ class App(customtkinter.CTk):
         self.example_controller = BotController(model=self.example_model, view=self.views["Example"])
         self.views["Example"].setup(controller=self.example_controller,
                                     title=self.example_model.title,
-                                    description=self.example_model.description)
+                                    description=self.example_model.description,
+                                    options_class=ExampleBotOptions)
         # Example Bot 2
         self.views["Example 2"] = BotView(parent=self.frame_right)
 

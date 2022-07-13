@@ -1,0 +1,40 @@
+BOTUTILS
+
+
+Possible properties:
+- a map of the position of each inventory slot
+- the NPC tag colour and object marker colour
+- ground items colour
+- coordinates of HP, Prayer, Spec, Inventory, Prayerbook, Spellbook,
+- coordinates of gameplay view
+- maybe the position of the XP counter that will be used to determine if taking action
+
+
+Possible functions:
+- setup_window() --> focuses and moves RL client, sets camera
+	- reset_plugins() --> goes to each major plugin and resets them.
+	- set_fixed_layout() --> uses OpenCV to go to settings and set layout to classic.
+- enable_entity_hider() --> MAYBE?
+- drop_from_inventory(image) --> given an image, shift click all matches in inventory space
+- a function to find an image on screen might involve taking a screenshot, storing it in a
+  temporary path, opening the screenshot and using OpenCV to find the image within the image.
+- image_to_text() --> this can be used to get the number representation of HP, prayer, etc.
+  Requires Tesseract-OCR.
+	- get_hp()
+	- get_prayer()
+	- get_special()
+- click_nearest_tag() --> will determine where the nearest tagged area is and click
+- click_nearest_marker() --> same as above but for objects
+- loot_highlighted_items() --> picks up all visible highlighted ground items
+
+
+Concerns:
+- If I take a bunch of screenshots on my PC, will those images be recognized on another?
+- How do I know if the player is idle?
+
+
+RL Plugins:
+- Object Markers for skilling
+- NPC Indicators for combat
+- Ground Items
+- Entity Hider (maybe)

@@ -42,11 +42,9 @@ class Bot(ABC):
         pass
 
     @abstractmethod
-    def set_options(self):
+    def save_options(self, options: dict):
         '''
-        Runs PyAutoGUI message boxes to set the options for the bot. Collect all necessary information from the user and
-        set the bot's options. This function should log messages to the controller upon failure or success, set the
-        options_set flag to True if successful, and set the bot status to STOPPED.
+        Given a dictionary of options, this function should save the options to the model's properties.
         '''
         pass
 

@@ -29,7 +29,7 @@ class BotView(customtkinter.CTkFrame):
 
         self.controller = None
 
-    def setup(self, controller, title, description):
+    def setup(self, controller, title, description, options_class):
         '''
         Sets up the view (and child views) with the given controller. Also sets the title and
         description for the info frame.
@@ -37,6 +37,6 @@ class BotView(customtkinter.CTkFrame):
         self.controller = controller
 
         self.frame_info.set_controller(controller=controller)
-        self.frame_info.setup(title=title, description=description)
+        self.frame_info.setup(title=title, description=description, options_class=options_class)
 
         self.frame_output_log.set_controller(controller=controller)

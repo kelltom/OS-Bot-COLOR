@@ -5,7 +5,7 @@ import tkinter
 
 
 class InfoFrame(customtkinter.CTkFrame):
-    def __init__(self, parent, title, info):
+    def __init__(self, parent, title, info):  # sourcery skip: merge-nested-ifs
         '''
         Creates a 5x2 frame with the following widgets:
             - script title (label)
@@ -91,23 +91,43 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_status.grid(row=4, column=1, sticky="we")
 
         self.controller = None
+        self.options_class = None
 
+    # ---- Setup ----
     def set_controller(self, controller):
         self.controller = controller
 
-    def setup(self, title, description):
+    def setup(self, title, description, options_class):
         self.lbl_script_title.config(text=title)
         self.lbl_script_desc.config(text=description)
+        self.options_class = options_class
 
+    # ---- Control Button Handlers ----
     def play_btn_clicked(self):
         self.controller.play_pause()
 
     def stop_btn_clicked(self):
         self.controller.stop()
 
+    # ---- Options Handlers ----
     def options_btn_clicked(self):
-        self.controller.set_options()
+        self.controller.options_btn_clicked()
 
+    def on_options_closing(self, window):
+        self.controller.abort_options()
+        window.destroy()
+
+    def show_options(self):
+        '''
+        Creates a new TopLevel view to display bot options.
+        '''
+        window = customtkinter.CTkToplevel(master=self)
+        window.title("Options")
+        window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
+
+        self.options_class(parent=window, controller=self.controller).pack(side="top", fill="both", expand=True, padx=20, pady=20)
+
+    # ---- Status Handlers ----
     def update_status_running(self):
         self.__toggle_buttons(True)
         self.btn_options.config(state=tkinter.DISABLED)
@@ -142,6 +162,7 @@ class InfoFrame(customtkinter.CTkFrame):
             self.btn_abort.config(state=tkinter.DISABLED)
             self.btn_options.config(state=tkinter.DISABLED)
 
+    # ---- Progress Bar Handlers ----
     def update_progress(self, progress):
         '''
         Called from controller. Updates the progress bar and percentage.
