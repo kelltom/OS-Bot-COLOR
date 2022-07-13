@@ -20,7 +20,7 @@ class DefaultView(customtkinter.CTkFrame):
         PATH = pathlib.Path(__file__).parent.parent.resolve()
         img_size = 18
         full_img_width = img_size + 5
-        self.img_copy = ImageTk.PhotoImage(Image.open(f"{PATH}/images/copy.png").resize((img_size, img_size)), Image.ANTIALIAS)
+        self.img_copy = ImageTk.PhotoImage(Image.open(f"{PATH}/images/ui/copy.png").resize((img_size, img_size)), Image.ANTIALIAS)
 
         # Title label
         self.label_title = customtkinter.CTkLabel(master=self,
