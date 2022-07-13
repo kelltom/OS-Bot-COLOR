@@ -8,8 +8,8 @@ from collections import namedtuple
 import pathlib
 import pyautogui as pag
 import pygetwindow
-from PIL import Image, ImageGrab
-from python_imagesearch.imagesearch import imagesearch, imagesearcharea, region_grabber
+from PIL import ImageGrab
+from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 import time
 
 # --- The path to this directory ---
@@ -24,7 +24,7 @@ Rectangle = namedtuple('Rectangle', 'start end')
 
 
 example_point = Point(x=100, y=100)
-WINDOW = Rectangle(start=(0, 0), end=(850, 800))
+WINDOW = Rectangle(start=(0, 0), end=(1420, 1080))
 
 
 # TODO: Figure out if I need this
@@ -40,7 +40,7 @@ def capture_screen(left, top, right, bottom):
     im.save(f"{PATH}/{SCREENSHOT_NAME}")
 
 
-def search_img_in_rect(rect: Rectangle, img_path: str, conf: float = 0.8):
+def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8):
     '''
     Searches for an image in a rectangle.
     Parameters:
@@ -64,9 +64,9 @@ def setup_client_alora():
     # Resize to desired size
     win.size = (WINDOW.end[0], WINDOW.end[1])
 
-    # Capture window
+    # Search for settings button and click it
     time.sleep(1)
-    pos = search_img_in_rect(WINDOW, "./src/images/bot/cp_settings_icon.png")
+    pos = search_img_in_rect("./src/images/bot/cp_settings_icon.png", WINDOW)
     print(pos)
     if pos is None:
         print("it's none")
