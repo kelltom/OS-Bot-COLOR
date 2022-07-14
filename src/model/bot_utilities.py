@@ -59,6 +59,17 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8):
     return pos
 
 
+def search_text_in_rect(text: list, rect: Rectangle) -> bool:
+    '''
+    Searches for a text in a rectangle.
+    Parameters:
+        rect: The rectangle to search in.
+        text: A list of text that is expected within the rectangle area.
+    Returns:
+        True if the text was found, otherwise False.
+    '''
+
+
 def setup_client_alora():
     '''
     Configures the client window of Alora.
