@@ -30,16 +30,14 @@ example_point = Point(x=100, y=100)
 WINDOW = Rectangle(start=(0, 0), end=(1420, 1080))
 
 
-# TODO: Figure out if I need this
-def capture_screen(left, top, right, bottom):
+def capture_screen(rect: Rectangle):
     '''
-    Captures the screen and saves it to a file.
+    Captures a given Rectangle and saves it to a file.
     Parameters:
         x: The distance in pixels from the left side of the screen.
         y: The distance in pixels from the top of the screen.
     '''
-    # capture the screen
-    im = ImageGrab.grab(bbox=(left, top, right, bottom))
+    im = ImageGrab.grab(bbox=(rect.start[0], rect.start[1], rect.end[0], rect.end[1]))
     im.save(f"{PATH}/{SCREENSHOT_NAME}")
 
 
