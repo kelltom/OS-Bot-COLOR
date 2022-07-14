@@ -4,7 +4,10 @@ MPos was used to acquire hardcoded coordinates.
 
 For more on ImageSearch, see: https://brokencode.io/how-to-easily-image-search-with-python/
 '''
+import argparse
 from collections import namedtuple
+import cv2
+from easyocr import Reader
 import pathlib
 import pyautogui as pag
 import pygetwindow
@@ -18,9 +21,6 @@ PATH = pathlib.Path(__file__).parent.resolve()
 # --- The path to the bot images directory ---
 IMAGES_PATH = "./src/images/bot"
 
-# --- Temporary screenshot filename ---
-SCREENSHOT_NAME = "screenshot.png"
-
 # --- Named Tuples ---
 Point = namedtuple('Point', 'x y')
 Rectangle = namedtuple('Rectangle', 'start end')
@@ -32,7 +32,6 @@ window = Rectangle(start=(0, 0), end=(809, 534))
 activity_rect = Rectangle(start=(10, 52), end=(171, 93))  # top left corner of screen
 
 # ------- Points of Interest -------
-
 # --- Orbs ---
 orb_compass = Point(x=571, y=48)
 orb_prayer = Point(x=565, y=119)
@@ -70,6 +69,12 @@ def get_inventory_slots() -> list:
 
 
 inventory_slots = get_inventory_slots()
+
+# --- Configure OCR Arguments ---
+ap = argparse.ArgumentParser()
+ap.add_argument("-l", "--langs", type=str, default="en", help="comma separated list of languages to OCR")
+ap.add_argument("-g", "--gpu", type=int, default=-1, help="whether or not GPU should be used")
+args = vars(ap.parse_args())
 
 
 def visit_points():
@@ -110,11 +115,16 @@ def capture_screen(rect: Rectangle):
     Parameters:
         x: The distance in pixels from the left side of the screen.
         y: The distance in pixels from the top of the screen.
+    Returns:
+        The path to the saved image.
     '''
     im = ImageGrab.grab(bbox=(rect.start[0], rect.start[1], rect.end[0], rect.end[1]))
-    im.save(f"{PATH}/{SCREENSHOT_NAME}")
+    path = f"{PATH}/screenshot.png"
+    im.save(path)
+    return path
 
 
+# --- Image Search ---
 def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8):
     '''
     Searches for an image in a rectangle.
@@ -131,15 +141,52 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8):
     return pos
 
 
-def search_text_in_rect(text: list, rect: Rectangle) -> bool:
+# --- OCR ---
+def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,) -> bool:
     '''
-    Searches for a text in a rectangle.
+    Searches for text in a Rectangle.
     Parameters:
         rect: The rectangle to search in.
-        text: A list of text that is expected within the rectangle area.
+        expected: List of strings that are expected within the rectangle area.
+        blacklist: List of strings that, if found, will cause the function to return False.
     Returns:
-        True if the text was found, otherwise False.
+        False if ANY blacklist words are found, else True if ANY expected text exists,
+        and None if the text is irrelevant.
     '''
+    # Screenshot the rectangle
+    path = capture_screen(rect)
+    # Load the image
+    image = cv2.imread(path)
+
+    # OCR the input image using EasyOCR
+    print("[INFO] OCR'ing input image...")
+    langs = args["langs"].split(",")
+    reader = Reader(langs, gpu=args["gpu"] > 0)
+
+    res = reader.readtext(image)
+
+    # Loop through results
+    word_found = False
+    for (_, text, _) in res:
+        if text is None or text == "":
+            return None
+        text = text.lower()
+        print(f"OCR Result: {text}")
+        # If any strings in blacklist are found in text, return false
+        if blacklist is not None:
+            for word in blacklist:
+                print(f"Checking blacklist word: {word.lower()}")
+                if word.lower() in text:
+                    print(f"Blacklist word found: {word.lower()}")
+                    return False
+        for word in expected:
+            print(f"Checking expected word: {word.lower()}")
+            if word.lower() in text:
+                print(f"Expected word found: {word.lower()}")
+                word_found = True
+    if word_found:
+        return True
+    return None
 
 
 def setup_client_alora():
@@ -166,4 +213,6 @@ def setup_client_alora():
 
 setup_client_alora()
 
-visit_points()
+# Returns true if player is fishing, false if they are not
+res = search_text_in_rect(activity_rect, ["fishing"], ["NOT"])
+print(res)
