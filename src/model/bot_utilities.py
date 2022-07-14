@@ -25,9 +25,11 @@ SCREENSHOT_NAME = "screenshot.png"
 Point = namedtuple('Point', 'x y')
 Rectangle = namedtuple('Rectangle', 'start end')
 
-
+# --- Example usage of Point tuple ---
 example_point = Point(x=100, y=100)
-WINDOW = Rectangle(start=(0, 0), end=(1420, 1080))
+
+# --- Desired client position ---
+WINDOW = Rectangle(start=(0, 0), end=(809, 534))
 
 
 def capture_screen(rect: Rectangle):
