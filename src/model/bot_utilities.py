@@ -69,6 +69,36 @@ def get_inventory_slots() -> list:
 inventory_slots = get_inventory_slots()
 
 
+def visit_points():
+    '''
+    Moves mouse to each defined point of interest.
+    '''
+    pag.moveTo(orb_compass.x, orb_compass.y)
+    time.sleep(0.5)
+    pag.moveTo(orb_prayer.x, orb_prayer.y)
+    time.sleep(0.5)
+    pag.moveTo(orb_spec.x, orb_spec.y)
+    time.sleep(0.5)
+    pag.moveTo(cp_combat.x, cp_combat.y)
+    time.sleep(0.5)
+    pag.moveTo(cp_inventory.x, cp_inventory.y)
+    time.sleep(0.5)
+    pag.moveTo(cp_equipment.x, cp_equipment.y)
+    time.sleep(0.5)
+    pag.moveTo(cp_prayer.x, cp_prayer.y)
+    time.sleep(0.5)
+    pag.moveTo(cp_spellbook.x, cp_spellbook.y)
+    time.sleep(0.5)
+    pag.moveTo(cp_logout.x, cp_logout.y)
+    time.sleep(0.5)
+    pag.moveTo(cp_settings.x, cp_settings.y)
+    time.sleep(0.5)
+    for row in inventory_slots:
+        for slot in row:
+            pag.moveTo(slot.x, slot.y)
+            time.sleep(0.5)
+
+
 def capture_screen(rect: Rectangle):
     '''
     Captures a given Rectangle and saves it to a file.
@@ -130,3 +160,5 @@ def setup_client_alora():
 
 
 setup_client_alora()
+
+visit_points()
