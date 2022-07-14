@@ -29,7 +29,7 @@ Rectangle = namedtuple('Rectangle', 'start end')
 window = Rectangle(start=(0, 0), end=(809, 534))
 
 # ------- Rects of Interest -------
-
+activity_rect = Rectangle(start=(10, 52), end=(171, 93))  # top left corner of screen
 
 # ------- Points of Interest -------
 
