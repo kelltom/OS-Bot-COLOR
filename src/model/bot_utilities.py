@@ -70,12 +70,6 @@ def get_inventory_slots() -> list:
 
 inventory_slots = get_inventory_slots()
 
-# --- Configure OCR Arguments ---
-ap = argparse.ArgumentParser()
-ap.add_argument("-l", "--langs", type=str, default="en", help="comma separated list of languages to OCR")
-ap.add_argument("-g", "--gpu", type=int, default=-1, help="whether or not GPU should be used")
-args = vars(ap.parse_args())
-
 
 def visit_points():
     '''
@@ -153,16 +147,12 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,
         False if ANY blacklist words are found, else True if ANY expected text exists,
         and None if the text is irrelevant.
     '''
-    # Screenshot the rectangle
+    # Screenshot the rectangle and load the image
     path = capture_screen(rect)
-    # Load the image
     image = cv2.imread(path)
 
     # OCR the input image using EasyOCR
-    print("[INFO] OCR'ing input image...")
-    langs = args["langs"].split(",")
-    reader = Reader(langs, gpu=args["gpu"] > 0)
-
+    reader = Reader(['en'], gpu=-1)
     res = reader.readtext(image)
 
     # Loop through results
@@ -179,6 +169,7 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,
                 if word.lower() in text:
                     print(f"Blacklist word found: {word.lower()}")
                     return False
+        # If any strings in expected are found in text, set flag true
         for word in expected:
             print(f"Checking expected word: {word.lower()}")
             if word.lower() in text:
