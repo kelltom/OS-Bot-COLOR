@@ -60,6 +60,10 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8):
 
 
 def setup_client_alora():
+    '''
+    Configures the client window of Alora.
+    Experimental.
+    '''
     # Move window to top left corner
     win = pygetwindow.getWindowsWithTitle('Alora')[0]
     win.moveTo(WINDOW.start[0], WINDOW.start[1])
