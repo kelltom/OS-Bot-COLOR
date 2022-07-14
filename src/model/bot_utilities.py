@@ -26,14 +26,19 @@ Point = namedtuple('Point', 'x y')
 Rectangle = namedtuple('Rectangle', 'start end')
 
 # --- Desired client position ---
-WINDOW = Rectangle(start=(0, 0), end=(809, 534))
+window = Rectangle(start=(0, 0), end=(809, 534))
 
-# --- Points of Interest ---
-# ---- Orbs -----
+# ------- Rects of Interest -------
+
+
+# ------- Points of Interest -------
+
+# --- Orbs ---
 orb_compass = Point(x=571, y=48)
 orb_prayer = Point(x=565, y=119)
 orb_spec = Point(x=597, y=178)
-# ---- Control Panel ----
+
+# --- Control Panel ---
 h1 = 213  # top row height
 h2 = 510  # bottom row height
 cp_combat = Point(x=545, y=h1)
@@ -45,7 +50,7 @@ cp_logout = Point(x=646, y=h2)
 cp_settings = Point(x=680, y=h2)
 
 
-# ---- Inventory Slots ----
+# --- Inventory Slots ---
 def get_inventory_slots() -> list:
     '''
     Returns a 2D list of the inventory slots represented as Points.
@@ -144,14 +149,14 @@ def setup_client_alora():
     '''
     # Move window to top left corner
     win = pygetwindow.getWindowsWithTitle('Alora')[0]
-    win.moveTo(WINDOW.start[0], WINDOW.start[1])
+    win.moveTo(window.start[0], window.start[1])
 
     # Resize to desired size
-    win.size = (WINDOW.end[0], WINDOW.end[1])
+    win.size = (window.end[0], window.end[1])
 
     # Search for settings button and click it
     time.sleep(1)
-    pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", WINDOW)
+    pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
     print(pos)
     if pos is None:
         print("it's none")
