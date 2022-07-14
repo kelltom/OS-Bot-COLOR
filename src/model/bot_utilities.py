@@ -49,17 +49,20 @@ cp_settings = Point(x=680, y=h2)
 def get_inventory_slots() -> list:
     '''
     Returns a 2D list of the inventory slots represented as Points.
+    Inventory is 7x4.
     '''
     inv = []
-    y = 253
+    y_delta = 36
+    x_delta = 42
+    curr_y = 253
     for _ in range(7):
-        x = 583  # reset x
+        curr_x = 583  # reset x
         row = []
         for _ in range(4):
-            row.append(Point(x=x, y=y))
-            x += 42
+            row.append(Point(x=curr_x, y=curr_y))
+            curr_x += x_delta
         inv.append(row)
-    y += 37
+        curr_y += y_delta
     return inv
 
 
