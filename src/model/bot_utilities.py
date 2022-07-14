@@ -72,6 +72,7 @@ inventory_slots = get_inventory_slots()
 def visit_points():
     '''
     Moves mouse to each defined point of interest.
+    TODO: Remove. This is just for testing.
     '''
     pag.moveTo(orb_compass.x, orb_compass.y)
     time.sleep(0.5)
@@ -97,6 +98,7 @@ def visit_points():
         for slot in row:
             pag.moveTo(slot.x, slot.y)
             time.sleep(0.5)
+    pag.moveTo(inventory_slots[2][1].x, inventory_slots[2][1].y)
 
 
 def capture_screen(rect: Rectangle):
