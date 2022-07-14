@@ -4,7 +4,6 @@ MPos was used to acquire hardcoded coordinates.
 
 For more on ImageSearch, see: https://brokencode.io/how-to-easily-image-search-with-python/
 '''
-import argparse
 from collections import namedtuple
 import cv2
 from easyocr import Reader
