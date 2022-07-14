@@ -16,7 +16,7 @@ import time
 PATH = pathlib.Path(__file__).parent.resolve()
 
 # --- The path to the bot images directory ---
-BOT_IMAGES = "./src/images/bot"
+IMAGES_PATH = "./src/images/bot"
 
 # --- Temporary screenshot filename ---
 SCREENSHOT_NAME = "screenshot.png"
@@ -153,7 +153,7 @@ def setup_client_alora():
 
     # Search for settings button and click it
     time.sleep(1)
-    pos = search_img_in_rect("./src/images/bot/cp_settings_icon.png", WINDOW)
+    pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", WINDOW)
     print(pos)
     if pos is None:
         print("it's none")
