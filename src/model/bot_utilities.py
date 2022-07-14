@@ -15,6 +15,9 @@ import time
 # --- The path to this directory ---
 PATH = pathlib.Path(__file__).parent.resolve()
 
+# --- The path to the bot images directory ---
+BOT_IMAGES = "./src/images/bot"
+
 # --- Temporary screenshot filename ---
 SCREENSHOT_NAME = "screenshot.png"
 
