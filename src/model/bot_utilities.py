@@ -25,11 +25,45 @@ SCREENSHOT_NAME = "screenshot.png"
 Point = namedtuple('Point', 'x y')
 Rectangle = namedtuple('Rectangle', 'start end')
 
-# --- Example usage of Point tuple ---
-example_point = Point(x=100, y=100)
-
 # --- Desired client position ---
 WINDOW = Rectangle(start=(0, 0), end=(809, 534))
+
+# --- Points of Interest ---
+# ---- Orbs -----
+orb_compass = Point(x=571, y=48)
+orb_prayer = Point(x=565, y=119)
+orb_spec = Point(x=597, y=178)
+# ---- Control Panel ----
+h1 = 213  # top row height
+h2 = 510  # bottom row height
+cp_combat = Point(x=545, y=h1)
+cp_inventory = Point(x=646, y=h1)
+cp_equipment = Point(x=678, y=h1)
+cp_prayer = Point(x=713, y=h1)
+cp_spellbook = Point(x=744, y=h1)
+cp_logout = Point(x=646, y=h2)
+cp_settings = Point(x=680, y=h2)
+
+
+# ---- Inventory Slots ----
+def get_inventory_slots() -> list:
+    '''
+    Returns a 2D list of the inventory slots represented as Points.
+    '''
+    inv = []
+    y = 253
+    for _ in range(7):
+        x = 583  # reset x
+        row = []
+        for _ in range(4):
+            row.append(Point(x=x, y=y))
+            x += 42
+        inv.append(row)
+    y += 37
+    return inv
+
+
+inventory_slots = get_inventory_slots()
 
 
 def capture_screen(rect: Rectangle):
