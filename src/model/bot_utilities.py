@@ -52,17 +52,15 @@ def get_inventory_slots() -> list:
     Inventory is 7x4.
     '''
     inv = []
-    y_delta = 36
-    x_delta = 42
     curr_y = 253
     for _ in range(7):
         curr_x = 583  # reset x
         row = []
         for _ in range(4):
             row.append(Point(x=curr_x, y=curr_y))
-            curr_x += x_delta
+            curr_x += 42  # x delta
         inv.append(row)
-        curr_y += y_delta
+        curr_y += 36  # y delta
     return inv
 
 
