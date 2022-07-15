@@ -8,7 +8,7 @@ from collections import namedtuple
 import cv2
 from easyocr import Reader
 import pathlib
-from PIL import ImageGrab
+from PIL import Image, ImageGrab
 import pyautogui as pag
 import pygetwindow
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
@@ -180,7 +180,7 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,
     return None
 
 
-def get_text_in_rect(rect: Rectangle) -> str:
+def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
     '''
     Fetches text in a Rectangle.
     Parameters:
@@ -190,6 +190,10 @@ def get_text_in_rect(rect: Rectangle) -> str:
     '''
     # Screenshot the rectangle and load the image
     path = __capture_screen(rect)
+
+    if is_low_res:
+        __preprocess_low_res_text_at(path)
+
     image = cv2.imread(path)
 
     # OCR the input image using EasyOCR
@@ -203,6 +207,26 @@ def get_text_in_rect(rect: Rectangle) -> str:
             return None
         text += f"{_text} "
     return text
+
+
+def __preprocess_low_res_text_at(path: str):
+    '''
+    Preprocesses an image at a given path and saves it back to the same path.
+    This function improves text clarity for OCR by isolating the text.
+    Note:
+        Only works for low-resolution images with pixelated text and a solid background.
+    Parameters:
+        path: The path to the image to preprocess.
+    Reference: https://stackoverflow.com/questions/50862125/how-to-get-better-accurate-results-with-ocr-from-low-resolution-images
+
+    '''
+    im = Image.open(path)
+    width, height = im.size
+    new_size = width*6, height*6
+    im = im.resize(new_size, Image.Resampling.LANCZOS)
+    im = im.convert('L')
+    im = im.point(lambda x: 0 if x < 120 else 255, '1')
+    im.save(path)
 
 
 def __any_in_str(words: list, str: str) -> bool:
@@ -246,5 +270,5 @@ print(pos)
 res = search_text_in_rect(rect_current_action, ["fishing"], ["NOT", "nt"])
 print(res)
 
-res = get_text_in_rect(rect_hp)
+res = get_text_in_rect(rect_hp, is_low_res=True)
 print(res)
