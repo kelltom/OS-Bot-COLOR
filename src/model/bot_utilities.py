@@ -28,7 +28,9 @@ Rectangle = namedtuple('Rectangle', 'start end')
 window = Rectangle(start=(0, 0), end=(809, 534))
 
 # ------- Rects of Interest -------
-activity_rect = Rectangle(start=(10, 52), end=(171, 93))  # top left corner of screen
+rect_current_action = Rectangle(start=(10, 52), end=(171, 93))  # top left corner of screen
+rect_game_view = Rectangle(start=(9, 31), end=(517, 362))  # gameplay area
+rect_hp = Rectangle(start=(526, 80), end=(552, 100))  # contains HP text value
 
 # ------- Points of Interest -------
 # --- Orbs ---
@@ -178,6 +180,31 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,
     return None
 
 
+def get_text_in_rect(rect: Rectangle) -> str:
+    '''
+    Fetches text in a Rectangle.
+    Parameters:
+        rect: The rectangle to search in.
+    Returns:
+        The text found in the rectangle.
+    '''
+    # Screenshot the rectangle and load the image
+    path = __capture_screen(rect)
+    image = cv2.imread(path)
+
+    # OCR the input image using EasyOCR
+    reader = Reader(['en'], gpu=-1)
+    res = reader.readtext(image)
+
+    # Loop through results
+    text = ""
+    for (_, _text, _) in res:
+        if _text is None or _text == "":
+            return None
+        text += f"{_text} "
+    return text
+
+
 def __any_in_str(words: list, str: str) -> bool:
     '''
     Checks if any of the words in the list are found in the string.
@@ -216,5 +243,8 @@ pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
 print(pos)
 
 # Returns true if player is fishing, false if they are not
-res = search_text_in_rect(activity_rect, ["fishing"], ["NOT", "nt"])
+res = search_text_in_rect(rect_current_action, ["fishing"], ["NOT", "nt"])
+print(res)
+
+res = get_text_in_rect(rect_hp)
 print(res)
