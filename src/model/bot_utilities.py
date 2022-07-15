@@ -162,21 +162,31 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,
         text = text.lower()
         print(f"OCR Result: {text}")
         # If any strings in blacklist are found in text, return false
-        if blacklist is not None:
-            for word in blacklist:
-                print(f"Checking blacklist word: {word.lower()}")
-                if word.lower() in text:
-                    print(f"Blacklist word found: {word.lower()}")
-                    return False
+        _result, _word = __any_in_str(blacklist, text)
+        if _result:
+            print(f"Blacklist word found: {_word}")
+            return False
         # If any strings in expected are found in text, set flag true
-        for word in expected:
-            print(f"Checking expected word: {word.lower()}")
-            if word.lower() in text:
-                print(f"Expected word found: {word.lower()}")
+        if not word_found:
+            _result, _word = __any_in_str(expected, text)
+            if _result:
                 word_found = True
+                print(f"Expected word found: {_word}")
     if word_found:
         return True
     return None
+
+
+def __any_in_str(words: list, str: str) -> bool:
+    '''
+    Checks if any of the words in the list are found in the string.
+    Parameters:
+        str: The string to search in.
+        words: The list of words to search for.
+    Returns:
+        True if any of the words are found (also returns the word found), else False.
+    '''
+    return next(((True, word) for word in words if word.lower() in str), (False, None))
 
 
 def setup_client_alora():
@@ -205,5 +215,5 @@ pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
 print(pos)
 
 # Returns true if player is fishing, false if they are not
-res = search_text_in_rect(activity_rect, ["fishing"], ["NOT"])
+res = search_text_in_rect(activity_rect, ["fishing"], ["NOT", "nt"])
 print(res)
