@@ -31,6 +31,7 @@ Possible functions:
 Concerns:
 - If I take a bunch of screenshots on my PC, will those images be recognized on another?
 - How do I know if the player is idle?
+- How do I know if an NPC is already under attack?
 
 
 RL Plugins:
