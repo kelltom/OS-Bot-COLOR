@@ -185,23 +185,24 @@ def setup_client_alora():
     Experimental.
     '''
     # Move window to top left corner
-    win = pygetwindow.getWindowsWithTitle('Alora')[0]
-    win.moveTo(window.start[0], window.start[1])
+    try:
+        win = pygetwindow.getWindowsWithTitle('Alora')[0]
+    except Exception:
+        print("Error: Could not find Alora window.")
+        return
 
-    # Resize to desired size
+    # Move and resize to desired position
+    win.moveTo(window.start[0], window.start[1])
     win.size = (window.end[0], window.end[1])
 
     # Search for settings button and click it
     time.sleep(1)
-    pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
-    print(pos)
-    if pos is None:
-        print("it's none")
-    else:
-        pag.click(pos[0]+5, pos[1]+5)
 
 
 setup_client_alora()
+
+pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
+print(pos)
 
 # Returns true if player is fishing, false if they are not
 res = search_text_in_rect(activity_rect, ["fishing"], ["NOT"])
