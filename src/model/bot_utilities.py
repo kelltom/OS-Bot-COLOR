@@ -4,7 +4,7 @@ MPos was used to acquire hardcoded coordinates.
 
 For more on ImageSearch, see: https://brokencode.io/how-to-easily-image-search-with-python/
 '''
-from collections import namedtuple
+from typing import NamedTuple
 import cv2
 from easyocr import Reader
 import pathlib
@@ -13,6 +13,8 @@ import pyautogui as pag
 import pygetwindow
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 import time
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 # --- The path to this directory ---
 PATH = pathlib.Path(__file__).parent.resolve()
@@ -21,16 +23,16 @@ PATH = pathlib.Path(__file__).parent.resolve()
 IMAGES_PATH = "./src/images/bot"
 
 # --- Named Tuples ---
-Point = namedtuple('Point', 'x y')
-Rectangle = namedtuple('Rectangle', 'start end')
+Point = NamedTuple("Point", x=int, y=int)
+Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
 
 # --- Desired client position ---
-window = Rectangle(start=(0, 0), end=(809, 534))
+window = Rectangle(start=Point(0, 0), end=Point(809, 534))
 
 # ------- Rects of Interest -------
-rect_current_action = Rectangle(start=(10, 52), end=(171, 93))  # top left corner of screen
-rect_game_view = Rectangle(start=(9, 31), end=(517, 362))  # gameplay area
-rect_hp = Rectangle(start=(526, 80), end=(552, 100))  # contains HP text value
+rect_current_action = Rectangle(start=Point(10, 52), end=Point(171, 93))  # top left corner of screen
+rect_game_view = Rectangle(start=Point(9, 31), end=Point(517, 362))  # gameplay area
+rect_hp = Rectangle(start=Point(526, 80), end=Point(552, 100))  # contains HP text value
 
 # ------- Points of Interest -------
 # --- Orbs ---
@@ -113,7 +115,7 @@ def __capture_screen(rect: Rectangle):
     Returns:
         The path to the saved image.
     '''
-    im = ImageGrab.grab(bbox=(rect.start[0], rect.start[1], rect.end[0], rect.end[1]))
+    im = ImageGrab.grab(bbox=(rect.start.x, rect.start.y, rect.end.x, rect.end.y))
     path = f"{PATH}/screenshot.png"
     im.save(path)
     return path
@@ -130,8 +132,8 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
     Returns:
         The coordinates of the image if found (as a Point), otherwise None.
     '''
-    im = region_grabber((rect.start[0], rect.start[1], rect.end[0], rect.end[1]))
-    pos = imagesearcharea(img_path, rect.start[0], rect.start[1], rect.end[0], rect.end[1], conf, im)
+    im = region_grabber((rect.start.x, rect.start.y, rect.end.x, rect.end.y))
+    pos = imagesearcharea(img_path, rect.start.x, rect.start.y, rect.end.x, rect.end.y, conf, im)
     if pos == [-1, -1]:
         return None
     return Point(x=pos[0], y=pos[1])
@@ -254,8 +256,8 @@ def setup_client_alora():
         return
 
     # Move and resize to desired position
-    win.moveTo(window.start[0], window.start[1])
-    win.size = (window.end[0], window.end[1])
+    win.moveTo(window.start.x, window.start.y)
+    win.size = (window.end.x, window.end.y)
 
     # Search for settings button and click it
     time.sleep(1)
