@@ -102,7 +102,7 @@ def __visit_points():
     pag.moveTo(inventory_slots[2][1].x, inventory_slots[2][1].y)
 
 
-def capture_screen(rect: Rectangle):
+def __capture_screen(rect: Rectangle):
     '''
     Captures a given Rectangle and saves it to a file.
     Parameters:
@@ -147,7 +147,7 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,
         and None if the text is irrelevant.
     '''
     # Screenshot the rectangle and load the image
-    path = capture_screen(rect)
+    path = __capture_screen(rect)
     image = cv2.imread(path)
 
     # OCR the input image using EasyOCR
