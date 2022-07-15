@@ -49,7 +49,7 @@ cp_settings = Point(x=680, y=h2)
 
 
 # --- Inventory Slots ---
-def get_inventory_slots() -> list:
+def __get_inventory_slots() -> list:
     '''
     Returns a 2D list of the inventory slots represented as Points.
     Inventory is 7x4.
@@ -67,10 +67,10 @@ def get_inventory_slots() -> list:
     return inv
 
 
-inventory_slots = get_inventory_slots()
+inventory_slots = __get_inventory_slots()
 
 
-def visit_points():
+def __visit_points():
     '''
     Moves mouse to each defined point of interest.
     TODO: Remove. This is just for testing.
