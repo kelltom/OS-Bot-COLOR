@@ -124,6 +124,7 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
     Parameters:
         rect: The rectangle to search in.
         img_path: The path to the image to search for.
+        conf: The confidence level of the search.
     Returns:
         The coordinates of the image if found (as a Point), otherwise None.
     '''
