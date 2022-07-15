@@ -118,20 +118,20 @@ def capture_screen(rect: Rectangle):
 
 
 # --- Image Search ---
-def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8):
+def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Point:
     '''
     Searches for an image in a rectangle.
     Parameters:
         rect: The rectangle to search in.
         img_path: The path to the image to search for.
     Returns:
-        The coordinates of the image if found, otherwise None.
+        The coordinates of the image if found (as a Point), otherwise None.
     '''
     im = region_grabber((rect.start[0], rect.start[1], rect.end[0], rect.end[1]))
     pos = imagesearcharea(img_path, rect.start[0], rect.start[1], rect.end[0], rect.end[1], conf, im)
     if pos == [-1, -1]:
         return None
-    return pos
+    return Point(x=pos[0], y=pos[1])
 
 
 # --- OCR ---
