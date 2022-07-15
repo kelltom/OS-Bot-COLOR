@@ -8,9 +8,9 @@ from collections import namedtuple
 import cv2
 from easyocr import Reader
 import pathlib
+from PIL import ImageGrab
 import pyautogui as pag
 import pygetwindow
-from PIL import ImageGrab
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 import time
 
