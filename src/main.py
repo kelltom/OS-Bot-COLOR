@@ -19,7 +19,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("OSNR Bot")
+        self.title("OSRS Bot")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
         self.update()
         self.minsize(self.winfo_width(), self.winfo_height())

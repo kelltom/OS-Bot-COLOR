@@ -24,12 +24,12 @@ class DefaultView(customtkinter.CTkFrame):
 
         # Title label
         self.label_title = customtkinter.CTkLabel(master=self,
-                                                  text="Welcome to OSNR Bot!",
+                                                  text="Welcome to OSRS Bot!",
                                                   text_font=("Roboto Medium", 18))
         self.label_title.grid(row=1, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
         # Description label
-        self.description = ("Before you begin, please run the OSNR Runelite client and log in with the credentials below.")
+        self.description = ("Before you begin, please run the OSRS Runelite client and log in with the credentials below.")
         self.label_description = customtkinter.CTkLabel(master=self,
                                                         text=self.description,
                                                         text_font=("Roboto", 14))
