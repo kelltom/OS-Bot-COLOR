@@ -1,3 +1,5 @@
+**Last updated July 18, 2022.** Some information may be inaccurate.
+
 # osrs-bot
  A program that can execute a variety of automation tools for Old School RS.
  This project is a work in progress and is not yet complete.
@@ -11,15 +13,29 @@
 3. Open the project folder in your IDE (VS Code preferred).
 4. Run main.py (./src/main.py)
 
-# Instructions for adding new bots
-These instructions are only valid as of **July 5th 2022**.
+# Project Overview
+Upon running the program, the user will be met with a startup screen that should tell them how to configure their Runelite client. It is essential that Runelite settings are configured correctly, as much of the bot-utility library relies on various Runelite plugins. One way of ensuring uniformity in Runelite settings is to encourage the user to log in with an account that already has the correct settings. A better way would be to create a function that swaps the user's settings with the settings.properties file in the project, but this has not been implemented yet.
 
+![](documentation/wiki_images/1.default_view.png)
+
+The user can select a script on the left-side menu. This will change the right-side pane to display the script's control panel, and script log. [This UI view](src/view/bot_view.py) is pre-written and reacts to a custom Bot model class that is passed to it (in this case, [ExampleBot class](src/model/example_bot.py)). This means that developers need only define their Bot's name, description, properties and logic, and the rest is taken care of. The functionality of the buttons are also pre-configured to work with Bot models that extend the [Bot class](src/model/bot.py).
+
+![](documentation/wiki_images/2.example_script.png)
+
+Before a script can run, the user must configure its options. Clicking the "Options" button will open a new window to accept user input. This prevents users from having to edit source code when adjusting script behaviour. This is the **only** view that needs to be created by the developer.
+
+![](documentation/wiki_images/3.options.png)
+
+Clicking "Play" will run the script. It will run the Bot instance's main_loop() function on a separate thread, so the user can continue to interact with the program. All scripts are pre-configured to listen for keyboard interrupts, so the user can pause/stop the script at any time while their mouse is compromised by the bot. Script progress is updated in the script log and progress bar throughout execution.
+
+![](documentation/wiki_images/4.running.png)
+
+# Instructions for adding new bots
 Much of the boilerplate code is already in place. You just need to add and modify a few files to add a new bot. Before jumping the gun, make sure you have a good understanding of the codebase and have finished reading this guide.
 
 ## Building the UI
-Much of the UI code is already written for you. However, since each bot is different, you must implement the *options panel* for the UI manually.
+Much of the UI code is already written for you. However, since each bot is different, they may require unique views and logic. To add a new bot to the client, you'll need to do the following.
 
-You'll need to add the following:
 - Add a new button to the left panel in [main.py](src/main.py).
 - Add a new [BotView](src/views/bot_view.py) to the right panel in [main.py](src/main.py).
 - Create a reference to your custom bot model in [src/model](src/model/).
