@@ -91,7 +91,7 @@ This is the tricky part. Each bot needs a custom view for setting its options. F
 **See [example_bot_options.py](src/view/bot_options/example_bot_options.py) for a place to start.**
 
 ### Step 6: Call the setup() method on the BotView in main.py
-To finalize the BotView UI, you must call the setup() method. This will establish the connection between the model and the view via the controller, update the name/description in the information panel, and link the Options button with your bot's options view. You may use *ExampleBotOptions* as the argument for *options_class* if you haven't implemented your own options view.
+To finalize the BotView UI, you must call the setup() method. This will establish the connection between the model and the view via the controller, update the name/description in the information panel, and link the Options button with your bot's options view. You may use *ExampleBotOptions* as the argument for *options_class* if you haven't implemented your own options view. Be sure to pass only a reference to the options class, not an instance of it.
 
 ```python
 self.views["Woodcutting"].setup(controller=self.wc_controller,
