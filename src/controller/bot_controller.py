@@ -1,3 +1,7 @@
+'''
+Serves as the mediator between a bot and the UI. Methods should likely not be modified.
+'''
+
 from model.bot import Bot, BotStatus
 from view.bot_view import BotView
 
