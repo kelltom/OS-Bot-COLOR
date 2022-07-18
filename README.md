@@ -1,5 +1,6 @@
 # osrs-bot
  A program that can execute a variety of automation tools for Old School RS.
+ This project is a work in progress and is not yet complete.
 
 # Instructions for adding new bots
 These instructions are only valid as of July 5th 2022.
