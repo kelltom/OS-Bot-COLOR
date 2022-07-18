@@ -1,0 +1,9 @@
+darkdetect==0.6.0
+easyocr==1.5.0
+keyboard==0.13.5
+opencv_python_headless==4.5.4.60
+PyAutoGUI==0.9.53
+PyGetWindow==0.0.9
+pyperclip==1.8.2
+python_imagesearch==1.2.2
+typing_extensions==4.3.0
