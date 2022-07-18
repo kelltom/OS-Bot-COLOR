@@ -113,12 +113,13 @@ self.btn_wc.grid(row=?, column=0, pady=10, padx=20)
 # --- Views ---
 self.views = {}
 self.views["Woodcutting"] = BotView(parent=self.frame_right)
-self.wc_model = Woodcutting()
+self.wc_model = Woodcutting() # or ExampleBot()
 self.wc_controller = BotController(model=self.wc_model,
                                    view=self.views["Woodcutting"])
 self.views["Woodcutting"].setup(controller=self.wc_controller,
                                 title=self.wc_model.title,
-                                description=self.wc_model.description)
+                                description=self.wc_model.description,
+                                options_class=WoodcuttingBotOptions) # or ExampleBotOptions
 ```
 
 If you used the example classes as substitutes, your UI should be fairly functional. Otherwise, see the next section for how to implement a custom bot model.
