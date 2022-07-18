@@ -22,7 +22,7 @@ The user can select a script on the left-side menu. This will change the right-s
 
 ![](documentation/wiki_images/2.example_script.png)
 
-Before a script can run, the user must configure its options. Clicking the "Options" button will open a new window to accept user input. This prevents users from having to edit source code when adjusting script behaviour. This is the **only** view that needs to be created by the developer.
+Before a script can run, the user must configure its options. Clicking the "Options" button will open a new window to accept user input. This prevents users from having to edit source code when adjusting script behaviour. This is the **only** view that needs to be created by the developer. An example can be found [here](src/view/bot_options/example_bot_options.py).
 
 ![](documentation/wiki_images/3.options.png)
 
