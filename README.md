@@ -1,8 +1,7 @@
 **Last updated July 18, 2022.** Some information may be inaccurate.
 
 # osrs-bot
- A program that can execute a variety of automation tools for Old School RS.
- This project is a work in progress and is not yet complete.
+A lightweight desktop client for controlling and monitoring automation scripts (bots) for OSRS and other Runelite based games. This project also contains a library of tools for streamlining the development of new bots.
 
 # Project Setup
 1. Clone/download the repository.
