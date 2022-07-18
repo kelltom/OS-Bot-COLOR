@@ -2,8 +2,17 @@
  A program that can execute a variety of automation tools for Old School RS.
  This project is a work in progress and is not yet complete.
 
+# Project Setup
+1. Clone/download the repository.
+2. Open the repository folder in a terminal window.
+   1. Create a virtual environment. ```python -m venv env```
+   2. Activate the newly created virtual environment. ```.\env\Scripts\activate```
+   3. Install the depedencies. ```pip install -r requirements.txt```
+3. Open the project folder in your IDE (VS Code preferred).
+4. Run main.py (./src/main.py)
+
 # Instructions for adding new bots
-These instructions are only valid as of July 5th 2022.
+These instructions are only valid as of **July 5th 2022**.
 
 Much of the boilerplate code is already in place. You just need to add and modify a few files to add a new bot. Before jumping the gun, make sure you have a good understanding of the codebase and have finished reading this guide.
 
