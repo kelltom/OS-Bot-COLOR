@@ -1,5 +1,5 @@
-# osnr-bot
- A program that can execute a variety of automation tools for Old School Near Reality.
+# osrs-bot
+ A program that can execute a variety of automation tools for Old School RS.
 
 # Instructions for adding new bots
 These instructions are only valid as of July 5th 2022.
