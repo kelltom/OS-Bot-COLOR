@@ -1,10 +1,14 @@
 '''
+Work in progress.
+
 This file contains a collection of general purpose bot functions that are used by the bot classes.
 MPos was used to acquire hardcoded coordinates.
 
 For more on ImageSearch, see: https://brokencode.io/how-to-easily-image-search-with-python/
+For more on EasyOCR, see: https://github.com/JaidedAI/EasyOCR
+For more on the anatomy of an OSRS interface, see: https://oldschool.runescape.wiki/w/Interface
+For more on PyAutoGui, see: https://pyautogui.readthedocs.io/en/latest/
 '''
-from typing import NamedTuple
 import cv2
 from easyocr import Reader
 import pathlib
@@ -13,6 +17,7 @@ import pyautogui as pag
 import pygetwindow
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 import time
+from typing import NamedTuple
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -22,17 +27,20 @@ PATH = pathlib.Path(__file__).parent.resolve()
 # --- The path to the bot images directory ---
 IMAGES_PATH = "./src/images/bot"
 
-# --- Named Tuples ---
+# --- Custom Named Tuples ---
+# Simplifies accessing points and areas on the screen by name.
 Point = NamedTuple("Point", x=int, y=int)
 Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
 
 # --- Desired client position ---
+# Size and position of the smallest possible fixed OSRS client in top left corner of screen.
 window = Rectangle(start=Point(0, 0), end=Point(809, 534))
 
 # ------- Rects of Interest -------
-rect_current_action = Rectangle(start=Point(10, 52), end=Point(171, 93))  # top left corner of screen
+rect_current_action = Rectangle(start=Point(10, 52), end=Point(171, 93))  # combat/skilling plugin text
 rect_game_view = Rectangle(start=Point(9, 31), end=Point(517, 362))  # gameplay area
 rect_hp = Rectangle(start=Point(526, 80), end=Point(552, 100))  # contains HP text value
+# TODO: Add more rectangles of interest (prayer, spec, etc.)
 
 # ------- Points of Interest -------
 # --- Orbs ---
@@ -106,12 +114,11 @@ def __visit_points():
     pag.moveTo(inventory_slots[2][1].x, inventory_slots[2][1].y)
 
 
-def __capture_screen(rect: Rectangle):
+def __capture_screen(rect: Rectangle) -> str:
     '''
     Captures a given Rectangle and saves it to a file.
     Parameters:
-        x: The distance in pixels from the left side of the screen.
-        y: The distance in pixels from the top of the screen.
+        rect: The Rectangle area to capture.
     Returns:
         The path to the saved image.
     '''
@@ -187,6 +194,7 @@ def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
     Fetches text in a Rectangle.
     Parameters:
         rect: The rectangle to search in.
+        is_low_res: Whether the text within the rectangle is low resolution/pixelated.
     Returns:
         The text found in the rectangle.
     '''
@@ -214,13 +222,12 @@ def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
 def __preprocess_low_res_text_at(path: str):
     '''
     Preprocesses an image at a given path and saves it back to the same path.
-    This function improves text clarity for OCR by isolating the text.
+    This function improves text clarity for OCR by upscaling, antialiasing, and isolating text.
     Note:
-        Only works for low-resolution images with pixelated text and a solid background.
+        Only use for low-resolution images with pixelated text and a solid background.
     Parameters:
         path: The path to the image to preprocess.
     Reference: https://stackoverflow.com/questions/50862125/how-to-get-better-accurate-results-with-ocr-from-low-resolution-images
-
     '''
     im = Image.open(path)
     width, height = im.size
@@ -235,8 +242,8 @@ def __any_in_str(words: list, str: str) -> bool:
     '''
     Checks if any of the words in the list are found in the string.
     Parameters:
-        str: The string to search in.
         words: The list of words to search for.
+        str: The string to search in.
     Returns:
         True if any of the words are found (also returns the word found), else False.
     '''
@@ -246,7 +253,7 @@ def __any_in_str(words: list, str: str) -> bool:
 def setup_client_alora():
     '''
     Configures the client window of Alora.
-    Experimental.
+    Alora private server is used for testing: https://www.alora.io/
     '''
     # Move window to top left corner
     try:
@@ -263,8 +270,11 @@ def setup_client_alora():
     time.sleep(1)
 
 
+# Experimental code below -- this file is a work in progress
+
 setup_client_alora()
 
+# Search for the settings icon on the OSRS control panel and return its position.
 pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
 print(pos)
 
@@ -272,5 +282,7 @@ print(pos)
 res = search_text_in_rect(rect_current_action, ["fishing"], ["NOT", "nt"])
 print(res)
 
+# Returns the numeric value of the player's HP by using OCR on the area next to
+# the HP orb.
 res = get_text_in_rect(rect_hp, is_low_res=True)
 print(res)
