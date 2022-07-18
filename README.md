@@ -175,6 +175,6 @@ Making this project into an executable is kind of a pain. Due to some issues wit
    1. The APTE app should open in a new window.
 4. Configure the window similarly to this: ![](documentation/wiki_images/auto-py-to-exe-settings.png)
 
-*Note: Auto Py to EXE HATES deep file structures. In order for the executable directory to be created retaining that folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work.
+*Note: Auto Py to EXE hates deep file structures. In order for the executable directory to retain the original folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work.*
 
-*Another Note: CustomTkinter needs to be pointed to in the Additional Files section.*
+*Another Note: CustomTkinter needs to be pointed to in the Additional Files section.* ```{path to repo}/env/Lib/site-packages/customtkinter``` ```customtkinter```
