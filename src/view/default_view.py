@@ -29,7 +29,9 @@ class DefaultView(customtkinter.CTkFrame):
         self.label_title.grid(row=1, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
         # Description label
-        self.description = ("Before you begin, please run the OSRS Runelite client and log in with the credentials below.")
+        self.description = ("Before you begin, please run the OSRS Runelite client and log in with the credentials below. " +
+                            "If you are unable to log in, replace your Runelite settings with ./src/runelite_settings/settings.properties manually. " + 
+                            "Some scripts rely on specific Runelite plugins and settings.")
         self.label_description = customtkinter.CTkLabel(master=self,
                                                         text=self.description,
                                                         text_font=("Roboto", 14))
@@ -49,7 +51,7 @@ class DefaultView(customtkinter.CTkFrame):
 
         # Runelite account credentials
         self.email = "osnrbot@gmail.com"
-        self.password = "]7w(FS?z"
+        self.password = "TBD"
 
         # Email
         self.lbl_email = customtkinter.CTkLabel(master=self.login_frame,
