@@ -165,3 +165,16 @@ The *main_loop()* function is where your bot's logic will go. It will run on a s
 Throughout your *main_loop()* function, you should make use of functions that relay information back to the UI. For instance, when an iteration of the bot loop has finished, you should call the [increment_iter()](src/model/bot.py#increment_iter) function, which will update the progress bar on the UI as well as updating the bot's current iterations counter property. [log_msg()](src/model/bot.py#log_msg) is a function that will log a message to the UI, and should be used frequently to keep the user informed of the bot's progress.
 
 **TODO: Add full list of built-in functions users should use.**
+
+# Creating an Executable
+Making this project into an executable is kind of a pain. Due to some issues with dependencies like CustomTkinter, it's not possible to build this project into a *single-file executable*, however, a directory-based executable can be made.
+
+1. In the terminal, navigate to the directory containing the project.
+2. Ensure the venv is activated (see the top of this README).
+3. Run AutoPyToEXE via the terminal command. ```auto-py-to-exe```
+   1. The APTE app should open in a new window.
+4. Configure the window similarly to this: ![](documentation/wiki_images/auto-py-to-exe-settings.png)
+
+*Note: Auto Py to EXE HATES deep file structures. In order for the executable directory to be created retaining that folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work.
+
+*Another Note: CustomTkinter needs to be pointed to in the Additional Files section.*
