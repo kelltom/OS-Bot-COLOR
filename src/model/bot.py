@@ -1,7 +1,6 @@
 '''
-A Bot is a model for a script that can be run. The script has a status (running, paused, stopped). It can be paused, resumed, and stopped.
-The script can also be configured to run for a certain number of iterations. The script can also be configured to take random breaks.
-The script should be able to be configured to use a specific key to start, pause and abort. The script will return text information about its progress.
+A Bot is a base class for bot script models. It is abstract and cannot be instantiated. Many of the methods in this base class are
+pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 '''
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -100,7 +99,7 @@ class Bot(ABC):
         Params:
             timeout: int - number of seconds to wait for condition to be met
         Returns:
-            True if the bot can continue, False if the bot should terminate.
+            True if the bot is safe to continue, False if the bot should terminate.
         '''
         # Check for keypress interrupts
         self.__check_interrupt()
