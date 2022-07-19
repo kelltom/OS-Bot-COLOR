@@ -8,7 +8,9 @@ For more on ImageSearch, see: https://brokencode.io/how-to-easily-image-search-w
 For more on EasyOCR, see: https://github.com/JaidedAI/EasyOCR
 For more on the anatomy of an OSRS interface, see: https://oldschool.runescape.wiki/w/Interface
 For more on PyAutoGui, see: https://pyautogui.readthedocs.io/en/latest/
+Guide for getting HSV mask colours: https://stackoverflow.com/a/48367205/16500201
 '''
+
 import cv2
 from easyocr import Reader
 import pathlib
@@ -21,8 +23,8 @@ from typing import NamedTuple
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
-# --- The path to this directory ---
-PATH = pathlib.Path(__file__).parent.resolve()
+# --- The path to the temporary screenshot ---
+TEMP = f"{pathlib.Path(__file__).parent.resolve()}/screenshot.png"
 
 # --- The path to the bot images directory ---
 IMAGES_PATH = "./src/images/bot"
@@ -31,6 +33,9 @@ IMAGES_PATH = "./src/images/bot"
 # Simplifies accessing points and areas on the screen by name.
 Point = NamedTuple("Point", x=int, y=int)
 Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
+
+# --- Notable Colours (HSV lower, HSV upper) ---
+NPC_BLUE = ((90, 100, 255), (100, 255, 255))
 
 # --- Desired client position ---
 # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
@@ -123,7 +128,7 @@ def __capture_screen(rect: Rectangle) -> str:
         The path to the saved image.
     '''
     im = ImageGrab.grab(bbox=(rect.start.x, rect.start.y, rect.end.x, rect.end.y))
-    path = f"{PATH}/screenshot.png"
+    path = TEMP
     im.save(path)
     return path
 
@@ -147,6 +152,25 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
         return None
     return Point(x=pos[0] + rect.start.x + width/2,
                  y=pos[1] + rect.start.y + height/2)
+
+
+# --- NPC Detection ---
+def __isolate_color_at(path: str, lower: tuple, upper: tuple):
+    '''
+    For the image at the given path, isolates the given color and saves it to the same path.
+    Parameters:
+        path: The path to the image to isolate.
+        lower: The lower bound of the color to isolate (hsv tuple).
+        upper: The upper bound of the color to isolate (hsv tuple).
+    '''
+    img = cv2.imread(path)
+    # Convert to HSV
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # Threshold the HSV image to get only defined color
+    mask = cv2.inRange(hsv, lower, upper)
+    # Apply mask to original image
+    only_color = cv2.bitwise_and(img, img, mask=mask)
+    cv2.imwrite(path, only_color)
 
 
 # --- OCR ---
@@ -290,3 +314,7 @@ print(res)
 # the HP orb.
 res = get_text_in_rect(rect_hp, is_low_res=True)
 print(res)
+
+
+path = __capture_screen(rect_game_view)
+__isolate_color_at(path, NPC_BLUE)
