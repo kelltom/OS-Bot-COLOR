@@ -16,7 +16,7 @@ class InfoFrame(customtkinter.CTkFrame):
         '''
         super().__init__(parent)
 
-        PATH = pathlib.Path(__file__).parent.parent.parent.resolve()
+        PATH = pathlib.Path(__file__).parent.parent.resolve()
 
         self.rowconfigure((0, 1, 2, 3, 4), weight=0)  # rows will not resize
         self.columnconfigure(0, weight=1, minsize=200)

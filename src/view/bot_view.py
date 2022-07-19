@@ -1,6 +1,6 @@
 import customtkinter
-from view.bot_view_components.info_frame import InfoFrame
-from view.bot_view_components.output_log_frame import OutputLogFrame
+from view.info_frame import InfoFrame
+from view.output_log_frame import OutputLogFrame
 
 
 class BotView(customtkinter.CTkFrame):

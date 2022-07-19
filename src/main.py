@@ -3,8 +3,8 @@ from controller.bot_controller import BotController
 from model.example_bot import ExampleBot
 import tkinter
 from view.bot_view import BotView
-from view.bot_options.example_bot_options import ExampleBotOptions
 from view.home_view import HomeView
+from view.option_views.example_bot_options import ExampleBotOptions
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
