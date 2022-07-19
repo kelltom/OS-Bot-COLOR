@@ -133,17 +133,20 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
     '''
     Searches for an image in a rectangle.
     Parameters:
-        rect: The rectangle to search in.
         img_path: The path to the image to search for.
+        rect: The rectangle to search in.
         conf: The confidence level of the search.
     Returns:
-        The coordinates of the image if found (as a Point), otherwise None.
+        The coordinates of the center of the image if found (as a Point) relative to display,
+        otherwise None.
     '''
+    width, height = Image.open(img_path).size
     im = region_grabber((rect.start.x, rect.start.y, rect.end.x, rect.end.y))
     pos = imagesearcharea(img_path, rect.start.x, rect.start.y, rect.end.x, rect.end.y, conf, im)
     if pos == [-1, -1]:
         return None
-    return Point(x=pos[0], y=pos[1])
+    return Point(x=pos[0] + rect.start.x + width/2,
+                 y=pos[1] + rect.start.y + height/2)
 
 
 # --- OCR ---
@@ -276,7 +279,8 @@ setup_client_alora()
 
 # Search for the settings icon on the OSRS control panel and return its position.
 pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
-print(pos)
+print(f"Settings icon from Window: {pos}")
+pag.moveTo(pos.x, pos.y)
 
 # Returns true if player is fishing, false if they are not
 res = search_text_in_rect(rect_current_action, ["fishing"], ["NOT", "nt"])
