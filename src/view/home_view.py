@@ -35,7 +35,7 @@ class HomeView(customtkinter.CTkFrame):
         self.label_description = customtkinter.CTkLabel(master=self,
                                                         text=self.description,
                                                         text_font=("Roboto", 14))
-        self.label_description.bind('<Configure>', lambda e: self.label_description.config(wraplength=self.label_description.winfo_width()-20))
+        self.label_description.bind('<Configure>', lambda e: self.label_description.configure(wraplength=self.label_description.winfo_width()-20))
         self.label_description.grid(row=2, column=0, sticky="nwes", padx=15)
 
         # Login Frame 2x3
@@ -102,8 +102,8 @@ class HomeView(customtkinter.CTkFrame):
 
     def copy_email_to_clipboard(self):
         pc.copy(self.email)
-        self.lbl_copy_text.config(text="Email copied to clipboard!")
+        self.lbl_copy_text.configure(text="Email copied to clipboard!")
 
     def copy_password_to_clipboard(self):
         pc.copy(self.password)
-        self.lbl_copy_text.config(text="Password copied to clipboard!")
+        self.lbl_copy_text.configure(text="Password copied to clipboard!")

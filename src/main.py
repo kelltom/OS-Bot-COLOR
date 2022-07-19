@@ -100,7 +100,7 @@ class App(customtkinter.CTk):
             if self.current_view is self.views[name]:
                 self.current_view.pack_forget()
                 self.current_view = None
-                self.current_btn.config(fg_color=("gray75", "gray30"))
+                self.current_btn.configure(fg_color=("gray75", "gray30"))
                 self.current_btn = None
                 self.home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
             # If a different script is selected, hide it and show the new one
@@ -108,16 +108,16 @@ class App(customtkinter.CTk):
                 self.current_view.pack_forget()
                 self.current_view = self.views[name]
                 self.current_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
-                self.current_btn.config(fg_color=("gray75", "gray30"))
+                self.current_btn.configure(fg_color=("gray75", "gray30"))
                 self.current_btn = btn
-                self.current_btn.config(fg_color=btn.hover_color)
+                self.current_btn.configure(fg_color=btn.hover_color)
             # If no script is selected, show the new one
             else:
                 self.home_view.pack_forget()
                 self.current_view = self.views[name]
                 self.current_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
                 self.current_btn = btn
-                self.current_btn.config(fg_color=btn.hover_color)
+                self.current_btn.configure(fg_color=btn.hover_color)
 
     # ============ Misc handler ============
     def change_mode(self):

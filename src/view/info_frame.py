@@ -34,7 +34,7 @@ class InfoFrame(customtkinter.CTkFrame):
                                                       text=info,
                                                       justify=tkinter.CENTER)
         self.lbl_script_desc.grid(column=0, row=1, rowspan=2, sticky="nwes", padx=15)
-        self.lbl_script_desc.bind('<Configure>', lambda e: self.lbl_script_desc.config(wraplength=self.lbl_script_desc.winfo_width()-10))
+        self.lbl_script_desc.bind('<Configure>', lambda e: self.lbl_script_desc.configure(wraplength=self.lbl_script_desc.winfo_width()-10))
 
         # -- script progress bar
         self.lbl_progress = customtkinter.CTkLabel(master=self,
@@ -98,8 +98,8 @@ class InfoFrame(customtkinter.CTkFrame):
         self.controller = controller
 
     def setup(self, title, description, options_class):
-        self.lbl_script_title.config(text=title)
-        self.lbl_script_desc.config(text=description)
+        self.lbl_script_title.configure(text=title)
+        self.lbl_script_desc.configure(text=description)
         self.options_class = options_class
 
     # ---- Control Button Handlers ----
@@ -130,37 +130,37 @@ class InfoFrame(customtkinter.CTkFrame):
     # ---- Status Handlers ----
     def update_status_running(self):
         self.__toggle_buttons(True)
-        self.btn_options.config(state=tkinter.DISABLED)
-        self.btn_play.config(image=self.img_pause)
-        self.btn_play.config(text="Pause [F1]")
-        self.lbl_status.config(text="Status: Running")
+        self.btn_options.configure(state=tkinter.DISABLED)
+        self.btn_play.configure(image=self.img_pause)
+        self.btn_play.configure(text="Pause [F1]")
+        self.lbl_status.configure(text="Status: Running")
 
     def update_status_paused(self):
         self.__toggle_buttons(True)
-        self.btn_options.config(state=tkinter.DISABLED)
-        self.btn_play.config(image=self.img_play)
-        self.btn_play.config(text="Play")
-        self.lbl_status.config(text="Status: Paused")
+        self.btn_options.configure(state=tkinter.DISABLED)
+        self.btn_play.configure(image=self.img_play)
+        self.btn_play.configure(text="Play")
+        self.lbl_status.configure(text="Status: Paused")
 
     def update_status_stopped(self):
         self.__toggle_buttons(True)
-        self.btn_play.config(image=self.img_play)
-        self.btn_play.config(text="Play")
-        self.lbl_status.config(text="Status: Stopped")
+        self.btn_play.configure(image=self.img_play)
+        self.btn_play.configure(text="Play")
+        self.lbl_status.configure(text="Status: Stopped")
 
     def update_status_configuring(self):
         self.__toggle_buttons(False)
-        self.lbl_status.config(text="Status: Configuring")
+        self.lbl_status.configure(text="Status: Configuring")
 
     def __toggle_buttons(self, enabled: bool):
         if enabled:
-            self.btn_play.config(state=tkinter.NORMAL)
-            self.btn_abort.config(state=tkinter.NORMAL)
-            self.btn_options.config(state=tkinter.NORMAL)
+            self.btn_play.configure(state=tkinter.NORMAL)
+            self.btn_abort.configure(state=tkinter.NORMAL)
+            self.btn_options.configure(state=tkinter.NORMAL)
         else:
-            self.btn_play.config(state=tkinter.DISABLED)
-            self.btn_abort.config(state=tkinter.DISABLED)
-            self.btn_options.config(state=tkinter.DISABLED)
+            self.btn_play.configure(state=tkinter.DISABLED)
+            self.btn_abort.configure(state=tkinter.DISABLED)
+            self.btn_options.configure(state=tkinter.DISABLED)
 
     # ---- Progress Bar Handlers ----
     def update_progress(self, progress):
@@ -169,4 +169,4 @@ class InfoFrame(customtkinter.CTkFrame):
         Parameter progress is a float between 0 and 1.
         '''
         self.progressbar.set(progress)
-        self.lbl_progress.config(text=f"Progress: {progress*100:.0f}%")
+        self.lbl_progress.configure(text=f"Progress: {progress*100:.0f}%")
