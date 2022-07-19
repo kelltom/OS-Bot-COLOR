@@ -13,9 +13,9 @@ A lightweight desktop client for controlling and monitoring automation scripts (
 4. Run main.py (./src/main.py)
 
 # Project Overview
-Upon running the program, the user will be met with a startup screen that should tell them how to configure their Runelite client. It is essential that Runelite settings are configured correctly, as much of the bot-utility library relies on various Runelite plugins. One way of ensuring uniformity in Runelite settings is to encourage the user to log in with an account that already has the correct settings. A better way would be to create a function that swaps the user's settings with the settings.properties file in the project, but this has not been implemented yet.
+Upon running the program, the user will be met with a home screen that should tell them how to configure their Runelite client. It is essential that Runelite settings are configured correctly, as much of the bot-utility library relies on various Runelite plugins. One way of ensuring uniformity in Runelite settings is to encourage the user to log in with an account that already has the correct settings. A better way would be to create a function that swaps the user's settings with the settings.properties file in the project, but this has not been implemented yet.
 
-![](documentation/wiki_images/1.default_view.png)
+![](documentation/wiki_images/1.home_view.png)
 
 The user can select a script on the left-side menu. This will change the right-side pane to display the script's control panel, and script log. [This UI view](src/view/bot_view.py) is pre-written and reacts to a custom Bot model class that is passed to it (in this case, [ExampleBot class](src/model/example_bot.py)). This means that developers need only define their Bot's name, description, properties and logic, and the rest is taken care of. The functionality of the buttons are also pre-configured to work with Bot models that extend the [Bot class](src/model/bot.py).
 

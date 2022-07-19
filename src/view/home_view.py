@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 import pyperclip as pc
 
 
-class DefaultView(customtkinter.CTkFrame):
+class HomeView(customtkinter.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -30,7 +30,7 @@ class DefaultView(customtkinter.CTkFrame):
 
         # Description label
         self.description = ("Before you begin, please run the OSRS Runelite client and log in with the credentials below. " +
-                            "If you are unable to log in, replace your Runelite settings with ./src/runelite_settings/settings.properties manually. " + 
+                            "If you are unable to log in, replace your Runelite settings with ./src/settings.properties manually. " +
                             "Some scripts rely on specific Runelite plugins and settings.")
         self.label_description = customtkinter.CTkLabel(master=self,
                                                         text=self.description,

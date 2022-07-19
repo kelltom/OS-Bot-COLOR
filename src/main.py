@@ -4,7 +4,7 @@ from model.example_bot import ExampleBot
 import tkinter
 from view.bot_view import BotView
 from view.bot_options.example_bot_options import ExampleBotOptions
-from view.default_view import DefaultView
+from view.home_view import HomeView
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -73,8 +73,8 @@ class App(customtkinter.CTk):
         self.switch.select()
 
         # ============ frame_right ============
-        self.default_view = DefaultView(parent=self.frame_right)
-        self.default_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+        self.home_view = HomeView(parent=self.frame_right)
+        self.home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
 
         # Create Bot Views here
         self.views = {}
@@ -102,7 +102,7 @@ class App(customtkinter.CTk):
                 self.current_view = None
                 self.current_btn.config(fg_color=("gray75", "gray30"))
                 self.current_btn = None
-                self.default_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+                self.home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
             # If a different script is selected, hide it and show the new one
             elif self.current_view is not None:
                 self.current_view.pack_forget()
@@ -113,7 +113,7 @@ class App(customtkinter.CTk):
                 self.current_btn.config(fg_color=btn.hover_color)
             # If no script is selected, show the new one
             else:
-                self.default_view.pack_forget()
+                self.home_view.pack_forget()
                 self.current_view = self.views[name]
                 self.current_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
                 self.current_btn = btn
