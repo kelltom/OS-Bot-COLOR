@@ -167,7 +167,7 @@ Throughout your *main_loop()* function, you should make use of functions that re
 **TODO: Add full list of built-in functions users should use.**
 
 # Creating an Executable
-Making this project into an executable is kind of a pain. Due to some issues with dependencies like CustomTkinter, it's not possible to build this project into a *single-file executable*, however, a directory-based executable can be made.
+Making this project into an executable is kind of tedious. Due to some issues with dependencies, it's not possible to build this project into a single-file executable, however, a directory-based executable can be made.
 
 1. In the terminal, navigate to the directory containing the project.
 2. Ensure the venv is activated (see the top of this README).
