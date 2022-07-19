@@ -80,7 +80,7 @@ class ExampleBotOptions(customtkinter.CTkFrame):
         self.btn_save.grid(row=10, column=0, columnspan=2, pady=20, padx=20)
 
     def change_iterations(self, value):
-        self.lbl_iterations_value.config(text=str(int(value * 100)))
+        self.lbl_iterations_value.configure(text=str(int(value * 100)))
 
     def save(self, window):
         '''
