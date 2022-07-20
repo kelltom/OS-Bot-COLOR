@@ -13,6 +13,7 @@ Guide for getting HSV mask colours: https://stackoverflow.com/a/48367205/1650020
 
 import cv2
 from easyocr import Reader
+import numpy as np
 from PIL import Image, ImageGrab
 import pyautogui as pag
 import pygetwindow
@@ -31,8 +32,10 @@ BOT_IMAGES = "./src/images/bot"
 Point = NamedTuple("Point", x=int, y=int)
 Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
 
-# --- Notable Colour Ranges (HSV lower & upper) ---
+# --- Notable Colour Ranges (HSV lower, upper) ---
 NPC_BLUE = ((90, 100, 255), (100, 255, 255))
+NPC_HP_GREEN = ((40, 100, 255), (70, 255, 255))
+NPC_HP_RED = ((0, 255, 255), (20, 255, 255))
 
 # --- Desired client position ---
 # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
@@ -152,27 +155,111 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
 
 
 # --- NPC Detection ---
-def __isolate_color_at(path: str, lower: tuple, upper: tuple) -> str:
+def attack_nearest_tagged():
     '''
-    For the image at the given path, isolates the given color and saves it to a new file.
-    Parameters:
-        path: The path to the image to isolate.
-        lower: The lower bound of the color to isolate (hsv tuple).
-        upper: The upper bound of the color to isolate (hsv tuple).
+    Attacks the nearest tagged NPC that is not already in combat.
     Returns:
-        The path to the processed image.
+        None if no NPC is found.
+    '''
+    path_game_view = __capture_screen(rect_game_view)
+    # Isolate colors in image
+    path_npcs, path_hp_bars = __isolate_tagged_NPCs_at(path_game_view)
+    # Locate potential NPCs in image by determining contours
+    img = cv2.imread(path_npcs)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    # Get center pixels of non-combatting NPCs
+    centers = []
+    print(f"Found {len(contours)} potential NPCs.")
+    img_bgr = cv2.imread(path_hp_bars)
+    for cnt in contours:
+        try:
+            moments = cv2.moments(cnt)
+            center_x = int(moments["m10"] / moments["m00"])
+            center_y = int(moments["m01"] / moments["m00"])
+            top_x, top_y = cnt[cnt[..., 1].argmin()][0]
+        except Exception:
+            print("Cannot find moments of contour. Disregarding...")
+            continue
+        top = Point(x=top_x, y=top_y)
+        if not __in_combat(top, img_bgr):
+            centers.append((center_x + rect_game_view.start.x, center_y + rect_game_view.start.y))
+    # Attack the nearest NPC
+    if not centers:
+        print("No NPCs found.")
+        return None
+    width = img_bgr.shape[0]
+    height = img_bgr.shape[1]
+    nearest = __get_closest_point(Point(width, height), centers)
+    pag.moveTo(nearest.x, nearest.y)
+    pag.click()
+
+
+def __get_closest_point(point: Point, points: list) -> Point:
+    '''
+    Returns the closest point in a list of points as (x, y) coordinates.
+    Parameters:
+        point: The point to compare to.
+        points: The list of points to compare.
+    Returns:
+        The closest point in the list.
+    '''
+    point = (point.x, point.y)
+    nodes = np.asarray(points)
+    dist_2 = np.sum((nodes - point) ** 2, axis=1)
+    p = np.argmin(dist_2)
+    return Point(points[p][0], points[p][1])
+
+
+def __in_combat(point: Point, im) -> bool:
+    '''
+    Given a point and CV image of HP bars, determine if the NPC's point has a neighbouring HP bar.
+    Parameters:
+        point: The top point of a contour (NPC).
+        im: A BGR CV image containing only HP bars.
+    Returns:
+        True if the point is in combat, False otherwise.
+    '''
+    # For 10 pixels above/below the point, check if the pixel is not black.
+    for i in range(-10, 10):
+        try:
+            (b, g, r) = im[point.y + i, point.x]
+        except Exception:
+            continue
+        color = (b, g, r)
+        if color != (0, 0, 0):
+            print("Detected NPC in combat.")
+            return True
+    return False
+
+
+def __isolate_tagged_NPCs_at(path: str) -> str:
+    '''
+    Isolates tagged NPCs, HP bars and hitsplats in an image.
+    Parameters:
+        path: The path to the image to isolate colors.
+    Returns:
+        The paths to an image with only tagged NPCs, and an image with only HP bars.
     '''
     img = cv2.imread(path)
     # Convert to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    # Threshold the HSV image to get only defined color
-    mask = cv2.inRange(hsv, lower, upper)
-    # Apply mask to original image
+    # Threshold the HSV image to get only blue color
+    mask1 = cv2.inRange(hsv, NPC_BLUE[0], NPC_BLUE[1])
+    only_blue = cv2.bitwise_and(img, img, mask=mask1)
+    blue_path = f"{TEMP_IMAGES}/only_blue.png"
+    cv2.imwrite(blue_path, only_blue)
+
+    # Threshold the original image for green and red
+    mask2 = cv2.inRange(hsv, NPC_HP_GREEN[0], NPC_HP_GREEN[1])
+    mask3 = cv2.inRange(hsv, NPC_HP_RED[0], NPC_HP_RED[1])
+    mask = cv2.bitwise_or(mask2, mask3)
     only_color = cv2.bitwise_and(img, img, mask=mask)
     # Save the image and return path
-    new_path = f"{TEMP_IMAGES}/color_isolated.png"
-    cv2.imwrite(new_path, only_color)
-    return new_path
+    color_path = f"{TEMP_IMAGES}/only_green_red.png"
+    cv2.imwrite(color_path, only_color)
+    return blue_path, color_path
 
 
 # --- OCR ---
@@ -309,20 +396,19 @@ def setup_client_alora():
 
 setup_client_alora()
 
-# Search for the settings icon on the OSRS control panel and return its position.
-pos = search_img_in_rect(f"{BOT_IMAGES}/cp_settings_icon.png", window)
-print(f"Settings icon from Window: {pos}")
-pag.moveTo(pos.x, pos.y)
+# # Search for the settings icon on the OSRS control panel and return its position.
+# pos = search_img_in_rect(f"{BOT_IMAGES}/cp_settings_icon.png", window)
+# print(f"Settings icon from Window: {pos}")
+# pag.moveTo(pos.x, pos.y)
 
-# Returns true if player is fishing, false if they are not
-res = search_text_in_rect(rect_current_action, ["fishing"], ["NOT", "nt"])
-print(res)
+# # Returns true if player is fishing, false if they are not
+# res = search_text_in_rect(rect_current_action, ["fishing"], ["NOT", "nt"])
+# print(res)
 
-# Returns the numeric value of the player's HP by using OCR on the area next to
-# the HP orb.
-res = get_text_in_rect(rect_hp, is_low_res=True)
-print(res)
+# # Returns the numeric value of the player's HP by using OCR on the area next to
+# # the HP orb.
+# res = get_text_in_rect(rect_hp, is_low_res=True)
+# print(res)
 
 
-path = __capture_screen(rect_game_view)
-__isolate_color_at(path, NPC_BLUE[0], NPC_BLUE[1])
+attack_nearest_tagged()
