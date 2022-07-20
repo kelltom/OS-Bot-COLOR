@@ -155,4 +155,4 @@ cython_debug/
 # Microsoft Word
 *.tmp
 ~$*
-src/screenshot.png
+src/images/temp/*

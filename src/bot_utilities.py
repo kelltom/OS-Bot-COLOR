@@ -13,7 +13,6 @@ Guide for getting HSV mask colours: https://stackoverflow.com/a/48367205/1650020
 
 import cv2
 from easyocr import Reader
-import pathlib
 from PIL import Image, ImageGrab
 import pyautogui as pag
 import pygetwindow
@@ -23,11 +22,9 @@ from typing import NamedTuple
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
-# --- The path to the temporary screenshot ---
-TEMP = f"{pathlib.Path(__file__).parent.resolve()}/screenshot.png"
-
-# --- The path to the bot images directory ---
-IMAGES_PATH = "./src/images/bot"
+# --- Paths to Image folders ---
+TEMP_IMAGES = "./src/images/temp"
+BOT_IMAGES = "./src/images/bot"
 
 # --- Custom Named Tuples ---
 # Simplifies accessing points and areas on the screen by name.
@@ -128,7 +125,7 @@ def __capture_screen(rect: Rectangle) -> str:
         The path to the saved image.
     '''
     im = ImageGrab.grab(bbox=(rect.start.x, rect.start.y, rect.end.x, rect.end.y))
-    path = TEMP
+    path = f"{TEMP_IMAGES}/screenshot.png"
     im.save(path)
     return path
 
@@ -155,13 +152,15 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
 
 
 # --- NPC Detection ---
-def __isolate_color_at(path: str, lower: tuple, upper: tuple):
+def __isolate_color_at(path: str, lower: tuple, upper: tuple) -> str:
     '''
-    For the image at the given path, isolates the given color and saves it to the same path.
+    For the image at the given path, isolates the given color and saves it to a new file.
     Parameters:
         path: The path to the image to isolate.
         lower: The lower bound of the color to isolate (hsv tuple).
         upper: The upper bound of the color to isolate (hsv tuple).
+    Returns:
+        The path to the processed image.
     '''
     img = cv2.imread(path)
     # Convert to HSV
@@ -170,7 +169,10 @@ def __isolate_color_at(path: str, lower: tuple, upper: tuple):
     mask = cv2.inRange(hsv, lower, upper)
     # Apply mask to original image
     only_color = cv2.bitwise_and(img, img, mask=mask)
-    cv2.imwrite(path, only_color)
+    # Save the image and return path
+    new_path = f"{TEMP_IMAGES}/color_isolated.png"
+    cv2.imwrite(new_path, only_color)
+    return new_path
 
 
 # --- OCR ---
@@ -229,7 +231,7 @@ def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
     path = __capture_screen(rect)
 
     if is_low_res:
-        __preprocess_low_res_text_at(path)
+        path = __preprocess_low_res_text_at(path)
 
     image = cv2.imread(path)
 
@@ -246,7 +248,7 @@ def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
     return text
 
 
-def __preprocess_low_res_text_at(path: str):
+def __preprocess_low_res_text_at(path: str) -> str:
     '''
     Preprocesses an image at a given path and saves it back to the same path.
     This function improves text clarity for OCR by upscaling, antialiasing, and isolating text.
@@ -254,15 +256,21 @@ def __preprocess_low_res_text_at(path: str):
         Only use for low-resolution images with pixelated text and a solid background.
     Parameters:
         path: The path to the image to preprocess.
+    Returns:
+        The path to the processed image.
     Reference: https://stackoverflow.com/questions/50862125/how-to-get-better-accurate-results-with-ocr-from-low-resolution-images
     '''
     im = Image.open(path)
     width, height = im.size
     new_size = width*6, height*6
     im = im.resize(new_size, Image.Resampling.LANCZOS)
-    im = im.convert('L')
-    im = im.point(lambda x: 0 if x < 120 else 255, '1')
-    im.save(path)
+    im = im.convert('L')  # Convert to grayscale
+    intensity = 120  # Between 0 and 255, every pixel less than this value will be set to 0
+    im = im.point(lambda x: 0 if x < intensity else 255, '1')
+    # Save image and return path
+    new_path = f"{TEMP_IMAGES}/low_res_text_processed.png"
+    im.save(new_path)
+    return new_path
 
 
 def __any_in_str(words: list, str: str) -> bool:
@@ -302,7 +310,7 @@ def setup_client_alora():
 setup_client_alora()
 
 # Search for the settings icon on the OSRS control panel and return its position.
-pos = search_img_in_rect(f"{IMAGES_PATH}/cp_settings_icon.png", window)
+pos = search_img_in_rect(f"{BOT_IMAGES}/cp_settings_icon.png", window)
 print(f"Settings icon from Window: {pos}")
 pag.moveTo(pos.x, pos.y)
 
@@ -317,4 +325,4 @@ print(res)
 
 
 path = __capture_screen(rect_game_view)
-__isolate_color_at(path, NPC_BLUE)
+__isolate_color_at(path, NPC_BLUE[0], NPC_BLUE[1])
