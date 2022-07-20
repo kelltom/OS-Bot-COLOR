@@ -31,7 +31,7 @@ BOT_IMAGES = "./src/images/bot"
 Point = NamedTuple("Point", x=int, y=int)
 Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
 
-# --- Notable Colours (HSV lower, HSV upper) ---
+# --- Notable Colour Ranges (HSV lower & upper) ---
 NPC_BLUE = ((90, 100, 255), (100, 255, 255))
 
 # --- Desired client position ---
@@ -50,9 +50,9 @@ orb_compass = Point(x=571, y=48)
 orb_prayer = Point(x=565, y=119)
 orb_spec = Point(x=597, y=178)
 
-# --- Control Panel ---
-h1 = 213  # top row height
-h2 = 510  # bottom row height
+# --- Control Panel (CP) ---
+h1 = 213  # y-axis pixels to top of cp
+h2 = 510  # y-axis pixels to bottom of cp
 cp_combat = Point(x=545, y=h1)
 cp_inventory = Point(x=646, y=h1)
 cp_equipment = Point(x=678, y=h1)
@@ -225,7 +225,7 @@ def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
         rect: The rectangle to search in.
         is_low_res: Whether the text within the rectangle is low resolution/pixelated.
     Returns:
-        The text found in the rectangle.
+        The text found in the rectangle, space delimited.
     '''
     # Screenshot the rectangle and load the image
     path = __capture_screen(rect)
