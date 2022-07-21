@@ -16,7 +16,7 @@ class App(customtkinter.CTk):
     WIDTH = 650
     HEIGHT = 520
 
-    def __init__(self):
+    def __init__(self):  # sourcery skip: merge-list-append, move-assign-in-block
         super().__init__()
 
         self.title("OSRS Bot")
@@ -54,23 +54,26 @@ class App(customtkinter.CTk):
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         # script buttons
+        self.btn_list = []
         self.btn_example_bot = customtkinter.CTkButton(master=self.frame_left,
                                                        text="Example",
-                                                       fg_color=("gray75", "gray30"),
                                                        command=lambda: self.toggle_frame_by_name("Example", self.btn_example_bot))
         self.btn_example_bot.grid(row=2, column=0, pady=10, padx=20)
+        self.btn_list.append(self.btn_example_bot)
 
         self.btn_example_bot2 = customtkinter.CTkButton(master=self.frame_left,
                                                         text="Example 2",
-                                                        fg_color=("gray75", "gray30"),
                                                         command=lambda: self.toggle_frame_by_name("Example 2", self.btn_example_bot2))
         self.btn_example_bot2.grid(row=3, column=0, pady=10, padx=20)
+        self.btn_list.append(self.btn_example_bot2)
 
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
                                               text="Dark Mode",
                                               command=self.change_mode)
         self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
         self.switch.select()
+
+        self.__configure_all_buttons()
 
         # ============ frame_right ============
         self.home_view = HomeView(parent=self.frame_right)
@@ -120,6 +123,10 @@ class App(customtkinter.CTk):
                 self.current_btn.configure(fg_color=btn.hover_color)
 
     # ============ Misc handler ============
+    def __configure_all_buttons(self):
+        for btn in self.btn_list:
+            btn.configure(state="disabled", fg_color=("gray75", "gray30"))
+
     def change_mode(self):
         if self.switch.get() == 1:
             customtkinter.set_appearance_mode("dark")
