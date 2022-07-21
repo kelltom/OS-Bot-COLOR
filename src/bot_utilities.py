@@ -377,15 +377,29 @@ def setup_client_alora():
     Configures the client window of Alora.
     Alora private server is used for testing: https://www.alora.io/
     '''
-    # Move window to top left corner
+    # Get reference to the client window
     try:
         win = pygetwindow.getWindowsWithTitle('Alora')[0]
     except Exception:
         print("Error: Could not find Alora window.")
         return
 
+    # Set window to large initially
+    init_width = 1200
+    init_height = 1000
+    win.moveTo(0, 0)
+    win.size = (init_width, init_height)
+    time.sleep(1)
+
+    # Ensure Runelite Settings pane is closed
+    settings_icon = search_img_in_rect(f"{BOT_IMAGES}/runelite_settings_selected.png",
+                                       Rectangle(Point(0, 0), Point(init_width, init_height)))
+    if settings_icon is not None:
+        pag.click(settings_icon.x, settings_icon.y)
+        time.sleep(1)
+
     # Move and resize to desired position
-    win.moveTo(window.start.x, window.start.y)
+    win.moveTo(0, 0)
     win.size = (window.end.x, window.end.y)
 
     # Search for settings button and click it
