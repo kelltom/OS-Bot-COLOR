@@ -380,20 +380,27 @@ def setup_client_alora():
     # Get reference to the client window
     try:
         win = pygetwindow.getWindowsWithTitle('Alora')[0]
+        win.activate()
     except Exception:
         print("Error: Could not find Alora window.")
         return
 
     # Set window to large initially
-    init_width = 1200
-    init_height = 1000
+    temp_win = Rectangle(Point(0, 0), Point(1200, 1000))
     win.moveTo(0, 0)
-    win.size = (init_width, init_height)
+    win.size = (temp_win.end[0], temp_win.end[1])
     time.sleep(1)
 
+    # Ensure user is logged out of Runelite
+    rl_login_icon = search_img_in_rect(f"{BOT_IMAGES}/runelite_logout.png", temp_win)
+    if rl_login_icon is not None:
+        pag.click(rl_login_icon.x, rl_login_icon.y)
+        time.sleep(0.2)
+        pag.press('enter')
+        time.sleep(1)
+
     # Ensure Runelite Settings pane is closed
-    settings_icon = search_img_in_rect(f"{BOT_IMAGES}/runelite_settings_selected.png",
-                                       Rectangle(Point(0, 0), Point(init_width, init_height)))
+    settings_icon = search_img_in_rect(f"{BOT_IMAGES}/runelite_settings_selected.png", temp_win)
     if settings_icon is not None:
         pag.click(settings_icon.x, settings_icon.y)
         time.sleep(1)
@@ -401,8 +408,6 @@ def setup_client_alora():
     # Move and resize to desired position
     win.moveTo(0, 0)
     win.size = (window.end.x, window.end.y)
-
-    # Search for settings button and click it
     time.sleep(1)
 
 
