@@ -23,7 +23,7 @@ class HomeView(customtkinter.CTkFrame):
 
         # Title label
         self.label_title = customtkinter.CTkLabel(master=self,
-                                                  text="Welcome to OSRS Bot!",
+                                                  text="Welcome to OSRS Bot COLOR!",
                                                   text_font=("Roboto Medium", 18))
         self.label_title.grid(row=1, column=0, sticky="nwes", padx=15, pady=15)
 

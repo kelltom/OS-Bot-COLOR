@@ -1,9 +1,10 @@
-**Last updated July 18, 2022.** Some information may be inaccurate.
+### ⚠️ This project is WIP ⚠️
+<br>
 
-# osrs-bot
-A lightweight desktop client for controlling and monitoring automation scripts (bots) for OSRS and other Runelite based games. This project also contains a library of tools for streamlining the development of new bots.
+# OSRS Bot COLOR
+A lightweight desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots.
 
-# Project Setup
+## Developer Setup
 1. Clone/download the repository.
 2. Open the repository folder in a terminal window.
    1. Create a virtual environment. ```python -m venv env```
@@ -12,7 +13,7 @@ A lightweight desktop client for controlling and monitoring automation scripts (
 3. Open the project folder in your IDE (VS Code preferred).
 4. Run main.py (./src/main.py)
 
-# Project Overview
+# Application Walkthrough
 Upon running the program, the user will be met with a home screen that should tell them how to configure their Runelite client. It is essential that Runelite settings are configured correctly, as much of the bot-utility library relies on various Runelite plugins. Before the user can select a script in the left-side menu, they must either click "Replace Settings" button to overwrite their settings file, or skip this step if they are confident their settings will work. *In the future, the "Skip" button should perform a diff to see if the settings are significantly different from the default settings.*
 
 ![](documentation/wiki_images/1.home_view.png)

@@ -19,7 +19,7 @@ class App(customtkinter.CTk):
     def __init__(self):  # sourcery skip: merge-list-append, move-assign-in-block
         super().__init__()
 
-        self.title("OSRS Bot")
+        self.title("OSRS Bot COLOR")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
         self.update()
         self.minsize(self.winfo_width(), self.winfo_height())
