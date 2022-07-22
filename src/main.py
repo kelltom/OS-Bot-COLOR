@@ -76,7 +76,7 @@ class App(customtkinter.CTk):
         self.__configure_all_buttons()
 
         # ============ frame_right ============
-        self.home_view = HomeView(parent=self.frame_right)
+        self.home_view = HomeView(parent=self.frame_right, main=self)
         self.home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
 
         # Create Bot Views here
@@ -123,6 +123,10 @@ class App(customtkinter.CTk):
                 self.current_btn.configure(fg_color=btn.hover_color)
 
     # ============ Misc handler ============
+    def enable_all_buttons(self):
+        for btn in self.btn_list:
+            btn.configure(state="normal")
+
     def __configure_all_buttons(self):
         for btn in self.btn_list:
             btn.configure(state="disabled", fg_color=("gray75", "gray30"))
