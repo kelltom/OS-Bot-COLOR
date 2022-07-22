@@ -155,47 +155,69 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
 
 
 # --- NPC Detection ---
-def attack_nearest_tagged():
+def attack_nearest_tagged() -> bool:
     '''
     Attacks the nearest tagged NPC that is not already in combat.
     Returns:
-        None if no NPC is found.
+        True if an NPC attack was attempted, False otherwise.
     '''
     path_game_view = __capture_screen(rect_game_view)
     # Isolate colors in image
     path_npcs, path_hp_bars = __isolate_tagged_NPCs_at(path_game_view)
     # Locate potential NPCs in image by determining contours
-    img = cv2.imread(path_npcs)
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contours = __get_contours(path_npcs)
     # Get center pixels of non-combatting NPCs
     centers = []
-    print(f"Found {len(contours)} potential NPCs.")
     img_bgr = cv2.imread(path_hp_bars)
     for cnt in contours:
         try:
-            moments = cv2.moments(cnt)
-            center_x = int(moments["m10"] / moments["m00"])
-            center_y = int(moments["m01"] / moments["m00"])
-            top_x, top_y = cnt[cnt[..., 1].argmin()][0]
+            center, top = __get_contour_positions(cnt)
         except Exception:
             print("Cannot find moments of contour. Disregarding...")
             continue
-        top = Point(x=top_x, y=top_y)
         if not __in_combat(top, img_bgr):
-            centers.append((center_x + rect_game_view.start.x, center_y + rect_game_view.start.y))
-    # Attack the nearest NPC
+            centers.append((center.x + rect_game_view.start.x, center.y + rect_game_view.start.y))
     if not centers:
-        print("No NPCs found.")
-        return None
+        print("No tagged NPCs found.")
+        return False
     # Get center of game view
     mid_w = int(rect_game_view.end.x / 2) + rect_game_view.start.x
     mid_h = int(rect_game_view.end.y / 2) + rect_game_view.start.y
+    # Attack nearest NPC
     nearest = __get_nearest_point(Point(mid_w, mid_h), centers)
-    print(nearest)
-    pag.moveTo(nearest.x, nearest.y)
-    pag.click()
+    pag.click(nearest.x, nearest.y)
+    print("Attacked nearest tagged NPC.")
+    return True
+
+
+def __get_contours(path: str) -> list:
+    '''
+    Gets the contours of an image.
+    Parameters:
+        path: The path to the image.
+    Returns:
+        A list of contours.
+    '''
+    img = cv2.imread(path)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    return contours
+
+
+def __get_contour_positions(contour) -> tuple:
+    '''
+    Gets the center and top pixel positions of a contour.
+    Parameters:
+        contour: The contour to get the positions of.
+    Returns:
+        A tuple of the center and top pixel positions.
+    '''
+    moments = cv2.moments(contour)
+    center_x = int(moments["m10"] / moments["m00"])
+    center_y = int(moments["m01"] / moments["m00"])
+    top_x, top_y = contour[contour[..., 1].argmin()][0]
+    return Point(center_x, center_y), Point(top_x, top_y)
 
 
 def __get_nearest_point(point: Point, points: list) -> Point:
@@ -229,8 +251,7 @@ def __in_combat(point: Point, im) -> bool:
             (b, g, r) = im[point.y + i, point.x]
         except Exception:
             continue
-        color = (b, g, r)
-        if color != (0, 0, 0):
+        if (b, g, r) != (0, 0, 0):
             print("Detected NPC in combat.")
             return True
     return False
