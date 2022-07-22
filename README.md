@@ -1,6 +1,8 @@
 ### ⚠️ This project is WIP ⚠️
 
-# OSRS Bot COLOR
+<span style="color: green"> Some green text </span>
+
+# OSRS Bot <span style="color: red">C</span><span style="color: purple">O</span><span style="color: green">L</span><span style="color: yellow">O</span><span style="color: blue">R</span>
 A lightweight desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots.
 
 ## Developer Setup
