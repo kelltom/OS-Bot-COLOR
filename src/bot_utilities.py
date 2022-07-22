@@ -189,19 +189,21 @@ def attack_nearest_tagged():
     if not centers:
         print("No NPCs found.")
         return None
-    width = img_bgr.shape[0]
-    height = img_bgr.shape[1]
-    nearest = __get_closest_point(Point(width, height), centers)
+    # Get center of game view
+    mid_w = int(rect_game_view.end.x / 2) + rect_game_view.start.x
+    mid_h = int(rect_game_view.end.y / 2) + rect_game_view.start.y
+    nearest = __get_nearest_point(Point(mid_w, mid_h), centers)
+    print(nearest)
     pag.moveTo(nearest.x, nearest.y)
     pag.click()
 
 
-def __get_closest_point(point: Point, points: list) -> Point:
+def __get_nearest_point(point: Point, points: list) -> Point:
     '''
-    Returns the closest point in a list of points as (x, y) coordinates.
+    Returns the nearest point in a list of (x, y) coordinates.
     Parameters:
         point: The point to compare to.
-        points: The list of points to compare.
+        points: The list of (x, y) coordinates to compare.
     Returns:
         The closest point in the list.
     '''
