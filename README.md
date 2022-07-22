@@ -1,5 +1,4 @@
 ### ⚠️ This project is WIP ⚠️
-<br>
 
 # OSRS Bot COLOR
 A lightweight desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots.
