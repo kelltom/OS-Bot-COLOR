@@ -13,7 +13,7 @@ A lightweight desktop client for controlling and monitoring automation scripts (
 4. Run main.py (./src/main.py)
 
 # Project Overview
-Upon running the program, the user will be met with a home screen that should tell them how to configure their Runelite client. It is essential that Runelite settings are configured correctly, as much of the bot-utility library relies on various Runelite plugins. One way of ensuring uniformity in Runelite settings is to encourage the user to log in with an account that already has the correct settings. A better way would be to create a function that swaps the user's settings with the settings.properties file in the project, but this has not been implemented yet.
+Upon running the program, the user will be met with a home screen that should tell them how to configure their Runelite client. It is essential that Runelite settings are configured correctly, as much of the bot-utility library relies on various Runelite plugins. Before the user can select a script in the left-side menu, they must either click "Replace Settings" button to overwrite their settings file, or skip this step if they are confident their settings will work. *In the future, the "Skip" button should perform a diff to see if the settings are significantly different from the default settings.*
 
 ![](documentation/wiki_images/1.home_view.png)
 
@@ -43,15 +43,15 @@ Much of the UI code is already written for you. However, since each bot is diffe
 - Lastly, call the setup() method on the BotView passing it the required arguments.
 
 ### Step 1: Create the button in main.py
-Find the section where all the other script buttons exist and add a new button. The command of this button should call the existing *toggle_frame_by_name* function with a name matching the name of your bot. We are using "Woodcutting" in this example.
+Find the section where all the other script buttons exist and add a new button and append it to the button list. The command of this button should call the existing *toggle_frame_by_name* function with a name matching the name of your bot. We are using "Woodcutting" in this example.
 
 ```python
 self.btn_wc = customtkinter.CTkButton(master=self.frame_left,
                                       text="Woodcutting",
-                                      fg_color=("gray75", "gray30"),
                                       command=lambda: self.toggle_frame_by_name("Woodcutting", self.btn_wc))
 # Set row argument according to position of button in left panel
 self.btn_wc.grid(row=3, column=0, pady=10, padx=20)
+self.btn_list.append(self.btn_wc)
 ```
 
 ### Step 2: Create the BotView in main.py
@@ -106,9 +106,9 @@ self.views["Woodcutting"].setup(controller=self.wc_controller,
 # --- Buttons ---
 self.btn_wc = customtkinter.CTkButton(master=self.frame_left,
                                       text="Woodcutting",
-                                      fg_color=("gray75", "gray30"),
                                       command=lambda: self.toggle_frame_by_name("Woodcutting", self.btn_wc))
 self.btn_wc.grid(row=?, column=0, pady=10, padx=20)
+self.btn_list.append(self.btn_wc)
 # --- Views ---
 self.views = {}
 self.views["Woodcutting"] = BotView(parent=self.frame_right)
@@ -166,7 +166,7 @@ Throughout your *main_loop()* function, you should make use of functions that re
 
 **TODO: Add full list of built-in functions users should use.**
 
-# Creating an Executable
+# Creating an Executable (*OUTDATED*)
 Making this project into an executable is kind of tedious. Due to some issues with dependencies, it's not possible to build this project into a single-file executable, however, a directory-based executable can be made.
 
 1. In the terminal, navigate to the directory containing the project.
