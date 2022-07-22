@@ -284,6 +284,36 @@ def __isolate_tagged_NPCs_at(path: str) -> str:
 
 
 # --- OCR ---
+def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
+    '''
+    Fetches text in a Rectangle.
+    Parameters:
+        rect: The rectangle to search in.
+        is_low_res: Whether the text within the rectangle is low resolution/pixelated.
+    Returns:
+        The text found in the rectangle, space delimited.
+    '''
+    # Screenshot the rectangle and load the image
+    path = __capture_screen(rect)
+
+    if is_low_res:
+        path = __preprocess_low_res_text_at(path)
+
+    image = cv2.imread(path)
+
+    # OCR the input image using EasyOCR
+    reader = Reader(['en'], gpu=-1)
+    res = reader.readtext(image)
+
+    # Loop through results
+    text = ""
+    for (_, _text, _) in res:
+        if _text is None or _text == "":
+            return None
+        text += f"{_text} "
+    return text
+
+
 def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None) -> bool:
     '''
     Searches for text in a Rectangle.
@@ -326,34 +356,16 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None)
     return None
 
 
-def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
+def __any_in_str(words: list, str: str) -> bool:
     '''
-    Fetches text in a Rectangle.
+    Checks if any of the words in the list are found in the string.
     Parameters:
-        rect: The rectangle to search in.
-        is_low_res: Whether the text within the rectangle is low resolution/pixelated.
+        words: The list of words to search for.
+        str: The string to search in.
     Returns:
-        The text found in the rectangle, space delimited.
+        True if any of the words are found (also returns the word found), else False.
     '''
-    # Screenshot the rectangle and load the image
-    path = __capture_screen(rect)
-
-    if is_low_res:
-        path = __preprocess_low_res_text_at(path)
-
-    image = cv2.imread(path)
-
-    # OCR the input image using EasyOCR
-    reader = Reader(['en'], gpu=-1)
-    res = reader.readtext(image)
-
-    # Loop through results
-    text = ""
-    for (_, _text, _) in res:
-        if _text is None or _text == "":
-            return None
-        text += f"{_text} "
-    return text
+    return next(((True, word) for word in words if word.lower() in str), (False, None))
 
 
 def __preprocess_low_res_text_at(path: str) -> str:
@@ -381,18 +393,7 @@ def __preprocess_low_res_text_at(path: str) -> str:
     return new_path
 
 
-def __any_in_str(words: list, str: str) -> bool:
-    '''
-    Checks if any of the words in the list are found in the string.
-    Parameters:
-        words: The list of words to search for.
-        str: The string to search in.
-    Returns:
-        True if any of the words are found (also returns the word found), else False.
-    '''
-    return next(((True, word) for word in words if word.lower() in str), (False, None))
-
-
+# --- Setup Functions ---
 def setup_client_alora():
     '''
     Configures the client window of Alora.
