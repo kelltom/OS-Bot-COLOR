@@ -392,7 +392,7 @@ def setup_client_alora():
     time.sleep(1)
 
     # Ensure user is logged out of Runelite
-    rl_login_icon = search_img_in_rect(f"{BOT_IMAGES}/runelite_logout.png", temp_win)
+    rl_login_icon = search_img_in_rect(f"{BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
     if rl_login_icon is not None:
         pag.click(rl_login_icon.x, rl_login_icon.y)
         time.sleep(0.2)
