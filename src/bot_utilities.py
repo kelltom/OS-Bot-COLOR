@@ -176,16 +176,14 @@ def attack_nearest_tagged() -> bool:
             print("Cannot find moments of contour. Disregarding...")
             continue
         if not __in_combat(top, img_bgr):
-            centers.append((center.x + rect_game_view.start.x, center.y + rect_game_view.start.y))
+            centers.append((center.x, center.y))
     if not centers:
         print("No tagged NPCs found.")
         return False
-    # Get center of game view
-    mid_w = int(rect_game_view.end.x / 2) + rect_game_view.start.x
-    mid_h = int(rect_game_view.end.y / 2) + rect_game_view.start.y
     # Attack nearest NPC
-    nearest = __get_nearest_point(Point(mid_w, mid_h), centers)
-    pag.click(nearest.x, nearest.y)
+    dims = img_bgr.shape  # (height, width, channels)
+    nearest = __get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
+    pag.click(nearest.x + rect_game_view.start.x, nearest.y + rect_game_view.start.y)
     print("Attacked nearest tagged NPC.")
     return True
 
