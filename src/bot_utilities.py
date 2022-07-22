@@ -265,7 +265,7 @@ def __isolate_tagged_NPCs_at(path: str) -> str:
 
 
 # --- OCR ---
-def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None,) -> bool:
+def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None) -> bool:
     '''
     Searches for text in a Rectangle.
     Parameters:
