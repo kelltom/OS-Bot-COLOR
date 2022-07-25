@@ -1,7 +1,7 @@
 '''
 runelite_utilities.py is an extension of bot_utilities.py. It contains bot helper functions that are specific to Runelite clients.
 '''
-from bot_utilities.bot_utilities import Point, Rectangle, TEMP_IMAGES, BOT_IMAGES, capture_screen, search_img_in_rect
+from bot_utilities.bot_utilities import Point, Rectangle, TEMP_IMAGES, BOT_IMAGES, capture_screen, search_img_in_rect, search_text_in_rect
 import cv2
 import numpy as np
 import pyautogui as pag
@@ -19,9 +19,10 @@ NPC_HP_RED = ((0, 255, 255), (20, 255, 255))
 client_window = Rectangle(start=Point(0, 0), end=Point(809, 534))
 
 # ------- Rects of Interest -------
-rect_current_action = Rectangle(start=Point(10, 52), end=Point(171, 93))  # combat/skilling plugin text
-rect_game_view = Rectangle(start=Point(9, 31), end=Point(517, 362))  # gameplay area
-rect_hp = Rectangle(start=Point(526, 80), end=Point(552, 100))  # contains HP text value
+rect_current_action = Rectangle(Point(10, 52), Point(171, 93))  # combat/skilling plugin text
+rect_game_view = Rectangle(Point(9, 31), Point(517, 362))  # gameplay area
+rect_hp = Rectangle(Point(526, 80), Point(552, 100))  # contains HP text value
+rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
 # TODO: Add more rectangles of interest (prayer, spec, etc.)
 
 # ------- Points of Interest -------
@@ -94,6 +95,38 @@ def __visit_points():
             pag.moveTo(slot.x, slot.y)
             time.sleep(0.2)
     pag.moveTo(inventory_slots[2][1].x, inventory_slots[2][1].y)
+
+
+def toggle_auto_retaliate(toggle_on: bool):
+    '''
+    Toggles auto retaliate. Assumes client window is configured.
+    Args:
+        toggle_on: Whether to turn on or off.
+    '''
+    # click the combat tab
+    pag.click(cp_combat.x, cp_combat.y)
+    time.sleep(0.5)
+
+    # Search for the auto retaliate button (deselected)
+    # If None, then auto retaliate is on.
+    auto_retal_btn = search_img_in_rect(f"{BOT_IMAGES}/cp_combat_autoretal.png", rect_inventory, conf=0.9)
+
+    if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
+        pag.click(644, 402)
+    elif toggle_on:
+        print("Auto retaliate is already on.")
+    else:
+        print("Auto retaliate is already off.")
+
+
+def is_in_combat(expected_enemy_names: list) -> bool:
+    '''
+    Returns whether the player is in combat.
+    TODO: Improve this. Maybe abandon it.
+    '''
+    # Search for the combat icon
+    result = search_text_in_rect(rect_current_action, expected_enemy_names)
+    return result is not None
 
 
 # --- NPC Detection ---
