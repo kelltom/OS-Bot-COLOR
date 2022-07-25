@@ -209,7 +209,7 @@ def __get_contour_positions(contour) -> tuple:
     Parameters:
         contour: The contour to get the positions of.
     Returns:
-        A tuple of the center and top pixel positions.
+        A center and top pixel positions as Points.
     '''
     moments = cv2.moments(contour)
     center_x = int(moments["m10"] / moments["m00"])
@@ -236,7 +236,9 @@ def __get_nearest_point(point: Point, points: list) -> Point:
 
 def __in_combat(point: Point, im) -> bool:
     '''
-    Given a point and CV image of HP bars, determine if the NPC's point has a neighbouring HP bar.
+    This function determines if there are non-black pixels in an image above and below a given point.
+    This is useful for determining if an NPC is in combat (E.g., given the top point of an NPC contour
+    and a masked image only showing HP bars, determine if the NPC has an HP bar above the contour).
     Parameters:
         point: The top point of a contour (NPC).
         im: A BGR CV image containing only HP bars.
