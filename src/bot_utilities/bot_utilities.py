@@ -119,10 +119,11 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None)
         text = text.lower()
         print(f"OCR Result: {text}")
         # If any strings in blacklist are found in text, return false
-        _result, _word = __any_in_str(blacklist, text)
-        if _result:
-            print(f"Blacklist word found: {_word}")
-            return False
+        if blacklist is not None:
+            _result, _word = __any_in_str(blacklist, text)
+            if _result:
+                print(f"Blacklist word found: {_word}")
+                return False
         # If any strings in expected are found in text, set flag true
         if not word_found:
             _result, _word = __any_in_str(expected, text)
