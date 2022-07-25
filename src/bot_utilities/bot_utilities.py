@@ -122,7 +122,7 @@ def __visit_points():
 def __capture_screen(rect: Rectangle) -> str:
     '''
     Captures a given Rectangle and saves it to a file.
-    Parameters:
+    Args:
         rect: The Rectangle area to capture.
     Returns:
         The path to the saved image.
@@ -137,7 +137,7 @@ def __capture_screen(rect: Rectangle) -> str:
 def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Point:
     '''
     Searches for an image in a rectangle.
-    Parameters:
+    Args:
         img_path: The path to the image to search for.
         rect: The rectangle to search in.
         conf: The confidence level of the search.
@@ -175,7 +175,7 @@ def attack_nearest_tagged() -> bool:
         except Exception:
             print("Cannot find moments of contour. Disregarding...")
             continue
-        if not __in_combat(top, img_bgr):
+        if not __is_point_obstructed(top, img_bgr):
             centers.append((center.x, center.y))
     if not centers:
         print("No tagged NPCs found.")
@@ -191,7 +191,7 @@ def attack_nearest_tagged() -> bool:
 def __get_contours(path: str) -> list:
     '''
     Gets the contours of an image.
-    Parameters:
+    Args:
         path: The path to the image.
     Returns:
         A list of contours.
@@ -206,7 +206,7 @@ def __get_contours(path: str) -> list:
 def __get_contour_positions(contour) -> tuple:
     '''
     Gets the center and top pixel positions of a contour.
-    Parameters:
+    Args:
         contour: The contour to get the positions of.
     Returns:
         A center and top pixel positions as Points.
@@ -221,7 +221,7 @@ def __get_contour_positions(contour) -> tuple:
 def __get_nearest_point(point: Point, points: list) -> Point:
     '''
     Returns the nearest point in a list of (x, y) coordinates.
-    Parameters:
+    Args:
         point: The point to compare to.
         points: The list of (x, y) coordinates to compare.
     Returns:
@@ -234,12 +234,12 @@ def __get_nearest_point(point: Point, points: list) -> Point:
     return Point(points[p][0], points[p][1])
 
 
-def __in_combat(point: Point, im) -> bool:
+def __is_point_obstructed(point: Point, im) -> bool:
     '''
     This function determines if there are non-black pixels in an image above and below a given point.
     This is useful for determining if an NPC is in combat (E.g., given the top point of an NPC contour
     and a masked image only showing HP bars, determine if the NPC has an HP bar above the contour).
-    Parameters:
+    Args:
         point: The top point of a contour (NPC).
         im: A BGR CV image containing only HP bars.
     Returns:
@@ -260,7 +260,7 @@ def __in_combat(point: Point, im) -> bool:
 def __isolate_tagged_NPCs_at(path: str) -> str:
     '''
     Isolates tagged NPCs, HP bars and hitsplats in an image.
-    Parameters:
+    Args:
         path: The path to the image to isolate colors.
     Returns:
         The paths to an image with only tagged NPCs, and an image with only HP bars.
@@ -289,7 +289,7 @@ def __isolate_tagged_NPCs_at(path: str) -> str:
 def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
     '''
     Fetches text in a Rectangle.
-    Parameters:
+    Args:
         rect: The rectangle to search in.
         is_low_res: Whether the text within the rectangle is low resolution/pixelated.
     Returns:
@@ -319,7 +319,7 @@ def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
 def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None) -> bool:
     '''
     Searches for text in a Rectangle.
-    Parameters:
+    Args:
         rect: The rectangle to search in.
         expected: List of strings that are expected within the rectangle area.
         blacklist: List of strings that, if found, will cause the function to return False.
@@ -361,7 +361,7 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None)
 def __any_in_str(words: list, str: str) -> bool:
     '''
     Checks if any of the words in the list are found in the string.
-    Parameters:
+    Args:
         words: The list of words to search for.
         str: The string to search in.
     Returns:
@@ -376,7 +376,7 @@ def __preprocess_low_res_text_at(path: str) -> str:
     This function improves text clarity for OCR by upscaling, antialiasing, and isolating text.
     Note:
         Only use for low-resolution images with pixelated text and a solid background.
-    Parameters:
+    Args:
         path: The path to the image to preprocess.
     Returns:
         The path to the processed image.

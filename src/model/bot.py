@@ -96,7 +96,7 @@ class Bot(ABC):
         This function enters a pause loop for the given timeout. This function also handles sending
         messages to controller. Best used in main_loop() inner loops while bot is waiting for a
         condition to be met.
-        Params:
+        Args:
             timeout: int - number of seconds to wait for condition to be met
         Returns:
             True if the bot is safe to continue, False if the bot should terminate.
