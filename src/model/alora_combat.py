@@ -53,10 +53,10 @@ class AloraCombat(AloraBot):
         # Make sure auto retaliate is on
         self.log_msg("Enabling auto retaliate...")
         self.toggle_auto_retaliate(toggle_on=True)
-        time.sleep(1)
+        time.sleep(0.5)
 
         # Reselect inventory
-        self.hc.move(self.cp_inventory)
+        self.hc.move(self.cp_inventory, 0.2)
         self.hc.click()
 
         while self.current_iter < self.iterations:
@@ -75,22 +75,30 @@ class AloraCombat(AloraBot):
                 self.log_msg("Attempting to attack NPC...")
                 if self.attack_nearest_tagged(self.rect_game_view):
                     self.log_msg("NPC targetted.")
+                    time.sleep(2)
+                    timeout -= 2
                 else:
                     self.log_msg("No NPC found.")
-                time.sleep(2)
-                timeout -= 2
+                    time.sleep(0.5)
+                    timeout -= 0.5
 
             if not self.status_check_passed():
                 return
 
             # If combat is over, assume we killed the NPC.
+            timeout = 60  # give our character 1 minute to kill the NPC
             while self.is_in_combat():
+                if timeout <= 0:
+                    self.log_msg("Timed out fighting NPC.")
+                    self.set_status(BotStatus.STOPPED)
+                    return
                 time.sleep(1)
+                timeout -= 1
                 if not self.status_check_passed():
                     return
             self.increment_iter()
-            self.log_msg(f"Enemy killed. That's {self.current_iter}!")
-            time.sleep(1)
+            self.log_msg(f"Enemy killed. {self.iterations - self.current_iter} to go!")
+            time.sleep(0.5)
 
         self.log_msg("Bot has completed all of its iterations.")
         self.set_status(BotStatus.STOPPED)

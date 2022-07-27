@@ -228,6 +228,7 @@ class Bot(ABC):
 
     # --- OCR ---
     def get_text_in_rect(self, rect: Rectangle, is_low_res=False) -> str:
+        # sourcery skip: class-extract-method
         '''
         Fetches text in a Rectangle.
         Args:
@@ -248,13 +249,7 @@ class Bot(ABC):
         reader = Reader(['en'], gpu=-1)
         res = reader.readtext(image)
 
-        # Loop through results
-        text = ""
-        for (_, _text, _) in res:
-            if _text is None or _text == "":
-                return None
-            text += f"{_text} "
-        return text
+        return "".join(f"{_text} " for _, _text, _ in res)
 
     def search_text_in_rect(self, rect: Rectangle, expected: list, blacklist: list = None) -> bool:
         '''

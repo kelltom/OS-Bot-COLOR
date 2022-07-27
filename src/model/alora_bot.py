@@ -36,10 +36,11 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
 
     def is_in_combat(self) -> bool:
         '''
-        Returns whether the player is in combat.
+        Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite activity
+        section in the game view.
         '''
         result = self.get_text_in_rect(self.rect_current_action)
-        return result is not None
+        return result.strip() != ""
 
     def toggle_auto_retaliate(self, toggle_on: bool):
         '''
@@ -48,16 +49,16 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
             toggle_on: Whether to turn on or off.
         '''
         # click the combat tab
-        self.hc.move(self.cp_combat.x, self.cp_combat.y, duration=1)
+        self.hc.move(self.cp_combat, duration=1)
         self.hc.click()
         time.sleep(0.5)
 
         # Search for the auto retaliate button (deselected)
         # If None, then auto retaliate is on.
-        auto_retal_btn = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_combat_autoretal.png", self.rect_inventory, conf=0.9)
+        auto_retal_btn = self.search_img_in_rect(f"{self.BOT_IMAGES}/alora/cp_combat_autoretal.png", self.rect_inventory, conf=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.hc.move(644, 402)
+            self.hc.move((644, 402), 0.2)
             self.hc.click()
         elif toggle_on:
             print("Auto retaliate is already on.")

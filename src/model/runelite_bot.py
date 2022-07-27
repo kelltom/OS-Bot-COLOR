@@ -53,7 +53,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         # Attack nearest NPC
         dims = img_bgr.shape  # (height, width, channels)
         nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
-        self.hc.move((nearest.x + game_view.start.x, nearest.y + game_view.start.y), 0.5)
+        self.hc.move((nearest.x + game_view.start.x, nearest.y + game_view.start.y), 0.1)
         self.hc.click()
         print("Attacked nearest tagged NPC.")
         return True
