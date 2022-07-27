@@ -1,7 +1,6 @@
 '''
 Combat bot for Alora. Kills tagged NPCs.
 '''
-from bot_utilities.runelite_utilities import is_in_combat
 from model.bot import BotStatus
 from model.alora_bot import AloraBot
 import time
