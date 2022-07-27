@@ -138,11 +138,13 @@ class Bot(ABC):
         self.current_iter = 0
         self.controller.update_progress()
 
-    def increment_iter(self):
+    def increment_iter(self, by: int = 1):
         '''
-        Increments the current iteration property by 1 and notifies the controller to update UI.
+        Increments the current iteration property and notifies the controller to update UI.
+        Args:
+            by: int - number of iterations to increment by
         '''
-        self.current_iter += 1
+        self.current_iter += by
         self.controller.update_progress()
 
     def set_status(self, status: BotStatus):
