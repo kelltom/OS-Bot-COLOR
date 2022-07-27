@@ -36,14 +36,15 @@ class Bot(ABC):
     def main_loop(self):
         '''
         Main logic of the bot. This function is called in a separate thread.
-        The main loop should frequently check the status of the bot and terminate when the status is STOPPED.
         '''
         pass
 
     @abstractmethod
     def save_options(self, options: dict):
         '''
-        Given a dictionary of options, this function should save the options to the model's properties.
+        Saves a dictionary of options as properties of the bot.
+        Args:
+            options: dict - dictionary of options to save
         '''
         pass
 
@@ -71,7 +72,7 @@ class Bot(ABC):
 
     def stop(self):
         '''
-        This function is fired when the user stops the bot manually.
+        Fired when the user stops the bot manually.
         '''
         self.log_msg("Manual stop requested. Attempting to stop...")
         if self.status != BotStatus.STOPPED:
@@ -81,6 +82,9 @@ class Bot(ABC):
             self.log_msg("Bot is already stopped.")
 
     def __check_interrupt(self):
+        '''
+        Checks for keyboard interrupts.
+        '''
         if keyboard.is_pressed("F1"):
             if self.status != BotStatus.PAUSED:
                 self.log_msg("Pausing bot...")
@@ -150,6 +154,8 @@ class Bot(ABC):
     def set_status(self, status: BotStatus):
         '''
         Sets the status property of the bot and notifies the controller to update UI accordingly.
+        Args:
+            status: BotStatus - status to set the bot to
         '''
         self.status = status
         self.controller.update_status()
@@ -157,6 +163,9 @@ class Bot(ABC):
     def log_msg(self, msg: str, overwrite=False):
         '''
         Sends a message to the controller to be displayed in the log for the user.
+        Args:
+            msg: str - message to log
+            overwrite: bool - if True, overwrites the current log message. If False, appends to the log.
         '''
         self.controller.update_log(msg, overwrite)
 
