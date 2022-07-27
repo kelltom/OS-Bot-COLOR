@@ -40,6 +40,7 @@ class AloraCombat(AloraBot):
 
     def main_loop(self):
         '''
+        TODO:
         This function should consider the following:
             - Should the bot bank?
             - Should the bot loot?
