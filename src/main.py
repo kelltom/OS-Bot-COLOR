@@ -112,8 +112,6 @@ class App(customtkinter.CTk):
         self.current_view = None
         self.current_btn = None
 
-        self.__configure_all_buttons()
-
     # ============ Script button handlers ============
     def toggle_frame_by_name(self, name, btn):
         if self.views[name] is not None:
