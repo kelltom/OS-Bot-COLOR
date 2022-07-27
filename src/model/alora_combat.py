@@ -64,13 +64,21 @@ class AloraCombat(AloraBot):
                 return
 
             # Attack NPC
-            if not self.is_in_combat():
+            timeout = 10  # check for up to 10 seconds
+            while not self.is_in_combat():
+                if not self.status_check_passed():
+                    return
+                if timeout <= 0:
+                    self.log_msg("Timed out looking for NPC.")
+                    self.set_status(BotStatus.STOPPED)
+                    return
                 self.log_msg("Attempting to attack NPC...")
                 if self.attack_nearest_tagged(self.rect_game_view):
                     self.log_msg("NPC targetted.")
                 else:
                     self.log_msg("No NPC found.")
                 time.sleep(2)
+                timeout -= 2
 
             if not self.status_check_passed():
                 return
