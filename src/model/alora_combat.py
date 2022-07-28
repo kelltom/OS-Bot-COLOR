@@ -57,8 +57,8 @@ class AloraCombat(AloraBot):
         time.sleep(0.5)
 
         # Reselect inventory
-        self.hc.move(self.cp_inventory, 0.2)
-        self.hc.click()
+        self.mouse.move_to(self.cp_inventory, 0.2, variance=3)
+        self.mouse.click()
 
         while self.current_iter < self.iterations:
             if not self.status_check_passed():

@@ -5,6 +5,7 @@ be inherited by Alora script classes.
 from abc import ABCMeta
 from model.runelite_bot import RuneliteBot
 from model.bot import Rectangle, Point
+import pyautogui as pag
 import time
 
 
@@ -49,8 +50,8 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
             toggle_on: Whether to turn on or off.
         '''
         # click the combat tab
-        self.hc.move(self.cp_combat, duration=1)
-        self.hc.click()
+        self.mouse.move_to(self.cp_combat, duration=1, variance=3)
+        pag.click()
         time.sleep(0.5)
 
         # Search for the auto retaliate button (deselected)
@@ -58,8 +59,8 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
         auto_retal_btn = self.search_img_in_rect(f"{self.BOT_IMAGES}/alora/cp_combat_autoretal.png", self.rect_inventory, conf=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.hc.move((644, 402), 0.2)
-            self.hc.click()
+            self.mouse.move_to((644, 402), 0.2, variance=5)
+            pag.click()
         elif toggle_on:
             print("Auto retaliate is already on.")
         else:

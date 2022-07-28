@@ -3,16 +3,16 @@ A Bot is a base class for bot script models. It is abstract and cannot be instan
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 '''
 from abc import ABC, abstractmethod
-from enum import Enum
-import keyboard
-from threading import Thread
-import time
 import cv2
 from easyocr import Reader
+from enum import Enum
+import keyboard
 from PIL import Image, ImageGrab
-from pyclick import HumanClicker
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
+from threading import Thread
+import time
 from typing import NamedTuple
+from utilities.mouse_utils import MouseUtils
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -39,7 +39,7 @@ class Bot(ABC):
     current_iter: int = 0
     options_set: bool = False
     thread: Thread = None
-    hc = HumanClicker()
+    mouse = MouseUtils()
 
     # --- Paths to Image folders ---
     TEMP_IMAGES = "./src/images/temp"

@@ -53,8 +53,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         # Attack nearest NPC
         dims = img_bgr.shape  # (height, width, channels)
         nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
-        self.hc.move((nearest.x + game_view.start.x, nearest.y + game_view.start.y), 0.1)
-        self.hc.click()
+        self.mouse.move_to((nearest.x + game_view.start.x, nearest.y + game_view.start.y), 0.2)
+        pag.click()
         print("Attacked nearest tagged NPC.")
         return True
 
@@ -174,8 +174,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         # Ensure user is logged out of Runelite
         rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
         if rl_login_icon is not None:
-            self.hc.move(rl_login_icon, duration=1)
-            self.hc.click()
+            self.mouse.move_to(rl_login_icon, duration=1)
+            pag.click()
             time.sleep(0.2)
             pag.press('enter')
             time.sleep(1)
@@ -183,8 +183,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         # Ensure Runelite Settings pane is closed
         settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", temp_win)
         if settings_icon is not None:
-            self.hc.move(settings_icon, 1)
-            self.hc.click()
+            self.mouse.move_to(settings_icon, 1)
+            pag.click()
             time.sleep(1)
 
         # Move and resize to desired position
