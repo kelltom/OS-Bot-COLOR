@@ -1,5 +1,6 @@
 import customtkinter
 from controller.bot_controller import BotController
+from model.alora_combat import AloraCombat
 from model.example_bot import ExampleBot
 import tkinter
 from view.bot_view import BotView
@@ -67,6 +68,12 @@ class App(customtkinter.CTk):
         self.btn_example_bot2.grid(row=3, column=0, pady=10, padx=20)
         self.btn_list.append(self.btn_example_bot2)
 
+        self.btn_alora_combat = customtkinter.CTkButton(master=self.frame_left,
+                                                        text="Alora Combat",
+                                                        command=lambda: self.toggle_frame_by_name("AloraCombat", self.btn_alora_combat))
+        self.btn_alora_combat.grid(row=4, column=0, pady=10, padx=20)
+        self.btn_list.append(self.btn_alora_combat)
+
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
                                               text="Dark Mode",
                                               command=self.change_mode)
@@ -92,6 +99,15 @@ class App(customtkinter.CTk):
                                     options_class=ExampleBotOptions)
         # Example Bot 2
         self.views["Example 2"] = BotView(parent=self.frame_right)
+
+        # Alora Combat bot
+        self.views["AloraCombat"] = BotView(parent=self.frame_right)
+        self.alora_combat_model = AloraCombat()
+        self.alora_combat_controller = BotController(model=self.alora_combat_model, view=self.views["AloraCombat"])
+        self.views["AloraCombat"].setup(controller=self.alora_combat_controller,
+                                        title=self.alora_combat_model.title,
+                                        description=self.alora_combat_model.description,
+                                        options_class=ExampleBotOptions)
 
         self.current_view = None
         self.current_btn = None

@@ -9,8 +9,6 @@ the README/Wiki.
 
 from model.bot import Bot, BotStatus
 import time
-import bot_utilities.runelite_utilities as utils
-import pyautogui as pag
 
 
 class ExampleBot(Bot):
@@ -101,43 +99,5 @@ class ExampleBot(Bot):
             if not self.status_check_passed():
                 return
         # If the bot reaches here it has completed all of its iterations.
-        self.log_msg("Bot has completed all of its iterations.")
-        self.set_status(BotStatus.STOPPED)
-
-    def main_loop_example(self):
-        '''
-        TODO: This is a pretty bad example of how to write a dagannoth bot. Move it to a custom combat bot class.
-        '''
-        self.log_msg("Configuring client window...")
-        utils.setup_client(window_title="Alora", width=utils.client_window.end.x, height=utils.client_window.end.y)
-        self.log_msg("Client window configured.")
-
-        # Make sure auto retaliate is on
-        utils.toggle_auto_retaliate(toggle_on=True)
-        time.sleep(1)
-
-        # Reselect inventory
-        pag.click(utils.cp_inventory.x, utils.cp_inventory.y)
-
-        while self.current_iter < self.iterations:
-            # Attack NPC
-            self.log_msg("Attempting to attack NPC...")
-            if utils.attack_nearest_tagged():
-                self.log_msg("NPC targetted.")
-            else:
-                self.log_msg("No NPC found.")
-            time.sleep(2)
-
-            # Determine if in combat
-            while utils.is_in_combat(expected_enemy_names=["Dagannoth"]):
-                time.sleep(1)
-                if not self.status_check_passed():
-                    return
-            self.log_msg("Enemy killed.")
-            self.increment_iter()
-
-            time.sleep(1)
-            if not self.status_check_passed():
-                return
         self.log_msg("Bot has completed all of its iterations.")
         self.set_status(BotStatus.STOPPED)
