@@ -1,6 +1,7 @@
 import customtkinter
 import os
 from pathlib import Path
+import pyautogui as pag
 import shutil
 from tkinter.filedialog import askopenfilename
 
@@ -77,6 +78,9 @@ class HomeView(customtkinter.CTkFrame):
         # configure their RS settings.
 
     def replace_settings(self):
+        res = pag.confirm("Please close your game client before continuing.", title="Warning", buttons=["Done", "Cancel"])
+        if res == "Cancel":
+            return
         if loc := askopenfilename(initialdir=os.environ['USERPROFILE'],
                                   title="Select your Runelite settings file",
                                   filetypes=[("properties files", "*.properties")]):
