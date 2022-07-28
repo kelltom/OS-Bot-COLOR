@@ -74,9 +74,6 @@ class HomeView(customtkinter.CTkFrame):
                                                    text="")
         self.label_status.grid(row=7, column=0, sticky="nwes")
 
-        # TODO: Make a big frame to replace this view telling the user how to
-        # configure their RS settings.
-
     def replace_settings(self):
         res = pag.confirm("Please close your game client before continuing.", title="Warning", buttons=["Done", "Cancel"])
         if res == "Cancel":
