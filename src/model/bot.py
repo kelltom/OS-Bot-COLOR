@@ -223,8 +223,8 @@ class Bot(ABC):
         pos = imagesearcharea(img_path, rect.start.x, rect.start.y, rect.end.x, rect.end.y, conf, im)
         if pos == [-1, -1]:
             return None
-        return self.Point(x=pos[0] + rect.start.x + width/2,
-                          y=pos[1] + rect.start.y + height/2)
+        return Point(x=pos[0] + rect.start.x + width/2,
+                     y=pos[1] + rect.start.y + height/2)
 
     # --- OCR ---
     def get_text_in_rect(self, rect: Rectangle, is_low_res=False) -> str:
