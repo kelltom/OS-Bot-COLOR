@@ -73,15 +73,14 @@ class AloraCombat(AloraBot):
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                self.log_msg("Attempting to attack NPC...")
                 if self.attack_nearest_tagged(self.rect_game_view):
-                    self.log_msg("NPC targetted.")
-                    time.sleep(2)
-                    timeout -= 2
+                    self.log_msg("Attempting to attack NPC...")
+                    time.sleep(3)
+                    timeout -= 3
                 else:
                     self.log_msg("No NPC found.")
-                    time.sleep(0.5)
-                    timeout -= 0.5
+                    time.sleep(2)
+                    timeout -= 2
 
             if not self.status_check_passed():
                 return
@@ -93,13 +92,12 @@ class AloraCombat(AloraBot):
                     self.log_msg("Timed out fighting NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                time.sleep(1)
-                timeout -= 1
+                time.sleep(0.5)
+                timeout -= 0.5
                 if not self.status_check_passed():
                     return
             self.increment_iter()
             self.log_msg(f"Enemy killed. {self.iterations - self.current_iter} to go!")
-            time.sleep(0.5)
 
         self.log_msg("Bot has completed all of its iterations.")
         self.set_status(BotStatus.STOPPED)
