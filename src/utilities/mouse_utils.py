@@ -18,9 +18,11 @@ class MouseUtils():
                   pag.easeInOutQuart, pag.easeInQuart, pag.easeInQuint,
                   pag.easeInOutBack, pag.easeOutSine]
         tween = tweens[np.random.randint(0, len(tweens))]
-        point[0] += np.random.randint(-variance, variance)
-        point[1] += np.random.randint(-variance, variance)
-        pag.moveTo(point[0], point[1], duration=duration, tween=tween)
+        x, y = point
+        if variance != 0:
+            x += np.random.randint(-variance, variance)
+            y += np.random.randint(-variance, variance)
+        pag.moveTo(x, y, duration=duration, tween=tween)
 
     def click(self):
         pag.click()
