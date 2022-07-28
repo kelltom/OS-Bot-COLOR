@@ -101,26 +101,25 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         p = np.argmin(dist_2)
         return Point(points[p][0], points[p][1])
 
-    def __is_point_obstructed(self, point: Point, im) -> bool:
+    def __is_point_obstructed(self, point: Point, im, kernel: int = 10) -> bool:
         '''
-        This function determines if there are non-black pixels in an image above and below a given point.
+        This function determines if there are non-black pixels in an image around a given point.
         This is useful for determining if an NPC is in combat (E.g., given the top point of an NPC contour
-        and a masked image only showing HP bars, determine if the NPC has an HP bar above the contour).
+        and a masked image only showing HP bars, determine if the NPC has an HP bar around the contour).
         Args:
             point: The top point of a contour (NPC).
             im: A BGR CV image containing only HP bars.
         Returns:
-            True if the point is in combat, False otherwise.
+            True if the point is obstructed, False otherwise.
         '''
-        # For 10 pixels above/below the point, check if the pixel is not black.
-        for i in range(-10, 10):
-            try:
-                (b, g, r) = im[point.y + i, point.x]
-            except Exception:
-                continue
-            if (b, g, r) != (0, 0, 0):
-                print("Detected NPC in combat.")
-                return True
+        try:
+            crop = im[point.y-kernel:point.y+kernel, point.x-kernel:point.x+kernel]
+        except Exception:
+            print("Cannot crop image. Disregarding...")
+            return True
+        mean = crop.mean(axis=(0, 1))
+        if str(mean) != "[0. 0. 0.]":
+            return True
         return False
 
     def __isolate_tagged_NPCs_at(self, path: str) -> str:
