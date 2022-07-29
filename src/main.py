@@ -184,7 +184,7 @@ class App(customtkinter.CTk):
                 self.current_btn.configure(fg_color=btn.hover_color)
             # If no script is selected, show the new one
             else:
-                self.runelite_home_view.pack_forget()
+                self.current_home_view.pack_forget()
                 self.current_script_view = self.views[name]
                 self.current_script_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
                 self.current_btn = btn
