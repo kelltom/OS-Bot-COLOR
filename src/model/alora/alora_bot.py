@@ -76,4 +76,4 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
         '''
         Sets up the Alora client.
         '''
-        self.setup_client(window_title="Alora")
+        self.setup_client(window_title="Alora", logout_runelite=True, close_runelite_settings=True)

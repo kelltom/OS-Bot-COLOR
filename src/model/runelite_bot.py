@@ -150,11 +150,13 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         return blue_path, color_path
 
     # --- Setup Functions ---
-    def setup_client(self, window_title: str) -> None:
+    def setup_client(self, window_title: str, logout_runelite: bool, close_runelite_settings: bool) -> None:
         '''
         Configures a Runelite client window.
         Args:
             window_title: The title of the window to be manipulated. Must match the actual window's title.
+            logout_runelite: Whether to logout of Runelite during window config.
+            close_runelite_settings: Whether to close the Runelite settings panel if it is open.
         '''
         # Get reference to the client window
         try:
@@ -171,20 +173,22 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         time.sleep(1)
 
         # Ensure user is logged out of Runelite
-        rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
-        if rl_login_icon is not None:
-            self.mouse.move_to(rl_login_icon, duration=1)
-            pag.click()
-            time.sleep(0.2)
-            pag.press('enter')
-            time.sleep(1)
+        if logout_runelite:
+            rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
+            if rl_login_icon is not None:
+                self.mouse.move_to(rl_login_icon, duration=1)
+                pag.click()
+                time.sleep(0.2)
+                pag.press('enter')
+                time.sleep(1)
 
         # Ensure Runelite Settings pane is closed
-        settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", temp_win)
-        if settings_icon is not None:
-            self.mouse.move_to(settings_icon, 1)
-            pag.click()
-            time.sleep(1)
+        if close_runelite_settings:
+            settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", temp_win)
+            if settings_icon is not None:
+                self.mouse.move_to(settings_icon, 1)
+                pag.click()
+                time.sleep(1)
 
         # Move and resize to desired position
         win.moveTo(0, 0)
