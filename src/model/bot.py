@@ -114,7 +114,7 @@ class Bot(ABC):
         elif keyboard.is_pressed("ESC"):
             self.stop()
 
-    def status_check_passed(self, timeout: int = 10) -> bool:
+    def status_check_passed(self, timeout: int = 60) -> bool:
         '''
         Does routine check for:
             - Bot status (stops/pauses)
