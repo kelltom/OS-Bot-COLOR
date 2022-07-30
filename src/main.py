@@ -5,6 +5,7 @@ from model.example_bot import ExampleBot
 import tkinter
 from view.bot_view import BotView
 from view.home_view import HomeView
+from view.osnr_home_view import OSNRHomeView
 from view.rl_home_view import RuneliteHomeView
 from view.example_bot_options import ExampleBotOptions
 
@@ -108,7 +109,7 @@ class App(customtkinter.CTk):
         self.views["Select a game"] = self.home_view
         self.views["OSRS"] = self.runelite_home_view
         self.views["Alora"] = self.runelite_home_view
-        self.views["OSNR"] = self.runelite_home_view
+        self.views["OSNR"] = OSNRHomeView(parent=self, main=self)
 
         # Declare Bots and their views below
         # Example Bot
