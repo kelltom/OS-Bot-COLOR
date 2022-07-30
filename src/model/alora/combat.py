@@ -47,12 +47,9 @@ class AloraCombat(AloraBot):
             - Should the bot heal?
             - Should the bot pray?
         '''
-        self.log_msg("Configuring client window...")
         self.setup_alora()
-        self.log_msg("Client window configured.")
 
         # Make sure auto retaliate is on
-        self.log_msg("Enabling auto retaliate...")
         self.toggle_auto_retaliate(toggle_on=True)
         time.sleep(0.5)
 

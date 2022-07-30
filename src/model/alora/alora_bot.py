@@ -16,6 +16,7 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
         Args:
             toggle_on: Whether to turn on or off.
         '''
+        self.log_msg("Enabling auto retaliate...")
         # click the combat tab
         self.mouse.move_to(self.cp_combat, duration=1, variance=3)
         pag.click()

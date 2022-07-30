@@ -218,18 +218,19 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     # --- Setup Functions ---
     def setup_client(self, window_title: str, logout_runelite: bool, close_runelite_settings: bool) -> None:
         '''
-        Configures a Runelite client window.
+        Configures a Runelite client window. This function logs messages to the script output log.
         Args:
             window_title: The title of the window to be manipulated. Must match the actual window's title.
             logout_runelite: Whether to logout of Runelite during window config.
             close_runelite_settings: Whether to close the Runelite settings panel if it is open.
         '''
+        self.log_msg("Configuring client window...")
         # Get reference to the client window
         try:
             win = pygetwindow.getWindowsWithTitle(window_title)[0]
             win.activate()
         except Exception:
-            print("Error: Could not find game window.")
+            self.log_msg("Error: Could not find game window.")
             return
 
         # Set window to large initially
@@ -240,6 +241,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
         # Ensure user is logged out of Runelite
         if logout_runelite:
+            self.log_msg("Logging out of Runelite...")
             rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
             if rl_login_icon is not None:
                 self.mouse.move_to(rl_login_icon, duration=1)
@@ -250,6 +252,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
         # Ensure Runelite Settings pane is closed
         if close_runelite_settings:
+            self.log_msg("Closing Runelite settings panel...")
             settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", temp_win)
             if settings_icon is not None:
                 self.mouse.move_to(settings_icon, 1)
@@ -260,3 +263,4 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         win.moveTo(0, 0)
         win.size = (self.client_window.end.x, self.client_window.end.y)
         time.sleep(1)
+        self.log_msg("Client window configured.")
