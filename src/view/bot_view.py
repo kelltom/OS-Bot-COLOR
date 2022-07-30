@@ -31,7 +31,9 @@ class BotView(customtkinter.CTkFrame):
 
     def set_controller(self, controller):
         '''
-        Sets up the view (and child views) with the given controller.
+        Sets up the view and its child views to use the given controller.
+        Args:
+            controller: The controller to use.
         '''
         self.controller = controller
         self.frame_info.set_controller(controller=controller)

@@ -80,9 +80,11 @@ class BotController(object):
         '''
         self.view.frame_output_log.clear_log()
 
-    def update_model(self, model: Bot):
+    def change_model(self, model: Bot):
         '''
-        Called from view. Swaps the controller's model.
+        Called from view. Swaps the controller's model, halting the old one. Reconfigures the info frame.
+        Args:
+            model: The new model to use.
         '''
         if self.model is not None:
             self.model.stop()
