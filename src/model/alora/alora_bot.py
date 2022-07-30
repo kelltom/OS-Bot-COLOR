@@ -12,7 +12,7 @@ import time
 class AloraBot(RuneliteBot, metaclass=ABCMeta):
 
     # ------- Rects of Interest -------
-    rect_current_action = Rectangle(Point(10, 52), Point(171, 93))  # combat/skilling plugin text
+    rect_opponent_information = Rectangle(Point(13, 51), Point(140, 87))  # combat/skilling plugin text
     rect_game_view = Rectangle(Point(9, 31), Point(517, 362))  # gameplay area
     rect_hp = Rectangle(Point(526, 80), Point(552, 100))  # contains HP text value
     rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
@@ -37,11 +37,11 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
 
     def is_in_combat(self) -> bool:
         '''
-        Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite activity
-        section in the game view.
+        Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite opponent info
+        section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        result = self.get_text_in_rect(self.rect_current_action)
-        return result.strip() != ""
+        result = self.get_text_in_rect(self.rect_opponent_information)
+        return "0/" in result or result.strip() != ""
 
     def toggle_auto_retaliate(self, toggle_on: bool):
         '''
