@@ -14,6 +14,8 @@ import time
 from typing import NamedTuple
 from utilities.mouse_utils import MouseUtils
 import warnings
+
+from view.example_bot_options import ExampleBotOptions
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
@@ -47,9 +49,10 @@ class Bot(ABC):
 
     # ---- Abstract Functions ----
     @abstractmethod
-    def __init__(self, title, description):
+    def __init__(self, title, description, options_class=ExampleBotOptions):
         self.title = title
         self.description = description
+        self.options_class = options_class
 
     @abstractmethod
     def main_loop(self):

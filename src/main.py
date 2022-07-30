@@ -7,7 +7,6 @@ from view.bot_view import BotView
 from view.home_view import HomeView
 from view.osnr_home_view import OSNRHomeView
 from view.rl_home_view import RuneliteHomeView
-from view.example_bot_options import ExampleBotOptions
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -75,20 +74,20 @@ class App(customtkinter.CTk):
         self.btn_example_bot = customtkinter.CTkButton(master=self.frame_left,
                                                        text="Example",
                                                        fg_color=self.DEFAULT_GRAY,
-                                                       command=lambda: self.__toggle_frame_by_name("Example", self.btn_example_bot))
+                                                       command=lambda: self.__toggle_bot_by_name("ExampleBot", self.btn_example_bot))
         self.btn_map["OSRS"].append(self.btn_example_bot)
 
         self.btn_example_bot2 = customtkinter.CTkButton(master=self.frame_left,
                                                         text="Example 2",
                                                         fg_color=self.DEFAULT_GRAY,
-                                                        command=lambda: self.__toggle_frame_by_name("Example 2", self.btn_example_bot2))
+                                                        command=lambda: self.__toggle_bot_by_name("ExampleBot2", self.btn_example_bot2))
         self.btn_map["OSRS"].append(self.btn_example_bot2)
 
         # Alora
         self.btn_alora_combat = customtkinter.CTkButton(master=self.frame_left,
                                                         text="Combat",
                                                         fg_color=self.DEFAULT_GRAY,
-                                                        command=lambda: self.__toggle_frame_by_name("AloraCombat", self.btn_alora_combat))
+                                                        command=lambda: self.__toggle_bot_by_name("AloraCombat", self.btn_alora_combat))
         self.btn_map["Alora"].append(self.btn_alora_combat)
 
         # Theme Switch
@@ -100,6 +99,7 @@ class App(customtkinter.CTk):
 
         # ============ frame_right ============
         self.views = {}
+        self.models = {}
 
         # Home Views ('Select a game' has the default HomeView)
         # Non-runelite games will have custom home views
@@ -111,26 +111,20 @@ class App(customtkinter.CTk):
         self.views["Alora"] = self.runelite_home_view
         self.views["OSNR"] = OSNRHomeView(parent=self, main=self)
 
-        # Declare Bots and their views below
-        # Example Bot
-        self.views["Example"] = BotView(parent=self.frame_right)
-        self.example_model = ExampleBot()
-        self.example_controller = BotController(model=self.example_model, view=self.views["Example"])
-        self.views["Example"].setup(controller=self.example_controller,
-                                    title=self.example_model.title,
-                                    description=self.example_model.description,
-                                    options_class=ExampleBotOptions)
-        # Example Bot 2
-        self.views["Example 2"] = BotView(parent=self.frame_right)
+        # Declare script view and controller
+        self.views["Script"] = BotView(parent=self.frame_right)
+        self.controller = BotController(model=None, view=self.views["Script"])
+        self.views["Script"].set_controller(self.controller)
 
-        # Alora Combat bot
-        self.views["AloraCombat"] = BotView(parent=self.frame_right)
-        self.alora_combat_model = AloraCombat()
-        self.alora_combat_controller = BotController(model=self.alora_combat_model, view=self.views["AloraCombat"])
-        self.views["AloraCombat"].setup(controller=self.alora_combat_controller,
-                                        title=self.alora_combat_model.title,
-                                        description=self.alora_combat_model.description,
-                                        options_class=ExampleBotOptions)
+        # OSRS Bots (examples)
+        self.models["ExampleBot"] = ExampleBot()
+        self.models["ExampleBot"].set_controller(self.controller)
+        self.models["ExampleBot2"] = ExampleBot()
+        self.models["ExampleBot2"].set_controller(self.controller)
+
+        # Alora Bots
+        self.models["AloraCombat"] = AloraCombat()
+        self.models["AloraCombat"].set_controller(self.controller)
 
         # Status variables to track state of views and buttons
         self.current_home_view = self.views["Select a game"]
@@ -151,9 +145,10 @@ class App(customtkinter.CTk):
             for btn in self.current_btn_list:
                 btn.grid_forget()
         # Unpack current script view
-        if self.current_script_view is not None:
-            self.current_script_view.pack_forget()
-            self.current_script_view = None
+        if self.views["Script"].winfo_exists():
+            self.views["Script"].pack_forget()
+        # Unlink model from controller
+        self.controller.update_model(None)
         # Pack new buttons
         self.current_btn_list = self.btn_map[choice]
         for r, btn in enumerate(self.current_btn_list, 3):
@@ -166,28 +161,27 @@ class App(customtkinter.CTk):
         self.current_home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
         self.toggle_btn_state(enabled=False)
 
-    def __toggle_frame_by_name(self, name, btn):
-        if self.views[name] is not None:
+    def __toggle_bot_by_name(self, name, btn):
+        if self.models[name] is not None:
             # If the script's frame is already visible, hide it
-            if self.current_script_view is self.views[name]:
-                self.current_script_view.pack_forget()
+            if self.controller.model == self.models[name]:
+                self.controller.update_model(None)
+                self.views["Script"].pack_forget()
                 self.current_script_view = None
                 self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
                 self.current_btn = None
                 self.current_home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
-            # If a different script is selected, hide current and show the new one
-            elif self.current_script_view is not None:
-                self.current_script_view.pack_forget()
-                self.current_script_view = self.views[name]
-                self.current_script_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
-                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
+            # If there is no script selected
+            elif self.controller.model is None:
+                self.current_home_view.pack_forget()
+                self.controller.update_model(self.models[name])
+                self.views["Script"].pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
                 self.current_btn = btn
                 self.current_btn.configure(fg_color=btn.hover_color)
-            # If no script is selected, show the new one
+            # If we are switching to a new script
             else:
-                self.current_home_view.pack_forget()
-                self.current_script_view = self.views[name]
-                self.current_script_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+                self.controller.update_model(self.models[name])
+                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
                 self.current_btn = btn
                 self.current_btn.configure(fg_color=btn.hover_color)
 
