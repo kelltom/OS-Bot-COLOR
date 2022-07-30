@@ -22,6 +22,72 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
     client_window = Rectangle(start=Point(0, 0), end=Point(809, 534))
 
+    # ------- Rects of Interest -------
+    rect_opponent_information = Rectangle(Point(13, 51), Point(140, 87))  # combat/skilling plugin text
+    rect_game_view = Rectangle(Point(9, 31), Point(517, 362))  # gameplay area
+    rect_hp = Rectangle(Point(526, 80), Point(552, 100))  # contains HP text value
+    rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
+    # TODO: Add more rectangles of interest (prayer, spec, etc.)
+
+    # ------- Points of Interest -------
+    # --- Orbs ---
+    orb_compass = Point(x=571, y=48)
+    orb_prayer = Point(x=565, y=119)
+    orb_spec = Point(x=597, y=178)
+
+    # --- Control Panel (CP) ---
+    h1 = 213  # y-axis pixels to top of cp
+    h2 = 510  # y-axis pixels to bottom of cp
+    cp_combat = Point(x=545, y=h1)
+    cp_inventory = Point(x=646, y=h1)
+    cp_equipment = Point(x=678, y=h1)
+    cp_prayer = Point(x=713, y=h1)
+    cp_spellbook = Point(x=744, y=h1)
+    cp_logout = Point(x=646, y=h2)
+    cp_settings = Point(x=680, y=h2)
+
+    def __get_inventory_slots() -> list:
+        '''
+        Returns a 2D list of the inventory slots represented as Points.
+        Inventory is 7x4.
+        '''
+        inv = []
+        curr_y = 253
+        for _ in range(7):
+            curr_x = 583  # reset x
+            row = []
+            for _ in range(4):
+                row.append((curr_x, curr_y))
+                curr_x += 42  # x delta
+            inv.append(row)
+            curr_y += 36  # y delta
+        return inv
+
+    inventory_slots = __get_inventory_slots()
+
+    def drop_inventory(self):
+        '''
+        Drops all items in the inventory.
+        '''
+        self.log_msg("Dropping inventory...")
+        pag.keyDown("shift")
+        for row in self.inventory_slots:
+            if self.status_check_passed():
+                return
+            for slot in row:
+                pag.moveTo(slot[0], slot[1])
+                time.sleep(0.05)
+                pag.click()
+        pag.keyUp("shift")
+
+    def is_in_combat(self) -> bool:
+        '''
+        Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite opponent info
+        section in the game view, and if that text indicates an NPC is out of HP.
+        '''
+        result = self.get_text_in_rect(self.rect_opponent_information)
+        return "0/" in result or result.strip() != ""
+
     # --- NPC Detection ---
     def attack_nearest_tagged(self, game_view: Rectangle) -> bool:
         '''
