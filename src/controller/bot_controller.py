@@ -13,7 +13,6 @@ class BotController(object):
         '''
         self.model: Bot = model
         self.view: BotView = view
-        self.model.set_controller(self)
 
     def play_pause(self):
         '''
@@ -80,3 +79,18 @@ class BotController(object):
         Called from model. Tells view to clear log.
         '''
         self.view.frame_output_log.clear_log()
+
+    def change_model(self, model: Bot):
+        '''
+        Called from view. Swaps the controller's model, halting the old one. Reconfigures the info frame.
+        Args:
+            model: The new model to use.
+        '''
+        if self.model is not None:
+            self.model.stop()
+        self.model = model
+        if self.model is not None:
+            self.view.frame_info.setup(title=model.title, description=model.description, options_class=model.options_class)
+        else:
+            self.view.frame_info.setup(title="", description="", options_class=None)
+        self.clear_log()

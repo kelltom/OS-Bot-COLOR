@@ -2,7 +2,7 @@
 Combat bot for Alora. Kills tagged NPCs.
 '''
 from model.bot import BotStatus
-from model.alora_bot import AloraBot
+from model.alora.alora_bot import AloraBot
 import time
 
 
