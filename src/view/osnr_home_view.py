@@ -40,8 +40,7 @@ class OSNRHomeView(customtkinter.CTkFrame):
 
         # Warning label
         self.warning = ("WARNING: This will overwrite your current settings. If you'd like to save your settings, make " +
-                        "a backup or log in to Runelite and sync your settings to the cloud. If you are already logged in, " +
-                        "you are safe to ignore this warning.")
+                        "a backup of your existing settings.properties file.")
         self.label_warning = customtkinter.CTkLabel(master=self,
                                                     text=self.warning,
                                                     text_font=("Roboto", 10),
@@ -80,13 +79,13 @@ class OSNRHomeView(customtkinter.CTkFrame):
         if res == "Cancel":
             return
         if loc := askopenfilename(initialdir=os.environ['USERPROFILE'],
-                                  title="Select your Runelite settings file",
+                                  title="Select your OSNR settings file",
                                   filetypes=[("properties files", "*.properties")]):
             print(f"Replacing settings in {loc}...")
             try:
                 settings_path = f"{str(Path().resolve())}\\src\\settings.properties"
                 shutil.copyfile(settings_path, loc)
-                self.label_status.configure(text="Settings replaced successfully.\nRestart Runelite client to apply changes.")
+                self.label_status.configure(text="Settings replaced successfully.\nRestart OSNR client to apply changes.")
                 self.main.toggle_btn_state(enabled=True)
             except Exception as e:
                 self.label_status.configure(text="Error: Could not replace settings.", text_color="red")
