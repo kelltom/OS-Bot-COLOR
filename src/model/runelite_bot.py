@@ -86,7 +86,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
         result = self.get_text_in_rect(self.rect_opponent_information)
-        return "0/" in result or result.strip() != ""
+        return result.strip() != ""
 
     # --- NPC Detection ---
     def attack_nearest_tagged(self, game_view: Rectangle) -> bool:
