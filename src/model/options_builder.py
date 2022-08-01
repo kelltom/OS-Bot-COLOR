@@ -111,14 +111,15 @@ class OptionsUI(customtkinter.CTkFrame):
         self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))  # <-- PADDING ON RIGHT
         # Slider value indicator
         self.slider_values[key] = customtkinter.CTkLabel(master=self.frames[key],
-                                                         text="0")
+                                                         text=str(value.min))
         self.slider_values[key].grid(row=0, column=1)
         # Slider widget
-        # TODO: handle min and max values
         self.widgets[key] = customtkinter.CTkSlider(master=self.frames[key],
-                                                    command=lambda: self.change_iterations(key, value))
+                                                    from_=value.min / 100,
+                                                    to=value.max / 100,
+                                                    command=lambda x: self.change_iterations(key, x))
         self.widgets[key].grid(row=0, column=0, sticky="ew")
-        self.widgets[key].set(0)
+        self.widgets[key].set(value.min / 100)
 
     def create_checkboxes(self, key, value: CheckboxInfo, row: int):
         '''
