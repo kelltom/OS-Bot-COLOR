@@ -31,6 +31,7 @@ class BotController(object):
         Called from view. Preps model for configuring of options.
         '''
         self.model.set_status(BotStatus.CONFIGURING)
+        # TODO: Fetch the option builder info from the model, pass that to view
         self.view.frame_info.show_options()
 
     def save_options(self, options):
