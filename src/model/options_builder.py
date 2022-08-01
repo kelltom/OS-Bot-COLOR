@@ -103,7 +103,7 @@ class OptionsUI(customtkinter.CTkFrame):
         # Slider label
         self.labels[key] = customtkinter.CTkLabel(master=self,
                                                   text=value.title)
-        self.labels[key].grid(row=1, column=0, sticky='nsew', padx=(10, 0), pady=20)  # <-- PADDING ON LEFT
+        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=(10, 0), pady=20)  # <-- PADDING ON LEFT
         # Slider frame
         self.frames[key] = customtkinter.CTkFrame(master=self)
         self.frames[key].columnconfigure(0, weight=1)

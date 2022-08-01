@@ -27,8 +27,12 @@ class ExampleBot(Bot):
         unpack the dictionary of options after the user has selected them.
         '''
         self.options_builder.add_slider_option("iterations", "Iterations", 1, 100)
+        self.options_builder.add_slider_option("iterations1", "Iterations1", 1, 100)
+        self.options_builder.add_slider_option("iterations2", "Iterations2", 1, 100)
         self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
+        self.options_builder.add_checkbox_option("multi_select_example2", "Multi-select Example2", ["A", "B", "C"])
         self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
+        self.options_builder.add_dropdown_option("menu_example2", "Menu Example2", ["A", "B", "C"])
 
     def save_options(self, options: dict):
         '''
