@@ -1,6 +1,7 @@
 import customtkinter
 from controller.bot_controller import BotController
 from model.alora.combat import AloraCombat
+from model.osnr.combat import OSNRCombat
 from model.osnr.thieving_stall import OSNRThievingStall
 from model.osrs.example_bot import ExampleBot
 import tkinter
@@ -128,6 +129,14 @@ class App(customtkinter.CTk):
         self.models["ExampleBot2"].set_controller(self.controller)
 
         # ----- OSNR Bots -----
+        self.btn_osnr_combat = customtkinter.CTkButton(master=self.frame_left,
+                                                       text="Combat",
+                                                       fg_color=self.DEFAULT_GRAY,
+                                                       command=lambda: self.__toggle_bot_by_name("OSNRCombat", self.btn_osnr_combat))
+        self.btn_map["OSNR"].append(self.btn_osnr_combat)
+        self.models["OSNRCombat"] = OSNRCombat()
+        self.models["OSNRCombat"].set_controller(self.controller)
+
         self.btn_osnr_thieving_stall = customtkinter.CTkButton(master=self.frame_left,
                                                                text="Thieving Stalls",
                                                                fg_color=self.DEFAULT_GRAY,
