@@ -13,6 +13,11 @@ class OSNRThievingStall(OSNRBot):
         super().__init__(title=title, description=description)
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
 
+    def create_options(self):
+        self.options_builder.add_slider_option("iterations", "Iterations", 1, 100)
+        self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
+        self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
+
     def save_options(self, options: dict):
         '''
         For each option in the dictionary, if it is an expected option, save the value as a property of the bot.

@@ -19,6 +19,21 @@ class ExampleBot(Bot):
         super().__init__(title=title, description=description)
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
 
+    def create_options(self):
+        '''
+        Use the OptionsBuilder to define the options for the bot. For each function call below,
+        we define the type of option we want to create, its key, a title for the option that the user will
+        see, and the possible values the user can select. The key is used in the save_options function
+        unpack the dictionary of options after the user has selected them.
+        '''
+        self.options_builder.add_slider_option("iterations", "Iterations", 1, 100)
+        self.options_builder.add_slider_option("iterations1", "Iterations1", 1, 100)
+        self.options_builder.add_slider_option("iterations2", "Iterations2", 1, 100)
+        self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
+        self.options_builder.add_checkbox_option("multi_select_example2", "Multi-select Example2", ["A", "B", "C"])
+        self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
+        self.options_builder.add_dropdown_option("menu_example2", "Menu Example2", ["A", "B", "C"])
+
     def save_options(self, options: dict):
         '''
         For each option in the dictionary, if it is an expected option, save the value as a property of the bot.
@@ -40,7 +55,6 @@ class ExampleBot(Bot):
         self.options_set = True
 
         # TODO: if options are invalid, set options_set flag to false
-
         self.log_msg("Options set successfully.")
 
     def main_loop(self):

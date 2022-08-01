@@ -26,12 +26,12 @@ class BotController(object):
         '''
         self.model.stop()
 
-    def options_btn_clicked(self):
+    def get_options_view(self, parent):
         '''
-        Called from view. Preps model for configuring of options.
+        Called from view. Fetches the options view from the model.
         '''
         self.model.set_status(BotStatus.CONFIGURING)
-        self.view.frame_info.show_options()
+        return self.model.get_options_view(parent)
 
     def save_options(self, options):
         '''
@@ -88,9 +88,10 @@ class BotController(object):
         '''
         if self.model is not None:
             self.model.stop()
+            self.model.options_set = False
         self.model = model
         if self.model is not None:
-            self.view.frame_info.setup(title=model.title, description=model.description, options_class=model.options_class)
+            self.view.frame_info.setup(title=model.title, description=model.description)
         else:
-            self.view.frame_info.setup(title="", description="", options_class=None)
+            self.view.frame_info.setup(title="", description="")
         self.clear_log()
