@@ -4,9 +4,11 @@ pre-implemented and can be used by subclasses, or called by the controller. Code
 '''
 from abc import ABC, abstractmethod
 import cv2
+import customtkinter
 from easyocr import Reader
 from enum import Enum
 import keyboard
+from model.options_builder import OptionsBuilder
 from PIL import Image, ImageGrab
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 from threading import Thread
@@ -14,8 +16,6 @@ import time
 from typing import NamedTuple
 from utilities.mouse_utils import MouseUtils
 import warnings
-
-from view.example_bot_options import ExampleBotOptions
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
@@ -49,15 +49,22 @@ class Bot(ABC):
 
     # ---- Abstract Functions ----
     @abstractmethod
-    def __init__(self, title, description, options_class=ExampleBotOptions):
+    def __init__(self, title, description):
         self.title = title
         self.description = description
-        self.options_class = options_class
+        self.options_builder = OptionsBuilder(title)
 
     @abstractmethod
     def main_loop(self):
         '''
         Main logic of the bot. This function is called in a separate thread.
+        '''
+        pass
+
+    @abstractmethod
+    def create_options(self):
+        '''
+        Defines the options for the bot using the OptionsBuilder.
         '''
         pass
 
@@ -69,6 +76,15 @@ class Bot(ABC):
             options: dict - dictionary of options to save
         '''
         pass
+
+    def get_options_view(self, parent) -> customtkinter.CTkFrame:
+        '''
+        Builds the options view for the bot based on the options defined in the OptionsBuilder.
+        '''
+        self.create_options()
+        view = self.options_builder.build_ui(parent, self.controller)
+        self.options_builder.options = {}
+        return view
 
     def play_pause(self):  # sourcery skip: extract-method
         '''

@@ -38,6 +38,11 @@ class AloraCombat(AloraBot):
 
         self.log_msg("Options set successfully.")
 
+    def create_options(self):
+        self.options_builder.add_slider_option("iterations", "Iterations", 1, 100)
+        self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
+        self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
+
     def main_loop(self):
         '''
         TODO:

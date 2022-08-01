@@ -19,11 +19,11 @@ class OptionsBuilder():
     def add_dropdown_option(self, key, title, values: list):
         self.options[key] = OptionMenuInfo(title, values)
 
-    def get_ui(self, parent):
+    def build_ui(self, parent, controller):
         '''
         Returns a UI object that can be added to the parent window.
         '''
-        return OptionsUI(parent, self.title, self.options)
+        return OptionsUI(parent, self.title, self.options, controller)
 
 
 class SliderInfo():
@@ -46,11 +46,11 @@ class CheckboxInfo():
 
 
 class OptionsUI(customtkinter.CTkFrame):
-    def __init__(self, parent, title: str, option_info: dict):
+    def __init__(self, parent, title: str, option_info: dict, controller):
         # sourcery skip: raise-specific-error
         super().__init__(parent)
-        # Options dict contains the widgets that directly contain the relevant option selections.
-        # It will be queried to get the option values upon save btn clicked.
+        # Contains the widgets for option selection.
+        # It will be queried to get the option values selected upon save btn clicked.
         self.widgets = {}
         # The following dicts exist to hold references to UI elements so they are not destroyed
         # by garbage collector.
@@ -58,12 +58,12 @@ class OptionsUI(customtkinter.CTkFrame):
         self.frames = {}
         self.slider_values = {}
 
-        self.controller = None
+        self.controller = controller
 
         # Grid layout
         self.num_of_options = len(option_info.keys())
         self.rowconfigure(0, weight=0)  # Title
-        for i in self.num_of_options:
+        for i in range(self.num_of_options):
             self.rowconfigure(i + 1, weight=0)
         self.rowconfigure(self.num_of_options + 1, weight=1)  # Spacing between Save btn and options
         self.rowconfigure(self.num_of_options + 2, weight=0)  # Save btn
@@ -72,7 +72,7 @@ class OptionsUI(customtkinter.CTkFrame):
 
         # Title
         self.lbl_example_bot_options = customtkinter.CTkLabel(master=self,
-                                                              text=title,
+                                                              text=f"{title} Options",
                                                               text_font=("Roboto Medium", 14))
         self.lbl_example_bot_options.grid(row=0, column=0, padx=10, pady=20)
 
@@ -126,8 +126,7 @@ class OptionsUI(customtkinter.CTkFrame):
         '''
         # Checkbox label
         self.labels[key] = customtkinter.CTkLabel(master=self,
-                                                  text=value.title,
-                                                  text_font=("Roboto Medium", 12))
+                                                  text=value.title)
         self.labels[key].grid(row=row, column=0, padx=(10, 0), pady=20)
         # Checkbox frame
         self.frames[key] = customtkinter.CTkFrame(master=self)
