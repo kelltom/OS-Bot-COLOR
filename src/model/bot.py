@@ -11,6 +11,7 @@ import keyboard
 from model.options_builder import OptionsBuilder
 from PIL import Image, ImageGrab
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
+import re
 from threading import Thread
 import time
 from typing import NamedTuple
@@ -271,7 +272,7 @@ class Bot(ABC):
         return "".join(f"{_text} " for _, _text, _ in res)
 
     def search_text_in_rect(self, rect: Rectangle, expected: list, blacklist: list = None) -> bool:
-        '''
+        """
         Searches for text in a Rectangle.
         Args:
             rect: The rectangle to search in.
@@ -280,37 +281,43 @@ class Bot(ABC):
         Returns:
             False if ANY blacklist words are found, else True if ANY expected text exists,
             and None if the text is irrelevant.
-        '''
-        # Screenshot the rectangle and load the image
+        """
         path = self.capture_screen(rect)
         image = cv2.imread(path)
-
-        # OCR the input image using EasyOCR
         reader = Reader(['en'], gpu=-1)
         res = reader.readtext(image)
-
-        # Loop through results
         word_found = False
-        for (_, text, _) in res:
+        for _, text, _ in res:
             if text is None or text == "":
                 return None
             text = text.lower()
             print(f"OCR Result: {text}")
-            # If any strings in blacklist are found in text, return false
             if blacklist is not None:
                 _result, _word = self.__any_in_str(blacklist, text)
                 if _result:
                     print(f"Blacklist word found: {_word}")
                     return False
-            # If any strings in expected are found in text, set flag true
             if not word_found:
                 _result, _word = self.__any_in_str(expected, text)
                 if _result:
                     word_found = True
                     print(f"Expected word found: {_word}")
-        if word_found:
-            return True
-        return None
+        return True if word_found else None
+
+    def get_numbers_in_rect(self, rect: Rectangle, is_low_res=False) -> list:
+        """
+        Fetches numbers in a Rectangle.
+        Args:
+            rect: The rectangle to search in.
+            is_low_res: Whether the text within the rectangle is low resolution/pixelated.
+        Returns:
+            The distinct numbers found in the rectangle.
+            If no numbers were found, returns None.
+        """
+        text = self.get_text_in_rect(rect, is_low_res)
+        string_nums = re.findall('\d+', text)
+        res = [int(numeric_string) for numeric_string in string_nums]
+        return res or None
 
     def __any_in_str(self, words: list, str: str) -> bool:
         '''
