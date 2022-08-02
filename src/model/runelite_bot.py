@@ -184,9 +184,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             print("Cannot crop image. Disregarding...")
             return True
         mean = crop.mean(axis=(0, 1))
-        if str(mean) != "[0. 0. 0.]":
-            return True
-        return False
+        return str(mean) != "[0. 0. 0.]"
 
     def __isolate_tagged_NPCs_at(self, path: str) -> str:
         '''
