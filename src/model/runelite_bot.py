@@ -25,9 +25,9 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     # ------- Rects of Interest -------
     rect_opponent_information = Rectangle(Point(13, 51), Point(140, 87))  # combat/skilling plugin text
     rect_game_view = Rectangle(Point(9, 31), Point(517, 362))  # gameplay area
-    rect_hp = Rectangle(Point(526, 80), Point(552, 100))  # contains HP text value
+    rect_hp = Rectangle(Point(533, 256), Point(549, 272))  # hp number on status bar
+    rect_prayer = Rectangle(Point(749, 257), Point(759, 272))  # prayer number on status bar
     rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
-    # TODO: Add more rectangles of interest (prayer, spec, etc.)
 
     # ------- Points of Interest -------
     # --- Orbs ---
@@ -45,6 +45,9 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     cp_spellbook = Point(x=744, y=h1)
     cp_logout = Point(x=646, y=h2)
     cp_settings = Point(x=680, y=h2)
+
+    # --- Spellbook ---
+    spellbook_home_teleport = Point(x=575, y=258)
 
     def __get_inventory_slots() -> list:
         '''
@@ -79,6 +82,26 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
                 time.sleep(0.05)
                 pag.click()
         pag.keyUp("shift")
+
+    def get_hp(self) -> int:
+        """
+        Gets the HP value of the player.
+        Returns:
+            The HP of the player, or None if not found.
+        """
+        res = self.get_numbers_in_rect(self.rect_hp)
+        print(res)
+        return None if res is None else res[0]
+
+    def get_prayer(self) -> int:
+        """
+        Gets the prayer value of the player.
+        Returns:
+            The prayer value of the player, or None if not found.
+        """
+        res = self.get_numbers_in_rect(self.rect_prayer)
+        print(res)
+        return None if res is None else res[0]
 
     def is_in_combat(self) -> bool:
         '''
