@@ -203,11 +203,11 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         '''
         try:
             crop = im[point.y-kernel:point.y+kernel, point.x-kernel:point.x+kernel]
+            mean = crop.mean(axis=(0, 1))
+            return str(mean) != "[0. 0. 0.]"
         except Exception:
             print("Cannot crop image. Disregarding...")
             return True
-        mean = crop.mean(axis=(0, 1))
-        return str(mean) != "[0. 0. 0.]"
 
     def __isolate_tagged_NPCs_at(self, path: str) -> str:
         '''
