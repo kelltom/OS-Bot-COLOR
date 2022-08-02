@@ -89,7 +89,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns:
             The HP of the player, or None if not found.
         """
-        res = self.get_numbers_in_rect(self.rect_hp)
+        res = self.get_numbers_in_rect(self.rect_hp, True)
         print(res)
         return None if res is None else res[0]
 
@@ -99,7 +99,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns:
             The prayer value of the player, or None if not found.
         """
-        res = self.get_numbers_in_rect(self.rect_prayer)
+        res = self.get_numbers_in_rect(self.rect_prayer, True)
         print(res)
         return None if res is None else res[0]
 
