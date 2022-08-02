@@ -134,7 +134,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             except Exception:
                 print("Cannot find moments of contour. Disregarding...")
                 continue
-            if not self.__is_point_obstructed(top, img_bgr):
+            if not self.__is_point_obstructed(center, img_bgr):  # Can try top as well
                 centers.append((center.x, center.y))
         if not centers:
             print("No tagged NPCs found.")
