@@ -19,7 +19,7 @@ class App(customtkinter.CTk):
 
     WIDTH = 650
     HEIGHT = 520
-    DEFAULT_GRAY = ("gray75", "gray30")
+    DEFAULT_GRAY = ("gray50", "gray30")
 
     def __init__(self):  # sourcery skip: merge-list-append, move-assign-in-block
         super().__init__()
