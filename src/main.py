@@ -7,8 +7,9 @@ from model.osrs.example_bot import ExampleBot
 import tkinter
 from view.bot_view import BotView
 from view.home_view import HomeView
-from view.osnr_home_view import OSNRHomeView
-from view.rl_home_view import RuneliteHomeView
+from view.home_view_alora import AloraHomeView
+from view.home_view_osnr import OSNRHomeView
+from view.home_view_osrs import OSRSHomeView
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
@@ -85,14 +86,12 @@ class App(customtkinter.CTk):
         self.models = {}  # A map of all models, keyed by bot title
 
         # Home Views
-        # TODO: Non-runelite games will have custom home views
-        self.runelite_home_view = RuneliteHomeView(parent=self.frame_right, main=self)
         self.home_view = HomeView(parent=self.frame_right, main=self)
         self.home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
         self.views["Select a game"] = self.home_view
-        self.views["OSRS"] = self.runelite_home_view
-        self.views["Alora"] = self.runelite_home_view
-        self.views["OSNR"] = OSNRHomeView(parent=self, main=self)  # Despite being a Runelite game, OSNR doesn't abide by Runelite properties
+        self.views["OSRS"] = OSRSHomeView(parent=self, main=self)
+        self.views["Alora"] = AloraHomeView(parent=self, main=self)
+        self.views["OSNR"] = OSNRHomeView(parent=self, main=self)
 
         # Declare script view and controller [DO NOT EDIT]
         # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model in the controller
@@ -184,8 +183,6 @@ class App(customtkinter.CTk):
         # Repack new home view
         self.current_home_view.pack_forget()
         self.current_home_view = self.views[choice]
-        if isinstance(self.current_home_view, RuneliteHomeView):
-            self.current_home_view.update(title=choice)
         self.current_home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
         self.toggle_btn_state(enabled=False)
 

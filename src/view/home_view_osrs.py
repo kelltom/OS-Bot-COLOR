@@ -1,12 +1,13 @@
 import customtkinter
 import os
 from pathlib import Path
+from PIL import ImageTk, Image
 import pyautogui as pag
 import shutil
 from tkinter.filedialog import askopenfilename
 
 
-class OSNRHomeView(customtkinter.CTkFrame):
+class OSRSHomeView(customtkinter.CTkFrame):
     def __init__(self, parent, main):
         super().__init__(parent)
         self.main = main
@@ -22,11 +23,11 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.grid_rowconfigure(7, weight=0)  # - Status
         self.grid_rowconfigure(8, weight=1)  # Spacing
 
-        # Title label
-        self.label_title = customtkinter.CTkLabel(master=self,
-                                                  text="Old School Near Reality",
-                                                  text_font=("Roboto Medium", 18))
-        self.label_title.grid(row=1, column=0, sticky="nwes", padx=15, pady=15)
+        # Logo
+        self.logo_path = Path(__file__).parent.parent.parent.resolve()
+        self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/osrs_logo.png").resize((268, 120), Image.LANCZOS))
+        self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
+        self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
         self.note = ("In order for these scripts to work, Runelite must be configured in a specific way. " +
@@ -40,7 +41,8 @@ class OSNRHomeView(customtkinter.CTkFrame):
 
         # Warning label
         self.warning = ("WARNING: This will overwrite your current settings. If you'd like to save your settings, make " +
-                        "a backup of your existing settings.properties file.")
+                        "a backup or log in to Runelite and sync your settings to the cloud. If you are already logged in, " +
+                        "you are safe to ignore this warning.")
         self.label_warning = customtkinter.CTkLabel(master=self,
                                                     text=self.warning,
                                                     text_font=("Roboto", 10),
@@ -50,7 +52,7 @@ class OSNRHomeView(customtkinter.CTkFrame):
 
         # File location label
         self.label_file_loc = customtkinter.CTkLabel(master=self,
-                                                     text="Default: C:/Users/[username]/.osnr/settings.properties",
+                                                     text="Default: C:/Users/[username]/.runelite/settings.properties",
                                                      text_font=("Roboto", 10))
         self.label_file_loc.bind('<Configure>', lambda e: self.label_file_loc.configure(wraplength=self.label_file_loc.winfo_width()-20))
         self.label_file_loc.grid(row=4, column=0, sticky="nwes", padx=15, pady=(0, 15))
@@ -79,13 +81,13 @@ class OSNRHomeView(customtkinter.CTkFrame):
         if res == "Cancel":
             return
         if loc := askopenfilename(initialdir=os.environ['USERPROFILE'],
-                                  title="Select your OSNR settings file",
+                                  title="Select your Runelite settings file",
                                   filetypes=[("properties files", "*.properties")]):
             print(f"Replacing settings in {loc}...")
             try:
                 settings_path = f"{str(Path().resolve())}\\src\\settings.properties"
                 shutil.copyfile(settings_path, loc)
-                self.label_status.configure(text="Settings replaced successfully.\nRestart OSNR client to apply changes.")
+                self.label_status.configure(text="Settings replaced successfully.\nRestart Runelite client to apply changes.")
                 self.main.toggle_btn_state(enabled=True)
             except Exception as e:
                 self.label_status.configure(text="Error: Could not replace settings.", text_color="red")
@@ -97,6 +99,3 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.label_status.configure(text="You may select a script from the menu.")
         self.main.toggle_btn_state(enabled=True)
 
-    def update(self, title: str):
-        self.label_title.configure(text=title)
-        self.label_status.configure(text="")
