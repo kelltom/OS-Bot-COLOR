@@ -98,4 +98,3 @@ class OSRSHomeView(customtkinter.CTkFrame):
     def __skip(self):
         self.label_status.configure(text="You may select a script from the menu.")
         self.main.toggle_btn_state(enabled=True)
-
