@@ -84,7 +84,7 @@ class OSNRHomeView(customtkinter.CTkFrame):
                                   filetypes=[("properties files", "*.properties")]):
             print(f"Replacing settings in {loc}...")
             try:
-                settings_path = f"{str(Path().resolve())}\\src\\settings.properties"
+                settings_path = f"{str(Path().resolve())}\\src\\runelite_settings\\osnr_settings.properties"
                 shutil.copyfile(settings_path, loc)
                 self.label_status.configure(text="Settings replaced successfully.\nRestart OSNR client to apply changes.")
                 self.main.toggle_btn_state(enabled=True)

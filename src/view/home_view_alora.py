@@ -85,7 +85,7 @@ class AloraHomeView(customtkinter.CTkFrame):
                                   filetypes=[("properties files", "*.properties")]):
             print(f"Replacing settings in {loc}...")
             try:
-                settings_path = f"{str(Path().resolve())}\\src\\settings.properties"
+                settings_path = f"{str(Path().resolve())}\\src\\runelite_settings\\alora_settings.properties"
                 shutil.copyfile(settings_path, loc)
                 self.label_status.configure(text="Settings replaced successfully.\nRestart Runelite client to apply changes.")
                 self.main.toggle_btn_state(enabled=True)
