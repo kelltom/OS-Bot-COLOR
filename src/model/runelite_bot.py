@@ -237,6 +237,27 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         cv2.imwrite(color_path, only_color)
         return blue_path, color_path
 
+    def __isolate_color(self, path: str, color: tuple, filename: str) -> str:
+        '''
+        Isolates contours of a particular color and saves them as images.
+        Args:
+            path: The path to the image to isolate colors.
+            color: A two-part tuple containing the lower and upper bounds of the HSV color being isolated.
+            save_as: The name of the file to be saved in the temp images folder.
+        Returns:
+            The path to an image with only the desired color.
+        '''
+        img = cv2.imread(path)
+        # Convert to HSV
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        # Threshold the HSV image to get only blue color
+        mask = cv2.inRange(hsv, color[0], color[1])
+        only_color = cv2.bitwise_and(img, img, mask=mask)
+        # Save the image and return path
+        color_path = f"{self.TEMP_IMAGES}/{filename}.png"
+        cv2.imwrite(color_path, only_color)
+        return color_path
+
     # --- Setup Functions ---
     def setup_client(self, window_title: str, logout_runelite: bool, close_runelite_settings: bool) -> None:
         '''
