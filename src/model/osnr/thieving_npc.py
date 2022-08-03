@@ -15,12 +15,16 @@ class OSNRThievingNPC(OSNRBot):
                        "coins in first slot, and empty last inventory slot. Turn on Entity Hider > Hide NPCs 2D.")
         super().__init__(title=title, description=description)
         self.should_eat = False
+        self.should_left_click = False
+        self.should_click_coin_pouch = False
         self.should_drop_inv = False
         self.skip_rows = 0
         self.coin_pouch_path = "./src/images/bot/near_reality/coin_pouch.png"
 
     def create_options(self):
         self.options_builder.add_slider_option("iterations", "How long to run (minutes)?", 1, 200)
+        self.options_builder.add_dropdown_option("should_left_click", "Left click pickpocket?", ["Yes", "No"])
+        self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
         self.options_builder.add_slider_option("skip_rows", "If dropping, skip rows?", 0, 6)
 
@@ -29,6 +33,20 @@ class OSNRThievingNPC(OSNRBot):
             if option == "iterations":
                 self.iterations = options[option]
                 self.log_msg(f"Running time: {self.iterations} minutes.")
+            elif option == "should_left_click":
+                if res == "Yes":
+                    self.should_left_click = True
+                    self.log_msg("Left click pickpocket enabled.")
+                else:
+                    self.should_left_click = False
+                    self.log_msg("Right click pickpocket enabled.")
+            elif option == "should_click_coin_pouch":
+                if res == "Yes":
+                    self.should_click_coin_pouch = True
+                    self.log_msg("Coin pouch check enabled.")
+                else:
+                    self.should_click_coin_pouch = False
+                    self.log_msg("Coin pouch check disabled.")
             elif option == "should_drop_inv":
                 if res == "Yes":
                     self.should_drop_inv = True
@@ -48,9 +66,17 @@ class OSNRThievingNPC(OSNRBot):
         # Setup
         self.setup_osnr()
 
-        self.log_msg("Setting compass...")
-        self.mouse.move_to(self.orb_compass)
-        self.mouse.click()
+        # Config camera
+        if not self.should_left_click:
+            self.log_msg("Setting compass...")
+            self.mouse.move_to(self.orb_compass)
+            self.mouse.click()
+        else:
+            self.log_msg("Setting camera...")
+            self.mouse.move_to(Point(self.rect_game_view.start.x + 20, self.rect_game_view.start.y + 20))
+            pag.keyDown("up")
+            time.sleep(1)
+            pag.keyUp("up")
         time.sleep(0.3)
 
         # Anchors/counters
@@ -99,34 +125,36 @@ class OSNRThievingNPC(OSNRBot):
             # Thieve from NPC
             npc_pos = self.get_nearest_tagged_NPC(game_view=self.rect_game_view)
             if npc_pos is not None:
-                self.mouse.move_to(npc_pos, duration=0.4)
-                pag.rightClick()
-                time.sleep(0.3)
-                self.mouse.move_rel(x=0, y=41, duration=0.2)
+                self.mouse.move_to(npc_pos, duration=0.2)
+                if not self.should_left_click:
+                    pag.rightClick()
+                    time.sleep(0.3)
+                    self.mouse.move_rel(x=0, y=41, duration=0.2)
                 pag.click()
+                time.sleep(0.3)
                 npc_search_fail_count = 0
-                theft_count += 1
-                if theft_count % 10 == 0:
-                    self.log_msg("Clicking coin pouch...")
-                    pouch = self.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
-                    if pouch:
-                        self.mouse.move_to(pouch)
-                        time.sleep(0.5)
-                        pag.click()
-                        no_pouch_count = 0
-                    else:
-                        self.log_msg("Could not find coin pouch.")
-                        no_pouch_count += 1
-                        if no_pouch_count > 5:
-                            self.log_msg("Could not find coin pouch 5 times. Aborting...")
-                            self.teleport_home()
-                            self.set_status(BotStatus.STOPPED)
-                            return
+                if self.should_click_coin_pouch:
+                    theft_count += 1
+                    if theft_count % 10 == 0:
+                        self.log_msg("Clicking coin pouch...")
+                        pouch = self.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
+                        if pouch:
+                            self.mouse.move_to(pouch)
+                            time.sleep(0.5)
+                            pag.click()
+                            no_pouch_count = 0
+                        else:
+                            self.log_msg("Could not find coin pouch.")
+                            no_pouch_count += 1
+                            if no_pouch_count > 5:
+                                self.log_msg("Could not find coin pouch 5 times. Aborting...")
+                                self.teleport_home()
+                                self.set_status(BotStatus.STOPPED)
+                                return
             else:
-                self.log_msg("No NPC found.")
                 npc_search_fail_count += 1
-                if npc_search_fail_count > 10:
-                    self.log_msg("No NPC found 10 times in a row. Aborting...")
+                if npc_search_fail_count > 49:
+                    self.log_msg(f"No NPC found {npc_search_fail_count} times in a row. Aborting...")
                     self.teleport_home()
                     self.set_status(BotStatus.STOPPED)
                     return
