@@ -20,28 +20,23 @@ class OSNRCombat(OSNRBot):
         self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
 
     def save_options(self, options: dict):
-        '''
-        For each option in the dictionary, if it is an expected option, save the value as a property of the bot.
-        If any unexpected options are found, log a warning. If an option is missing, set the options_set flag to
-        False. No need to set bot status.
-        '''
         for option in options:
             if option == "iterations":
                 self.iterations = options[option]
-                self.log_msg(f"Iterations set to: {self.iterations}")
+                self.log_msg(f"The bot will kill {self.iterations} NPCs.")
             elif option == "prefs":
                 if "Loot" in options[option]:
                     self.should_loot = True
-                    self.log_msg("Looting enabled.")
+                    # self.log_msg("Looting enabled.")
+                    self.log_msg("Note: Looting is not yet implemented.")
                 if "Bank" in options[option]:
                     self.should_bank = True
-                    self.log_msg("Banking enabled.")
+                    # self.log_msg("Banking enabled.")
+                    self.log_msg("Note: Banking is not yet implemented.")
             else:
                 self.log_msg(f"Unknown option: {option}")
         self.options_set = True
-
         # TODO: if options are invalid, set options_set flag to false
-
         self.log_msg("Options set successfully.")
 
     def main_loop(self):
@@ -54,6 +49,7 @@ class OSNRCombat(OSNRBot):
         # Reselect inventory
         self.mouse.move_to(self.cp_inventory, 0.2, variance=3)
         self.mouse.click()
+        time.sleep(0.5)
 
         while self.current_iter < self.iterations:
             if not self.status_check_passed():
