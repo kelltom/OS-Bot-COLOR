@@ -69,15 +69,19 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
     inventory_slots = __get_inventory_slots()
 
-    def drop_inventory(self):
+    def drop_inventory(self, skip_rows: int = 0) -> None:
         '''
         Drops all items in the inventory.
+        Args:
+            skip_rows: The number of rows to skip before dropping.
         '''
         self.log_msg("Dropping inventory...")
         pag.keyDown("shift")
         for row in self.inventory_slots:
             if self.status_check_passed():
                 return
+            if row in range(skip_rows):
+                continue
             for slot in row:
                 pag.moveTo(slot[0], slot[1])
                 time.sleep(0.05)
