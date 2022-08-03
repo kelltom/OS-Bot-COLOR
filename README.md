@@ -177,6 +177,6 @@ Making this project into an executable is kind of tedious. Due to some issues wi
 4. Configure the window similarly to this: ![](documentation/wiki_images/auto-py-to-exe-settings.png)
 5. Rename ./output/main to ./output/src. Then you can run main.exe within that folder.
 
-*Note: Auto Py to EXE hates deep file structures. In order for the executable directory to retain the original folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work.*
+*Note: Auto Py to EXE hates deep file structures. In order for the executable directory to retain the original folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work. Alternatively, import my [settings](auto-py-to-exe_settings.json) to speed up the process (you'll need to edit file path names).*
 
 *Another Note: CustomTkinter needs to be pointed to in the Additional Files section.* ```{path to repo}/env/Lib/site-packages/customtkinter``` ```customtkinter```
