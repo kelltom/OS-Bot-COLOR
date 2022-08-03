@@ -7,7 +7,7 @@
   },
   {
    "optionDest": "filenames",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/main.py"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/main.py"
   },
   {
    "optionDest": "onefile",
@@ -71,67 +71,59 @@
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/env/Lib/site-packages/customtkinter;customtkinter"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/env/Lib/site-packages/customtkinter;customtkinter"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/controller;controller"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/controller;controller"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/images;images"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/bot;images/bot"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/images/bot;images/bot"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/ui;images/ui"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/images/ui;images/ui"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/temp;images/temp"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/images/temp;images/temp"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/bot/near_reality;images/bot/near_reality"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/images/bot/osrs;images/bot/osrs"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/bot/alora;images/bot/alora"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/images/bot/near_reality;images/bot/near_reality"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model;model"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/images/bot/alora;images/bot/alora"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model/alora;model/alora"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/model;model"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model/osnr;model/osnr"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/model/alora;model/alora"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model/osrs;model/osrs"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/model/osnr;model/osnr"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/runelite_settings;runelite_settings"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/model/osrs;model/osrs"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/utilities;utilities"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/runelite_settings;runelite_settings"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/utilities;utilities"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Documents/NR Bots/osnr-bot/src/view;view"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/view;view"
   }
  ],
  "nonPyinstallerOptions": {

@@ -175,6 +175,7 @@ Making this project into an executable is kind of tedious. Due to some issues wi
 3. Run AutoPyToEXE via the terminal command. ```auto-py-to-exe```
    1. The APTE app should open in a new window.
 4. Configure the window similarly to this: ![](documentation/wiki_images/auto-py-to-exe-settings.png)
+5. Rename ./output/main to ./output/src. Then you can run main.exe within that folder.
 
 *Note: Auto Py to EXE hates deep file structures. In order for the executable directory to retain the original folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work.*
 
