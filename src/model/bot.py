@@ -9,6 +9,7 @@ from easyocr import Reader
 from enum import Enum
 import keyboard
 from model.options_builder import OptionsBuilder
+import pathlib
 from PIL import Image, ImageGrab
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 import re
@@ -45,8 +46,9 @@ class Bot(ABC):
     mouse = MouseUtils()
 
     # --- Paths to Image folders ---
-    TEMP_IMAGES = "./src/images/temp"
-    BOT_IMAGES = "./src/images/bot"
+    PATH = pathlib.Path(__file__).parent.parent.resolve()
+    TEMP_IMAGES = f"{PATH}/images/temp"
+    BOT_IMAGES = f"{PATH}/images/bot"
 
     # ---- Abstract Functions ----
     @abstractmethod
@@ -241,6 +243,7 @@ class Bot(ABC):
         width, height = Image.open(img_path).size
         im = region_grabber((rect.start.x, rect.start.y, rect.end.x, rect.end.y))
         pos = imagesearcharea(img_path, rect.start.x, rect.start.y, rect.end.x, rect.end.y, conf, im)
+
         if pos == [-1, -1]:
             return None
         return Point(x=pos[0] + rect.start.x + width/2,
