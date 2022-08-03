@@ -22,8 +22,8 @@ class HomeView(customtkinter.CTkFrame):
         self.grid_columnconfigure(2, weight=1)
 
         # Logo
-        self.logo_path = pathlib.Path(__file__).parent.parent.parent.resolve()
-        self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/documentation/wiki_images/logo.png").resize((433, 67)), Image.ANTIALIAS)
+        self.logo_path = pathlib.Path(__file__).parent.parent.resolve()
+        self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/images/ui/logo.png").resize((433, 67)), Image.ANTIALIAS)
         self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
         self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
@@ -40,7 +40,7 @@ class HomeView(customtkinter.CTkFrame):
         BTN_WIDTH, BTN_HEIGHT = (96, 64)
         DEFAULT_GRAY = ("gray50", "gray30")
         # -- Github
-        self.github_logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/github32_w.png").resize((IMG_SIZE, IMG_SIZE)), Image.LANCZOS)
+        self.github_logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/images/ui/github32_w.png").resize((IMG_SIZE, IMG_SIZE)), Image.LANCZOS)
         self.btn_github = customtkinter.CTkButton(master=self,
                                                   text="GitHub",
                                                   image=self.github_logo,
@@ -53,7 +53,7 @@ class HomeView(customtkinter.CTkFrame):
         self.btn_github.grid(row=3, column=0, padx=15, pady=(15, 0), sticky="e")
 
         # -- Feedback
-        self.feedback_logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/feedback_w.png").resize((IMG_SIZE, IMG_SIZE)), Image.LANCZOS)
+        self.feedback_logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/images/ui/feedback_w.png").resize((IMG_SIZE, IMG_SIZE)), Image.LANCZOS)
         self.btn_feedback = customtkinter.CTkButton(master=self,
                                                     text="Feedback",
                                                     image=self.feedback_logo,
@@ -66,7 +66,7 @@ class HomeView(customtkinter.CTkFrame):
         self.btn_feedback.grid(row=3, column=1, padx=15, pady=(15, 0))
 
         # -- Bug Report
-        self.bug_logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/bug-report_w.png").resize((IMG_SIZE, IMG_SIZE)), Image.LANCZOS)
+        self.bug_logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/images/ui/bug-report_w.png").resize((IMG_SIZE, IMG_SIZE)), Image.LANCZOS)
         self.btn_feedback = customtkinter.CTkButton(master=self,
                                                     text="Report Bug",
                                                     image=self.bug_logo,
