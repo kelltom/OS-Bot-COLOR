@@ -4,6 +4,7 @@ should be inherited by additional abstract classes representing all bots for a s
 '''
 from abc import ABCMeta
 import cv2
+from deprecated import deprecated
 from model.bot import Bot, Rectangle, Point
 import numpy as np
 import pyautogui as pag
@@ -122,7 +123,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         '''
         path_game_view = self.capture_screen(game_view)
         # Isolate colors in image
-        path_npcs, path_hp_bars = self.__isolate_tagged_NPCs_at(path_game_view)
+        path_npcs, path_hp_bars = self.__isolate_tags_at(path_game_view)
         # Locate potential NPCs in image by determining contours
         contours = self.__get_contours(path_npcs)
         # Get center pixels of non-combatting NPCs
@@ -208,13 +209,14 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             print("Cannot crop image. Disregarding...")
             return True
 
-    def __isolate_tagged_NPCs_at(self, path: str) -> str:
+    @deprecated(reason="Use __isolate_color() instead.")
+    def __isolate_tags_at(self, path: str) -> str:
         '''
-        Isolates tagged NPCs, HP bars and hitsplats in an image.
+        Isolates Runelite tags and saves them as images. Useful for identifying tagged NPCs, and health bars.
         Args:
             path: The path to the image to isolate colors.
         Returns:
-            The paths to an image with only tagged NPCs, and an image with only HP bars.
+            The paths to an image with only blue tagged contours, and an image with only green/red.
         '''
         img = cv2.imread(path)
         # Convert to HSV
