@@ -155,4 +155,7 @@ cython_debug/
 # Microsoft Word
 *.tmp
 ~$*
+
+# Ignore temporary files
 src/images/temp/*
+!src/images/temp/.gitkeep
