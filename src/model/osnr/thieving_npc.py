@@ -81,7 +81,7 @@ class OSNRThievingNPC(OSNRBot):
                         time.sleep(0.3)
                         pag.click()
                 else:
-                    self.log_msg("Out of food.")
+                    self.log_msg("Out of food. Aborting...")
                     self.teleport_home()
                     self.set_status(BotStatus.STOPPED)
                     return
@@ -126,7 +126,7 @@ class OSNRThievingNPC(OSNRBot):
                 self.log_msg("No NPC found.")
                 npc_search_fail_count += 1
                 if npc_search_fail_count > 10:
-                    self.log_msg("No NPC found 10 times in a row.")
+                    self.log_msg("No NPC found 10 times in a row. Aborting...")
                     self.teleport_home()
                     self.set_status(BotStatus.STOPPED)
                     return
