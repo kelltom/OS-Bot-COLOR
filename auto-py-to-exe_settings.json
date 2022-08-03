@@ -75,43 +75,11 @@
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/controller;controller"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/bot;images/bot"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/ui;images/ui"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/temp;images/temp"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/bot/near_reality;images/bot/near_reality"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images/bot/alora;images/bot/alora"
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/env/Lib/site-packages/easyocr;easyocr"
   },
   {
    "optionDest": "datas",
    "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model;model"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model/alora;model/alora"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model/osnr;model/osnr"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model/osrs;model/osrs"
   },
   {
    "optionDest": "datas",
@@ -124,6 +92,14 @@
   {
    "optionDest": "datas",
    "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/view;view"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/images;images"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/controller;controller"
   }
  ],
  "nonPyinstallerOptions": {
