@@ -3,6 +3,7 @@ from controller.bot_controller import BotController
 from model.alora.combat import AloraCombat
 from model.osnr.combat import OSNRCombat
 from model.osnr.thieving_stall import OSNRThievingStall
+from model.osnr.thieving_npc import OSNRThievingNPC
 from model.osrs.example_bot import ExampleBot
 import tkinter
 from view.bot_view import BotView
@@ -50,7 +51,7 @@ class App(customtkinter.CTk):
 
         # configure grid layout (11x1)
         self.frame_left.grid_rowconfigure(0, minsize=10)   # empty row with minsize as spacing (top padding above title)
-        self.frame_left.grid_rowconfigure(5, weight=1)  # empty row as spacing (resizable spacing between buttons and switches)
+        self.frame_left.grid_rowconfigure(7, weight=1)  # empty row as spacing (resizable spacing between buttons and switches)
         self.frame_left.grid_rowconfigure(8, minsize=20)    # empty row with minsize as spacing (adds a top padding to switch section)
         self.frame_left.grid_rowconfigure(11, minsize=10)  # empty row with minsize as spacing (bottom padding below switches)
 
@@ -143,6 +144,14 @@ class App(customtkinter.CTk):
         self.btn_map["OSNR"].append(self.btn_osnr_thieving_stall)
         self.models["OSNRThievingStall"] = OSNRThievingStall()
         self.models["OSNRThievingStall"].set_controller(self.controller)
+
+        self.btn_osnr_thieving_npc = customtkinter.CTkButton(master=self.frame_left,
+                                                             text="Thieving NPCs",
+                                                             fg_color=self.DEFAULT_GRAY,
+                                                             command=lambda: self.__toggle_bot_by_name("OSNRThievingNPC", self.btn_osnr_thieving_npc))
+        self.btn_map["OSNR"].append(self.btn_osnr_thieving_npc)
+        self.models["OSNRThievingNPC"] = OSNRThievingNPC()
+        self.models["OSNRThievingNPC"].set_controller(self.controller)
 
         # ----- Alora Bots -----
         # Combat
