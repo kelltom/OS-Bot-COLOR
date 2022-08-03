@@ -60,6 +60,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         '''
         self.setup_client(window_title="Near-Reality", logout_runelite=False, close_runelite_settings=True)
         self.__disable_private_chat()
+        self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.cp_inventory)
         self.mouse.click()
         time.sleep(0.5)

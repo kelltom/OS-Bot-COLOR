@@ -48,6 +48,11 @@ class OSNRThievingNPC(OSNRBot):
         # Setup
         self.setup_osnr()
 
+        self.log_msg("Setting compass...")
+        self.mouse.move_to(self.orb_compass)
+        self.mouse.click()
+        time.sleep(0.3)
+
         # Anchors/counters
         hp_threshold_pos = Point(541, 394)  # TODO: implement checking health threshold
         hp_threshold_rgb = pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y)
