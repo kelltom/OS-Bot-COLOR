@@ -61,7 +61,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             curr_x = 583  # reset x
             row = []
             for _ in range(4):
-                row.append((curr_x, curr_y))
+                row.append(Point(curr_x, curr_y))
                 curr_x += 42  # x delta
             inv.append(row)
             curr_y += 36  # y delta
