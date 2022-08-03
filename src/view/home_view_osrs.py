@@ -77,6 +77,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
         self.label_status.grid(row=7, column=0, sticky="nwes")
 
     def __replace_settings(self):
+        PATH = Path(__file__).parent.parent.resolve()  # src directory
         res = pag.confirm("Please close your game client before continuing.", title="Warning", buttons=["Done", "Cancel"])
         if res == "Cancel":
             return
@@ -85,7 +86,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
                                   filetypes=[("properties files", "*.properties")]):
             print(f"Replacing settings in {loc}...")
             try:
-                settings_path = f"{str(Path().resolve())}\\src\\runelite_settings\\settings.properties"
+                settings_path = f"{PATH}\\runelite_settings\\settings.properties"
                 shutil.copyfile(settings_path, loc)
                 self.label_status.configure(text="Settings replaced successfully.\nRestart Runelite client to apply changes.")
                 self.main.toggle_btn_state(enabled=True)
