@@ -178,6 +178,28 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
         return Point(nearest.x + game_view.start.x, nearest.y + game_view.start.y)
 
+    def get_all_tagged_in_rect(self, rect: Rectangle, color: tuple) -> list:
+        '''
+        Finds all contours on screen of a particular color and returns a list of center Points for each.
+        Args:
+            rect: The rectangle to search in.
+            color: The color to search for.
+        Returns:
+            A list of center Points.
+        '''
+        path_game_view = self.capture_screen(rect)
+        path_tagged = self.__isolate_color(path=path_game_view, color=color, filename="get_all_tagged_in_rect")
+        contours = self.__get_contours(path_tagged)
+        centers = []
+        for cnt in contours:
+            try:
+                center, _ = self.__get_contour_positions(cnt)
+            except Exception:
+                print("Cannot find moments of contour. Disregarding...")
+                continue
+            centers.append(Point(center.x + rect.start.x, center.y + rect.start.y))
+        return centers
+
     def __get_contours(self, path: str) -> list:
         '''
         Gets the contours of an image.
