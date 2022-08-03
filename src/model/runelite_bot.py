@@ -77,10 +77,11 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         '''
         self.log_msg("Dropping inventory...")
         pag.keyDown("shift")
-        for row in self.inventory_slots:
-            if self.status_check_passed():
+        for i, row in enumerate(self.inventory_slots):
+            if not self.status_check_passed():
+                pag.keyUp("shift")
                 return
-            if row in range(skip_rows):
+            if i in range(skip_rows):
                 continue
             for slot in row:
                 pag.moveTo(slot[0], slot[1])
