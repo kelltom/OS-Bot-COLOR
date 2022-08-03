@@ -147,6 +147,37 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         pag.click()
         return True
 
+    def get_nearest_tagged_NPC(self, game_view: Rectangle, include_in_combat: bool = False) -> Point:
+        '''
+        Returns the nearest tagged NPC.
+        Args:
+            game_view: The rectangle to search in.
+        Returns:
+            The center point of the nearest tagged NPC, or None if none found.
+        '''
+        path_game_view = self.capture_screen(game_view)
+        # Isolate colors in image
+        path_npcs, path_hp_bars = self.__isolate_tags_at(path_game_view)
+        # Locate potential NPCs in image by determining contours
+        contours = self.__get_contours(path_npcs)
+        # Get center pixels of non-combatting NPCs
+        centers = []
+        img_bgr = cv2.imread(path_hp_bars)
+        for cnt in contours:
+            try:
+                center, top = self.__get_contour_positions(cnt)
+            except Exception:
+                print("Cannot find moments of contour. Disregarding...")
+                continue
+            if not include_in_combat and not self.__is_point_obstructed(center, img_bgr) or include_in_combat:
+                centers.append((center.x, center.y))
+        if not centers:
+            print("No tagged NPCs found.")
+            return None
+        dims = img_bgr.shape  # (height, width, channels)
+        nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
+        return Point(nearest.x + game_view.start.x, nearest.y + game_view.start.y)
+
     def __get_contours(self, path: str) -> list:
         '''
         Gets the contours of an image.
