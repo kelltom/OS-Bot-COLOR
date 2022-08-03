@@ -144,7 +144,6 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
         self.mouse.move_to((nearest.x + game_view.start.x, nearest.y + game_view.start.y), 0.2)
         pag.click()
-        print("Attacked nearest tagged NPC.")
         return True
 
     def __get_contours(self, path: str) -> list:
