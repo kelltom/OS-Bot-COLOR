@@ -335,15 +335,21 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             return
 
         # Set window to large initially
-        temp_win = Rectangle(Point(0, 0), Point(1200, 1000))
         win.moveTo(0, 0)
+        temp_win = Rectangle(Point(0, 0), Point(900, 620))
         win.size = (temp_win.end[0], temp_win.end[1])
         time.sleep(1)
 
         # Ensure user is logged out of Runelite
         if logout_runelite:
             self.log_msg("Logging out of Runelite...")
-            rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
+            try:
+                rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
+            except Exception as e:
+                self.log_msg("Error: Could not find Runelite login icon.")
+                self.log_msg(e)
+                return
+
             if rl_login_icon is not None:
                 self.mouse.move_to(rl_login_icon, duration=1)
                 pag.click()
@@ -354,7 +360,13 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         # Ensure Runelite Settings pane is closed
         if close_runelite_settings:
             self.log_msg("Closing Runelite settings panel...")
-            settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", temp_win)
+            try:
+                settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", temp_win)
+            except Exception as e:
+                self.log_msg("Error: Could not find Runelite settings icon.")
+                self.log_msg(e)
+                return
+
             if settings_icon is not None:
                 self.mouse.move_to(settings_icon, 1)
                 pag.click()
