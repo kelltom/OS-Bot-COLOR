@@ -64,7 +64,7 @@ class OSNRCombat(OSNRBot):
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                if self.attack_nearest_tagged(self.rect_game_view):
+                if self.attack_first_tagged(self.rect_game_view):
                     self.log_msg("Attempting to attack NPC...")
                     time.sleep(3)
                     timeout -= 3

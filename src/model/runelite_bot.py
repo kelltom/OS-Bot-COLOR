@@ -118,9 +118,9 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         return result.strip() != ""
 
     # --- NPC Detection ---
-    def attack_nearest_tagged(self, game_view: Rectangle) -> bool:
+    def attack_first_tagged(self, game_view: Rectangle) -> bool:
         '''
-        Attacks the nearest tagged NPC that is not already in combat.
+        Attacks the first-seen tagged NPC that is not already in combat.
         Args:
             game_view: The rectangle to search in.
         Returns:
@@ -131,8 +131,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         path_npcs, path_hp_bars = self.__isolate_tags_at(path_game_view)
         # Locate potential NPCs in image by determining contours
         contours = self.__get_contours(path_npcs)
-        # Get center pixels of non-combatting NPCs
-        centers = []
+        # Click center pixel of non-combatting NPCs
         img_bgr = cv2.imread(path_hp_bars)
         for cnt in contours:
             try:
@@ -140,17 +139,12 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             except Exception:
                 print("Cannot find moments of contour. Disregarding...")
                 continue
-            if not self.__is_point_obstructed(center, img_bgr):  # Can try top as well
-                centers.append((center.x, center.y))
-        if not centers:
-            print("No tagged NPCs found.")
-            return False
-        # Attack nearest NPC
-        dims = img_bgr.shape  # (height, width, channels)
-        nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
-        self.mouse.move_to((nearest.x + game_view.start.x, nearest.y + game_view.start.y), 0.2)
-        pag.click()
-        return True
+            if not self.__is_point_obstructed(center, img_bgr):
+                self.mouse.move_to(Point(center.x + game_view.start.x, center.y + game_view.start.y), 0.2)
+                pag.click()
+                return True
+        self.log_msg("No tagged NPCs found that aren't in combat.")
+        return False
 
     def get_nearest_tagged_NPC(self, game_view: Rectangle, include_in_combat: bool = False) -> Point:
         '''
@@ -248,7 +242,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         p = np.argmin(dist_2)
         return Point(points[p][0], points[p][1])
 
-    def __is_point_obstructed(self, point: Point, im, kernel: int = 10) -> bool:
+    def __is_point_obstructed(self, point: Point, im, span: int = 20) -> bool:
         '''
         This function determines if there are non-black pixels in an image around a given point.
         This is useful for determining if an NPC is in combat (E.g., given the top point of an NPC contour
@@ -256,11 +250,12 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Args:
             point: The top point of a contour (NPC).
             im: A BGR CV image containing only HP bars.
+            span: The number of pixels to search around the given point.
         Returns:
             True if the point is obstructed, False otherwise.
         '''
         try:
-            crop = im[point.y-kernel:point.y+kernel, point.x-kernel:point.x+kernel]
+            crop = im[point.y-span:point.y+span, point.x-span:point.x+span]
             mean = crop.mean(axis=(0, 1))
             return str(mean) != "[0. 0. 0.]"
         except Exception:
