@@ -3,8 +3,9 @@ Thieving bot for OSNR. Thieves from NPCs.
 '''
 from model.bot import BotStatus, Point
 from model.osnr.osnr_bot import OSNRBot
-import time
+import pathlib
 import pyautogui as pag
+import time
 
 
 class OSNRThievingNPC(OSNRBot):
@@ -19,7 +20,7 @@ class OSNRThievingNPC(OSNRBot):
         self.should_click_coin_pouch = False
         self.should_drop_inv = False
         self.skip_rows = 0
-        self.coin_pouch_path = "./src/images/bot/near_reality/coin_pouch.png"
+        self.coin_pouch_path = f"{pathlib.Path(__file__).parent.parent.parent.resolve()}/images/bot/near_reality/coin_pouch.png"
 
     def create_options(self):
         self.options_builder.add_slider_option("iterations", "How long to run (minutes)?", 1, 200)
@@ -161,5 +162,5 @@ class OSNRThievingNPC(OSNRBot):
 
             if not self.status_check_passed():
                 return
-
+        self.log_msg("Finished.")
         self.set_status(BotStatus.STOPPED)
