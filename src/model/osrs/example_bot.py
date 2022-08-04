@@ -105,6 +105,7 @@ class ExampleBot(Bot):
             time.sleep(1)
             self.log_msg("Character is teleporting back to point A...")
             time.sleep(1)
+            self.current_iter += 1
             self.update_progress(self.current_iter / self.iterations)
             self.player_position = "A"
             # Check once more for status and keyboard interrupts
