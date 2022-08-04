@@ -125,10 +125,14 @@ class Bot(ABC):
         '''
         Checks for keyboard interrupts.
         '''
-        if keyboard.is_pressed("F1"):
-            if self.status != BotStatus.PAUSED:
+        if keyboard.is_pressed("-"):
+            if self.status == BotStatus.RUNNING:
                 self.log_msg("Pausing bot...")
                 self.set_status(BotStatus.PAUSED)
+        elif keyboard.is_pressed("="):
+            if self.status == BotStatus.PAUSED:
+                self.log_msg("Resuming bot...")
+                self.set_status(BotStatus.RUNNING)
         elif keyboard.is_pressed("ESC"):
             self.stop()
 

@@ -137,14 +137,14 @@ class InfoFrame(customtkinter.CTkFrame):
         self.__toggle_buttons(True)
         self.btn_options.configure(state=tkinter.DISABLED)
         self.btn_play.configure(image=self.img_pause)
-        self.btn_play.configure(text="Pause [F1]")
+        self.btn_play.configure(text="Pause [ - ]")
         self.lbl_status.configure(text="Status: Running")
 
     def update_status_paused(self):
         self.__toggle_buttons(True)
         self.btn_options.configure(state=tkinter.DISABLED)
         self.btn_play.configure(image=self.img_play)
-        self.btn_play.configure(text="Play")
+        self.btn_play.configure(text="Resume [ = ]")
         self.lbl_status.configure(text="Status: Paused")
 
     def update_status_stopped(self):
