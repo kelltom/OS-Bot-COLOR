@@ -160,10 +160,11 @@ class InfoFrame(customtkinter.CTkFrame):
             self.btn_options.configure(state=tkinter.DISABLED)
 
     # ---- Progress Bar Handlers ----
-    def update_progress(self, progress):
+    def update_progress(self, progress: float):
         '''
         Called from controller. Updates the progress bar and percentage.
-        Parameter progress is a float between 0 and 1.
+        Args:
+            progress: The progress of the script, a float between 0 and 1.
         '''
         self.progressbar.set(progress)
         self.lbl_progress.configure(text=f"Progress: {progress*100:.0f}%")

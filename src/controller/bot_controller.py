@@ -65,8 +65,7 @@ class BotController(object):
         '''
         Called from model. Tells view to update progress.
         '''
-        progress = self.model.current_iter / self.model.iterations
-        self.view.frame_info.update_progress(progress)
+        self.view.frame_info.update_progress(self.model.progress)
 
     def update_log(self, msg: str, overwrite: bool = False):
         '''

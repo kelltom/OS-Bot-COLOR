@@ -39,8 +39,7 @@ Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
 
 class Bot(ABC):
     status = BotStatus.STOPPED
-    iterations: int = 0
-    current_iter: int = 0
+    progress: float = 0
     options_set: bool = False
     thread: Thread = None
     mouse = MouseUtils()
@@ -99,7 +98,7 @@ class Bot(ABC):
                 self.log_msg("Options not set. Please set options before starting.")
                 return
             self.log_msg("Starting bot...")
-            self.reset_iter()
+            self.reset_progress()
             self.set_status(BotStatus.RUNNING)
             self.thread = Thread(target=self.main_loop)
             self.thread.setDaemon(True)
@@ -118,7 +117,7 @@ class Bot(ABC):
         self.log_msg("Manual stop requested. Attempting to stop...")
         if self.status != BotStatus.STOPPED:
             self.set_status(BotStatus.STOPPED)
-            self.reset_iter()
+            self.reset_progress()
         else:
             self.log_msg("Bot is already stopped.")
 
@@ -176,20 +175,20 @@ class Bot(ABC):
         self.controller = controller
 
     # ---- Functions that notify the controller of changes ----
-    def reset_iter(self):
+    def reset_progress(self):
         '''
-        Resets the current iteration property to 0 and notifies the controller to update UI.
+        Resets the current progress property to 0 and notifies the controller to update UI.
         '''
-        self.current_iter = 0
+        self.progress = 0
         self.controller.update_progress()
 
-    def increment_iter(self, by: int = 1):
+    def update_progress(self, progress: float):
         '''
-        Increments the current iteration property and notifies the controller to update UI.
+        Updates the progress property and notifies the controller to update UI.
         Args:
-            by: int - number of iterations to increment by
+            progress: float - number between 0 and 1 indicating percentage of progress.
         '''
-        self.current_iter += by
+        self.progress = progress
         self.controller.update_progress()
 
     def set_status(self, status: BotStatus):

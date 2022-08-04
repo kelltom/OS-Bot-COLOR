@@ -13,6 +13,9 @@ class AloraCombat(AloraBot):
                        "via Runelite before starting the bot!")
         super().__init__(title=title, description=description)
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
+        self.iterations = 0
+        self.multi_select_example = None
+        self.menu_example = None
 
     def create_options(self):
         self.options_builder.add_slider_option("iterations", "Iterations", 1, 100)
@@ -62,6 +65,7 @@ class AloraCombat(AloraBot):
         self.mouse.move_to(self.cp_inventory, 0.2, variance=3)
         self.mouse.click()
 
+        self.current_iter = 0
         while self.current_iter < self.iterations:
             if not self.status_check_passed():
                 return
@@ -98,8 +102,9 @@ class AloraCombat(AloraBot):
                 timeout -= 0.5
                 if not self.status_check_passed():
                     return
-            self.increment_iter()
+            self.current_iter += 1
+            self.update_progress(self.current_iter / self.iterations)
             self.log_msg(f"Enemy killed. {self.iterations - self.current_iter} to go!")
-
+        self.update_progress(1)
         self.log_msg("Bot has completed all of its iterations.")
         self.set_status(BotStatus.STOPPED)

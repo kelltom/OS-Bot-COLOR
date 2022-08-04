@@ -11,6 +11,7 @@ class OSNRThievingStall(OSNRBot):
         description = ("This bot thieves at stalls in OSNR. Position your character south of the stall you wish to thieve at. " +
                        "Use the options menu to choose how long to run the bot, and whether to drop items or not.")
         super().__init__(title=title, description=description)
+        self.iterations = 0
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
 
     def create_options(self):

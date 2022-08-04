@@ -93,7 +93,7 @@ class OptionsUI(customtkinter.CTkFrame):
                                                 command=lambda: self.save(window=parent))
         self.btn_save.grid(row=self.num_of_options + 2, column=0, columnspan=2, pady=20, padx=20)
 
-    def change_iterations(self, key, value):
+    def change_slider_val(self, key, value):
         self.slider_values[key].configure(text=str(int(value * 100)))
 
     def create_slider(self, key, value: SliderInfo, row: int):
@@ -117,7 +117,7 @@ class OptionsUI(customtkinter.CTkFrame):
         self.widgets[key] = customtkinter.CTkSlider(master=self.frames[key],
                                                     from_=value.min / 100,
                                                     to=value.max / 100,
-                                                    command=lambda x: self.change_iterations(key, x))
+                                                    command=lambda x: self.change_slider_val(key, x))
         self.widgets[key].grid(row=0, column=0, sticky="ew")
         self.widgets[key].set(value.min / 100)
 

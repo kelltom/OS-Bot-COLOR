@@ -12,18 +12,19 @@ class OSNRCombat(OSNRBot):
         description = ("This bot attacks NPCs tagged using Runelite. Position your character in the viscinity of the tagged NPCs.")
         super().__init__(title=title, description=description)
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
+        self.kills = 0
         self.should_loot = False
         self.should_bank = False
 
     def create_options(self):
-        self.options_builder.add_slider_option("iterations", "How many kills?", 1, 100)
+        self.options_builder.add_slider_option("kills", "How many kills?", 1, 100)
         self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
 
     def save_options(self, options: dict):
         for option in options:
-            if option == "iterations":
-                self.iterations = options[option]
-                self.log_msg(f"The bot will kill {self.iterations} NPCs.")
+            if option == "kills":
+                self.kills = options[option]
+                self.log_msg(f"The bot will kill {self.kills} NPCs.")
             elif option == "prefs":
                 if "Loot" in options[option]:
                     self.should_loot = True
@@ -51,7 +52,8 @@ class OSNRCombat(OSNRBot):
         self.mouse.click()
         time.sleep(0.5)
 
-        while self.current_iter < self.iterations:
+        self.killed = 0
+        while self.killed < self.kills:
             if not self.status_check_passed():
                 return
 
@@ -87,8 +89,9 @@ class OSNRCombat(OSNRBot):
                 timeout -= 0.5
                 if not self.status_check_passed():
                     return
-            self.increment_iter()
-            self.log_msg(f"Enemy killed. {self.iterations - self.current_iter} to go!")
-
+            self.killed += 1
+            self.update_progress(self.killed / self.kills)
+            self.log_msg(f"Enemy killed. {self.kills - self.killed} to go!")
+        self.update_progress(1)
         self.log_msg("Bot has completed all of its iterations.")
         self.set_status(BotStatus.STOPPED)

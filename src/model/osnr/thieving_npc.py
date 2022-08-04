@@ -15,6 +15,7 @@ class OSNRThievingNPC(OSNRBot):
                        "If you have food, tag all in inventory as light-blue. This bot cannot yet bank. Start bot with full HP, " +
                        "coins in first slot, and empty last inventory slot. Turn on Entity Hider > Hide NPCs 2D.")
         super().__init__(title=title, description=description)
+        self.running_time = 0
         self.should_eat = False
         self.should_left_click = False
         self.should_click_coin_pouch = False
@@ -23,7 +24,7 @@ class OSNRThievingNPC(OSNRBot):
         self.coin_pouch_path = f"{pathlib.Path(__file__).parent.parent.parent.resolve()}/images/bot/near_reality/coin_pouch.png"
 
     def create_options(self):
-        self.options_builder.add_slider_option("iterations", "How long to run (minutes)?", 1, 200)
+        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
         self.options_builder.add_dropdown_option("should_left_click", "Left click pickpocket?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
@@ -31,9 +32,9 @@ class OSNRThievingNPC(OSNRBot):
 
     def save_options(self, options: dict):
         for option, res in options.items():
-            if option == "iterations":
-                self.iterations = options[option]
-                self.log_msg(f"Running time: {self.iterations} minutes.")
+            if option == "running_time":
+                self.running_time = options[option]
+                self.log_msg(f"Running time: {self.running_time} minutes.")
             elif option == "should_left_click":
                 if res == "Yes":
                     self.should_left_click = True
@@ -91,7 +92,8 @@ class OSNRThievingNPC(OSNRBot):
 
         # Main loop
         start_time = time.time()
-        while time.time() - start_time < self.iterations * 60:
+        end_time = self.running_time * 60
+        while time.time() - start_time < end_time:
             # Check if we should eat
             while pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y) != hp_threshold_rgb:
                 if not self.status_check_passed():
@@ -162,5 +164,10 @@ class OSNRThievingNPC(OSNRBot):
 
             if not self.status_check_passed():
                 return
+
+            # Update progress
+            self.update_progress((time.time() - start_time) / end_time)
+
+        self.update_progress(1)
         self.log_msg("Finished.")
         self.set_status(BotStatus.STOPPED)
