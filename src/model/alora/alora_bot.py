@@ -40,8 +40,46 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
     def bank_at_home(self):
         pass
 
-    def setup_alora(self):
+    def did_set_layout_fixed(self):
+        '''
+        Attempts to set the client's layout to "Fixed - Classic layout".
+        Returns:
+            True if the layout was set, False if an issue occured.
+        '''
+        self.log_msg("Setting layout to Fixed - Classic layout.")
+        time.sleep(0.3)
+        cp_settings_selected = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_selected.png",
+                                                       self.client_window,
+                                                       conf=0.95)
+        cp_settings = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings.png",
+                                              self.client_window,
+                                              conf=0.95)
+        if cp_settings_selected is None and cp_settings is None:
+            self.log_msg("Could not find settings button.")
+            return False
+        elif cp_settings is not None and cp_settings_selected is None:
+            self.mouse.move_to(cp_settings)
+            pag.click()
+        time.sleep(0.5)
+        self.mouse.move_rel(-99, -257)
+        pag.click()
+        time.sleep(0.5)
+        self.mouse.move_rel(36, 123)
+        pag.click()
+        time.sleep(1.5)
+        click_here_to_play = self.search_img_in_rect(f"{self.BOT_IMAGES}/alora/click_here_to_play.png",
+                                                     self.client_window)
+        if click_here_to_play is not None:
+            self.mouse.move_to(click_here_to_play)
+            pag.click()
+            time.sleep(1.5)
+        return True
+
+    def setup_alora(self):  # sourcery skip: merge-nested-ifs
         '''
         Sets up the Alora client.
         '''
-        self.setup_client(window_title="Alora", logout_runelite=True, close_runelite_settings=True)
+        self.setup_client(window_title="Alora", set_layout_fixed=False, logout_runelite=True, close_runelite_settings=True)
+        if not self.did_set_layout_fixed():
+            if pag.confirm("Could not set layout to Fixed - Classic layout. Continue anyway?") == "Cancel":
+                exit()
