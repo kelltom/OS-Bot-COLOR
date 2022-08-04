@@ -12,7 +12,7 @@ class OSNRThievingNPC(OSNRBot):
     def __init__(self):
         title = "Thieving NPC Bot"
         description = ("This bot thieves from NPCs in OSNR. Position your character near the NPC you wish to thieve from. " +
-                       "If you have food, tag all in inventory as NPC-blue. This bot cannot yet bank. Start bot with full HP, " +
+                       "If you have food, tag all in inventory as light-blue. This bot cannot yet bank. Start bot with full HP, " +
                        "coins in first slot, and empty last inventory slot. Turn on Entity Hider > Hide NPCs 2D.")
         super().__init__(title=title, description=description)
         self.should_eat = False
