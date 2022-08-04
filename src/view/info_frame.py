@@ -18,7 +18,8 @@ class InfoFrame(customtkinter.CTkFrame):
 
         PATH = pathlib.Path(__file__).parent.parent.resolve()
 
-        self.rowconfigure((0, 1, 2, 3, 4), weight=0)  # rows will not resize
+        self.rowconfigure((0, 2, 4, 5), weight=0)  # rows will not resize
+        self.rowconfigure((1, 3), weight=1)  # rows will resize
         self.columnconfigure(0, weight=1, minsize=200)
         self.columnconfigure(1, weight=0)
 
@@ -33,17 +34,17 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_script_desc = customtkinter.CTkLabel(master=self,
                                                       text=info,
                                                       justify=tkinter.CENTER)
-        self.lbl_script_desc.grid(column=0, row=1, rowspan=2, sticky="nwes", padx=15)
+        self.lbl_script_desc.grid(column=0, row=2, sticky="nwes", padx=15)
         self.lbl_script_desc.bind('<Configure>', lambda e: self.lbl_script_desc.configure(wraplength=self.lbl_script_desc.winfo_width()-10))
 
         # -- script progress bar
         self.lbl_progress = customtkinter.CTkLabel(master=self,
                                                    text="Progress: 0%",
                                                    justify=tkinter.CENTER)
-        self.lbl_progress.grid(row=3, column=0, sticky="ew")
+        self.lbl_progress.grid(row=4, column=0, pady=(15, 0), sticky="ew")
 
         self.progressbar = customtkinter.CTkProgressBar(master=self)
-        self.progressbar.grid(row=4, column=0, sticky="ew", padx=15, pady=(0, 15))
+        self.progressbar.grid(row=5, column=0, sticky="ew", padx=15, pady=(0, 15))
         self.progressbar.set(0)
 
         # -- right-side control buttons
@@ -65,14 +66,14 @@ class InfoFrame(customtkinter.CTkFrame):
                                                 fg_color=self.fg_color)
         self.btn_frame.rowconfigure((1, 2, 3), weight=0)
         self.btn_frame.rowconfigure((0, 4), weight=1)
-        self.btn_frame.grid(row=1, rowspan=3, column=1, padx=15, sticky="wns")
+        self.btn_frame.grid(row=1, rowspan=4, column=1, padx=15, sticky="wns")
 
         self.btn_play = customtkinter.CTkButton(master=self.btn_frame,
                                                 text="Play",
                                                 text_color="white",
                                                 image=self.img_play,
                                                 command=self.play_btn_clicked)
-        self.btn_play.grid(row=1, column=0, pady=15, sticky="nsew")
+        self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
 
         self.btn_abort = customtkinter.CTkButton(master=self.btn_frame,
                                                  text="Stop [ESC]",
@@ -95,7 +96,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_status = customtkinter.CTkLabel(master=self,
                                                  text="Status: Idle",
                                                  justify=tkinter.CENTER)
-        self.lbl_status.grid(row=4, column=1, pady=(0, 15), sticky="we")
+        self.lbl_status.grid(row=5, column=1, pady=(0, 15), sticky="we")
 
         self.controller = None
         self.options_class = None
