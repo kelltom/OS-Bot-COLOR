@@ -109,7 +109,7 @@ class OSNRThievingNPC(OSNRBot):
                         pag.click()
                 else:
                     self.log_msg("Out of food. Aborting...")
-                    self.teleport_home()
+                    self.logout()
                     self.set_status(BotStatus.STOPPED)
                     return
 
@@ -149,14 +149,14 @@ class OSNRThievingNPC(OSNRBot):
                             no_pouch_count += 1
                             if no_pouch_count > 5:
                                 self.log_msg("Could not find coin pouch 5 times. Aborting...")
-                                self.teleport_home()
+                                self.logout()
                                 self.set_status(BotStatus.STOPPED)
                                 return
             else:
                 npc_search_fail_count += 1
                 if npc_search_fail_count > 49:
                     self.log_msg(f"No NPC found {npc_search_fail_count} times in a row. Aborting...")
-                    self.teleport_home()
+                    self.logout()
                     self.set_status(BotStatus.STOPPED)
                     return
 
