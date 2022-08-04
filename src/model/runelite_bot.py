@@ -47,9 +47,6 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     cp_logout = Point(x=646, y=h2)
     cp_settings = Point(x=680, y=h2)
 
-    # --- Spellbook ---
-    spellbook_home_teleport = Point(x=575, y=258)
-
     def __get_inventory_slots() -> list:
         '''
         Returns a 2D list of the inventory slots represented as Points.
