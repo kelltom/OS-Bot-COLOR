@@ -109,6 +109,17 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         print(res)
         return None if res is None else res[0]
 
+    def logout(self):
+        '''
+        Logs player out.
+        '''
+        self.log_msg("Logging out...")
+        self.mouse.move_to(self.cp_logout)
+        pag.click()
+        time.sleep(1)
+        self.mouse.move_to(Point(645, 451))  # Logout button
+        pag.click()
+
     def is_in_combat(self) -> bool:
         '''
         Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite opponent info
