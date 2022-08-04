@@ -60,35 +60,42 @@ class InfoFrame(customtkinter.CTkFrame):
                                                          text_font=("default_theme", 12))
         self.lbl_controls_title.grid(row=0, column=1, sticky="wns")
 
-        self.btn_play = customtkinter.CTkButton(master=self,
+        # Button frame
+        self.btn_frame = customtkinter.CTkFrame(master=self,
+                                                fg_color=self.fg_color)
+        self.btn_frame.rowconfigure((1, 2, 3), weight=0)
+        self.btn_frame.rowconfigure((0, 4), weight=1)
+        self.btn_frame.grid(row=1, rowspan=3, column=1, padx=15, sticky="wns")
+
+        self.btn_play = customtkinter.CTkButton(master=self.btn_frame,
                                                 text="Play",
                                                 text_color="white",
                                                 image=self.img_play,
                                                 command=self.play_btn_clicked)
-        self.btn_play.grid(row=1, column=1, pady=10, padx=20, sticky="nsew")
+        self.btn_play.grid(row=1, column=0, pady=15, sticky="nsew")
 
-        self.btn_abort = customtkinter.CTkButton(master=self,
+        self.btn_abort = customtkinter.CTkButton(master=self.btn_frame,
                                                  text="Stop [ESC]",
                                                  text_color="white",
                                                  fg_color="#910101",
                                                  hover_color="#690101",
                                                  image=self.img_stop,
                                                  command=self.stop_btn_clicked)
-        self.btn_abort.grid(row=2, column=1, pady=10, padx=20, sticky="nsew")
+        self.btn_abort.grid(row=2, column=0, pady=0, sticky="nsew")
 
-        self.btn_options = customtkinter.CTkButton(master=self,
+        self.btn_options = customtkinter.CTkButton(master=self.btn_frame,
                                                    text="Options",
                                                    text_color="white",
                                                    fg_color="#d97b00",
                                                    hover_color="#b36602",
                                                    image=self.img_options,
                                                    command=self.options_btn_clicked)
-        self.btn_options.grid(row=3, column=1, pady=10, padx=20, sticky="nsew")
+        self.btn_options.grid(row=3, column=0, pady=15, sticky="nsew")
 
         self.lbl_status = customtkinter.CTkLabel(master=self,
                                                  text="Status: Idle",
                                                  justify=tkinter.CENTER)
-        self.lbl_status.grid(row=4, column=1, sticky="we")
+        self.lbl_status.grid(row=4, column=1, pady=(0, 15), sticky="we")
 
         self.controller = None
         self.options_class = None
