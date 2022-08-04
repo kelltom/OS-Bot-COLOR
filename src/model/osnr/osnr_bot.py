@@ -58,7 +58,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         '''
         Sets up the OSNR client.
         '''
-        self.setup_client(window_title="Near-Reality", logout_runelite=False, close_runelite_settings=True)
+        self.setup_client(window_title="Near-Reality", set_layout_fixed=True, logout_runelite=False, close_runelite_settings=True)
         self.__disable_private_chat()
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.cp_inventory)

@@ -21,9 +21,10 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
     # --- Desired client position ---
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
-    client_window = Rectangle(start=Point(0, 0), end=Point(809, 534))
+    desired_width, desired_height = (809, 534)
+    client_window = None  # client region, determined at setup
 
-    # ------- Rects of Interest -------
+    # ------- Main Client Rects -------
     rect_opponent_information = Rectangle(Point(13, 51), Point(140, 87))  # combat/skilling plugin text
     rect_game_view = Rectangle(Point(9, 31), Point(517, 362))  # gameplay area
     rect_hp = Rectangle(Point(528, 81), Point(549, 95))  # hp number on status bar
@@ -319,12 +320,78 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         cv2.imwrite(color_path, only_color)
         return color_path
 
+    def did_set_layout_fixed(self):
+        '''
+        Attempts to set the client's layout to "Fixed - Classic layout".
+        Returns:
+            True if the layout was set, False if an issue occured.
+        '''
+        self.log_msg("Setting layout to Fixed - Classic layout.")
+        time.sleep(0.3)
+        cp_settings_selected = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_selected.png",
+                                                       self.client_window,
+                                                       conf=0.95)
+        cp_settings = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings.png",
+                                              self.client_window,
+                                              conf=0.95)
+        if cp_settings_selected is None and cp_settings is None:
+            self.log_msg("Could not find settings button.")
+            return False
+        elif cp_settings is not None and cp_settings_selected is None:
+            self.mouse.move_to(cp_settings)
+            pag.click()
+        time.sleep(0.5)
+        display_tab = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_display_tab.png", self.client_window)
+        if display_tab is None:
+            self.log_msg("Could not find the display settings tab.")
+            return False
+        self.mouse.move_to(display_tab)
+        pag.click()
+        time.sleep(0.5)
+        layout_dropdown = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_dropdown.png", self.client_window)
+        if layout_dropdown is None:
+            self.log_msg("Could not find the layout dropdown.")
+            return False
+        self.mouse.move_to(layout_dropdown)
+        pag.click()
+        time.sleep(0.8)
+        self.mouse.move_rel(-77, 19, duration=0.2)
+        pag.click()
+        time.sleep(1.5)
+        return True
+
+    def logout_runelite(self):
+        '''
+        Identifies the Runelite logout button and clicks it.
+        '''
+        self.log_msg("Logging out of Runelite...")
+        rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
+        if rl_login_icon is not None:
+            self.mouse.move_to(rl_login_icon, duration=1)
+            pag.click()
+            time.sleep(0.2)
+            pag.press('enter')
+            time.sleep(1)
+
+    def close_runelite_settings_panel(self):
+        '''
+        Identifies the Runelite settings panel and closes it.
+        '''
+        self.log_msg("Closing Runelite settings panel...")
+        settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", self.client_window)
+        if settings_icon is not None:
+            self.mouse.move_to(settings_icon, 1)
+            pag.click()
+            time.sleep(1)
+
     # --- Setup Functions ---
-    def setup_client(self, window_title: str, logout_runelite: bool, close_runelite_settings: bool) -> None:
+    def setup_client(self, window_title: str, set_layout_fixed: bool, logout_runelite: bool, close_runelite_settings: bool) -> None:
+        # sourcery skip: merge-nested-ifs
         '''
         Configures a Runelite client window. This function logs messages to the script output log.
         Args:
             window_title: The title of the window to be manipulated. Must match the actual window's title.
+            set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout".
             logout_runelite: Whether to logout of Runelite during window config.
             close_runelite_settings: Whether to close the Runelite settings panel if it is open.
         '''
@@ -339,34 +406,27 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
         # Set window to large initially
         win.moveTo(0, 0)
-        temp_win = Rectangle(Point(0, 0), Point(900, 620))
-        win.size = (temp_win.end[0], temp_win.end[1])
+        self.client_window = Rectangle(Point(0, 0), Point(900, 620))
+        win.size = (self.client_window.end.x, self.client_window.end.y)
         time.sleep(1)
+
+        # Set layout to fixed
+        if set_layout_fixed:
+            if not self.did_set_layout_fixed():  # if layout setup failed
+                if pag.confirm("Could not set layout to fixed. Continue anyway?") == "Cancel":
+                    exit()
 
         # Ensure user is logged out of Runelite
         if logout_runelite:
-            self.log_msg("Logging out of Runelite...")
-            rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", temp_win, conf=0.9)
-
-            if rl_login_icon is not None:
-                self.mouse.move_to(rl_login_icon, duration=1)
-                pag.click()
-                time.sleep(0.2)
-                pag.press('enter')
-                time.sleep(1)
+            self.logout_runelite()
 
         # Ensure Runelite Settings pane is closed
         if close_runelite_settings:
-            self.log_msg("Closing Runelite settings panel...")
-            settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", temp_win)
-
-            if settings_icon is not None:
-                self.mouse.move_to(settings_icon, 1)
-                pag.click()
-                time.sleep(1)
+            self.close_runelite_settings_panel()
 
         # Move and resize to desired position
         win.moveTo(0, 0)
-        win.size = (self.client_window.end.x, self.client_window.end.y)
+        self.client_window = Rectangle(Point(0, 0), Point(self.desired_width, self.desired_height))
+        win.size = (self.desired_width, self.desired_height)
         time.sleep(1)
         self.log_msg("Client window configured.")
