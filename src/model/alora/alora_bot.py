@@ -4,6 +4,7 @@ be inherited by Alora script classes.
 '''
 from abc import ABCMeta
 from model.runelite_bot import RuneliteBot
+from model.bot import BotStatus
 import pyautogui as pag
 import time
 
@@ -82,4 +83,5 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
         self.setup_client(window_title="Alora", set_layout_fixed=False, logout_runelite=True, close_runelite_settings=True)
         if not self.did_set_layout_fixed():
             if pag.confirm("Could not set layout to Fixed - Classic layout. Continue anyway?") == "Cancel":
-                exit()
+                self.set_status(BotStatus.STOPPED)
+                return

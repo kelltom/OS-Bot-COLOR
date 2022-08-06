@@ -5,7 +5,7 @@ should be inherited by additional abstract classes representing all bots for a s
 from abc import ABCMeta
 import cv2
 from deprecated import deprecated
-from model.bot import Bot, Rectangle, Point
+from model.bot import Bot, BotStatus, Rectangle, Point
 import numpy as np
 import pyautogui as pag
 import pygetwindow
@@ -414,7 +414,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         if set_layout_fixed:
             if not self.did_set_layout_fixed():  # if layout setup failed
                 if pag.confirm("Could not set layout to fixed. Continue anyway?") == "Cancel":
-                    exit()
+                    self.set_status(BotStatus.STOPPED)
+                    return
 
         # Ensure user is logged out of Runelite
         if logout_runelite:
