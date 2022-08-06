@@ -17,7 +17,7 @@ class OSNRCombat(OSNRBot):
         self.should_bank = False
 
     def create_options(self):
-        self.options_builder.add_slider_option("kills", "How many kills?", 1, 100)
+        self.options_builder.add_slider_option("kills", "How many kills?", 1, 300)
         self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
 
     def save_options(self, options: dict):
