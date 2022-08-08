@@ -2,6 +2,7 @@ import customtkinter
 from controller.bot_controller import BotController
 from model.alora.combat import AloraCombat
 from model.osnr.combat import OSNRCombat
+from model.osnr.snape_grass import OSNRSnapeGrass
 from model.osnr.thieving_stall import OSNRThievingStall
 from model.osnr.thieving_npc import OSNRThievingNPC
 from model.osrs.example_bot import ExampleBot
@@ -136,6 +137,14 @@ class App(customtkinter.CTk):
         self.btn_map["Near-Reality"].append(self.btn_osnr_combat)
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
+
+        self.btn_osnr_snapegrass = customtkinter.CTkButton(master=self.frame_left,
+                                                           text="Snape Grass Looter",
+                                                           fg_color=self.DEFAULT_GRAY,
+                                                           command=lambda: self.__toggle_bot_by_name("OSNRSnapegrass", self.btn_osnr_snapegrass))
+        self.btn_map["Near-Reality"].append(self.btn_osnr_snapegrass)
+        self.models["OSNRSnapegrass"] = OSNRSnapeGrass()
+        self.models["OSNRSnapegrass"].set_controller(self.controller)
 
         self.btn_osnr_thieving_stall = customtkinter.CTkButton(master=self.frame_left,
                                                                text="Thieving Stalls",
