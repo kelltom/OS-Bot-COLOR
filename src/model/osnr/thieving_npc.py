@@ -20,7 +20,7 @@ class OSNRThievingNPC(OSNRBot):
         self.should_left_click = False
         self.should_click_coin_pouch = False
         self.should_drop_inv = False
-        self.skip_rows = 0
+        self.protect_rows = 0
         self.coin_pouch_path = f"{pathlib.Path(__file__).parent.parent.parent.resolve()}/images/bot/near_reality/coin_pouch.png"
 
     def create_options(self):
@@ -28,7 +28,7 @@ class OSNRThievingNPC(OSNRBot):
         self.options_builder.add_dropdown_option("should_left_click", "Left click pickpocket?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
-        self.options_builder.add_slider_option("skip_rows", "If dropping, skip rows?", 0, 6)
+        self.options_builder.add_slider_option("protect_rows", "If dropping, protect rows?", 0, 6)
 
     def save_options(self, options: dict):
         for option, res in options.items():
@@ -56,9 +56,9 @@ class OSNRThievingNPC(OSNRBot):
                 else:
                     self.should_drop_inv = False
                     self.log_msg("Dropping inventory disabled.")
-            elif option == "skip_rows":
-                self.skip_rows = options[option]
-                self.log_msg(f"Skipping {self.skip_rows} rows when dropping inventory.")
+            elif option == "protect_rows":
+                self.protect_rows = options[option]
+                self.log_msg(f"Protecting first {self.protect_rows} rows when dropping inventory.")
             else:
                 self.log_msg(f"Unknown option: {option}")
         self.options_set = True
@@ -120,7 +120,7 @@ class OSNRThievingNPC(OSNRBot):
 
             # Check if we should drop inventory
             if self.should_drop_inv and pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
-                self.drop_inventory(skip_rows=self.skip_rows)
+                self.drop_inventory(skip_rows=self.protect_rows)
 
             if not self.status_check_passed():
                 return
@@ -151,12 +151,13 @@ class OSNRThievingNPC(OSNRBot):
                             no_pouch_count += 1
                             if no_pouch_count > 5:
                                 self.log_msg("Could not find coin pouch 5 times...")
-                                self.drop_inventory(skip_rows=self.skip_rows)
+                                self.drop_inventory(skip_rows=self.protect_rows)
                                 no_pouch_count = 0
             else:
                 npc_search_fail_count += 1
-                if npc_search_fail_count > 49:
-                    self.log_msg(f"No NPC found {npc_search_fail_count} times in a row. Aborting...")
+                time.sleep(1)
+                if npc_search_fail_count > 29:
+                    self.log_msg(f"No NPC found for {npc_search_fail_count} seconds. Aborting...")
                     self.logout()
                     self.set_status(BotStatus.STOPPED)
                     return
@@ -169,4 +170,5 @@ class OSNRThievingNPC(OSNRBot):
 
         self.update_progress(1)
         self.log_msg("Finished.")
+        self.logout()
         self.set_status(BotStatus.STOPPED)
