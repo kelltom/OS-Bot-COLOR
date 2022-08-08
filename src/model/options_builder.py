@@ -146,7 +146,8 @@ class OptionsUI(customtkinter.CTkFrame):
                                                   text=value.title)
         self.labels[key].grid(row=row, column=0, sticky='nsew', padx=(10, 0), pady=20)
         self.widgets[key] = customtkinter.CTkOptionMenu(master=self,
-                                                        values=value.values)
+                                                        values=value.values,
+                                                        fg_color=("gray75", "gray22"))
         self.widgets[key].grid(row=row, column=1, sticky='ew', padx=(0, 10))
 
     def save(self, window):
