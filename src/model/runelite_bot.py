@@ -21,7 +21,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
     # --- Desired client position ---
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
-    desired_width, desired_height = (809, 534)
+    desired_width, desired_height = (773, 534)
     client_window = None  # client region, determined at setup
 
     # ------- Main Client Rects -------
@@ -373,19 +373,19 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             pag.press('enter')
             time.sleep(1)
 
-    def close_runelite_settings_panel(self):
+    def collapse_runelite_settings_panel(self):
         '''
-        Identifies the Runelite settings panel and closes it.
+        Identifies the Runelite settings panel and collapses it.
         '''
         self.log_msg("Closing Runelite settings panel...")
-        settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_selected.png", self.client_window)
+        settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
         if settings_icon is not None:
             self.mouse.move_to(settings_icon, 1)
             pag.click()
-            time.sleep(1)
+            time.sleep(1.5)
 
     # --- Setup Functions ---
-    def setup_client(self, window_title: str, set_layout_fixed: bool, logout_runelite: bool, close_runelite_settings: bool) -> None:
+    def setup_client(self, window_title: str, set_layout_fixed: bool, logout_runelite: bool, collapse_runelite_settings: bool) -> None:
         # sourcery skip: merge-nested-ifs
         '''
         Configures a Runelite client window. This function logs messages to the script output log.
@@ -393,9 +393,10 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             window_title: The title of the window to be manipulated. Must match the actual window's title.
             set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout".
             logout_runelite: Whether to logout of Runelite during window config.
-            close_runelite_settings: Whether to close the Runelite settings panel if it is open.
+            collapse_runelite_settings: Whether to close the Runelite settings panel if it is open.
         '''
         self.log_msg("Configuring client window...")
+        time.sleep(1)
         # Get reference to the client window
         try:
             win = pygetwindow.getWindowsWithTitle(window_title)[0]
@@ -422,8 +423,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             self.logout_runelite()
 
         # Ensure Runelite Settings pane is closed
-        if close_runelite_settings:
-            self.close_runelite_settings_panel()
+        if collapse_runelite_settings:
+            self.collapse_runelite_settings_panel()
 
         # Move and resize to desired position
         win.moveTo(0, 0)

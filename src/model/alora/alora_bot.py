@@ -80,7 +80,7 @@ class AloraBot(RuneliteBot, metaclass=ABCMeta):
         '''
         Sets up the Alora client.
         '''
-        self.setup_client(window_title="Alora", set_layout_fixed=False, logout_runelite=True, close_runelite_settings=True)
+        self.setup_client(window_title="Alora", set_layout_fixed=False, logout_runelite=True, collapse_runelite_settings=True)
         if not self.did_set_layout_fixed():
             if pag.confirm("Could not set layout to Fixed - Classic layout. Continue anyway?") == "Cancel":
                 self.set_status(BotStatus.STOPPED)
