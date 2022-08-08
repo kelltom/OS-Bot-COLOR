@@ -36,6 +36,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     rect_hp = Rectangle(Point(528, 81), Point(549, 95))  # hp number on status bar
     rect_prayer = Rectangle(Point(530, 117), Point(550, 130))  # prayer number on status bar
     rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
+    rect_minimap = Rectangle(Point(523, 29), Point(753, 188))  # minimap area
 
     # ------- Points of Interest -------
     # --- Orbs ---
