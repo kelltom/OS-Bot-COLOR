@@ -11,7 +11,6 @@ class OSNRCombat(OSNRBot):
         title = "Combat Bot"
         description = ("This bot attacks NPCs tagged using Runelite. Position your character in the viscinity of the tagged NPCs.")
         super().__init__(title=title, description=description)
-        # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
         self.kills = 0
         self.should_loot = False
         self.should_bank = False
