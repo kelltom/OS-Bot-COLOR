@@ -64,9 +64,9 @@ class App(customtkinter.CTk):
         # There should be a key for each game title, and the value should be a list of buttons for that game
         self.btn_map = {
             "Select a game": [],
-            "OSRS": [],
             "Alora": [],
-            "OSNR": []
+            "Near-Reality": [],  # AKA: OSNR
+            "OSRS": []
         }
 
         # Dropdown menu for selecting a game
@@ -92,7 +92,7 @@ class App(customtkinter.CTk):
         self.views["Select a game"] = self.home_view
         self.views["OSRS"] = OSRSHomeView(parent=self, main=self)
         self.views["Alora"] = AloraHomeView(parent=self, main=self)
-        self.views["OSNR"] = OSNRHomeView(parent=self, main=self)
+        self.views["Near-Reality"] = OSNRHomeView(parent=self, main=self)
 
         # Declare script view and controller [DO NOT EDIT]
         # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model in the controller
@@ -133,7 +133,7 @@ class App(customtkinter.CTk):
                                                        text="Combat",
                                                        fg_color=self.DEFAULT_GRAY,
                                                        command=lambda: self.__toggle_bot_by_name("OSNRCombat", self.btn_osnr_combat))
-        self.btn_map["OSNR"].append(self.btn_osnr_combat)
+        self.btn_map["Near-Reality"].append(self.btn_osnr_combat)
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
 
@@ -141,7 +141,7 @@ class App(customtkinter.CTk):
                                                                text="Thieving Stalls",
                                                                fg_color=self.DEFAULT_GRAY,
                                                                command=lambda: self.__toggle_bot_by_name("OSNRThievingStall", self.btn_osnr_thieving_stall))
-        self.btn_map["OSNR"].append(self.btn_osnr_thieving_stall)
+        self.btn_map["Near-Reality"].append(self.btn_osnr_thieving_stall)
         self.models["OSNRThievingStall"] = OSNRThievingStall()
         self.models["OSNRThievingStall"].set_controller(self.controller)
 
@@ -149,7 +149,7 @@ class App(customtkinter.CTk):
                                                              text="Thieving NPCs",
                                                              fg_color=self.DEFAULT_GRAY,
                                                              command=lambda: self.__toggle_bot_by_name("OSNRThievingNPC", self.btn_osnr_thieving_npc))
-        self.btn_map["OSNR"].append(self.btn_osnr_thieving_npc)
+        self.btn_map["Near-Reality"].append(self.btn_osnr_thieving_npc)
         self.models["OSNRThievingNPC"] = OSNRThievingNPC()
         self.models["OSNRThievingNPC"].set_controller(self.controller)
 
