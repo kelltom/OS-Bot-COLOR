@@ -3,6 +3,7 @@ The OSNRBot class contains properties and functions that are specific to the OSN
 be inherited by OSNR script classes.
 '''
 from abc import ABCMeta
+from enum import Enum
 from model.runelite_bot import RuneliteBot
 from model.bot import Point
 import pyautogui as pag
@@ -10,9 +11,22 @@ import time
 
 
 class OSNRBot(RuneliteBot, metaclass=ABCMeta):
+    class Spellbook(Enum):
+        '''
+        TODO: Consider moving to parent class.
+        '''
+        standard = 0
+        ancient = 1
 
-    def bank_at_home(self):
-        pass
+    # -- Teleports --
+    spellbook_standard_home = Point(574, 258)
+    spellbook_standard_tele_menu = Point(591, 307)
+
+    spellbook_ancients_home = Point(581, 251)
+    spellbook_ancients_tele_menu = Point(713, 250)
+
+    teleport_menu_search = Point(63, 49)
+    teleport_menu_search_result = Point(305, 100)
 
     def __disable_private_chat(self):
         '''
@@ -27,8 +41,76 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         self.mouse.move_to(show_none_btn, duration=0.2, variance=1)
         pag.click()
 
-    def teleport_home(self):
-        pass
+    def teleport_and_bank(self, spellbook: Spellbook) -> bool:
+        '''
+        Teleports to a predefined location and enters the bank interface.
+        Args:
+            spellbook: The spellbook to use.
+        Returns:
+            True if successful, False otherwise.
+        '''
+        self.teleport_to(spellbook, "Castle Wars")
+        time.sleep(4)
+        bank_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/minimap_bank_icon.png", self.rect_minimap, conf=0.8)
+        if bank_icon is None:
+            self.log_msg("Bank icon not found.")
+            return False
+        self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3), duration=0.5)
+        pag.click()
+        time.sleep(4)
+        banks = self.get_all_tagged_in_rect(self.rect_game_view, self.TAG_YELLOW)
+        if len(banks) == 0:
+            self.log_msg("No banks found.")
+            return False
+        self.mouse.move_to(banks[0], duration=0.5)
+        pag.click()
+        return True
+
+    def teleport_home(self, spellbook: Spellbook):
+        '''
+        Teleports to the home location.
+        '''
+        self.log_msg("Teleporting to home...")
+        self.mouse.move_to(self.cp_spellbook, duration=0.5, variance=2)
+        pag.click()
+        time.sleep(0.5)
+        if spellbook == self.Spellbook.standard:
+            self.mouse.move_to(self.spellbook_standard_home, duration=0.5, variance=1)
+        elif spellbook == self.Spellbook.ancient:
+            self.mouse.move_to(self.spellbook_ancients_home, duration=0.5, variance=1)
+        pag.click()
+
+    def teleport_to(self, spellbook: Spellbook, location: str) -> bool:
+        '''
+        Teleports player to a location from the teleport menu interface.
+        Args:
+            location: The location name to lookup in the teleport interface.
+        Returns:
+            True if successful, False otherwise.
+        '''
+        self.log_msg(f"Teleporting to {location}...")
+        self.mouse.move_to(self.cp_spellbook, duration=0.5, variance=2)
+        pag.click()
+        time.sleep(0.5)
+        if spellbook == self.Spellbook.standard:
+            self.mouse.move_to(self.spellbook_standard_tele_menu, duration=0.5, variance=1)
+        elif spellbook == self.Spellbook.ancient:
+            self.mouse.move_to(self.spellbook_ancients_tele_menu, duration=0.5, variance=1)
+        pag.click()
+        time.sleep(1)
+        self.mouse.move_to(self.teleport_menu_search, duration=0.5, variance=1)
+        pag.click()
+        time.sleep(0.5)
+        no_result_rgb = pag.pixel(self.teleport_menu_search_result.x, self.teleport_menu_search_result.y)
+        pag.typewrite(location, interval=0.05)
+        time.sleep(0.5)
+        if no_result_rgb == pag.pixel(self.teleport_menu_search_result.x, self.teleport_menu_search_result.y):
+            self.log_msg(f"No results found for {location}.")
+            return False
+        self.mouse.move_to(self.teleport_menu_search_result, duration=0.5, variance=1)
+        pag.click()
+        self.log_msg("Teleport successful.")
+        return True
 
     def toggle_auto_retaliate(self, toggle_on: bool):
         '''
