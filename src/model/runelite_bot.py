@@ -19,9 +19,9 @@ import time
 class RuneliteBot(Bot, metaclass=ABCMeta):
 
     # --- Notable Colour Ranges (HSV lower, HSV upper, threshold) ---
-    TAG_BLUE = ((90, 100, 255), (100, 255, 255), 128)
-    TAG_PURPLE = ((130, 100, 100), (150, 255, 255), 35)
-    TAG_YELLOW = ((20, 100, 100), (34, 255, 255), 200)
+    TAG_BLUE = ((90, 100, 255), (100, 255, 255), 128)       # hex: FF00FFFF
+    TAG_PURPLE = ((130, 100, 100), (150, 255, 255), 35)     # hex: FFAA00FF
+    TAG_PINK = ((145, 100, 200), (155, 255, 255), 20)       # hex: FFFF00E7
     HP_GREEN = ((40, 100, 255), (70, 255, 255), 128)
     HP_RED = ((0, 255, 255), (20, 255, 255), 128)
 
