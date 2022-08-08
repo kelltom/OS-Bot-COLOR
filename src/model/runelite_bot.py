@@ -1,6 +1,10 @@
 '''
 The RuneliteBot class contains properties and functions that are common across all Runelite-based clients. This class
 should be inherited by additional abstract classes representing all bots for a specific game (E.g., Alora, OSRS, etc.).
+
+To determine Thresholds for finding contours: https://pinetools.com/threshold-image
+For converting RGB to HSV:
+    https://stackoverflow.com/questions/10948589/choosing-the-correct-upper-and-lower-hsv-boundaries-for-color-detection-withcv/48367205#48367205
 '''
 from abc import ABCMeta
 import cv2
@@ -14,11 +18,11 @@ import time
 
 class RuneliteBot(Bot, metaclass=ABCMeta):
 
-    # --- Notable Colour Ranges (HSV lower, upper) ---
-    TAG_BLUE = ((90, 100, 255), (100, 255, 255))
-    TAG_PURPLE = ((140, 100, 255), (160, 255, 255))
-    HP_GREEN = ((40, 100, 255), (70, 255, 255))
-    HP_RED = ((0, 255, 255), (20, 255, 255))
+    # --- Notable Colour Ranges (HSV lower, HSV upper, threshold) ---
+    TAG_BLUE = ((90, 100, 255), (100, 255, 255), 128)
+    LOOT_PURPLE = ((130, 100, 100), (150, 255, 255), 35)
+    HP_GREEN = ((40, 100, 255), (70, 255, 255), 128)
+    HP_RED = ((0, 255, 255), (20, 255, 255), 128)
 
     # --- Desired client position ---
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
@@ -192,13 +196,13 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Finds all contours on screen of a particular color and returns a list of center Points for each.
         Args:
             rect: The rectangle to search in.
-            color: The color to search for.
+            color: The color to search for. Must be a tuple of (HSV upper, HSV lower, threshold) values.
         Returns:
             A list of center Points.
         '''
         path_game_view = self.capture_screen(rect)
         path_tagged = self.__isolate_color(path=path_game_view, color=color, filename="get_all_tagged_in_rect")
-        contours = self.__get_contours(path_tagged)
+        contours = self.__get_contours(path_tagged, color[2])
         centers = []
         for cnt in contours:
             try:
@@ -209,17 +213,18 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             centers.append(Point(center.x + rect.start.x, center.y + rect.start.y))
         return centers
 
-    def __get_contours(self, path: str) -> list:
+    def __get_contours(self, path: str, thresh: int) -> list:
         '''
         Gets the contours of an image.
         Args:
             path: The path to the image.
+            thresh: The threshold to use for the image.
         Returns:
             A list of contours.
         '''
         img = cv2.imread(path)
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        _, thresh = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY)
+        _, thresh = cv2.threshold(img_gray, thresh, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         return contours
 
