@@ -15,9 +15,10 @@ import time
 class RuneliteBot(Bot, metaclass=ABCMeta):
 
     # --- Notable Colour Ranges (HSV lower, upper) ---
-    NPC_BLUE = ((90, 100, 255), (100, 255, 255))
-    NPC_HP_GREEN = ((40, 100, 255), (70, 255, 255))
-    NPC_HP_RED = ((0, 255, 255), (20, 255, 255))
+    TAG_BLUE = ((90, 100, 255), (100, 255, 255))
+    TAG_PURPLE = ((140, 100, 255), (160, 255, 255))
+    HP_GREEN = ((40, 100, 255), (70, 255, 255))
+    HP_RED = ((0, 255, 255), (20, 255, 255))
 
     # --- Desired client position ---
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
@@ -284,14 +285,14 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         # Convert to HSV
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         # Threshold the HSV image to get only blue color
-        mask1 = cv2.inRange(hsv, self.NPC_BLUE[0], self.NPC_BLUE[1])
+        mask1 = cv2.inRange(hsv, self.TAG_BLUE[0], self.TAG_BLUE[1])
         only_blue = cv2.bitwise_and(img, img, mask=mask1)
         blue_path = f"{self.TEMP_IMAGES}/only_blue.png"
         cv2.imwrite(blue_path, only_blue)
 
         # Threshold the original image for green and red
-        mask2 = cv2.inRange(hsv, self.NPC_HP_GREEN[0], self.NPC_HP_GREEN[1])
-        mask3 = cv2.inRange(hsv, self.NPC_HP_RED[0], self.NPC_HP_RED[1])
+        mask2 = cv2.inRange(hsv, self.HP_GREEN[0], self.HP_GREEN[1])
+        mask3 = cv2.inRange(hsv, self.HP_RED[0], self.HP_RED[1])
         mask = cv2.bitwise_or(mask2, mask3)
         only_color = cv2.bitwise_and(img, img, mask=mask)
         # Save the image and return path

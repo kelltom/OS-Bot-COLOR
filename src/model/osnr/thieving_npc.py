@@ -98,7 +98,7 @@ class OSNRThievingNPC(OSNRBot):
             while pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y) != hp_threshold_rgb:
                 if not self.status_check_passed():
                     return
-                foods = self.get_all_tagged_in_rect(rect=self.rect_inventory, color=self.NPC_BLUE)
+                foods = self.get_all_tagged_in_rect(rect=self.rect_inventory, color=self.TAG_BLUE)
                 if len(foods) > 0:
                     self.log_msg("Eating...")
                     self.mouse.move_to(foods[0])
