@@ -58,7 +58,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3), duration=0.5)
         pag.click()
         time.sleep(4)
-        banks = self.get_all_tagged_in_rect(self.rect_game_view, self.TAG_YELLOW)
+        banks = self.get_all_tagged_in_rect(self.rect_game_view, self.TAG_PINK)
         if len(banks) == 0:
             self.log_msg("No banks found.")
             return False
