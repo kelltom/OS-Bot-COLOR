@@ -136,13 +136,18 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         else:
             print("Auto retaliate is already off.")
 
-    def setup_osnr(self):
+    def setup_osnr(self, set_layout_fixed=True, logout_runelite=False, collapse_runelite_settings=True, zoom_percentage=25):
         '''
         Sets up the OSNR client.
         '''
-        self.setup_client(window_title="Near-Reality", set_layout_fixed=True, logout_runelite=False, collapse_runelite_settings=True)
-        self.__disable_private_chat()
+        self.setup_client(window_title="Near-Reality",
+                          set_layout_fixed=set_layout_fixed,
+                          logout_runelite=logout_runelite,
+                          collapse_runelite_settings=collapse_runelite_settings)
+        self.set_camera_zoom(zoom_percentage)
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.cp_inventory)
         self.mouse.click()
+        time.sleep(0.5)
+        self.__disable_private_chat()
         time.sleep(0.5)

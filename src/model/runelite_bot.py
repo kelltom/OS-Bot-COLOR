@@ -132,7 +132,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         '''
         result = self.get_text_in_rect(self.rect_opponent_information)
         return result.strip() != ""
-
+    
     # --- NPC Detection ---
     def attack_first_tagged(self, game_view: Rectangle) -> bool:
         '''
@@ -174,7 +174,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         # Isolate colors in image
         path_npcs, path_hp_bars = self.__isolate_tags_at(path_game_view)
         # Locate potential NPCs in image by determining contours
-        contours = self.__get_contours(path_npcs)
+        contours = self.__get_contours(path_npcs, self.TAG_BLUE[2])
         # Get center pixels of non-combatting NPCs
         centers = []
         img_bgr = cv2.imread(path_hp_bars)
@@ -328,14 +328,12 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         cv2.imwrite(color_path, only_color)
         return color_path
 
-    def did_set_layout_fixed(self):
+    def __open_display_settings(self) -> bool:
         '''
-        Attempts to set the client's layout to "Fixed - Classic layout".
+        Opens the display settings for the game client.
         Returns:
-            True if the layout was set, False if an issue occured.
+            True if the settings were opened, False if an error occured.
         '''
-        self.log_msg("Setting layout to Fixed - Classic layout.")
-        time.sleep(0.3)
         cp_settings_selected = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_selected.png",
                                                        self.client_window,
                                                        conf=0.95)
@@ -356,6 +354,31 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         self.mouse.move_to(display_tab)
         pag.click()
         time.sleep(0.5)
+        return True
+
+    # --- Client Settings ---
+    def collapse_runelite_settings_panel(self):
+        '''
+        Identifies the Runelite settings panel and collapses it.
+        '''
+        self.log_msg("Closing Runelite settings panel...")
+        settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
+        if settings_icon is not None:
+            self.mouse.move_to(settings_icon, 1)
+            pag.click()
+            time.sleep(1.5)
+
+    def did_set_layout_fixed(self) -> bool:
+        '''
+        Attempts to set the client's layout to "Fixed - Classic layout".
+        Returns:
+            True if the layout was set, False if an issue occured.
+        '''
+        self.log_msg("Setting layout to Fixed - Classic layout.")
+        time.sleep(0.3)
+        if not self.__open_display_settings():
+            return False
+        time.sleep(0.3)
         layout_dropdown = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_dropdown.png", self.client_window)
         if layout_dropdown is None:
             self.log_msg("Could not find the layout dropdown.")
@@ -381,16 +404,29 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             pag.press('enter')
             time.sleep(1)
 
-    def collapse_runelite_settings_panel(self):
+    def set_camera_zoom(self, percentage: int) -> bool:
         '''
-        Identifies the Runelite settings panel and collapses it.
+        Sets the camera zoom level.
+        Args:
+            percentage: The percentage of the camera zoom level to set.
+        Returns:
+            True if the zoom level was set, False if an issue occured.
         '''
-        self.log_msg("Closing Runelite settings panel...")
-        settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
-        if settings_icon is not None:
-            self.mouse.move_to(settings_icon, 1)
-            pag.click()
-            time.sleep(1.5)
+        if percentage < 1:
+            percentage = 1
+        elif percentage > 100:
+            percentage = 100
+        self.log_msg(f"Setting camera zoom to {percentage}%...")
+        time.sleep(0.3)
+        if not self.__open_display_settings():
+            return False
+        time.sleep(0.3)
+        zoom_start = 611
+        zoom_end = 708
+        x = int((percentage / 100) * (zoom_end - zoom_start) + zoom_start)
+        self.mouse.move_to(Point(x, 345), duration=0.2)
+        pag.click()
+        return True
 
     # --- Setup Functions ---
     def setup_client(self, window_title: str, set_layout_fixed: bool, logout_runelite: bool, collapse_runelite_settings: bool) -> None:
