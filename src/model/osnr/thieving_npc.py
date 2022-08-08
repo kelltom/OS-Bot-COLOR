@@ -150,10 +150,9 @@ class OSNRThievingNPC(OSNRBot):
                             self.log_msg("Could not find coin pouch.")
                             no_pouch_count += 1
                             if no_pouch_count > 5:
-                                self.log_msg("Could not find coin pouch 5 times. Aborting...")
-                                self.logout()
-                                self.set_status(BotStatus.STOPPED)
-                                return
+                                self.log_msg("Could not find coin pouch 5 times...")
+                                self.drop_inventory(skip_rows=self.skip_rows)
+                                no_pouch_count = 0
             else:
                 npc_search_fail_count += 1
                 if npc_search_fail_count > 49:
