@@ -30,9 +30,10 @@ class OSNRSnapeGrass(OSNRBot):
             elif option == "spellbook":
                 if options[option] == "Standard":
                     self.spellbook = self.Spellbook.standard
+                    self.log_msg("Spellbook: Standard.")
                 elif options[option] == "Ancients":
                     self.spellbook = self.Spellbook.ancient
-                self.log_msg(f"Spellbook: {self.spellbook}.")
+                    self.log_msg("Spellbook: Ancients.")
             else:
                 self.log_msg(f"Unknown option: {option}")
                 self.options_set = False
@@ -43,13 +44,9 @@ class OSNRSnapeGrass(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
-        self.setup_osnr()
+        self.setup_osnr(zoom_percentage=40)
 
-        # Config camera
-        self.log_msg("Setting compass...")
-        self.mouse.move_to(self.orb_compass)
-        self.mouse.click()
-        time.sleep(0.3)
+        self.toggle_auto_retaliate(False)
 
         # Anchors/counters
         last_inventory_pos = self.inventory_slots[6][3]  # TODO: or [-1][-1]?
@@ -72,12 +69,18 @@ class OSNRSnapeGrass(OSNRBot):
             self.mouse.click()
             time.sleep(0.3)
 
+            if not self.status_check_passed():
+                return
+
             # Bank and empty inventory
+            self.teleport_home(self.spellbook)
+            self.log_msg("Waiting 10 seconds to exit combat...")
+            time.sleep(10)
             self.log_msg("Depositing inventory...")
-            self.teleport_and_bank()
+            if not self.teleport_and_bank(spellbook=self.spellbook):
+                self.set_status(BotStatus.STOPPED)
+                return
             time.sleep(2)
-            self.mouse.move_to(self.cp_inventory)
-            pag.click()
             empty = self.search_img_in_rect(f"{self.BOT_IMAGES}/bank_deposit_all.png", self.rect_game_view)
             if empty is None:
                 self.log_msg("Failed to deposit inventory.")
@@ -90,28 +93,39 @@ class OSNRSnapeGrass(OSNRBot):
             pag.click()
             time.sleep(0.5)
 
+            if not self.status_check_passed():
+                return
+
             # Travel to waterbirth island
             self.log_msg("Traveling to waterbirth island...")
-            self.teleport_to(self.spellbook, "Waterbirth Island")
+            if not self.teleport_to(self.spellbook, "Waterbirth Island"):
+                self.set_status(BotStatus.STOPPED)
+                return
             time.sleep(4)
-            self.mouse.move_to(self.cp_inventory)
-            pag.click()
 
-            # Travel to the spot where the snape grass is
-            self.mouse.move_to(Point(640, 40))
-            pag.click()
-            time.sleep(5)
-            self.mouse.move_to(Point(707, 82))
-            pag.click()
-            time.sleep(10)
-            self.mouse.move_to(Point(682, 152))
-            time.sleep(5)
+            if not self.status_check_passed():
+                return
 
             # Move camera up
             self.log_msg("Moving camera up...")
             pag.keyDown("up")
             time.sleep(2)
             pag.keyUp("up")
+
+            # Traveling to good spot
+            self.log_msg("Traveling to good spot...")
+            self.mouse.move_to(Point(700, 63))
+            pag.click()
+            time.sleep(22)
+            self.mouse.move_to(Point(712, 112))
+            pag.click()
+            time.sleep(5)
+
+            self.mouse.move_to(self.cp_inventory)
+            pag.click()
+
+            if not self.status_check_passed():
+                return
 
             # Update progress
             self.update_progress((time.time() - start_time) / end_time)
@@ -120,6 +134,8 @@ class OSNRSnapeGrass(OSNRBot):
             i = 0
             timeout = 0
             while pag.pixel(last_inventory_pos.x, last_inventory_pos.y) == last_inventory_rgb:
+                if not self.status_check_passed():
+                    return
                 points = self.get_all_tagged_in_rect(rect=self.rect_game_view, color=self.TAG_PURPLE)
                 if len(points) == 0:
                     self.log_msg("No snape grass found.")
@@ -131,21 +147,33 @@ class OSNRSnapeGrass(OSNRBot):
                         self.set_status(BotStatus.STOPPED)
                         return
                     continue
+                point = self.get_nearest_point(Point((self.rect_game_view.end.x + self.rect_game_view.start.x) / 2,
+                                                     (self.rect_game_view.end.y + self.rect_game_view.start.y) / 2),
+                                               points)
                 empty_slot_rgb = pag.pixel(inventory[i].x, inventory[i].y)
-                self.mouse.move_to(points[0])
+                self.mouse.move_to(point)
                 pag.click()
+
+                if not self.status_check_passed():
+                    return
+
                 did_pickup = True
                 while pag.pixel(inventory[i].x, inventory[i].y) == empty_slot_rgb:
-                    time.sleep(2)
-                    timeout += 2
-                    if timeout > 15:
+                    if not self.status_check_passed():
+                        return
+                    time.sleep(1)
+                    timeout += 1
+                    if timeout > 12:
                         self.log_msg("Misclicked snape grass. Trying again...")
                         did_pickup = False
+                        timeout = 0
                         break
                 if did_pickup:
                     total += 1
                     i += 1
+                    timeout = 0
                     self.log_msg(f"Picked up snape grass. Total: {total}")
+                    time.sleep(0.5)
 
             # Update progress
             self.update_progress((time.time() - start_time) / end_time)

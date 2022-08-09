@@ -190,7 +190,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             print("No tagged NPCs found.")
             return None
         dims = img_bgr.shape  # (height, width, channels)
-        nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
+        nearest = self.get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
         return Point(nearest.x + game_view.start.x, nearest.y + game_view.start.y)
 
     def get_all_tagged_in_rect(self, rect: Rectangle, color: tuple) -> list:
@@ -244,7 +244,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         top_x, top_y = contour[contour[..., 1].argmin()][0]
         return Point(center_x, center_y), Point(top_x, top_y)
 
-    def __get_nearest_point(self, point: Point, points: list) -> Point:
+    def get_nearest_point(self, point: Point, points: list) -> Point:
         '''
         Returns the nearest point in a list of (x, y) coordinates.
         Args:
