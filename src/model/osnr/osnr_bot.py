@@ -19,7 +19,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         ancient = 1
 
     # -- Teleports --
-    spellbook_standard_home = Point(574, 258)
+    spellbook_standard_home = Point(578, 258)
     spellbook_standard_tele_menu = Point(591, 307)
 
     spellbook_ancients_home = Point(581, 251)
@@ -147,7 +147,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         Args:
             toggle_on: Whether to turn on or off.
         '''
-        self.log_msg("Enabling auto retaliate...")
+        self.log_msg("Toggling auto retaliate...")
         # click the combat tab
         self.mouse.move_to(self.cp_combat, duration=1, variance=3)
         pag.click()

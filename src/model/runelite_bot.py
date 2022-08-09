@@ -132,7 +132,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         '''
         result = self.get_text_in_rect(self.rect_opponent_information)
         return result.strip() != ""
-    
+
     # --- NPC Detection ---
     def attack_first_tagged(self, game_view: Rectangle) -> bool:
         '''
