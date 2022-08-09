@@ -49,15 +49,32 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         Returns:
             True if successful, False otherwise.
         '''
-        self.teleport_to(spellbook, "Castle Wars")
+        if not self.teleport_to(spellbook, "Castle Wars"):
+            return False
+
+        if not self.status_check_passed():
+            return
+
         time.sleep(4)
+
+        if not self.status_check_passed():
+            return
+
         bank_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/minimap_bank_icon.png", self.rect_minimap, conf=0.8)
         if bank_icon is None:
             self.log_msg("Bank icon not found.")
             return False
         self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3), duration=0.5)
         pag.click()
+
+        if not self.status_check_passed():
+            return
+
         time.sleep(4)
+
+        if not self.status_check_passed():
+            return
+
         banks = self.get_all_tagged_in_rect(self.rect_game_view, self.TAG_PINK)
         if len(banks) == 0:
             self.log_msg("No banks found.")
@@ -92,18 +109,30 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         self.mouse.move_to(self.cp_spellbook, duration=0.5, variance=2)
         pag.click()
         time.sleep(0.5)
+
+        if not self.status_check_passed():
+            return
+
         if spellbook == self.Spellbook.standard:
-            self.mouse.move_to(self.spellbook_standard_tele_menu, duration=0.5, variance=1)
+            self.mouse.move_to(self.spellbook_standard_tele_menu, duration=0.5)
         elif spellbook == self.Spellbook.ancient:
-            self.mouse.move_to(self.spellbook_ancients_tele_menu, duration=0.5, variance=1)
+            self.mouse.move_to(self.spellbook_ancients_tele_menu, duration=0.5)
+        pag.click()
+        time.sleep(1.5)
+
+        if not self.status_check_passed():
+            return
+
+        self.mouse.move_to(self.teleport_menu_search, duration=0.5)
         pag.click()
         time.sleep(1)
-        self.mouse.move_to(self.teleport_menu_search, duration=0.5, variance=1)
-        pag.click()
-        time.sleep(0.5)
         no_result_rgb = pag.pixel(self.teleport_menu_search_result.x, self.teleport_menu_search_result.y)
         pag.typewrite(location, interval=0.05)
-        time.sleep(0.5)
+
+        if not self.status_check_passed():
+            return
+
+        time.sleep(1.5)
         if no_result_rgb == pag.pixel(self.teleport_menu_search_result.x, self.teleport_menu_search_result.y):
             self.log_msg(f"No results found for {location}.")
             return False
