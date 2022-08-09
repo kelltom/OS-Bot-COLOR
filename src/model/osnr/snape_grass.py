@@ -44,7 +44,7 @@ class OSNRSnapeGrass(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
-        self.setup_osnr(zoom_percentage=40)
+        self.setup_osnr(zoom_percentage=30)
 
         self.toggle_auto_retaliate(False)
 
@@ -72,7 +72,7 @@ class OSNRSnapeGrass(OSNRBot):
             if not self.status_check_passed():
                 return
 
-            # Bank and empty inventory
+            # # Bank and empty inventory
             self.teleport_home(self.spellbook)
             self.log_msg("Waiting 10 seconds to exit combat...")
             time.sleep(10)
@@ -106,12 +106,6 @@ class OSNRSnapeGrass(OSNRBot):
             if not self.status_check_passed():
                 return
 
-            # Move camera up
-            self.log_msg("Moving camera up...")
-            pag.keyDown("up")
-            time.sleep(2)
-            pag.keyUp("up")
-
             # Traveling to good spot
             self.log_msg("Traveling to good spot...")
             self.mouse.move_to(Point(700, 63))
@@ -123,6 +117,15 @@ class OSNRSnapeGrass(OSNRBot):
 
             self.mouse.move_to(self.cp_inventory)
             pag.click()
+
+            # Configure camera
+            self.log_msg("Configuring camera...")
+            pag.keyDown("up")
+            time.sleep(2)
+            pag.keyUp("up")
+            pag.keyDown("left")
+            time.sleep(0.5)
+            pag.keyUp("left")
 
             if not self.status_check_passed():
                 return
@@ -163,17 +166,16 @@ class OSNRSnapeGrass(OSNRBot):
                         return
                     time.sleep(1)
                     timeout += 1
-                    if timeout > 12:
+                    if timeout > 15:
                         self.log_msg("Misclicked snape grass. Trying again...")
                         did_pickup = False
-                        timeout = 0
                         break
                 if did_pickup:
                     total += 1
                     i += 1
-                    timeout = 0
                     self.log_msg(f"Picked up snape grass. Total: {total}")
                     time.sleep(0.5)
+                timeout = 0
 
             # Update progress
             self.update_progress((time.time() - start_time) / end_time)
