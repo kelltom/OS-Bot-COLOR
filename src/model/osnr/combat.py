@@ -65,8 +65,11 @@ class OSNRCombat(OSNRBot):
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                if self.attack_first_tagged(self.rect_game_view):
+                npc = self.get_nearest_tagged_NPC(self.rect_game_view)
+                if npc is not None:
                     self.log_msg("Attempting to attack NPC...")
+                    self.mouse.move_to(npc, 0.2)
+                    self.mouse.click()
                     time.sleep(3)
                     timeout -= 3
                 else:
