@@ -28,6 +28,11 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
     teleport_menu_search = Point(63, 49)
     teleport_menu_search_result = Point(305, 100)
 
+    # -- Bank Points --
+    presets_btn = Point(458, 50)
+    presets_load_btn = Point(76, 315)
+    presets_close_btn = Point(490, 65)
+
     def __disable_private_chat(self):
         '''
         Disables private chat in game.
@@ -164,6 +169,21 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
             print("Auto retaliate is already on.")
         else:
             print("Auto retaliate is already off.")
+
+    def load_preset(self):
+        '''
+        Loads the default preset from the bank interface.
+        '''
+        self.log_msg("Loading preset...")
+        self.mouse.move_to(self.presets_btn, duration=0.2, variance=2)
+        pag.click()
+        time.sleep(1)
+        self.mouse.move_to(self.presets_load_btn, duration=0.2, variance=1)
+        pag.click()
+        time.sleep(1)
+        self.mouse.move_to(self.presets_close_btn, duration=0.2, variance=1)
+        pag.click()
+        time.sleep(1)
 
     def setup_osnr(self, set_layout_fixed=True, logout_runelite=False, collapse_runelite_settings=True, zoom_percentage=25):
         '''

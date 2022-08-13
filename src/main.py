@@ -1,7 +1,9 @@
 import customtkinter
 from controller.bot_controller import BotController
 from model.alora.combat import AloraCombat
+from model.osnr.runecraft_astral import OSNRAstralRunes
 from model.osnr.combat import OSNRCombat
+from model.osnr.fishing import OSNRFishing
 from model.osnr.snape_grass import OSNRSnapeGrass
 from model.osnr.thieving_stall import OSNRThievingStall
 from model.osnr.thieving_npc import OSNRThievingNPC
@@ -52,9 +54,9 @@ class App(customtkinter.CTk):
 
         # configure grid layout (11x1)
         self.frame_left.grid_rowconfigure(0, minsize=10)   # empty row with minsize as spacing (top padding above title)
-        self.frame_left.grid_rowconfigure(7, weight=1)  # empty row as spacing (resizable spacing between buttons and switches)
-        self.frame_left.grid_rowconfigure(8, minsize=20)    # empty row with minsize as spacing (adds a top padding to switch section)
-        self.frame_left.grid_rowconfigure(11, minsize=10)  # empty row with minsize as spacing (bottom padding below switches)
+        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and switches)
+        self.frame_left.grid_rowconfigure(19, minsize=20)    # empty row with minsize as spacing (adds a top padding to switch section)
+        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below switches)
 
         self.label_1 = customtkinter.CTkLabel(master=self.frame_left,
                                               text="Scripts",
@@ -80,7 +82,7 @@ class App(customtkinter.CTk):
         self.switch = customtkinter.CTkSwitch(master=self.frame_left,
                                               text="Dark Mode",
                                               command=self.change_mode)
-        self.switch.grid(row=10, column=0, pady=10, padx=20, sticky="w")
+        self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
         self.switch.select()
 
         # ============ View/Controller Configuration ============
@@ -137,6 +139,14 @@ class App(customtkinter.CTk):
         self.btn_map["Near-Reality"].append(self.btn_osnr_combat)
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
+
+        self.btn_osnr_rc_astral = customtkinter.CTkButton(master=self.frame_left,
+                                                          text="RC: Astral Runes",
+                                                          fg_color=self.DEFAULT_GRAY,
+                                                          command=lambda: self.__toggle_bot_by_name("RCAstral", self.btn_osnr_rc_astral))
+        self.btn_map["Near-Reality"].append(self.btn_osnr_rc_astral)
+        self.models["RCAstral"] = OSNRAstralRunes()
+        self.models["RCAstral"].set_controller(self.controller)
 
         self.btn_osnr_snapegrass = customtkinter.CTkButton(master=self.frame_left,
                                                            text="Snape Grass Looter",
