@@ -140,6 +140,14 @@ class App(customtkinter.CTk):
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
 
+        self.btn_osnr_fishing = customtkinter.CTkButton(master=self.frame_left,
+                                                        text="Fishing: Fly",
+                                                        fg_color=self.DEFAULT_GRAY,
+                                                        command=lambda: self.__toggle_bot_by_name("OSNRFishing", self.btn_osnr_fishing))
+        self.btn_map["Near-Reality"].append(self.btn_osnr_fishing)
+        self.models["OSNRFishing"] = OSNRFishing()
+        self.models["OSNRFishing"].set_controller(self.controller)
+
         self.btn_osnr_rc_astral = customtkinter.CTkButton(master=self.frame_left,
                                                           text="RC: Astral Runes",
                                                           fg_color=self.DEFAULT_GRAY,

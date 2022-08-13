@@ -133,7 +133,7 @@ class OSNRThievingNPC(OSNRBot):
             if not self.status_check_passed():
                 return
 
-            # Thieve from NPC
+            # Steal from NPC
             npc_pos = self.get_nearest_tagged_NPC(game_view=self.rect_game_view)
             if npc_pos is not None:
                 self.mouse.move_to(npc_pos, duration=0.2)
