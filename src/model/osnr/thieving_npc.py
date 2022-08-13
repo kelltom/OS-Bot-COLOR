@@ -16,7 +16,7 @@ class OSNRThievingNPC(OSNRBot):
                        "coins in first slot, and empty last inventory slot. Turn on Entity Hider > Hide NPCs 2D.")
         super().__init__(title=title, description=description)
         self.running_time = 0
-        self.should_eat = False
+        self.logout_on_friends = False
         self.should_left_click = False
         self.should_click_coin_pouch = False
         self.should_drop_inv = False
@@ -25,6 +25,7 @@ class OSNRThievingNPC(OSNRBot):
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
+        self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_left_click", "Left click pickpocket?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
@@ -35,6 +36,13 @@ class OSNRThievingNPC(OSNRBot):
             if option == "running_time":
                 self.running_time = options[option]
                 self.log_msg(f"Running time: {self.running_time} minutes.")
+            elif option == "logout_on_friends":
+                if res == "Yes":
+                    self.logout_on_friends = True
+                    self.log_msg("Bot will logout when friends are nearby.")
+                else:
+                    self.logout_on_friends = False
+                    self.log_msg("Bot will not logout when friends are nearby.")
             elif option == "should_left_click":
                 if res == "Yes":
                     self.should_left_click = True
@@ -131,28 +139,12 @@ class OSNRThievingNPC(OSNRBot):
                 self.mouse.move_to(npc_pos, duration=0.2)
                 if not self.should_left_click:
                     pag.rightClick()
-                    time.sleep(0.3)
+                    time.sleep(0.15)
                     self.mouse.move_rel(x=0, y=41, duration=0.2)
                 pag.click()
                 time.sleep(0.3)
                 npc_search_fail_count = 0
-                if self.should_click_coin_pouch:
-                    theft_count += 1
-                    if theft_count % 10 == 0:
-                        self.log_msg("Clicking coin pouch...")
-                        pouch = self.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
-                        if pouch:
-                            self.mouse.move_to(pouch)
-                            time.sleep(0.5)
-                            pag.click()
-                            no_pouch_count = 0
-                        else:
-                            self.log_msg("Could not find coin pouch.")
-                            no_pouch_count += 1
-                            if no_pouch_count > 5:
-                                self.log_msg("Could not find coin pouch 5 times...")
-                                self.drop_inventory(skip_rows=self.protect_rows)
-                                no_pouch_count = 0
+                theft_count += 1
             else:
                 npc_search_fail_count += 1
                 time.sleep(1)
@@ -161,6 +153,29 @@ class OSNRThievingNPC(OSNRBot):
                     self.logout()
                     self.set_status(BotStatus.STOPPED)
                     return
+
+            # Click coin pouch
+            if self.should_click_coin_pouch and theft_count % 10 == 0:
+                self.log_msg("Clicking coin pouch...")
+                pouch = self.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
+                if pouch:
+                    self.mouse.move_to(pouch)
+                    time.sleep(0.5)
+                    pag.click()
+                    no_pouch_count = 0
+                else:
+                    no_pouch_count += 1
+                    if no_pouch_count > 5:
+                        self.log_msg("Could not find coin pouch...")
+                        self.drop_inventory(skip_rows=self.protect_rows)
+                        no_pouch_count = 0
+
+            # Check for mods
+            if self.logout_on_friends and self.friends_nearby():
+                self.log_msg("Friends detected nearby...")
+                self.logout()
+                self.set_status(BotStatus.STOPPED)
+                return
 
             if not self.status_check_passed():
                 return

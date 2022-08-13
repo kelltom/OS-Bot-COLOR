@@ -22,8 +22,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     TAG_BLUE = ((90, 100, 255), (100, 255, 255), 128)       # hex: FF00FFFF
     TAG_PURPLE = ((130, 100, 100), (150, 255, 255), 35)     # hex: FFAA00FF
     TAG_PINK = ((145, 100, 200), (155, 255, 255), 20)       # hex: FFFF00E7
-    HP_GREEN = ((40, 100, 255), (70, 255, 255), 128)
-    HP_RED = ((0, 255, 255), (20, 255, 255), 128)
+    TAG_GREEN = ((40, 100, 255), (70, 255, 255), 128)
+    TAG_RED = ((0, 255, 255), (20, 255, 255), 128)
 
     # --- Desired client position ---
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
@@ -36,7 +36,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     rect_hp = Rectangle(Point(528, 81), Point(549, 95))  # hp number on status bar
     rect_prayer = Rectangle(Point(530, 117), Point(550, 130))  # prayer number on status bar
     rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
-    rect_minimap = Rectangle(Point(523, 29), Point(753, 188))  # minimap area
+    rect_minimap = Rectangle(Point(577, 39), Point(715, 188))  # minimap area
 
     # ------- Points of Interest -------
     # --- Orbs ---
@@ -93,6 +93,24 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
                 time.sleep(0.05)
                 pag.click()
         pag.keyUp("shift")
+
+    def friends_nearby(self) -> bool:
+        '''
+        Checks the minimap for green dots to indicate friends nearby.
+        Returns:
+            True if friends are nearby, False otherwise.
+        '''
+        # screenshot minimap
+        minimap = self.capture_screen(self.rect_minimap)
+        # load it as a cv2 image
+        minimap = cv2.imread(minimap)
+        # change to hsv
+        hsv = cv2.cvtColor(minimap, cv2.COLOR_BGR2HSV)
+        # Threshold the HSV image to get only friend color
+        mask1 = cv2.inRange(hsv, self.TAG_GREEN[0], self.TAG_GREEN[1])
+        only_friends = cv2.bitwise_and(minimap, minimap, mask=mask1)
+        mean = only_friends.mean(axis=(0, 1))
+        return str(mean) != "[0. 0. 0.]"
 
     def get_hp(self) -> int:
         """
@@ -298,8 +316,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         cv2.imwrite(blue_path, only_blue)
 
         # Threshold the original image for green and red
-        mask2 = cv2.inRange(hsv, self.HP_GREEN[0], self.HP_GREEN[1])
-        mask3 = cv2.inRange(hsv, self.HP_RED[0], self.HP_RED[1])
+        mask2 = cv2.inRange(hsv, self.TAG_GREEN[0], self.TAG_GREEN[1])
+        mask3 = cv2.inRange(hsv, self.TAG_RED[0], self.TAG_RED[1])
         mask = cv2.bitwise_or(mask2, mask3)
         only_color = cv2.bitwise_and(img, img, mask=mask)
         # Save the image and return path
