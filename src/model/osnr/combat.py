@@ -81,7 +81,7 @@ class OSNRCombat(OSNRBot):
                 return
 
             # If combat is over, assume we killed the NPC.
-            timeout = 60  # give our character 1 minute to kill the NPC
+            timeout = 90  # give our character 90 seconds to kill the NPC
             while self.is_in_combat():
                 if timeout <= 0:
                     self.log_msg("Timed out fighting NPC.")
