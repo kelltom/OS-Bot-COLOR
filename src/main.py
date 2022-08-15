@@ -36,7 +36,7 @@ class App(customtkinter.CTk):
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)  # call .on_closing() when app gets closed
 
-        # ============ create two frames ============
+        # ============ Create Two Frames ============
 
         # configure grid layout (1x2)
         self.grid_columnconfigure(1, weight=1)
@@ -52,11 +52,11 @@ class App(customtkinter.CTk):
 
         # ============ Left-Side Menu (frame_left) ============
 
-        # configure grid layout (11x1)
+        # configure grid layout
         self.frame_left.grid_rowconfigure(0, minsize=10)   # empty row with minsize as spacing (top padding above title)
-        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and switches)
-        self.frame_left.grid_rowconfigure(19, minsize=20)    # empty row with minsize as spacing (adds a top padding to switch section)
-        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below switches)
+        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and theme switch)
+        self.frame_left.grid_rowconfigure(19, minsize=20)    # empty row with minsize as spacing (adds a top padding to theme switch)
+        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below theme switch)
 
         self.label_1 = customtkinter.CTkLabel(master=self.frame_left,
                                               text="Scripts",
@@ -97,13 +97,13 @@ class App(customtkinter.CTk):
         self.views["Alora"] = AloraHomeView(parent=self, main=self)
         self.views["Near-Reality"] = OSNRHomeView(parent=self, main=self)
 
-        # Declare script view and controller [DO NOT EDIT]
-        # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model in the controller
+        # Script view and controller [DO NOT EDIT]
+        # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model assigned to the controller
         self.views["Script"] = BotView(parent=self.frame_right)
         self.controller = BotController(model=None, view=self.views["Script"])
         self.views["Script"].set_controller(self.controller)
 
-        # ============ Bot/Script-Button Configuration ============
+        # ============ Bot/Button Configuration ============
 
         # TEMPLATE FOR ADDING BOTS
         # 1. Create an instance of your Bot and append it to the bot map (self.models) with a unique, descriptive key.
@@ -171,6 +171,11 @@ class App(customtkinter.CTk):
         return btn
 
     def toggle_btn_state(self, enabled: bool):
+        '''
+        Toggles the state of the buttons in the current button list.
+        Args:
+            enabled: bool - True to enable buttons, False to disable buttons.
+        '''
         if self.current_btn_list is not None:
             for btn in self.current_btn_list:
                 if enabled:
