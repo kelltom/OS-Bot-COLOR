@@ -149,7 +149,7 @@ class App(customtkinter.CTk):
         # ----- Alora Bots -----
         self.models["AloraCombat"] = AloraCombat()
         self.models["AloraCombat"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.models["AloraCombat"].create_button(self.frame_left, "AloraCombat", self.__toggle_bot_by_name))
+        self.btn_map["Alora"].append(self.models["AloraCombat"].create_button(self.frame_left, "AloraCombat", self.__toggle_bot_by_name))
 
         # Status variables to track state of views and buttons
         self.current_home_view = self.views["Select a game"]
