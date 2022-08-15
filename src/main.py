@@ -106,89 +106,50 @@ class App(customtkinter.CTk):
         # ============ Bot/Script-Button Configuration ============
 
         # TEMPLATE FOR ADDING BOTS
-        # 1. create button (with command calling __toggle_bot_by_name, passing in the name of the bot, and the button itself)
-        # 2. append button to corresponding game title in btn_map
-        # 3. create model with matching name
-        # 4. set the model's controller to self.controller
-        # 5. DONE. The rest is taken care of.
+        # 1. Create an instance of your Bot and append it to the bot map (self.models) with a unique, descriptive key.
+        # 2. Set the controller of the bot to self.controller.
+        # 3. Call the "create_button" function belonging to your bot to create a pre-configured button for the main UI
+        #    and append it to the button map (self.btn_map) using the key of the game your bot belongs to.
+        #    For the function arguments, follow suit with the examples below.
 
         # ----- OSRS Bots -----
-        # ExampleBot
-        self.btn_example_bot = customtkinter.CTkButton(master=self.frame_left,
-                                                       text="Example",
-                                                       fg_color=self.DEFAULT_GRAY,
-                                                       command=lambda: self.__toggle_bot_by_name("ExampleBot", self.btn_example_bot))
-        self.btn_map["OSRS"].append(self.btn_example_bot)
         self.models["ExampleBot"] = ExampleBot()
         self.models["ExampleBot"].set_controller(self.controller)
+        self.btn_map["OSRS"].append(self.models["ExampleBot"].create_button(self.frame_left, "ExampleBot", self.__toggle_bot_by_name))
 
-        # ExampleBot2
-        self.btn_example_bot2 = customtkinter.CTkButton(master=self.frame_left,
-                                                        text="Example 2",
-                                                        fg_color=self.DEFAULT_GRAY,
-                                                        command=lambda: self.__toggle_bot_by_name("ExampleBot2", self.btn_example_bot2))
-        self.btn_map["OSRS"].append(self.btn_example_bot2)
         self.models["ExampleBot2"] = ExampleBot()
         self.models["ExampleBot2"].set_controller(self.controller)
+        self.btn_map["OSRS"].append(self.models["ExampleBot2"].create_button(self.frame_left, "ExampleBot2", self.__toggle_bot_by_name))
 
         # ----- OSNR Bots -----
-        self.btn_osnr_combat = customtkinter.CTkButton(master=self.frame_left,
-                                                       text="Combat",
-                                                       fg_color=self.DEFAULT_GRAY,
-                                                       command=lambda: self.__toggle_bot_by_name("OSNRCombat", self.btn_osnr_combat))
-        self.btn_map["Near-Reality"].append(self.btn_osnr_combat)
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.models["OSNRCombat"].create_button(self.frame_left, "OSNRCombat", self.__toggle_bot_by_name))
 
-        self.btn_osnr_fishing = customtkinter.CTkButton(master=self.frame_left,
-                                                        text="Fishing: Fly",
-                                                        fg_color=self.DEFAULT_GRAY,
-                                                        command=lambda: self.__toggle_bot_by_name("OSNRFishing", self.btn_osnr_fishing))
-        self.btn_map["Near-Reality"].append(self.btn_osnr_fishing)
         self.models["OSNRFishing"] = OSNRFishing()
         self.models["OSNRFishing"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.models["OSNRFishing"].create_button(self.frame_left, "OSNRFishing", self.__toggle_bot_by_name))
 
-        self.btn_osnr_rc_astral = customtkinter.CTkButton(master=self.frame_left,
-                                                          text="RC: Astral Runes",
-                                                          fg_color=self.DEFAULT_GRAY,
-                                                          command=lambda: self.__toggle_bot_by_name("RCAstral", self.btn_osnr_rc_astral))
-        self.btn_map["Near-Reality"].append(self.btn_osnr_rc_astral)
-        self.models["RCAstral"] = OSNRAstralRunes()
-        self.models["RCAstral"].set_controller(self.controller)
+        self.models["OSNRAstral"] = OSNRAstralRunes()
+        self.models["OSNRAstral"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.models["OSNRAstral"].create_button(self.frame_left, "OSNRAstral", self.__toggle_bot_by_name))
 
-        self.btn_osnr_snapegrass = customtkinter.CTkButton(master=self.frame_left,
-                                                           text="Snape Grass Looter",
-                                                           fg_color=self.DEFAULT_GRAY,
-                                                           command=lambda: self.__toggle_bot_by_name("OSNRSnapegrass", self.btn_osnr_snapegrass))
-        self.btn_map["Near-Reality"].append(self.btn_osnr_snapegrass)
         self.models["OSNRSnapegrass"] = OSNRSnapeGrass()
         self.models["OSNRSnapegrass"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.models["OSNRSnapegrass"].create_button(self.frame_left, "OSNRSnapegrass", self.__toggle_bot_by_name))
 
-        self.btn_osnr_thieving_stall = customtkinter.CTkButton(master=self.frame_left,
-                                                               text="Thieving Stalls",
-                                                               fg_color=self.DEFAULT_GRAY,
-                                                               command=lambda: self.__toggle_bot_by_name("OSNRThievingStall", self.btn_osnr_thieving_stall))
-        self.btn_map["Near-Reality"].append(self.btn_osnr_thieving_stall)
-        self.models["OSNRThievingStall"] = OSNRThievingStall()
-        self.models["OSNRThievingStall"].set_controller(self.controller)
-
-        self.btn_osnr_thieving_npc = customtkinter.CTkButton(master=self.frame_left,
-                                                             text="Thieving NPCs",
-                                                             fg_color=self.DEFAULT_GRAY,
-                                                             command=lambda: self.__toggle_bot_by_name("OSNRThievingNPC", self.btn_osnr_thieving_npc))
-        self.btn_map["Near-Reality"].append(self.btn_osnr_thieving_npc)
         self.models["OSNRThievingNPC"] = OSNRThievingNPC()
         self.models["OSNRThievingNPC"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.models["OSNRThievingNPC"].create_button(self.frame_left, "OSNRThievingNPC", self.__toggle_bot_by_name))
+
+        self.models["OSNRThievingStall"] = OSNRThievingStall()
+        self.models["OSNRThievingStall"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.models["OSNRThievingStall"].create_button(self.frame_left, "OSNRThievingStall", self.__toggle_bot_by_name))
 
         # ----- Alora Bots -----
-        # Combat
-        self.btn_alora_combat = customtkinter.CTkButton(master=self.frame_left,
-                                                        text="Combat",
-                                                        fg_color=self.DEFAULT_GRAY,
-                                                        command=lambda: self.__toggle_bot_by_name("AloraCombat", self.btn_alora_combat))
-        self.btn_map["Alora"].append(self.btn_alora_combat)
         self.models["AloraCombat"] = AloraCombat()
         self.models["AloraCombat"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.models["AloraCombat"].create_button(self.frame_left, "AloraCombat", self.__toggle_bot_by_name))
 
         # Status variables to track state of views and buttons
         self.current_home_view = self.views["Select a game"]
