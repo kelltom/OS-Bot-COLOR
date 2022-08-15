@@ -155,7 +155,7 @@ class App(customtkinter.CTk):
         self.current_btn = None
         self.current_btn_list = None
 
-    # ============ Script button handlers ============
+    # ============ UI Creation Helpers ============
     def __create_button(self, bot_key):
         '''
         Creates a preconfigured button for the bot.
@@ -170,6 +170,15 @@ class App(customtkinter.CTk):
                                       command=lambda: self.__toggle_bot_by_key(bot_key, btn))
         return btn
 
+    def toggle_btn_state(self, enabled: bool):
+        if self.current_btn_list is not None:
+            for btn in self.current_btn_list:
+                if enabled:
+                    btn.configure(state="normal")
+                else:
+                    btn.configure(state="disabled")
+
+    # ============ Button Handlers ============
     def __on_game_selector_change(self, choice):
         '''
         Handles the event that occurs when the user selects a game title from the dropdown menu.
@@ -231,15 +240,7 @@ class App(customtkinter.CTk):
                 self.current_btn = btn
                 self.current_btn.configure(fg_color=btn.hover_color)
 
-    # ============ Misc handler ============
-    def toggle_btn_state(self, enabled: bool):
-        if self.current_btn_list is not None:
-            for btn in self.current_btn_list:
-                if enabled:
-                    btn.configure(state="normal")
-                else:
-                    btn.configure(state="disabled")
-
+    # ============ Misc Handlers ============
     def change_mode(self):
         if self.switch.get() == 1:
             customtkinter.set_appearance_mode("dark")
