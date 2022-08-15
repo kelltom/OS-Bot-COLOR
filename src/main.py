@@ -112,7 +112,7 @@ class App(customtkinter.CTk):
         #    and append it to the button map (self.btn_map) using the key of the game your bot belongs to.
         #    For the function arguments, follow suit with the examples below.
 
-        # ----- OSRS Bots -----
+        # ----- Old School Runescape (OSRS) Bots -----
         self.models["ExampleBot"] = ExampleBot()
         self.models["ExampleBot"].set_controller(self.controller)
         self.btn_map["OSRS"].append(self.models["ExampleBot"].create_button(self.frame_left, "ExampleBot", self.__toggle_bot_by_name))
@@ -121,7 +121,7 @@ class App(customtkinter.CTk):
         self.models["ExampleBot2"].set_controller(self.controller)
         self.btn_map["OSRS"].append(self.models["ExampleBot2"].create_button(self.frame_left, "ExampleBot2", self.__toggle_bot_by_name))
 
-        # ----- OSNR Bots -----
+        # ----- Old School Near-Reality (OSNR) Bots -----
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.models["OSNRCombat"].create_button(self.frame_left, "OSNRCombat", self.__toggle_bot_by_name))
