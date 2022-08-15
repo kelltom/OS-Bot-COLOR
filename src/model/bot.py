@@ -8,7 +8,7 @@ import customtkinter
 from easyocr import Reader
 from enum import Enum
 import keyboard
-from model.options_builder import OptionsBuilder
+from utilities.options_builder import OptionsBuilder
 import pathlib
 from PIL import Image, ImageGrab
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
