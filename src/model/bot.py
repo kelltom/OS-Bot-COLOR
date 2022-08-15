@@ -79,22 +79,6 @@ class Bot(ABC):
         '''
         pass
 
-    def create_button(self, master, bot_key, callback):
-        '''
-        Creates a preconfigured button for the bot.
-        Args:
-            master: Tkinter.Frame - the frame to add the button to.
-            bot_key: str - the key of the bot as it exists in it's dictionary.
-            callback: function - callback to call when clicked.
-        Returns:
-            Tkinter.Button - the button created.
-        '''
-        btn = customtkinter.CTkButton(master=master,
-                                      text=self.title,
-                                      fg_color=("gray50", "gray30"),
-                                      command=lambda: callback(bot_key, btn))
-        return btn
-
     def get_options_view(self, parent) -> customtkinter.CTkFrame:
         '''
         Builds the options view for the bot based on the options defined in the OptionsBuilder.

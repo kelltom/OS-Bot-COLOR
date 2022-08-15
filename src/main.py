@@ -108,48 +108,47 @@ class App(customtkinter.CTk):
         # TEMPLATE FOR ADDING BOTS
         # 1. Create an instance of your Bot and append it to the bot map (self.models) with a unique, descriptive key.
         # 2. Set the controller of the bot to self.controller.
-        # 3. Call the "create_button" function belonging to your bot to create a pre-configured button for the main UI
-        #    and append it to the button map (self.btn_map) using the key of the game your bot belongs to.
-        #    For the function arguments, follow suit with the examples below.
+        # 3. Call the "__create_button" function to create a pre-configured button for the bot. Append the button to
+        #    the button map (self.btn_map) for the game it belongs to.
 
         # ----- Old School Runescape (OSRS) Bots -----
         self.models["ExampleBot"] = ExampleBot()
         self.models["ExampleBot"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.models["ExampleBot"].create_button(self.frame_left, "ExampleBot", self.__toggle_bot_by_name))
+        self.btn_map["OSRS"].append(self.__create_button("ExampleBot"))
 
         self.models["ExampleBot2"] = ExampleBot()
         self.models["ExampleBot2"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.models["ExampleBot2"].create_button(self.frame_left, "ExampleBot2", self.__toggle_bot_by_name))
+        self.btn_map["OSRS"].append(self.__create_button("ExampleBot"))
 
         # ----- Old School Near-Reality (OSNR) Bots -----
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.models["OSNRCombat"].create_button(self.frame_left, "OSNRCombat", self.__toggle_bot_by_name))
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRCombat"))
 
         self.models["OSNRFishing"] = OSNRFishing()
         self.models["OSNRFishing"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.models["OSNRFishing"].create_button(self.frame_left, "OSNRFishing", self.__toggle_bot_by_name))
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRFishing"))
 
         self.models["OSNRAstral"] = OSNRAstralRunes()
         self.models["OSNRAstral"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.models["OSNRAstral"].create_button(self.frame_left, "OSNRAstral", self.__toggle_bot_by_name))
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRAstral"))
 
         self.models["OSNRSnapegrass"] = OSNRSnapeGrass()
         self.models["OSNRSnapegrass"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.models["OSNRSnapegrass"].create_button(self.frame_left, "OSNRSnapegrass", self.__toggle_bot_by_name))
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRSnapegrass"))
 
         self.models["OSNRThievingNPC"] = OSNRThievingNPC()
         self.models["OSNRThievingNPC"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.models["OSNRThievingNPC"].create_button(self.frame_left, "OSNRThievingNPC", self.__toggle_bot_by_name))
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingNPC"))
 
         self.models["OSNRThievingStall"] = OSNRThievingStall()
         self.models["OSNRThievingStall"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.models["OSNRThievingStall"].create_button(self.frame_left, "OSNRThievingStall", self.__toggle_bot_by_name))
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingStall"))
 
         # ----- Alora Bots -----
         self.models["AloraCombat"] = AloraCombat()
         self.models["AloraCombat"].set_controller(self.controller)
-        self.btn_map["Alora"].append(self.models["AloraCombat"].create_button(self.frame_left, "AloraCombat", self.__toggle_bot_by_name))
+        self.btn_map["Alora"].append(self.__create_button("AloraCombat"))
 
         # Status variables to track state of views and buttons
         self.current_home_view = self.views["Select a game"]
@@ -157,7 +156,26 @@ class App(customtkinter.CTk):
         self.current_btn_list = None
 
     # ============ Script button handlers ============
+    def __create_button(self, bot_key):
+        '''
+        Creates a preconfigured button for the bot.
+        Args:
+            bot_key: str - the key of the bot as it exists in it's dictionary.
+        Returns:
+            Tkinter.Button - the button created.
+        '''
+        btn = customtkinter.CTkButton(master=self.frame_left,
+                                      text=self.models[bot_key].title,
+                                      fg_color=self.DEFAULT_GRAY,
+                                      command=lambda: self.__toggle_bot_by_key(bot_key, btn))
+        return btn
+
     def __on_game_selector_change(self, choice):
+        '''
+        Handles the event that occurs when the user selects a game title from the dropdown menu.
+        Args:
+            choice: The key of the game that the user selected.
+        '''
         if choice not in list(self.btn_map.keys()):
             return
         # Un-highlight current button
@@ -183,10 +201,17 @@ class App(customtkinter.CTk):
         self.current_home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
         self.toggle_btn_state(enabled=False)
 
-    def __toggle_bot_by_name(self, name, btn):
-        if self.models[name] is not None:
+    def __toggle_bot_by_key(self, bot_key, btn):
+        '''
+        Handles the event of the user selecting a bot from the dropdown menu. This function manages the state of frame_left buttons,
+        the contents that appears in frame_right, and re-assigns the model to the controller.
+        Args:
+            bot_key: The name/key of the bot that the user selected.
+            btn: The button that the user clicked.
+        '''
+        if self.models[bot_key] is not None:
             # If the script's frame is already visible, hide it
-            if self.controller.model == self.models[name]:
+            if self.controller.model == self.models[bot_key]:
                 self.controller.change_model(None)
                 self.views["Script"].pack_forget()
                 self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
@@ -195,13 +220,13 @@ class App(customtkinter.CTk):
             # If there is no script selected
             elif self.controller.model is None:
                 self.current_home_view.pack_forget()
-                self.controller.change_model(self.models[name])
+                self.controller.change_model(self.models[bot_key])
                 self.views["Script"].pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
                 self.current_btn = btn
                 self.current_btn.configure(fg_color=btn.hover_color)
             # If we are switching to a new script
             else:
-                self.controller.change_model(self.models[name])
+                self.controller.change_model(self.models[bot_key])
                 self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
                 self.current_btn = btn
                 self.current_btn.configure(fg_color=btn.hover_color)
