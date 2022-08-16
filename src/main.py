@@ -4,6 +4,7 @@ from model.alora.combat import AloraCombat
 from model.osnr.runecraft_astral import OSNRAstralRunes
 from model.osnr.combat import OSNRCombat
 from model.osnr.fishing import OSNRFishing
+from model.osnr.mining import OSNRMining
 from model.osnr.snape_grass import OSNRSnapeGrass
 from model.osnr.thieving_stall import OSNRThievingStall
 from model.osnr.thieving_npc import OSNRThievingNPC
@@ -128,6 +129,10 @@ class App(customtkinter.CTk):
         self.models["OSNRFishing"] = OSNRFishing()
         self.models["OSNRFishing"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRFishing"))
+
+        self.models["OSNRMining"] = OSNRMining()
+        self.models["OSNRMining"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRMining"))
 
         self.models["OSNRAstral"] = OSNRAstralRunes()
         self.models["OSNRAstral"].set_controller(self.controller)
