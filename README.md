@@ -1,8 +1,7 @@
 ### ⚠️ This project is WIP ⚠️
-### README is outdated.
 
 # ![](documentation/wiki_images/logo.png)
-A lightweight desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots.
+A lightweight desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots, even for inexperienced developers.
 
 ## Developer Setup
 1. Clone/download the repository.
