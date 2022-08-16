@@ -33,7 +33,7 @@ class App(customtkinter.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self.frame_left = customtkinter.CTkFrame(master=self,
-                                                 width=180,  # static width on left-hand sidebar = non-resizable
+                                                 width=180,  # static min-width on left-hand sidebar
                                                  corner_radius=0)
         self.frame_left.grid(row=0, column=0, sticky="nswe")
 
