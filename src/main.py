@@ -1,11 +1,7 @@
 from controller.bot_controller import BotController
 from model import *
 from typing import List
-from view.bot_view import BotView
-from view.home_view import HomeView
-from view.home_view_alora import AloraHomeView
-from view.home_view_osnr import OSNRHomeView
-from view.home_view_osrs import OSRSHomeView
+from view import *
 import customtkinter
 import tkinter
 
