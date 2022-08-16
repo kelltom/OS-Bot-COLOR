@@ -79,6 +79,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
         self.label_status = customtkinter.CTkLabel(master=self,
                                                    text="")
         self.label_status.grid(row=7, column=0, sticky="nwes")
+        self.label_status.bind('<Configure>', lambda e: self.label_status.configure(wraplength=self.label_status.winfo_width()-20))
 
     def __replace_settings(self):
         PATH = Path(__file__).parent.parent.resolve()  # src directory
@@ -92,7 +93,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
             try:
                 settings_path = f"{PATH}\\runelite_settings\\settings.properties"
                 shutil.copyfile(settings_path, loc)
-                self.label_status.configure(text="Settings replaced successfully.\nRestart Runelite client to apply changes.")
+                self.label_status.configure(text="Settings replaced successfully. Restart Runelite client to apply changes.")
                 self.main.toggle_btn_state(enabled=True)
             except Exception as e:
                 self.label_status.configure(text="Error: Could not replace settings.", text_color="red")
