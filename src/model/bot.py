@@ -174,6 +174,10 @@ class Bot(ABC):
         Args:
             progress: float - number between 0 and 1 indicating percentage of progress.
         '''
+        if progress < 0:
+            progress = 0
+        elif progress > 1:
+            progress = 1
         self.progress = progress
         self.controller.update_progress()
 
