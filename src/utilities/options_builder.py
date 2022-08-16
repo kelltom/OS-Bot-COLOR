@@ -103,7 +103,7 @@ class OptionsUI(customtkinter.CTkFrame):
         # Slider label
         self.labels[key] = customtkinter.CTkLabel(master=self,
                                                   text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=(10, 0), pady=20)
+        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=10, pady=20)
         # Slider frame
         self.frames[key] = customtkinter.CTkFrame(master=self)
         self.frames[key].columnconfigure(0, weight=1)
@@ -128,7 +128,7 @@ class OptionsUI(customtkinter.CTkFrame):
         # Checkbox label
         self.labels[key] = customtkinter.CTkLabel(master=self,
                                                   text=value.title)
-        self.labels[key].grid(row=row, column=0, padx=(10, 0), pady=20)
+        self.labels[key].grid(row=row, column=0, padx=10, pady=20)
         # Checkbox frame
         self.frames[key] = customtkinter.CTkFrame(master=self)
         for i in range(len(value.values)):
@@ -144,7 +144,7 @@ class OptionsUI(customtkinter.CTkFrame):
     def create_menu(self, key, value: OptionMenuInfo, row: int):
         self.labels[key] = customtkinter.CTkLabel(master=self,
                                                   text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=(10, 0), pady=20)
+        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=10, pady=20)
         self.widgets[key] = customtkinter.CTkOptionMenu(master=self,
                                                         values=value.values,
                                                         fg_color=("gray75", "gray22"))
