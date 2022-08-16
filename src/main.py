@@ -97,6 +97,7 @@ class App(customtkinter.CTk):
 
         # TEMPLATE FOR ADDING BOTS
         # 1. Create an instance of your Bot and append it to the bot map (self.models) with a unique, descriptive key.
+        #    1.1. If your bot class is undefined, make sure it is referenced in the __init__.py file of the folder it exists in. 
         # 2. Set the controller of the bot to self.controller.
         # 3. Call the "__create_button" function to create a pre-configured button for the bot. Append the button to
         #    the button map (self.btn_map) for the game it belongs to.
