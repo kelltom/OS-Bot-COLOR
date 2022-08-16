@@ -10,6 +10,7 @@ from model.osnr.thieving_stall import OSNRThievingStall
 from model.osnr.thieving_npc import OSNRThievingNPC
 from model.osrs.example_bot import ExampleBot
 import tkinter
+from typing import List
 from view.bot_view import BotView
 from view.home_view import HomeView
 from view.home_view_alora import AloraHomeView
@@ -66,7 +67,7 @@ class App(customtkinter.CTk):
 
         # Button map
         # There should be a key for each game title, and the value should be a list of buttons for that game
-        self.btn_map = {
+        self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
             "Select a game": [],
             "Alora": [],
             "Near-Reality": [],  # AKA: OSNR
@@ -87,8 +88,8 @@ class App(customtkinter.CTk):
         self.switch.select()
 
         # ============ View/Controller Configuration ============
-        self.views = {}  # A map of all views, keyed by game title
-        self.models = {}  # A map of all models, keyed by bot title
+        self.views: dict[str, customtkinter.CTkFrame] = {}  # A map of all views, keyed by game title
+        self.models: dict[str, Bot] = {}  # A map of all models (bots), keyed by bot title
 
         # Home Views
         self.home_view = HomeView(parent=self.frame_right, main=self)
@@ -156,9 +157,9 @@ class App(customtkinter.CTk):
         self.btn_map["Alora"].append(self.__create_button("AloraCombat"))
 
         # Status variables to track state of views and buttons
-        self.current_home_view = self.views["Select a game"]
-        self.current_btn = None
-        self.current_btn_list = None
+        self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]
+        self.current_btn: customtkinter.CTkButton = None
+        self.current_btn_list: List[customtkinter.CTkButton] = None
 
     # ============ UI Creation Helpers ============
     def __create_button(self, bot_key):
@@ -220,7 +221,7 @@ class App(customtkinter.CTk):
         self.current_home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
         self.toggle_btn_state(enabled=False)
 
-    def __toggle_bot_by_key(self, bot_key, btn):
+    def __toggle_bot_by_key(self, bot_key, btn: customtkinter.CTkButton):
         '''
         Handles the event of the user selecting a bot from the dropdown menu. This function manages the state of frame_left buttons,
         the contents that appears in frame_right, and re-assigns the model to the controller.
