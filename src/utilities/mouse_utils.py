@@ -4,7 +4,7 @@ import numpy as np
 
 class MouseUtils():
 
-    def move_to(self, point: tuple, duration=0.5, variance=0):
+    def move_to(self, point: tuple, duration=0.3, variance=0):
         '''
         Moves mouse to a point on screen with a random movement pattern.
         Args:
