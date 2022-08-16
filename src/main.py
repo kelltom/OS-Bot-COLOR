@@ -1,21 +1,13 @@
-import customtkinter
 from controller.bot_controller import BotController
-from model.alora.combat import AloraCombat
-from model.osnr.runecraft_astral import OSNRAstralRunes
-from model.osnr.combat import OSNRCombat
-from model.osnr.fishing import OSNRFishing
-from model.osnr.mining import OSNRMining
-from model.osnr.snape_grass import OSNRSnapeGrass
-from model.osnr.thieving_stall import OSNRThievingStall
-from model.osnr.thieving_npc import OSNRThievingNPC
-from model.osrs.example_bot import ExampleBot
-import tkinter
+from model import *
 from typing import List
 from view.bot_view import BotView
 from view.home_view import HomeView
 from view.home_view_alora import AloraHomeView
 from view.home_view_osnr import OSNRHomeView
 from view.home_view_osrs import OSRSHomeView
+import customtkinter
+import tkinter
 
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"

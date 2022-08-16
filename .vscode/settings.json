@@ -3,7 +3,8 @@
     "python.linting.enabled": true,
     "python.linting.lintOnSave": true,
     "python.linting.flake8Args": [
-        "--max-line-length=160"
+        "--max-line-length=160",
+        "--per-file-ignores='__init__.py:F401'"
     ],
     "files.autoSave": "onFocusChange"
 }
