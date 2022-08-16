@@ -23,11 +23,15 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.grid_rowconfigure(7, weight=0)  # - Status
         self.grid_rowconfigure(8, weight=1)  # Spacing
 
-        # Logo
-        self.logo_path = Path(__file__).parent.parent.parent.resolve()
-        self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/osnr_logo.png").resize((218, 120), Image.LANCZOS))
-        self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
-        self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
+        # # Logo
+        # self.logo_path = Path(__file__).parent.parent.parent.resolve()
+        # self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/osnr_logo.png").resize((218, 120), Image.LANCZOS))
+        # self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
+        # self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
+
+        # Title
+        self.label_title = customtkinter.CTkLabel(self, text="Old School Near-Reality", text_font=("Roboto", 24))
+        self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
         self.note = ("In order for these scripts to work, Runelite must be configured in a specific way. " +
