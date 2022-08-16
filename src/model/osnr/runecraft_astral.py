@@ -1,9 +1,11 @@
 '''
 Trains Runecrafting via Astral Runes.
 '''
-from model.bot import BotStatus, Point
+import utilities.bot_cv as bcv
+from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 import pyautogui as pag
+from utilities.bot_cv import Point
 import time
 
 
@@ -61,7 +63,7 @@ class OSNRAstralRunes(OSNRBot):
                 self.set_status(BotStatus.STOPPED)
                 return
             time.sleep(1)
-            empty = self.search_img_in_rect(f"{self.BOT_IMAGES}/bank_deposit_all.png", self.rect_game_view)
+            empty = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/bank_deposit_all.png", self.rect_game_view)
             if empty is None:
                 self.log_msg("Failed to deposit inventory.")
                 self.set_status(BotStatus.STOPPED)

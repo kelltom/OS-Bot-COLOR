@@ -1,11 +1,13 @@
 '''
 Thieving bot for OSNR. Thieves from NPCs.
 '''
-from model.bot import BotStatus, Point
+from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 import pathlib
 import pyautogui as pag
 import time
+from utilities.bot_cv import Point
+import utilities.bot_cv as bcv
 
 
 class OSNRThievingNPC(OSNRBot):
@@ -157,7 +159,7 @@ class OSNRThievingNPC(OSNRBot):
             # Click coin pouch
             if self.should_click_coin_pouch and theft_count % 10 == 0:
                 self.log_msg("Clicking coin pouch...")
-                pouch = self.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
+                pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
                 if pouch:
                     self.mouse.move_to(pouch)
                     time.sleep(0.5)

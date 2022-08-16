@@ -5,6 +5,7 @@ from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 import pyautogui as pag
 import time
+import utilities.bot_cv as bcv
 
 
 class OSNRFishing(OSNRBot):
@@ -64,9 +65,9 @@ class OSNRFishing(OSNRBot):
                 return
 
             # If not fishing, click fishing spot
-            is_fishing = self.search_text_in_rect(self.rect_opponent_information, ["fishing"], ["not"])
+            is_fishing = bcv.search_text_in_rect(self.rect_opponent_information, ["fishing"], ["not"])
             if not is_fishing:
-                spot = self.search_img_in_rect(f"{self.BOT_IMAGES}/near_reality/salmon_sprite.png", self.rect_game_view)
+                spot = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/salmon_sprite.png", self.rect_game_view)
                 if spot is None:
                     failed_searches += 1
                     if failed_searches > 10:

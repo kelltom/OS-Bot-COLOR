@@ -7,9 +7,12 @@ For converting RGB to HSV:
     https://stackoverflow.com/questions/10948589/choosing-the-correct-upper-and-lower-hsv-boundaries-for-color-detection-withcv/48367205#48367205
 '''
 from abc import ABCMeta
+import utilities.bot_cv as bcv
+from utilities.bot_cv import Rectangle, Point
+import utilities.runelite_cv as rcv
+from utilities.runelite_cv import Color
 import cv2
-from deprecated import deprecated
-from model.bot import Bot, BotStatus, Rectangle, Point
+from model.bot import Bot, BotStatus
 import numpy as np
 import pyautogui as pag
 import pygetwindow
@@ -19,11 +22,11 @@ import time
 class RuneliteBot(Bot, metaclass=ABCMeta):
 
     # --- Notable Colour Ranges (HSV lower, HSV upper, threshold) ---
-    TAG_BLUE = ((90, 100, 255), (100, 255, 255), 128)       # hex: FF00FFFF
-    TAG_PURPLE = ((130, 100, 100), (150, 255, 255), 35)     # hex: FFAA00FF
-    TAG_PINK = ((145, 100, 200), (155, 255, 255), 20)       # hex: FFFF00E7
-    TAG_GREEN = ((40, 100, 255), (70, 255, 255), 128)
-    TAG_RED = ((0, 255, 255), (20, 255, 255), 128)
+    TAG_BLUE = Color((90, 100, 255), (100, 255, 255), 128)       # hex: FF00FFFF
+    TAG_PURPLE = Color((130, 100, 100), (150, 255, 255), 35)     # hex: FFAA00FF
+    TAG_PINK = Color((145, 100, 200), (155, 255, 255), 20)       # hex: FFFF00E7
+    TAG_GREEN = Color((40, 100, 255), (70, 255, 255), 128)
+    TAG_RED = Color((0, 255, 255), (20, 255, 255), 128)
 
     # --- Desired client position ---
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
@@ -101,7 +104,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             True if friends are nearby, False otherwise.
         '''
         # screenshot minimap
-        minimap = self.capture_screen(self.rect_minimap)
+        minimap = bcv.capture_screen(self.rect_minimap)
         # load it as a cv2 image
         minimap = cv2.imread(minimap)
         # change to hsv
@@ -118,7 +121,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns:
             The HP of the player, or None if not found.
         """
-        res = self.get_numbers_in_rect(self.rect_hp, True)
+        res = bcv.get_numbers_in_rect(self.rect_hp, True)
         print(res)
         return None if res is None else res[0]
 
@@ -128,7 +131,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns:
             The prayer value of the player, or None if not found.
         """
-        res = self.get_numbers_in_rect(self.rect_prayer, True)
+        res = bcv.get_numbers_in_rect(self.rect_prayer, True)
         print(res)
         return None if res is None else res[0]
 
@@ -148,7 +151,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        result = self.get_text_in_rect(self.rect_opponent_information)
+        result = bcv.get_text_in_rect(self.rect_opponent_information)
         return result.strip() != ""
 
     # --- NPC Detection ---
@@ -160,20 +163,21 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns:
             True if an NPC attack was attempted, False otherwise.
         '''
-        path_game_view = self.capture_screen(game_view)
+        path_game_view = bcv.capture_screen(game_view)
         # Isolate colors in image
-        path_npcs, path_hp_bars = self.__isolate_tags_at(path_game_view)
+        path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
+        path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
         # Locate potential NPCs in image by determining contours
-        contours = self.__get_contours(path_npcs)
+        contours = rcv.__get_contours(path_npcs)
         # Click center pixel of non-combatting NPCs
         img_bgr = cv2.imread(path_hp_bars)
         for cnt in contours:
             try:
-                center, top = self.__get_contour_positions(cnt)
+                center, top = rcv.__get_contour_positions(cnt)
             except Exception:
                 print("Cannot find moments of contour. Disregarding...")
                 continue
-            if not self.__is_point_obstructed(center, img_bgr):
+            if not rcv.__is_point_obstructed(center, img_bgr):
                 self.mouse.move_to(Point(center.x + game_view.start.x, center.y + game_view.start.y), 0.2)
                 pag.click()
                 return True
@@ -188,21 +192,22 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns:
             The center point of the nearest tagged NPC, or None if none found.
         '''
-        path_game_view = self.capture_screen(game_view)
+        path_game_view = bcv.capture_screen(game_view)
         # Isolate colors in image
-        path_npcs, path_hp_bars = self.__isolate_tags_at(path_game_view)
+        path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
+        path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
         # Locate potential NPCs in image by determining contours
-        contours = self.__get_contours(path_npcs, self.TAG_BLUE[2])
+        contours = rcv.get_contours(path_npcs, self.TAG_BLUE[2])
         # Get center pixels of non-combatting NPCs
         centers = []
         img_bgr = cv2.imread(path_hp_bars)
         for cnt in contours:
             try:
-                center, top = self.__get_contour_positions(cnt)
+                center, top = rcv.get_contour_positions(cnt)
             except Exception:
                 print("Cannot find moments of contour. Disregarding...")
                 continue
-            if not include_in_combat and not self.__is_point_obstructed(center, img_bgr) or include_in_combat:
+            if not include_in_combat and not rcv.is_point_obstructed(center, img_bgr) or include_in_combat:
                 centers.append((center.x, center.y))
         if not centers:
             print("No tagged NPCs found.")
@@ -220,47 +225,18 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns:
             A list of center Points.
         '''
-        path_game_view = self.capture_screen(rect)
-        path_tagged = self.__isolate_color(path=path_game_view, color=color, filename="get_all_tagged_in_rect")
-        contours = self.__get_contours(path_tagged, color[2])
+        path_game_view = bcv.capture_screen(rect)
+        path_tagged = rcv.isolate_colors(path=path_game_view, color=[color], filename="get_all_tagged_in_rect")
+        contours = rcv.get_contours(path_tagged, color[2])
         centers = []
         for cnt in contours:
             try:
-                center, _ = self.__get_contour_positions(cnt)
+                center, _ = rcv.get_contour_positions(cnt)
             except Exception:
                 print("Cannot find moments of contour. Disregarding...")
                 continue
             centers.append(Point(center.x + rect.start.x, center.y + rect.start.y))
         return centers
-
-    def __get_contours(self, path: str, thresh: int) -> list:
-        '''
-        Gets the contours of an image.
-        Args:
-            path: The path to the image.
-            thresh: The threshold to use for the image.
-        Returns:
-            A list of contours.
-        '''
-        img = cv2.imread(path)
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        _, thresh = cv2.threshold(img_gray, thresh, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        return contours
-
-    def __get_contour_positions(self, contour) -> tuple:
-        '''
-        Gets the center and top pixel positions of a contour.
-        Args:
-            contour: The contour to get the positions of.
-        Returns:
-            A center and top pixel positions as Points.
-        '''
-        moments = cv2.moments(contour)
-        center_x = int(moments["m10"] / moments["m00"])
-        center_y = int(moments["m01"] / moments["m00"])
-        top_x, top_y = contour[contour[..., 1].argmin()][0]
-        return Point(center_x, center_y), Point(top_x, top_y)
 
     def get_nearest_point(self, point: Point, points: list) -> Point:
         '''
@@ -277,87 +253,18 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         p = np.argmin(dist_2)
         return Point(points[p][0], points[p][1])
 
-    def __is_point_obstructed(self, point: Point, im, span: int = 20) -> bool:
-        '''
-        This function determines if there are non-black pixels in an image around a given point.
-        This is useful for determining if an NPC is in combat (E.g., given the top point of an NPC contour
-        and a masked image only showing HP bars, determine if the NPC has an HP bar around the contour).
-        Args:
-            point: The top point of a contour (NPC).
-            im: A BGR CV image containing only HP bars.
-            span: The number of pixels to search around the given point.
-        Returns:
-            True if the point is obstructed, False otherwise.
-        '''
-        try:
-            crop = im[point.y-span:point.y+span, point.x-span:point.x+span]
-            mean = crop.mean(axis=(0, 1))
-            return str(mean) != "[0. 0. 0.]"
-        except Exception:
-            print("Cannot crop image. Disregarding...")
-            return True
-
-    @deprecated(reason="Use __isolate_color() instead.")
-    def __isolate_tags_at(self, path: str) -> str:
-        '''
-        Isolates Runelite tags and saves them as images. Useful for identifying tagged NPCs, and health bars.
-        Args:
-            path: The path to the image to isolate colors.
-        Returns:
-            The paths to an image with only blue tagged contours, and an image with only green/red.
-        '''
-        img = cv2.imread(path)
-        # Convert to HSV
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        # Threshold the HSV image to get only blue color
-        mask1 = cv2.inRange(hsv, self.TAG_BLUE[0], self.TAG_BLUE[1])
-        only_blue = cv2.bitwise_and(img, img, mask=mask1)
-        blue_path = f"{self.TEMP_IMAGES}/only_blue.png"
-        cv2.imwrite(blue_path, only_blue)
-
-        # Threshold the original image for green and red
-        mask2 = cv2.inRange(hsv, self.TAG_GREEN[0], self.TAG_GREEN[1])
-        mask3 = cv2.inRange(hsv, self.TAG_RED[0], self.TAG_RED[1])
-        mask = cv2.bitwise_or(mask2, mask3)
-        only_color = cv2.bitwise_and(img, img, mask=mask)
-        # Save the image and return path
-        color_path = f"{self.TEMP_IMAGES}/only_green_red.png"
-        cv2.imwrite(color_path, only_color)
-        return blue_path, color_path
-
-    def __isolate_color(self, path: str, color: tuple, filename: str) -> str:
-        '''
-        Isolates contours of a particular color and saves them as images.
-        Args:
-            path: The path to the image to isolate colors.
-            color: A two-part tuple containing the lower and upper bounds of the HSV color being isolated.
-            save_as: The name of the file to be saved in the temp images folder.
-        Returns:
-            The path to an image with only the desired color.
-        '''
-        img = cv2.imread(path)
-        # Convert to HSV
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        # Threshold the HSV image to get only blue color
-        mask = cv2.inRange(hsv, color[0], color[1])
-        only_color = cv2.bitwise_and(img, img, mask=mask)
-        # Save the image and return path
-        color_path = f"{self.TEMP_IMAGES}/{filename}.png"
-        cv2.imwrite(color_path, only_color)
-        return color_path
-
     def __open_display_settings(self) -> bool:
         '''
         Opens the display settings for the game client.
         Returns:
             True if the settings were opened, False if an error occured.
         '''
-        cp_settings_selected = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_selected.png",
-                                                       self.client_window,
-                                                       conf=0.95)
-        cp_settings = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings.png",
-                                              self.client_window,
-                                              conf=0.95)
+        cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
+                                                      self.client_window,
+                                                      conf=0.95)
+        cp_settings = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings.png",
+                                             self.client_window,
+                                             conf=0.95)
         if cp_settings_selected is None and cp_settings is None:
             self.log_msg("Could not find settings button.")
             return False
@@ -365,7 +272,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             self.mouse.move_to(cp_settings)
             pag.click()
         time.sleep(0.5)
-        display_tab = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_display_tab.png", self.client_window)
+        display_tab = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_display_tab.png", self.client_window)
         if display_tab is None:
             self.log_msg("Could not find the display settings tab.")
             return False
@@ -380,7 +287,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Identifies the Runelite settings panel and collapses it.
         '''
         self.log_msg("Closing Runelite settings panel...")
-        settings_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
+        settings_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
         if settings_icon is not None:
             self.mouse.move_to(settings_icon, 1)
             pag.click()
@@ -397,7 +304,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         if not self.__open_display_settings():
             return False
         time.sleep(0.3)
-        layout_dropdown = self.search_img_in_rect(f"{self.BOT_IMAGES}/cp_settings_dropdown.png", self.client_window)
+        layout_dropdown = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_dropdown.png", self.client_window)
         if layout_dropdown is None:
             self.log_msg("Could not find the layout dropdown.")
             return False
@@ -414,7 +321,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Identifies the Runelite logout button and clicks it.
         '''
         self.log_msg("Logging out of Runelite...")
-        rl_login_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
+        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
         if rl_login_icon is not None:
             self.mouse.move_to(rl_login_icon, duration=1)
             pag.click()

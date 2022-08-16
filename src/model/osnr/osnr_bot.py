@@ -3,9 +3,11 @@ The OSNRBot class contains properties and functions that are specific to the OSN
 be inherited by OSNR script classes.
 '''
 from abc import ABCMeta
+import utilities.bot_cv as bcv
+import utilities.runelite_cv as rcv
 from enum import Enum
 from model.runelite_bot import RuneliteBot
-from model.bot import Point
+from utilities.bot_cv import Point
 import pyautogui as pag
 import time
 
@@ -65,7 +67,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         if not self.status_check_passed():
             return
 
-        bank_icon = self.search_img_in_rect(f"{self.BOT_IMAGES}/minimap_bank_icon.png", self.rect_minimap, conf=0.8)
+        bank_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap_bank_icon.png", self.rect_minimap, conf=0.8)
         if bank_icon is None:
             self.log_msg("Bank icon not found.")
             return False
@@ -160,7 +162,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
 
         # Search for the auto retaliate button (deselected)
         # If None, then auto retaliate is on.
-        auto_retal_btn = self.search_img_in_rect(f"{self.BOT_IMAGES}/near_reality/cp_combat_autoretal.png", self.rect_inventory, conf=0.9)
+        auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal.png", self.rect_inventory, conf=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
             self.mouse.move_to((644, 402), 0.2, variance=5)
