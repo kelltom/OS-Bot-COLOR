@@ -152,7 +152,7 @@ class OSNRSnapeGrass(OSNRBot):
                         self.set_status(BotStatus.STOPPED)
                         return
                     continue
-                point = self.get_nearest_point(Point((self.rect_game_view.end.x + self.rect_game_view.start.x) / 2,
+                point = self.__get_nearest_point(Point((self.rect_game_view.end.x + self.rect_game_view.start.x) / 2,
                                                      (self.rect_game_view.end.y + self.rect_game_view.start.y) / 2),
                                                points)
                 empty_slot_rgb = pag.pixel(inventory[i].x, inventory[i].y)

@@ -7,16 +7,17 @@ For converting RGB to HSV:
     https://stackoverflow.com/questions/10948589/choosing-the-correct-upper-and-lower-hsv-boundaries-for-color-detection-withcv/48367205#48367205
 '''
 from abc import ABCMeta
-import utilities.bot_cv as bcv
+from deprecated import deprecated
+from model.bot import Bot, BotStatus
 from utilities.bot_cv import Rectangle, Point
-import utilities.runelite_cv as rcv
 from utilities.runelite_cv import Color
 import cv2
-from model.bot import Bot, BotStatus
 import numpy as np
 import pyautogui as pag
 import pygetwindow
 import time
+import utilities.bot_cv as bcv
+import utilities.runelite_cv as rcv
 
 
 class RuneliteBot(Bot, metaclass=ABCMeta):
@@ -154,7 +155,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         result = bcv.get_text_in_rect(self.rect_opponent_information)
         return result.strip() != ""
 
-    # --- NPC Detection ---
+    # --- NPC/Object Detection ---
     def attack_first_tagged(self, game_view: Rectangle) -> bool:
         '''
         Attacks the first-seen tagged NPC that is not already in combat.
@@ -168,16 +169,16 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
         path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
         # Locate potential NPCs in image by determining contours
-        contours = rcv.__get_contours(path_npcs)
+        contours = rcv.get_contours(path_npcs)
         # Click center pixel of non-combatting NPCs
         img_bgr = cv2.imread(path_hp_bars)
         for cnt in contours:
             try:
-                center, top = rcv.__get_contour_positions(cnt)
+                center, top = rcv.get_contour_positions(cnt)
             except Exception:
                 print("Cannot find moments of contour. Disregarding...")
                 continue
-            if not rcv.__is_point_obstructed(center, img_bgr):
+            if not rcv.is_point_obstructed(center, img_bgr):
                 self.mouse.move_to(Point(center.x + game_view.start.x, center.y + game_view.start.y), 0.2)
                 pag.click()
                 return True
@@ -213,7 +214,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             print("No tagged NPCs found.")
             return None
         dims = img_bgr.shape  # (height, width, channels)
-        nearest = self.get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
+        nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
         return Point(nearest.x + game_view.start.x, nearest.y + game_view.start.y)
 
     def get_all_tagged_in_rect(self, rect: Rectangle, color: tuple) -> list:
@@ -226,7 +227,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             A list of center Points.
         '''
         path_game_view = bcv.capture_screen(rect)
-        path_tagged = rcv.isolate_colors(path=path_game_view, color=[color], filename="get_all_tagged_in_rect")
+        path_tagged = rcv.isolate_colors(path_game_view, [color], "get_all_tagged_in_rect")
         contours = rcv.get_contours(path_tagged, color[2])
         centers = []
         for cnt in contours:
@@ -237,8 +238,22 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
                 continue
             centers.append(Point(center.x + rect.start.x, center.y + rect.start.y))
         return centers
+    
+    def get_nearest_tag(self, color: rcv.Color) -> Point:
+        '''
+        Finds the nearest contour of a particular color within the game view to the character and returns its center Point.
+        Args:
+            rect: The rectangle to search in.
+            color: The color to search for. Must be a tuple of (HSV upper, HSV lower, threshold) values.
+        Returns:
+            The center Point of the nearest contour, or None if none found.
+        '''
+        rect = self.rect_game_view
+        centers = self.get_all_tagged_in_rect(rect, color)
+        return self.__get_nearest_point(Point(int((rect.start.x + rect.end.x) / 2), int((rect.start.y + rect.end.y) / 2)), centers) if centers else None
+        
 
-    def get_nearest_point(self, point: Point, points: list) -> Point:
+    def __get_nearest_point(self, point: Point, points: list) -> Point:
         '''
         Returns the nearest point in a list of (x, y) coordinates.
         Args:

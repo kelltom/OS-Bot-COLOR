@@ -3,6 +3,7 @@ The OSNRBot class contains properties and functions that are specific to the OSN
 be inherited by OSNR script classes.
 '''
 from abc import ABCMeta
+from ..bot import BotStatus
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
 from enum import Enum
@@ -34,6 +35,7 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
     presets_btn = Point(458, 50)
     presets_load_btn = Point(76, 315)
     presets_close_btn = Point(490, 65)
+    bank_close_btn = Point(491, 51)
 
     def __disable_private_chat(self):
         '''
@@ -47,6 +49,29 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
         time.sleep(0.05)
         self.mouse.move_to(show_none_btn, duration=0.2, variance=1)
         pag.click()
+    
+    # -- Banking --
+    def close_bank(self):
+        '''
+        Closes the bank interface.
+        '''
+        self.log_msg("Closing bank...")
+        self.mouse.move_to(self.bank_close_btn, duration=0.2, variance=1)
+        pag.click()
+        time.sleep(1)
+
+    def deposit_inventory(self) -> bool:
+        '''
+        From within the banking interface, clicks the "deposit all" button.
+        '''
+        empty = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/bank_deposit_all.png", self.rect_game_view)
+        if empty is None:
+            self.log_msg("Cannot find deposit button.")
+            return False
+        self.mouse.move_to(empty, duration=0.3, variance=3)
+        pag.click()
+        time.sleep(1)
+        return True
 
     def teleport_and_bank(self, spellbook: Spellbook) -> bool:
         '''

@@ -136,6 +136,10 @@ class App(customtkinter.CTk):
         self.models["OSNRThievingStall"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingStall"))
 
+        self.models["OSNRWoodcutting"] = OSNRWoodcutting()
+        self.models["OSNRWoodcutting"].set_controller(self.controller)
+        self.btn_map["Near-Reality"].append(self.__create_button("OSNRWoodcutting"))
+
         # ----- Alora Bots -----
         self.models["AloraCombat"] = AloraCombat()
         self.models["AloraCombat"].set_controller(self.controller)

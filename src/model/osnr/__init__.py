@@ -6,3 +6,4 @@ from .runecraft_astral import OSNRAstralRunes
 from .snape_grass import OSNRSnapeGrass
 from .thieving_npc import OSNRThievingNPC
 from .thieving_stall import OSNRThievingStall
+from .woodcutting import OSNRWoodcutting
