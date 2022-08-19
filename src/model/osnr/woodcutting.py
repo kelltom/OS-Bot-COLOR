@@ -120,19 +120,23 @@ class OSNRWoodcutting(OSNRBot):
                     return
                 time.sleep(1)
                 continue
-            
+
             # Click tree and wait to start cutting
             self.mouse.move_to(tree)
             self.mouse.click()
-            time.sleep(2)
-            self.log_msg("Clicking tree...")
+            time.sleep(3)
 
             # Wait so long as the player is cutting
+            timer = 0
             while bcv.search_text_in_rect(self.rect_game_view, ["Woodcutting"], ["Not"]):
                 self.update_progress((time.time() - start_time) / end_time)
                 if not self.status_check_passed():
                     return
-                time.sleep(1)
+                if timer % 5 == 0:
+                    self.log_msg("Chopping tree...")
+                time.sleep(2)
+                timer += 2
+            self.log_msg("Idle...")
 
             if not self.status_check_passed():
                 return
