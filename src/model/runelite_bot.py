@@ -37,6 +37,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     # ------- Main Client Rects -------
     rect_opponent_information = Rectangle(Point(13, 51), Point(140, 87))  # combat/skilling plugin text
     rect_game_view = Rectangle(Point(9, 31), Point(517, 362))  # gameplay area
+    rect_opponent_information = Rectangle(Point(13, 51), Point(140, 71))  # combat/skilling plugin text
+    rect_game_view = Rectangle(Point(8, 50), Point(517, 362))  # gameplay area (prev start: x=9, y=31)
     rect_hp = Rectangle(Point(528, 81), Point(549, 95))  # hp number on status bar
     rect_prayer = Rectangle(Point(530, 117), Point(550, 130))  # prayer number on status bar
     rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
