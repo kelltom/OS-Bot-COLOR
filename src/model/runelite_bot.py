@@ -22,12 +22,12 @@ import utilities.runelite_cv as rcv
 
 class RuneliteBot(Bot, metaclass=ABCMeta):
 
-    # --- Notable Colour Ranges (HSV lower, HSV upper, threshold) ---
-    TAG_BLUE = Color((90, 100, 200), (100, 255, 255), 128)       # hex: FF00FFFF
-    TAG_PURPLE = Color((130, 100, 100), (150, 255, 255), 35)     # hex: FFAA00FF
-    TAG_PINK = Color((145, 100, 200), (155, 255, 255), 20)       # hex: FFFF00E7
-    TAG_GREEN = Color((40, 100, 255), (70, 255, 255), 128)
-    TAG_RED = Color((0, 255, 255), (20, 255, 255), 128)
+    # --- Notable Colour Ranges (HSV lower, HSV upper) ---
+    TAG_BLUE = Color((90, 100, 200), (100, 255, 255))       # hex: FF00FFFF
+    TAG_PURPLE = Color((130, 100, 100), (150, 255, 255))     # hex: FFAA00FF
+    TAG_PINK = Color((145, 100, 200), (155, 255, 255))       # hex: FFFF00E7
+    TAG_GREEN = Color((40, 100, 255), (70, 255, 255))
+    TAG_RED = Color((0, 255, 255), (20, 255, 255))
 
     # --- Desired client position ---
     # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
@@ -201,7 +201,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
         path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
         # Locate potential NPCs in image by determining contours
-        contours = rcv.get_contours(path_npcs, self.TAG_BLUE[2])
+        contours = rcv.get_contours(path_npcs)
         # Get center pixels of non-combatting NPCs
         centers = []
         img_bgr = cv2.imread(path_hp_bars)
@@ -225,13 +225,13 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Finds all contours on screen of a particular color and returns a list of center Points for each.
         Args:
             rect: The rectangle to search in.
-            color: The color to search for. Must be a tuple of (HSV upper, HSV lower, threshold) values.
+            color: The color to search for. Must be a tuple of (HSV upper, HSV lower) values.
         Returns:
             A list of center Points.
         '''
         path_game_view = bcv.capture_screen(rect)
         path_tagged = rcv.isolate_colors(path_game_view, [color], "get_all_tagged_in_rect")
-        contours = rcv.get_contours(path_tagged, color[2])
+        contours = rcv.get_contours(path_tagged)
         centers = []
         for cnt in contours:
             try:
@@ -247,7 +247,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Finds the nearest contour of a particular color within the game view to the character and returns its center Point.
         Args:
             rect: The rectangle to search in.
-            color: The color to search for. Must be a tuple of (HSV upper, HSV lower, threshold) values.
+            color: The color to search for. Must be a tuple of (HSV upper, HSV lower) values.
         Returns:
             The center Point of the nearest contour, or None if none found.
         '''

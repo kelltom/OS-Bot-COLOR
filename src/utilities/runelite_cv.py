@@ -10,10 +10,10 @@ from typing import NamedTuple, List
 
 # --- Custom Named Tuple ---
 # Simplifies referncing colors by name.
-Color = NamedTuple("Color", hsv_upper=tuple, hsv_lower=tuple, threshold=int)
+Color = NamedTuple("Color", hsv_upper=tuple, hsv_lower=tuple)
 
 
-def get_contours(path: str, thresh: int) -> list:
+def get_contours(path: str) -> list:
     '''
     Gets the contours of an image.
     Args:
@@ -24,6 +24,7 @@ def get_contours(path: str, thresh: int) -> list:
     '''
     img = cv2.imread(path)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    thresh = 1
     _, thresh = cv2.threshold(img_gray, thresh, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     return contours
