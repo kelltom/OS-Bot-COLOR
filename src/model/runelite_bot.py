@@ -108,11 +108,14 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         minimap = bcv.capture_screen(self.rect_minimap)
         # load it as a cv2 image
         minimap = cv2.imread(minimap)
+        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap.png", minimap)
         # change to hsv
         hsv = cv2.cvtColor(minimap, cv2.COLOR_BGR2HSV)
+        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap_hsv.png", hsv)
         # Threshold the HSV image to get only friend color
         mask1 = cv2.inRange(hsv, self.TAG_GREEN[0], self.TAG_GREEN[1])
         only_friends = cv2.bitwise_and(minimap, minimap, mask=mask1)
+        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
         return str(mean) != "[0. 0. 0.]"
 
