@@ -35,9 +35,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     client_window = None  # client region, determined at setup
 
     # ------- Main Client Rects -------
-    rect_opponent_information = Rectangle(Point(13, 51), Point(140, 87))  # combat/skilling plugin text
-    rect_game_view = Rectangle(Point(9, 31), Point(517, 362))  # gameplay area
-    rect_opponent_information = Rectangle(Point(13, 51), Point(140, 71))  # combat/skilling plugin text
+    rect_current_action = Rectangle(Point(13, 51), Point(140, 71))  # combat/skilling plugin text
     rect_game_view = Rectangle(Point(8, 50), Point(517, 362))  # gameplay area (prev start: x=9, y=31)
     rect_hp = Rectangle(Point(528, 81), Point(549, 95))  # hp number on status bar
     rect_prayer = Rectangle(Point(530, 117), Point(550, 130))  # prayer number on status bar
@@ -157,7 +155,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        result = bcv.get_text_in_rect(self.rect_opponent_information)
+        result = bcv.get_text_in_rect(self.rect_current_action)
         return result.strip() != ""
 
     # --- NPC/Object Detection ---

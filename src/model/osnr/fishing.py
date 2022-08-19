@@ -65,7 +65,7 @@ class OSNRFishing(OSNRBot):
                 return
 
             # If not fishing, click fishing spot
-            is_fishing = bcv.search_text_in_rect(self.rect_opponent_information, ["fishing"], ["not"])
+            is_fishing = bcv.search_text_in_rect(self.rect_current_action, ["fishing"], ["not"])
             if not is_fishing:
                 spot = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/salmon_sprite.png", self.rect_game_view)
                 if spot is None:
