@@ -179,3 +179,11 @@ Making this project into an executable is kind of tedious. Due to some issues wi
 *Note: Auto Py to EXE hates deep file structures. In order for the executable directory to retain the original folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work. Alternatively, import my [settings](auto-py-to-exe_settings.json) to speed up the process (you'll need to edit file path names).*
 
 *Another Note: CustomTkinter needs to be pointed to in the Additional Files section.* ```{path to repo}/env/Lib/site-packages/customtkinter``` ```customtkinter```
+
+
+# Support
+<p align="center">
+  <a href="https://www.buymeacoffee.com/kellenevoy" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px">
+  </a>  
+</p>
