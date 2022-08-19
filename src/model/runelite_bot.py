@@ -350,7 +350,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         self.log_msg("Logging out of Runelite...")
         rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
         if rl_login_icon is not None:
-            self.mouse.move_to(rl_login_icon, duration=1)
+            self.mouse.move_to(rl_login_icon, 0.2)
             pag.click()
             time.sleep(0.2)
             pag.press('enter')
