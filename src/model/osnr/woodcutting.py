@@ -59,10 +59,7 @@ class OSNRWoodcutting(OSNRBot):
         time.sleep(0.5)
 
         # Move camera up
-        pag.keyDown('up')
-        time.sleep(2)
-        pag.keyUp('up')
-        time.sleep(0.5)
+        self.move_camera_up()
 
         last_inventory_pos = self.inventory_slots[6][3]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
