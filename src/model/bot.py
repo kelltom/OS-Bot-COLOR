@@ -99,7 +99,6 @@ class Bot(ABC):
         self.log_msg("Manual stop requested. Attempting to stop...")
         if self.status != BotStatus.STOPPED:
             self.set_status(BotStatus.STOPPED)
-            self.reset_progress()
         else:
             self.log_msg("Bot is already stopped.")
 
