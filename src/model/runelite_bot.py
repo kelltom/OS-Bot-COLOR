@@ -149,6 +149,15 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         time.sleep(1)
         self.mouse.move_to(Point(645, 451))  # Logout button
         pag.click()
+    
+    def move_camera_up(self):
+        '''
+        Moves the camera up.
+        '''
+        pag.keyDown('up')
+        time.sleep(2)
+        pag.keyUp('up')
+        time.sleep(0.5)
 
     def is_in_combat(self) -> bool:
         '''
