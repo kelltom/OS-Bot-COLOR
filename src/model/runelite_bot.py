@@ -387,6 +387,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
             win.activate()
         except Exception:
             self.log_msg("Error: Could not find game window.")
+            self.set_status(BotStatus.STOPPED)
             return
 
         # Set window to large initially

@@ -220,6 +220,8 @@ class OSNRBot(RuneliteBot, metaclass=ABCMeta):
                           set_layout_fixed=set_layout_fixed,
                           logout_runelite=logout_runelite,
                           collapse_runelite_settings=collapse_runelite_settings)
+        if not self.status_check_passed():
+            return
         self.set_camera_zoom(zoom_percentage)
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.cp_inventory)
