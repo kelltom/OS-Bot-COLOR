@@ -154,6 +154,8 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
         '''
         Moves the camera up.
         '''
+        # Position the mouse somewhere on the game view
+        self.mouse.move_to(Point(self.rect_game_view.start.x + 20, self.rect_game_view.start.y + 20))
         pag.keyDown('up')
         time.sleep(2)
         pag.keyUp('up')
