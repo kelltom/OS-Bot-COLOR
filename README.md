@@ -3,10 +3,10 @@
 # ![](documentation/media/logo.png)
 OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots, even for inexperienced developers.
 
+If you like this project, consider leaving a Star :)
+
 # Table of Contents
-- [!](#)
-- [Table of Contents](#table-of-contents)
-- [Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>](#developer-setup-)
+- [Developer Setup](#developer-setup-)
 - [Features](#features)
   - [User Interface](#user-interface)
     - [Simple Option Menus](#simple-option-menus)
