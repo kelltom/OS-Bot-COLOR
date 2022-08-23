@@ -30,7 +30,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
         # self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Title
-        self.label_title = customtkinter.CTkLabel(self, text="Old School Runescape", text_font=("Roboto", 24))
+        self.label_title = customtkinter.CTkLabel(self, text="Old School RuneScape", text_font=("Roboto", 24))
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label

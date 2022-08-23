@@ -102,7 +102,7 @@ class App(customtkinter.CTk):
         # 3. Call the "__create_button" function to create a pre-configured button for the bot. Append the button to
         #    the button map (self.btn_map) for the game it belongs to.
 
-        # ----- Old School Runescape (OSRS) Bots -----
+        # ----- Old School RuneScape (OSRS) Bots -----
         self.models["ExampleBot"] = ExampleBot()
         self.models["ExampleBot"].set_controller(self.controller)
         self.btn_map["OSRS"].append(self.__create_button("ExampleBot"))

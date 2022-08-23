@@ -107,7 +107,7 @@ The orange represents custom bots. If you're a developer, this is what you'd be 
 ## Bot Utilities (Computer Vision, OCR, Mouse movements)
 **TODO: Move to Wiki**
 
-Behind the scenes, OSBC contains a few [utility modules](src/utilities) for performing complex processing that bots rely on. This includes various computer vision techniques (color isolation, image searching, optical character recognition, etc.), as well as human-like mouse movements (still in development). These utilties are entirely de-coupled from Runescape - the functions within them are general (E.g., screenshot a rectangle on screen, isolate a certain color in an image, get the center pixel of an enclosed contour, etc.). 
+Behind the scenes, OSBC contains a few [utility modules](src/utilities) for performing complex processing that bots rely on. This includes various computer vision techniques (color isolation, image searching, optical character recognition, etc.), as well as human-like mouse movements (still in development). These utilties are entirely de-coupled from RuneScape - the functions within them are general (E.g., screenshot a rectangle on screen, isolate a certain color in an image, get the center pixel of an enclosed contour, etc.). 
 
 These utilties are used by the abstract bot classes to build more user-friendly functions that everyday bot-writers will understand. The goal here is to separate the complex image processing from the bot-writing process. The users/developers should not need to know how these functions work. They should only need to know how to use them.
 
