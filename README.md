@@ -1,9 +1,26 @@
 ### ⚠️ This project is WIP ⚠️
 
-# ![](documentation/wiki_images/logo.png)
-A lightweight desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots, even for inexperienced developers.
+# ![](documentation/media/logo.png)
+OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots, even for inexperienced developers.
 
-## Developer Setup
+# Table of Contents
+- [!](#)
+- [Table of Contents](#table-of-contents)
+- [Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>](#developer-setup-)
+- [Features](#features)
+  - [User Interface](#user-interface)
+    - [Simple Option Menus](#simple-option-menus)
+    - [Script Log](#script-log)
+  - [Client Settings Uniformity](#client-settings-uniformity)
+    - [Runelite Settings](#runelite-settings)
+    - [Automated In-Game UI Setup](#automated-in-game-ui-setup)
+  - [Bot Class Architecture](#bot-class-architecture)
+    - [RuneliteBot Color Isolation Example](#runelitebot-color-isolation-example)
+  - [Bot Utilities (Computer Vision, OCR, Mouse movements)](#bot-utilities-computer-vision-ocr-mouse-movements)
+- [Packaging an Executable](#packaging-an-executable)
+- [Support](#support)
+
+# Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>
 1. Clone/download the repository.
 2. Open the repository folder in a terminal window.
    1. Create a virtual environment. ```python -m venv env```
@@ -12,173 +29,110 @@ A lightweight desktop client for controlling and monitoring color-based automati
 3. Open the project folder in your IDE (VS Code preferred).
 4. Run main.py (./src/main.py)
 
-# Application Walkthrough
-Upon running the program, the user will be met with a home screen that should tell them how to configure their Runelite client. It is essential that Runelite settings are configured correctly, as much of the bot-utility library relies on various Runelite plugins. Before the user can select a script in the left-side menu, they must either click "Replace Settings" button to overwrite their settings file, or skip this step if they are confident their settings will work. *In the future, the "Skip" button should perform a diff to see if the settings are significantly different from the default settings.*
+For more developer information, see the [official documentation](https://github.com/kell90/OSRS-Bot-COLOR/wiki). Video tutorials coming soon.
 
-![](documentation/wiki_images/1.home_view.png)
+# Features
+## User Interface
+Gone are the days of manually running your bot scripts from an IDE. OSBC offers a clean interface for configuring, running, and monitoring your bots. For developers, this means that all you need to do is write a bot's logic loop, and *the UI is already built for you*.
 
-The user can select a script on the left-side menu. This will change the right-side pane to display the script's control panel, and script log. [This UI view](src/view/bot_view.py) is pre-written and reacts to a custom Bot model class that is passed to it (in this case, [ExampleBot class](src/model/example_bot.py)). This means that developers need only define their Bot's name, description, properties and logic, and the rest is taken care of. The functionality of the buttons are also pre-configured to work with Bot models that extend the [Bot class](src/model/bot.py).
+![](documentation/media/example_demo.gif)
 
-![](documentation/wiki_images/2.example_script.png)
-
-Before a script can run, the user must configure its options. Clicking the "Options" button will open a new window to accept user input. This prevents users from having to edit source code when adjusting script behaviour. This is the **only** view that needs to be created by the developer. An example can be found [here](src/view/bot_options/example_bot_options.py).
-
-![](documentation/wiki_images/3.options.png)
-
-Clicking "Play" will run the script. It will run the Bot instance's main_loop() function on a separate thread, so the user can continue to interact with the program. All scripts are pre-configured to listen for keyboard interrupts, so the user can pause/stop the script at any time while their mouse is compromised by the bot. Script progress is updated in the script log and progress bar throughout execution.
-
-![](documentation/wiki_images/4.running.png)
-
-# Instructions for adding new bots
-Much of the boilerplate code is already in place. You just need to add and modify a few files to create a new bot. **Before jumping the gun, make sure you have a good understanding of the codebase and have finished reading this guide**.
-
-## Building the UI
-Much of the UI code is already written for you. However, since each bot is different, they may require unique views and logic. To add a new bot to the client, you'll need to do the following:
-
-- Add a new button to the left panel in [main.py](src/main.py).
-- Add a new [BotView](src/views/bot_view.py) to the right panel in [main.py](src/main.py).
-- Create a reference to your custom bot model in [src/model/](src/model/).
-- Create an instance of [BotController](src/controller/bot_controller.py) and pass it the newly created BotView and Bot Model.
-- Create a new [Bot Options View](src/view/bot_options/).
-- Lastly, call the setup() method on the BotView passing it the required arguments.
-
-### Step 1: Create the button in main.py
-Find the section where all the other script buttons exist and add a new button and append it to the button list. The command of this button should call the existing *toggle_frame_by_name* function with a name matching the name of your bot. We are using "Woodcutting" in this example.
+### Simple Option Menus
+Instead of forcing users to configure their bots via Notepad, OSBC allows developers to create option menus and parse user selections with ease.
 
 ```python
-self.btn_wc = customtkinter.CTkButton(master=self.frame_left,
-                                      text="Woodcutting",
-                                      command=lambda: self.toggle_frame_by_name("Woodcutting", self.btn_wc))
-# Set row argument according to position of button in left panel
-self.btn_wc.grid(row=3, column=0, pady=10, padx=20)
-self.btn_list.append(self.btn_wc)
+def create_options(self):
+  ''' Declare what should appear when the user opens the Options menu '''
+    self.options_builder.add_slider_option("kills", "How many kills?", 1, 300)
+    self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
+
+def save_options(self, options: dict):
+  ''' Receive's user selections as a dictionary and saves them to the bot '''
+    for option in options:
+        if option == "kills":
+            self.kills = options[option]
+            self.log_msg(f"The bot will kill {self.kills} NPCs.")
+        elif option == "prefs":
+            if "Loot" in options[option]:
+                self.should_loot = True
+                self.log_msg("The bot will pick up loot.")
+            if "Bank" in options[option]:
+                self.should_bank = True
+                self.log_msg("The bot will bank.")
 ```
 
-### Step 2: Create the BotView in main.py
-Navigate main.py to find the section where all the other BotViews exist and add a new BotView. You should instantiate this new view as a member of the views dictionary. The key that you assign this object to should be the name of your bot. The parent argument should always be *self.frame_right*.
+![](documentation/media/options_menu.png)
+
+### Script Log
+As an alternative to the command line, OSBC's Script Log provides a clean and simple way to track your bot's progress. No more command line clutter!
 
 ```python
-self.views["Woodcutting"] = BotView(parent=self.frame_right)
+self.log_msg("The bot has started.")
 ```
-**At this point, you can run the app to see the base UI and functionality that this creates. The buttons on the bot's control panel will not work at this stage.**
 
-### Step 3: Create an instance of your bot's model in main.py
-Directly below the BotView you created in main.py, create a new instance of your bot's model. For instructions on how to create a model, see the [Bot logic section](#bot-logic). If you have not yet implemented a bot model, you can use the [ExampleBot](src/model/example.py) class as a substitute. If you're just getting started, take the example route for now.
+## Client Settings Uniformity
+Color bots rely on very specific in-game settings. Traditionally, users must manually configure their game clients so that they work with their bot scripts. This can be a hassle for those who have highly customized Runelite settings. Luckily, OSBC offers numerous client configuration features.
+
+### Runelite Settings
+Configuring Runelite settings is only a few mouse clicks away. **This feature will be replaced by a toggle switch to swap between personal settings and bot settings.**
+
+![](documentation/media/replace_settings.gif)
+
+### Automated In-Game UI Setup
+In a single line of code, much of the in-game UI can be automatically configured to ensure everything is where it needs to be. Color bots rely on specific pixel coordinates, so this feature ensures uniformity.
 
 ```python
-self.wc_model = Woodcutting()
-# Or...
-self.wc_model = ExampleBot()
+self.setup()
 ```
 
-### Step 4: Create an instance of BotController in main.py
-The bot controller is **entirely** prewritten. You just need to create an instance of it and pass it to the BotView you created in main.py. The controller handles interaction between the bot and the view.
+![](documentation/media/game_settings.gif)
 
-```python
-self.wc_controller = BotController(model=self.wc_model,
-                                   view=self.views["Woodcutting"])
-```
+## Bot Class Architecture
+OSBC utilizes abstraction to simplify the development of new bots. This allows developers to focus on the logic loop and not the implementation details.
 
-### Step 5: Create a new Options view for your bot (this section is incomplete)
-This is the tricky part. Each bot needs a custom view for setting its options. For a woodcutting bot, we might want this view to allow users to select how many trees to cut down, whether or not it should drop logs or bank them, etc. To create a new options view, you'll need to do the following:
+![](documentation/media/class_design.png)
 
-- Create a new file in the [src/view/bot_options/](src/view/bot_options/) directory.
-- Create a class called *WoodcuttingBotOptions* that extends *customtkinter.CTkFrame*.
-- Build a simple UI for the user to interact with.
-- Create a save() function that passes the user's input to the controller in the form of a dictionary.
+The [Bot](src/model/bot.py) class contains functionality and properties required by *all* bots. This includes the ability to start, stop, and pause the bot, log messages, update progress, and so on.
 
-**See [example_bot_options.py](src/view/bot_options/example_bot_options.py) for a place to start.**
+The [RuneliteBot](src/model/runelite_bot.py) class contains botting functionality that all Runelite-based games will have. E.g., the ability to fetch the coordinates of all tagged objects on screen.
 
-### Step 6: Call the setup() method on the BotView in main.py
-To finalize the BotView UI, you must call the setup() method. This will establish the connection between the model and the view via the controller, update the name/description in the information panel, and link the Options button with your bot's options view. You may use *ExampleBotOptions* as the argument for *options_class* if you haven't implemented your own options view. Be sure to pass only a reference to the options class, not an instance of it.
+The green boxes represent classes for specific games. Each game needs a dedicated parent class that inherits either *Bot* or *RuneliteBot*. Every private server is different - and although they may share the Runelite client, that does not mean their UI elements will be in the same place as other games. These classes will have game-specific functionality. E.g., banking, loading bank presets, teleporting via custom interfaces, etc.
 
-```python
-self.views["Woodcutting"].setup(controller=self.wc_controller,
-                                title=self.wc_model.title,
-                                description=self.wc_model.description,
-                                options_class=WoodcuttingBotOptions)
-                                # Or...
-                                # options_class=ExampleBotOptions)
-```
+The orange represents custom bots. If you're a developer, this is what you'd be working with. By creating a new bot class and inheriting the appropriate parent class, you'll have access to a plethora of tools that'll make your life easier.
 
-### Here's what it should look like when you're done:
-```python
-# --- Buttons ---
-self.btn_wc = customtkinter.CTkButton(master=self.frame_left,
-                                      text="Woodcutting",
-                                      command=lambda: self.toggle_frame_by_name("Woodcutting", self.btn_wc))
-self.btn_wc.grid(row=?, column=0, pady=10, padx=20)
-self.btn_list.append(self.btn_wc)
-# --- Views ---
-self.views = {}
-self.views["Woodcutting"] = BotView(parent=self.frame_right)
-self.wc_model = Woodcutting() # or ExampleBot()
-self.wc_controller = BotController(model=self.wc_model,
-                                   view=self.views["Woodcutting"])
-self.views["Woodcutting"].setup(controller=self.wc_controller,
-                                title=self.wc_model.title,
-                                description=self.wc_model.description,
-                                options_class=WoodcuttingBotOptions) # or ExampleBotOptions
-```
+### RuneliteBot Color Isolation Example
 
-If you used the example classes as substitutes, your UI should be fairly functional. Otherwise, see the next section for how to implement a custom bot model.
+![](documentation/media/color_isolation_example.png)
 
-## Bot logic
-To create a new bot model and script, begin by creating a new model file in [src/model/](src/model/). For instance, if you are making a bot for woodcutting, call it *woodcutting.py*. Create a class of matching name that extends [Bot](src/model/bot.py). The majority of the logic for controlling your bot is already implemented in the base class. You need only implement the three required functions below.
+## Bot Utilities (Computer Vision, OCR, Mouse movements)
+**TODO: Move to Wiki**
 
-```python
-from model.bot import Bot, BotStatus
+Behind the scenes, OSBC contains a few [utility modules](src/utilities) for performing complex processing that bots rely on. This includes various computer vision techniques (color isolation, image searching, optical character recognition, etc.), as well as human-like mouse movements (still in development). These utilties are entirely de-coupled from Runescape - the functions within them are general (E.g., screenshot a rectangle on screen, isolate a certain color in an image, get the center pixel of an enclosed contour, etc.). 
 
-class Woodcutting(Bot):
-    def __init__(self):
-        title = "Woodcutting"
-        description = ("Some " + "description")
-        super().__init__(title=title, description=description)
-    
-    def save_options(self, options: dict):
-        '''
-        For each option in the dictionary, if it is an expected option, save the value as a property of the bot.
-        If any unexpected options are found, log a warning. If an option is missing, set the options_set flag to
-        False. No need to set bot status.
-        '''
-        pass
+These utilties are used by the abstract bot classes to build more user-friendly functions that everyday bot-writers will understand. The goal here is to separate the complex image processing from the bot-writing process. The users/developers should not need to know how these functions work. They should only need to know how to use them.
 
-    def main_loop(self):
-        '''
-        Main logic of the bot. This function is called on a separate thread.
-        '''
-        pass
-```
+For example, the [RuneliteBot](src/model/runelite_bot.py) class might contain a function for attacking the closest NPC - *attack_nearest_NPC()*. This function performs many complex tasks: it takes a screenshot, isolates red and green to locate health bars, isolates blue contours to identify NPCs, finds the center pixel of each contour, ensures that pixel isn't a neighbour to a health bar, then clicks it. The user/developer does not need to know how this function works. They only need to know that it will attack the nearest NPC. Any function that is applicable to more than one bot should be placed in an appropriate abstract class.
 
-The *init()* function requires you to specify a bot title and description and pass them along to the base class. You can also declare any other attributes/options you want to use in your bot (E.g., for a Woodcutting bot, you may want to have a boolean for whether or not to bank the logs). Ultimately, the properties of your bot should sync with the options provided in your options view.
+# Packaging an Executable
+Due to some issues with dependencies, it's not possible to build this project into a *single file* executable, however, a directory-based executable can be made.
 
-The *save_options()* function expects a dictionary of options. The keys are the names of the options and the values are the values of the options. Since options are unique to bots, you must implement a way to save the options to your bot. These properties will likely be used by your main loop logic.
+1. In the terminal/cmd, navigate to the directory containing the project.
+2. Ensure the venv is activated: ```.\env\Scripts\activate```
+3. Run AutoPyToEXE via the terminal command: ```auto-py-to-exe```
+   1. The program should open in a new window.
+4. Configure the window similarly to the figure below (or import the [auto-py-to-exe_settings.json](auto-py-to-exe_settings.json) file included in the root of this repository to speed up the process).
+   1. Ensure the *Additional Files* paths are correct.
+   2. Under the *Icon* tab, select your own icon. I've yet to create one.
+5. Click the *Convert* button.
+6. Rename *./output/main* to *./output/src*. Then you can run *main.exe* within that folder.
 
-The *main_loop()* function is where your bot's logic will go. It will run on a separate thread.
+![](documentation/media/auto-py-to-exe-settings.png)
 
-*IMPORTANT: While implementing these functions, the developer has a short list of responsibilities to adhere to in order for the bot to behave properly. See the [ExampleBot](src/model/example_bot.py) class for a more detailed explanation of what each function should do.*
+*Note: CustomTkinter and EasyOCR need to be pointed to in the Additional Files section.
 
-### Bot Commands
-**TODO: A library will be created for the bot to use. This library will simplify commonly used tasks, such as configuring the game client's position on screen, extracting text from a specific part of the game view (e.g., getting HP/Prayer value from minimap orb), searching the player's inventory for a specific item based on an image, dropping all items in the player's inventory, etc. See [bot_utilities.py](src/model/bot_utilities.py)**
+```{path to repo}/env/Lib/site-packages/customtkinter;customtkinter```
 
-### Updating the UI throughout the bot loop
-Throughout your *main_loop()* function, you should make use of functions that relay information back to the UI. For instance, when an iteration of the bot loop has finished, you should call the [increment_iter()](src/model/bot.py#increment_iter) function, which will update the progress bar on the UI as well as updating the bot's current iterations counter property. [log_msg()](src/model/bot.py#log_msg) is a function that will log a message to the UI, and should be used frequently to keep the user informed of the bot's progress.
-
-**TODO: Add full list of built-in functions users should use.**
-
-# Creating an Executable (*OUTDATED*)
-Making this project into an executable is kind of tedious. Due to some issues with dependencies, it's not possible to build this project into a single-file executable, however, a directory-based executable can be made.
-
-1. In the terminal, navigate to the directory containing the project.
-2. Ensure the venv is activated (see the top of this README).
-3. Run AutoPyToEXE via the terminal command. ```auto-py-to-exe```
-   1. The APTE app should open in a new window.
-4. Configure the window similarly to this: ![](documentation/wiki_images/auto-py-to-exe-settings.png)
-5. Rename ./output/main to ./output/src. Then you can run main.exe within that folder.
-
-*Note: Auto Py to EXE hates deep file structures. In order for the executable directory to retain the original folder structure, you have to tediously point to each subfolder in the project. Do this by clicking the "Add Blank" button under "Additional Files". See image above, it should work. Alternatively, import my [settings](auto-py-to-exe_settings.json) to speed up the process (you'll need to edit file path names).*
-
-*Another Note: CustomTkinter needs to be pointed to in the Additional Files section.* ```{path to repo}/env/Lib/site-packages/customtkinter``` ```customtkinter```
+```{path to repo}/env/Lib/site-packages/easyocr;easyocr```
 
 
 # Support
@@ -186,4 +140,4 @@ Making this project into an executable is kind of tedious. Due to some issues wi
   <a href="https://www.buymeacoffee.com/kellenevoy" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px">
   </a>  
-</p>
+</p> 
