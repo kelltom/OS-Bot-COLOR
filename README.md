@@ -35,7 +35,7 @@ For more developer information, see the [official documentation](https://github.
 ## User Interface
 Gone are the days of manually running your bot scripts from an IDE. OSBC offers a clean interface for configuring, running, and monitoring your bots. For developers, this means that all you need to do is write a bot's logic loop, and *the UI is already built for you*.
 
-![](documentation/media/example_demo.gif)
+![](documentation/media/intro_demo.gif)
 
 ### Simple Option Menus
 Instead of forcing users to configure their bots via Notepad, OSBC allows developers to create option menus and parse user selections with ease.
