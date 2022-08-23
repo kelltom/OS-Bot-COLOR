@@ -1,5 +1,5 @@
 '''
-The RuneliteBot class contains properties and functions that are common across all Runelite-based clients. This class
+The RuneLiteBot class contains properties and functions that are common across all RuneLite-based clients. This class
 should be inherited by additional abstract classes representing all bots for a specific game (E.g., Alora, OSRS, etc.).
 
 To determine Thresholds for finding contours: https://pinetools.com/threshold-image
@@ -20,7 +20,7 @@ import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
 
 
-class RuneliteBot(Bot, metaclass=ABCMeta):
+class RuneLiteBot(Bot, metaclass=ABCMeta):
 
     # --- Notable Colour Ranges (HSV lower, HSV upper) ---
     TAG_BLUE = Color((90, 100, 200), (100, 255, 255))       # hex: FF00FFFF
@@ -163,7 +163,7 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
     def is_in_combat(self) -> bool:
         '''
-        Returns whether the player is in combat. This is achieved by checking if text exists in the Runelite opponent info
+        Returns whether the player is in combat. This is achieved by checking if text exists in the RuneLite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
         result = bcv.get_text_in_rect(self.rect_current_action)
@@ -313,9 +313,9 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     # --- Client Settings ---
     def collapse_runelite_settings_panel(self):
         '''
-        Identifies the Runelite settings panel and collapses it.
+        Identifies the RuneLite settings panel and collapses it.
         '''
-        self.log_msg("Closing Runelite settings panel...")
+        self.log_msg("Closing RuneLite settings panel...")
         settings_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
         if settings_icon is not None:
             self.mouse.move_to(settings_icon, 1)
@@ -347,9 +347,9 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
 
     def logout_runelite(self):
         '''
-        Identifies the Runelite logout button and clicks it.
+        Identifies the RuneLite logout button and clicks it.
         '''
-        self.log_msg("Logging out of Runelite...")
+        self.log_msg("Logging out of RuneLite...")
         rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
         if rl_login_icon is not None:
             self.mouse.move_to(rl_login_icon, 0.2)
@@ -386,12 +386,12 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
     def setup_client(self, window_title: str, set_layout_fixed: bool, logout_runelite: bool, collapse_runelite_settings: bool) -> None:
         # sourcery skip: merge-nested-ifs
         '''
-        Configures a Runelite client window. This function logs messages to the script output log.
+        Configures a RuneLite client window. This function logs messages to the script output log.
         Args:
             window_title: The title of the window to be manipulated. Must match the actual window's title.
             set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout".
-            logout_runelite: Whether to logout of Runelite during window config.
-            collapse_runelite_settings: Whether to close the Runelite settings panel if it is open.
+            logout_runelite: Whether to logout of RuneLite during window config.
+            collapse_runelite_settings: Whether to close the RuneLite settings panel if it is open.
         '''
         self.log_msg("Configuring client window...")
         time.sleep(1)
@@ -417,11 +417,11 @@ class RuneliteBot(Bot, metaclass=ABCMeta):
                     self.set_status(BotStatus.STOPPED)
                     return
 
-        # Ensure user is logged out of Runelite
+        # Ensure user is logged out of RuneLite
         if logout_runelite:
             self.logout_runelite()
 
-        # Ensure Runelite Settings pane is closed
+        # Ensure RuneLite Settings pane is closed
         if collapse_runelite_settings:
             self.collapse_runelite_settings_panel()
 

@@ -4,13 +4,13 @@ be inherited by Alora script classes.
 '''
 from abc import ABCMeta
 import utilities.bot_cv as bcv
-from model.runelite_bot import RuneliteBot
+from model.runelite_bot import RuneLiteBot
 from model.bot import BotStatus
 import pyautogui as pag
 import time
 
 
-class AloraBot(RuneliteBot, metaclass=ABCMeta):
+class AloraBot(RuneLiteBot, metaclass=ABCMeta):
 
     def toggle_auto_retaliate(self, toggle_on: bool):
         '''

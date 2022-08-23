@@ -73,7 +73,7 @@ class ExampleBot(Bot):
         5. At the end of the main loop, make sure to set the status to STOPPED.
 
         Additional notes:
-        1. Make use of Bot/RuneliteBot member functions. There are many functions to simplify various actions (E.g., 
+        1. Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions (E.g., 
            finding nearby NPCs, banking, teleporting, checking if players are nearby, etc.). Visit the Wiki for more.
         2. A bot's main_loop() is called on a daemon thread, so it will terminate when the program is closed.
            If things ever get weird, closing the program will terminate the bot.

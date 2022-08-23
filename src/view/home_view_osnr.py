@@ -34,7 +34,7 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
-        self.note = ("In order for these scripts to work, Runelite must be configured in a specific way. " +
+        self.note = ("In order for these scripts to work, RuneLite must be configured in a specific way. " +
                      "Use the buttons below to replace your current settings with our recommended ones, or skip this " +
                      "step if you know your settings are compatible.")
         self.label_note = customtkinter.CTkLabel(master=self,

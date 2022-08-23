@@ -9,8 +9,8 @@ import time
 class OSNRCombat(OSNRBot):
     def __init__(self):
         title = "Combat Bot"
-        description = ("This bot attacks NPCs tagged using Runelite. Position your character in the viscinity of the tagged NPCs. " +
-                       "Ensure there are no Runelite overlays currently visible in the top-left of the game-view, as this bot relies " +
+        description = ("This bot attacks NPCs tagged using RuneLite. Position your character in the viscinity of the tagged NPCs. " +
+                       "Ensure there are no RuneLite overlays currently visible in the top-left of the game-view, as this bot relies " +
                        "on Opponent Information in that position. To remove any conflicting overlays (E.g., Fishing), log out and in.")
         super().__init__(title=title, description=description)
         self.kills = 0

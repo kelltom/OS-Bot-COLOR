@@ -1,5 +1,5 @@
 '''
-A set of computer vision utilities for use with Runelite-based bots.
+A set of computer vision utilities for use with RuneLite-based bots.
 '''
 
 import cv2

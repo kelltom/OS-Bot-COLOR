@@ -12,10 +12,10 @@ If you like this project, consider leaving a Star :)
     - [Simple Option Menus](#simple-option-menus)
     - [Script Log](#script-log)
   - [Client Settings Uniformity](#client-settings-uniformity)
-    - [Runelite Settings](#runelite-settings)
+    - [RuneLite Settings](#runelite-settings)
     - [Automated In-Game UI Setup](#automated-in-game-ui-setup)
   - [Bot Class Architecture](#bot-class-architecture)
-    - [RuneliteBot Color Isolation Example](#runelitebot-color-isolation-example)
+    - [RuneLiteBot Color Isolation Example](#runelitebot-color-isolation-example)
   - [Bot Utilities (Computer Vision, OCR, Mouse movements)](#bot-utilities-computer-vision-ocr-mouse-movements)
 - [Packaging an Executable](#packaging-an-executable)
 - [Support](#support)
@@ -71,10 +71,10 @@ self.log_msg("The bot has started.")
 ```
 
 ## Client Settings Uniformity
-Color bots rely on very specific in-game settings. Traditionally, users must manually configure their game clients so that they work with their bot scripts. This can be a hassle for those who have highly customized Runelite settings. Luckily, OSBC offers numerous client configuration features.
+Color bots rely on very specific in-game settings. Traditionally, users must manually configure their game clients so that they work with their bot scripts. This can be a hassle for those who have highly customized RuneLite settings. Luckily, OSBC offers numerous client configuration features.
 
-### Runelite Settings
-Configuring Runelite settings is only a few mouse clicks away. **This feature will be replaced by a toggle switch to swap between personal settings and bot settings.**
+### RuneLite Settings
+Configuring RuneLite settings is only a few mouse clicks away. **This feature will be replaced by a toggle switch to swap between personal settings and bot settings.**
 
 ![](documentation/media/replace_settings.gif)
 
@@ -94,13 +94,13 @@ OSBC utilizes abstraction to simplify the development of new bots. This allows d
 
 The [Bot](src/model/bot.py) class contains functionality and properties required by *all* bots. This includes the ability to start, stop, and pause the bot, log messages, update progress, and so on.
 
-The [RuneliteBot](src/model/runelite_bot.py) class contains botting functionality that all Runelite-based games will have. E.g., the ability to fetch the coordinates of all tagged objects on screen.
+The [RuneLiteBot](src/model/RuneLite_bot.py) class contains botting functionality that all RuneLite-based games will have. E.g., the ability to fetch the coordinates of all tagged objects on screen.
 
-The green boxes represent classes for specific games. Each game needs a dedicated parent class that inherits either *Bot* or *RuneliteBot*. Every private server is different - and although they may share the Runelite client, that does not mean their UI elements will be in the same place as other games. These classes will have game-specific functionality. E.g., banking, loading bank presets, teleporting via custom interfaces, etc.
+The green boxes represent classes for specific games. Each game needs a dedicated parent class that inherits either *Bot* or *RuneLiteBot*. Every private server is different - and although they may share the RuneLite client, that does not mean their UI elements will be in the same place as other games. These classes will have game-specific functionality. E.g., banking, loading bank presets, teleporting via custom interfaces, etc.
 
 The orange represents custom bots. If you're a developer, this is what you'd be working with. By creating a new bot class and inheriting the appropriate parent class, you'll have access to a plethora of tools that'll make your life easier.
 
-### RuneliteBot Color Isolation Example
+### RuneLiteBot Color Isolation Example
 
 ![](documentation/media/color_isolation_example.png)
 
@@ -111,7 +111,7 @@ Behind the scenes, OSBC contains a few [utility modules](src/utilities) for perf
 
 These utilties are used by the abstract bot classes to build more user-friendly functions that everyday bot-writers will understand. The goal here is to separate the complex image processing from the bot-writing process. The users/developers should not need to know how these functions work. They should only need to know how to use them.
 
-For example, the [RuneliteBot](src/model/runelite_bot.py) class might contain a function for attacking the closest NPC - *attack_nearest_NPC()*. This function performs many complex tasks: it takes a screenshot, isolates red and green to locate health bars, isolates blue contours to identify NPCs, finds the center pixel of each contour, ensures that pixel isn't a neighbour to a health bar, then clicks it. The user/developer does not need to know how this function works. They only need to know that it will attack the nearest NPC. Any function that is applicable to more than one bot should be placed in an appropriate abstract class.
+For example, the [RuneLiteBot](src/model/RuneLite_bot.py) class might contain a function for attacking the closest NPC - *attack_nearest_NPC()*. This function performs many complex tasks: it takes a screenshot, isolates red and green to locate health bars, isolates blue contours to identify NPCs, finds the center pixel of each contour, ensures that pixel isn't a neighbour to a health bar, then clicks it. The user/developer does not need to know how this function works. They only need to know that it will attack the nearest NPC. Any function that is applicable to more than one bot should be placed in an appropriate abstract class.
 
 # Packaging an Executable
 Due to some issues with dependencies, it's not possible to build this project into a *single file* executable, however, a directory-based executable can be made.

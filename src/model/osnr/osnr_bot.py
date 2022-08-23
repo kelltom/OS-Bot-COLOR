@@ -7,13 +7,13 @@ from ..bot import BotStatus
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
 from enum import Enum
-from model.runelite_bot import RuneliteBot
+from model.runelite_bot import RuneLiteBot
 from utilities.bot_cv import Point
 import pyautogui as pag
 import time
 
 
-class OSNRBot(RuneliteBot, metaclass=ABCMeta):
+class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
     class Spellbook(Enum):
         '''
         TODO: Consider moving to parent class.

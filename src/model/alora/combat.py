@@ -10,7 +10,7 @@ class AloraCombat(AloraBot):
     def __init__(self):
         title = "Combat Bot"
         description = ("This bot kills tagged NPCs in Alora RSPS. Make sure to tag all NPCS " +
-                       "via Runelite before starting the bot!")
+                       "via RuneLite before starting the bot!")
         super().__init__(title=title, description=description)
         # Create any additional bot options here. 'iterations' and 'current_iter' exist by default.
         self.iterations = 0

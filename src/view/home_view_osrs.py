@@ -34,7 +34,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
-        self.note = ("In order for these scripts to work, Runelite must be configured in a specific way. " +
+        self.note = ("In order for these scripts to work, RuneLite must be configured in a specific way. " +
                      "Use the buttons below to replace your current settings with our recommended ones, or skip this " +
                      "step if you know your settings are compatible.")
         self.label_note = customtkinter.CTkLabel(master=self,
@@ -45,7 +45,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
 
         # Warning label
         self.warning = ("WARNING: This will overwrite your current settings. If you'd like to save your settings, make " +
-                        "a backup or log in to Runelite and sync your settings to the cloud. If you are already logged in, " +
+                        "a backup or log in to RuneLite and sync your settings to the cloud. If you are already logged in, " +
                         "you are safe to ignore this warning.")
         self.label_warning = customtkinter.CTkLabel(master=self,
                                                     text=self.warning,
@@ -87,13 +87,13 @@ class OSRSHomeView(customtkinter.CTkFrame):
         if res == "Cancel":
             return
         if loc := askopenfilename(initialdir=os.environ['USERPROFILE'],
-                                  title="Select your Runelite settings file",
+                                  title="Select your RuneLite settings file",
                                   filetypes=[("properties files", "*.properties")]):
             print(f"Replacing settings in {loc}...")
             try:
                 settings_path = f"{PATH}\\runelite_settings\\settings.properties"
                 shutil.copyfile(settings_path, loc)
-                self.label_status.configure(text="Settings replaced successfully. Restart Runelite client to apply changes.")
+                self.label_status.configure(text="Settings replaced successfully. Restart RuneLite client to apply changes.")
                 self.main.toggle_btn_state(enabled=True)
             except Exception as e:
                 self.label_status.configure(text="Error: Could not replace settings.", text_color="red")
