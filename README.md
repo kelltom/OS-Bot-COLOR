@@ -94,7 +94,7 @@ OSBC utilizes abstraction to simplify the development of new bots. This allows d
 
 The [Bot](src/model/bot.py) class contains functionality and properties required by *all* bots. This includes the ability to start, stop, and pause the bot, log messages, update progress, and so on.
 
-The [RuneLiteBot](src/model/RuneLite_bot.py) class contains botting functionality that all RuneLite-based games will have. E.g., the ability to fetch the coordinates of all tagged objects on screen.
+The [RuneLiteBot](src/model/runelite_bot.py) class contains botting functionality that all RuneLite-based games will have. E.g., the ability to fetch the coordinates of all tagged objects on screen.
 
 The green boxes represent classes for specific games. Each game needs a dedicated parent class that inherits either *Bot* or *RuneLiteBot*. Every private server is different - and although they may share the RuneLite client, that does not mean their UI elements will be in the same place as other games. These classes will have game-specific functionality. E.g., banking, loading bank presets, teleporting via custom interfaces, etc.
 
