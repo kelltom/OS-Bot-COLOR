@@ -190,6 +190,33 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         self.log_msg("Teleport successful.")
         return True
 
+    # Client Settings Config
+    def set_compass_north(self):
+        self.log_msg("Setting compass North...")
+        self.mouse.move_to(self.orb_compass)
+        self.mouse.click()
+
+    def set_compass_west(self):
+        self.log_msg("Setting compass West...")
+        self.mouse.move_to(self.orb_compass)
+        pag.rightClick()
+        self.mouse.move_rel(0, 72)
+        self.mouse.click()
+
+    def set_compass_east(self):
+        self.log_msg("Setting compass East...")
+        self.mouse.move_to(self.orb_compass)
+        pag.rightClick()
+        self.mouse.move_rel(0, 43)
+        self.mouse.click()
+
+    def set_compass_south(self):
+        self.log_msg("Setting compass South...")
+        self.mouse.move_to(self.orb_compass)
+        pag.rightClick()
+        self.mouse.move_rel(0, 57)
+        self.mouse.click()
+
     def toggle_auto_retaliate(self, toggle_on: bool):
         '''
         Toggles auto retaliate. Assumes client window is configured.
