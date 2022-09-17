@@ -171,7 +171,7 @@ class OSNRThievingNPC(OSNRBot):
             else:
                 npc_search_fail_count += 1
                 time.sleep(1)
-                if npc_search_fail_count > 29:
+                if npc_search_fail_count > 39:
                     self.log_msg(f"No NPC found for {npc_search_fail_count} seconds. Aborting...")
                     self.logout()
                     self.set_status(BotStatus.STOPPED)
