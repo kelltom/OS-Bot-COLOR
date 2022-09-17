@@ -65,6 +65,8 @@ class Bot(ABC):
         '''
         Builds the options view for the bot based on the options defined in the OptionsBuilder.
         '''
+        self.clear_log()
+        self.log_msg("Options panel opened.")
         self.create_options()
         view = self.options_builder.build_ui(parent, self.controller)
         self.options_builder.options = {}

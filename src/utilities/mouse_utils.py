@@ -25,7 +25,7 @@ class MouseUtils():
             y += np.random.randint(-variance, variance)
         pag.moveTo(x, y, duration=duration, tween=tween)
 
-    def move_rel(self, x, y, duration=0.5, variance=0):
+    def move_rel(self, x, y, duration=0.3, variance=0):
         '''
         Moves mouse relative to current position.
         Args:
