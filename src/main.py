@@ -221,6 +221,8 @@ class App(customtkinter.CTk):
         if self.models[bot_key] is not None:
             # If the script's frame is already visible, hide it
             if self.controller.model == self.models[bot_key]:
+                self.controller.model.progress = 0
+                self.controller.update_progress()
                 self.controller.change_model(None)
                 self.views["Script"].pack_forget()
                 self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
@@ -235,6 +237,8 @@ class App(customtkinter.CTk):
                 self.current_btn.configure(fg_color=btn.hover_color)
             # If we are switching to a new script
             else:
+                self.controller.model.progress = 0
+                self.controller.update_progress()
                 self.controller.change_model(self.models[bot_key])
                 self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
                 self.current_btn = btn
