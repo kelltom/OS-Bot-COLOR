@@ -20,6 +20,7 @@ class OSNRThievingNPC(OSNRBot):
         self.running_time = 0
         self.logout_on_friends = False
         self.pickpocket_option = 0
+        self.compass_direction = 0
         self.should_click_coin_pouch = False
         self.should_drop_inv = False
         self.protect_rows = 0
@@ -29,11 +30,12 @@ class OSNRThievingNPC(OSNRBot):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("pickpocket_option", "Where is the pickpocket option?", ["Left-click", "2nd option", "3rd option"])
+        self.options_builder.add_dropdown_option("compass_direction", "Compass direction?", ["North", "East", "South", "West"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
         self.options_builder.add_slider_option("protect_rows", "If dropping, protect rows?", 0, 6)
 
-    def save_options(self, options: dict):
+    def save_options(self, options: dict):  # sourcery skip: low-code-quality
         for option, res in options.items():
             if option == "running_time":
                 self.running_time = options[option]
@@ -55,6 +57,19 @@ class OSNRThievingNPC(OSNRBot):
                 elif res == "3rd option":
                     self.pickpocket_option = 2
                     self.log_msg("Right click pickpocket enabled - 3rd option.")
+            elif option == "compass_direction":
+                if res == "North":
+                    self.compass_direction = 0
+                    self.log_msg("Compass direction: North.")
+                elif res == "East":
+                    self.compass_direction = 1
+                    self.log_msg("Compass direction: East.")
+                elif res == "South":
+                    self.compass_direction = 2
+                    self.log_msg("Compass direction: South.")
+                elif res == "West":
+                    self.compass_direction = 3
+                    self.log_msg("Compass direction: West.")
             elif option == "should_click_coin_pouch":
                 if res == "Yes":
                     self.should_click_coin_pouch = True
@@ -79,17 +94,19 @@ class OSNRThievingNPC(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
-        self.setup_osnr()
+        self.setup_osnr(zoom_percentage=50)
 
         # Config camera
-        if self.pickpocket_option == 0:
-            self.log_msg("Setting camera...")
-            self.move_camera_up()
-        else:
-            self.log_msg("Setting compass...")
-            self.mouse.move_to(self.orb_compass)
-            self.mouse.click()
-        time.sleep(0.3)
+        if self.compass_direction == 0:
+            self.set_compass_north()
+        elif self.compass_direction == 1:
+            self.set_compass_east()
+        elif self.compass_direction == 2:
+            self.set_compass_south()
+        elif self.compass_direction == 3:
+            self.set_compass_west()
+        
+        self.move_camera_up()
 
         # Anchors/counters
         hp_threshold_pos = Point(541, 394)  # TODO: implement checking health threshold
@@ -138,17 +155,17 @@ class OSNRThievingNPC(OSNRBot):
             # Steal from NPC
             npc_pos = self.get_nearest_tagged_NPC(game_view=self.rect_game_view)
             if npc_pos is not None:
-                self.mouse.move_to(npc_pos, duration=0.2)
+                self.mouse.move_to(npc_pos, duration=0.1)
                 if self.pickpocket_option != 0:
                     pag.rightClick()
-                    time.sleep(0.15)
                     if self.pickpocket_option == 1:
                         delta_y = 41
                     elif self.pickpocket_option == 2:
                         delta_y = 56
                     self.mouse.move_rel(x=0, y=delta_y, duration=0.2)
                 pag.click()
-                time.sleep(0.3)
+                if self.pickpocket_option == 0:
+                    time.sleep(0.3)
                 npc_search_fail_count = 0
                 theft_count += 1
             else:
