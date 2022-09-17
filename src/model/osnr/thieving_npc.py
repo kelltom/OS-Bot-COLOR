@@ -182,9 +182,9 @@ class OSNRThievingNPC(OSNRBot):
                 self.log_msg("Clicking coin pouch...")
                 pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
                 if pouch:
-                    self.mouse.move_to(pouch)
-                    time.sleep(0.5)
+                    self.mouse.move_to(pouch, duration=0.7)
                     pag.click()
+                    time.sleep(0.2)
                     no_pouch_count = 0
                 else:
                     no_pouch_count += 1

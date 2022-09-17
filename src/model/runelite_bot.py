@@ -23,7 +23,7 @@ import utilities.runelite_cv as rcv
 class RuneLiteBot(Bot, metaclass=ABCMeta):
 
     # --- Notable Colour Ranges (HSV lower, HSV upper) ---
-    TAG_BLUE = Color((90, 100, 200), (100, 255, 255))       # hex: FF00FFFF
+    TAG_BLUE = Color((90, 100, 255), (100, 255, 255))       # hex: FF00FFFF
     TAG_PURPLE = Color((130, 100, 100), (150, 255, 255))     # hex: FFAA00FF
     TAG_PINK = Color((145, 100, 200), (155, 255, 255))       # hex: FFFF00E7
     TAG_GREEN = Color((40, 100, 255), (70, 255, 255))
