@@ -72,6 +72,21 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         pag.click()
         time.sleep(1)
         return True
+    
+    def load_preset(self):
+        '''
+        Loads the default preset from the bank interface.
+        '''
+        self.log_msg("Loading preset...")
+        self.mouse.move_to(self.presets_btn, duration=0.2, variance=2)
+        pag.click()
+        time.sleep(1)
+        self.mouse.move_to(self.presets_load_btn, duration=0.2, variance=1)
+        pag.click()
+        time.sleep(1)
+        self.mouse.move_to(self.presets_close_btn, duration=0.2, variance=1)
+        pag.click()
+        time.sleep(1)
 
     def teleport_and_bank(self, spellbook: Spellbook) -> bool:
         '''
@@ -115,6 +130,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         pag.click()
         return True
 
+    # Teleporting
     def teleport_home(self, spellbook: Spellbook):
         '''
         Teleports to the home location.
@@ -198,20 +214,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         else:
             print("Auto retaliate is already off.")
 
-    def load_preset(self):
-        '''
-        Loads the default preset from the bank interface.
-        '''
-        self.log_msg("Loading preset...")
-        self.mouse.move_to(self.presets_btn, duration=0.2, variance=2)
-        pag.click()
-        time.sleep(1)
-        self.mouse.move_to(self.presets_load_btn, duration=0.2, variance=1)
-        pag.click()
-        time.sleep(1)
-        self.mouse.move_to(self.presets_close_btn, duration=0.2, variance=1)
-        pag.click()
-        time.sleep(1)
+    
 
     def setup_osnr(self, set_layout_fixed=True, logout_runelite=False, collapse_runelite_settings=True, zoom_percentage=25):
         '''
