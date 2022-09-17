@@ -137,7 +137,7 @@ Due to some issues with dependencies, it's not possible to build this project in
 
 # Support
 <p align="center">
-  <a href="https://www.buymeacoffee.com/kellenevoy" target="_blank">
+  <a href="https://www.buymeacoffee.com/kelltom" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px">
   </a>  
 </p> 
