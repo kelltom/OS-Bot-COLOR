@@ -44,6 +44,8 @@ class OSNRCombat(OSNRBot):
     def main_loop(self):
         self.setup_osnr()
 
+        self.set_compass_north()
+
         # Make sure auto retaliate is on
         self.toggle_auto_retaliate(toggle_on=True)
         time.sleep(0.5)
@@ -70,7 +72,7 @@ class OSNRCombat(OSNRBot):
                 npc = self.get_nearest_tagged_NPC(self.rect_game_view)
                 if npc is not None:
                     self.log_msg("Attempting to attack NPC...")
-                    self.mouse.move_to(npc, 0.2)
+                    self.mouse.move_to(npc, duration=0)
                     self.mouse.click()
                     time.sleep(3)
                     timeout -= 3
@@ -89,8 +91,8 @@ class OSNRCombat(OSNRBot):
                     self.log_msg("Timed out fighting NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                time.sleep(0.5)
-                timeout -= 0.5
+                time.sleep(2)
+                timeout -= 2
                 if not self.status_check_passed():
                     return
             self.killed += 1
