@@ -133,6 +133,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         '''
         Teleports player to a location from the teleport menu interface.
         Args:
+            spellbook: The player's current spellbook.
             location: The location name to lookup in the teleport interface.
         Returns:
             True if successful, False otherwise.
