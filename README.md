@@ -6,7 +6,9 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-b
 If you like this project, consider leaving a Star :)
 
 # Table of Contents
-- [Developer Setup](#developer-setup-)
+- [!](#)
+- [Table of Contents](#table-of-contents)
+- [Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>](#developer-setup-)
 - [Features](#features)
   - [User Interface](#user-interface)
     - [Simple Option Menus](#simple-option-menus)
@@ -122,9 +124,9 @@ Due to some issues with dependencies, it's not possible to build this project in
    1. The program should open in a new window.
 4. Configure the window similarly to the figure below (or import the [auto-py-to-exe_settings.json](auto-py-to-exe_settings.json) file included in the root of this repository to speed up the process).
    1. Ensure the *Additional Files* paths are correct.
-   2. Under the *Icon* tab, select your own icon. I've yet to create one.
+   2. Under the *Icon* tab, you may point it to the [icon](documentation/media/icon.ico) file included, or use your own.
 5. Click the *Convert* button.
-6. Rename *./output/main* to *./output/src*. Then you can run *main.exe* within that folder.
+6. Navigate to the generated *./output/OSRS Bot COLOR* folder, and within that folder you can run the *OSRS Bot COLOR.exe* file. You may move this folder to wherever you'd like.
 
 ![](documentation/media/auto-py-to-exe-settings.png)
 
