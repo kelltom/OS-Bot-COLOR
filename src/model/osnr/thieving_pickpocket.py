@@ -1,5 +1,5 @@
 '''
-Thieving bot for OSNR. Thieves from NPCs.
+Thieving bot for OSNR. Pickpockets from NPCs.
 '''
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
@@ -10,10 +10,10 @@ from utilities.bot_cv import Point
 import utilities.bot_cv as bcv
 
 
-class OSNRThievingNPC(OSNRBot):
+class OSNRThievingPickpocket(OSNRBot):
     def __init__(self):
-        title = "Thieving NPC Bot"
-        description = ("This bot thieves from NPCs in OSNR. Position your character near the NPC you wish to thieve from. " +
+        title = "Thieving: Pickpocket"
+        description = ("This bot steals from NPCs in OSNR. Position your character near the NPC you wish to steal from. " +
                        "If you have food, tag all in inventory as light-blue. Start bot with full HP, " +
                        "and empty last inventory slot. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
         super().__init__(title=title, description=description)

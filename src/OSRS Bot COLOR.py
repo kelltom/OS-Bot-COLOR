@@ -128,7 +128,7 @@ class App(customtkinter.CTk):
         self.models["OSNRSnapegrass"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRSnapegrass"))
 
-        self.models["OSNRThievingNPC"] = OSNRThievingNPC()
+        self.models["OSNRThievingNPC"] = OSNRThievingPickpocket()
         self.models["OSNRThievingNPC"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingNPC"))
 
