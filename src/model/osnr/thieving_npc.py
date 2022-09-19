@@ -30,7 +30,7 @@ class OSNRThievingNPC(OSNRBot):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("pickpocket_option", "Where is the pickpocket option?", ["Left-click", "2nd option", "3rd option"])
-        self.options_builder.add_dropdown_option("compass_direction", "Compass direction?", ["North", "East", "South", "West"])
+        #self.options_builder.add_dropdown_option("compass_direction", "Compass direction?", ["North", "East", "South", "West"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
         self.options_builder.add_slider_option("protect_rows", "If dropping, protect rows?", 0, 6)
