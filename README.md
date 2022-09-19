@@ -29,9 +29,9 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-b
    2. Activate the newly created virtual environment. ```.\env\Scripts\activate```
    3. Install the depedencies. ```pip install -r requirements.txt```
 3. Open the project folder in your IDE (VS Code preferred).
-4. Run main.py (./src/main.py)
+4. Run *OSRS Bot COLOR.py* (./src/OSRS Bot COLOR.py)
 
-For more developer information, see the [official documentation](https://github.com/kell90/OSRS-Bot-COLOR/wiki). Video tutorials coming soon.
+For more developer information, see the [official documentation](https://github.com/kelltom/OSRS-Bot-COLOR/wiki). Video tutorials coming soon.
 
 # Features
 ## User Interface
