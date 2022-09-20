@@ -122,7 +122,7 @@ Due to some issues with dependencies, it's not possible to build this project in
 1. In the terminal/cmd, navigate to the directory containing the project.
 2. Ensure the venv is activated: ```.\env\Scripts\activate```
 3. Run AutoPyToEXE via the terminal command: ```auto-py-to-exe```
-   1. The program should open in a new window.
+   1. You may need to install it first. ```pip install auto-py-to-exe```
 4. Configure the window similarly to the figure below (or import the [auto-py-to-exe_settings.json](auto-py-to-exe_settings.json) file included in the root of this repository to speed up the process).
    1. Ensure the *Additional Files* paths are correct.
    2. Under the *Icon* tab, you may point it to the [icon](documentation/media/icon.ico) file included, or use your own.
