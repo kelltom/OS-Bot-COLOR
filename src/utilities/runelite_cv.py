@@ -9,7 +9,8 @@ from typing import NamedTuple, List
 
 
 # --- Custom Named Tuple ---
-# Simplifies referncing colors by name.
+# Simplifies referencing color ranges by name.
+# See runelite_bot.py for example usage.
 Color = NamedTuple("Color", hsv_upper=tuple, hsv_lower=tuple)
 
 

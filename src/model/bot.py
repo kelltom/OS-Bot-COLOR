@@ -124,13 +124,16 @@ class Bot(ABC):
         Does routine check for:
             - Bot status (stops/pauses)
             - Keyboard interrupts
-        This function enters a pause loop for the given timeout. This function also handles sending
-        messages to controller. Best used in main_loop() inner loops while bot is waiting for a
-        condition to be met.
+        Best used in main_loop() inner loops while bot is waiting for a
+        condition to be met. If the Bot Status is PAUSED, this function
+        will enter a loop waiting for the status to change to RUNNING/STOPPED.
         Args:
-            timeout: int - number of seconds to wait for condition to be met
+            timeout: int - number of seconds to pause for if bot is paused.
         Returns:
             True if the bot is safe to continue, False if the bot should terminate.
+        Example:
+            if not self.status_check_passed():
+                return
         '''
         # Check for keypress interrupts
         self.__check_interrupt()
