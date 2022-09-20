@@ -52,7 +52,7 @@ def isolate_colors(path: str, colors: List[Color], filename: str) -> str:
     Args:
         path: The path to the image to isolate colors.
         colors: A list of rcv Colors.
-        save_as: The name of the file to be saved in the temp images folder.
+        filename: The name of the file to be saved in the temp images folder.
     Returns:
         The path to an image with only the desired color(s).
     '''
@@ -76,7 +76,7 @@ def isolate_colors(path: str, colors: List[Color], filename: str) -> str:
 def is_point_obstructed(point: Point, im, span: int = 20) -> bool:
     '''
     This function determines if there are non-black pixels in an image around a given point.
-    This is useful for determining if an NPC is in combat (E.g., given the top point of an NPC contour
+    This is useful for determining if an NPC is in combat (E.g., given the mid point of an NPC contour
     and a masked image only showing HP bars, determine if the NPC has an HP bar around the contour).
     Args:
         point: The top point of a contour (NPC).
