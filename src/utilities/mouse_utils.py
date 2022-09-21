@@ -1,14 +1,14 @@
 import pyautogui as pag
 import numpy as np
 import random as rd
-from typing import Callable
+from typing import Callable, Union
 
 
 class MouseUtils:
 
     @staticmethod
     def move_to(point: tuple, duration: float = 0.3, duration_variance: float = 0, time_variance: float = 0,
-                tween: Callable = None):
+                tween: Union[str, Callable] = None):
         '''
         Moves mouse to a point on screen with a random movement pattern.
         Args:
