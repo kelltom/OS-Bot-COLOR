@@ -7,7 +7,7 @@ from typing import Callable, Union
 class MouseUtils:
 
     @staticmethod
-    def move_to(point: tuple, duration: float = 0.3, destination_variance: float = 0, time_variance: float = 0,
+    def move_to(point: tuple, duration: float = 0.3, destination_variance: int = 0, time_variance: float = 0,
                 tween: Union[str, Callable] = None):
         '''
         Moves mouse to a point on screen with a random movement pattern.
@@ -38,7 +38,7 @@ class MouseUtils:
             y += np.random.randint(-destination_variance, destination_variance)
         pag.moveTo(x, y, duration=duration + np.abs(rd.gauss(0, time_variance)), tween=tween)
 
-    def move_rel(self, x: int, y: int, duration: float = 0.3, duration_variance: float = 0, time_variance: float = 0,
+    def move_rel(self, x: int, y: int, duration: float = 0.3, destination_variance: int = 0, time_variance: float = 0,
                  mouse_movement: Callable = None):
         '''
         Moves mouse relative to current position.
@@ -46,14 +46,14 @@ class MouseUtils:
             x: x distance to move
             y: y distance to move
             duration: duration of the movement
-            duration_variance: maximum pixel variance in final x and y position
+            destination_variance: maximum pixel variance in final x and y position
             time_variance: the variance absolute of duration. This number is always positive (gaussian with mean 0)
             mouse_movement: a mouse movement object from pyautogui.
                                 If None, easeInOutSine is default.
                                 If 'rand' then a selection of random movements will be used
                                 else enter a callable pyautogui function
         '''
-        self.move_to((pag.position()[0] + x, pag.position()[1] + y), duration, duration_variance, time_variance,
+        self.move_to((pag.position()[0] + x, pag.position()[1] + y), duration, destination_variance, time_variance,
                      mouse_movement)
 
     @staticmethod
