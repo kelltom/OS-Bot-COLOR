@@ -51,7 +51,7 @@ class OSNRCombat(OSNRBot):
         time.sleep(0.5)
 
         # Reselect inventory
-        self.mouse.move_to(self.cp_inventory, 0.2, variance=3)
+        self.mouse.move_to(self.cp_inventory, 0.2, duration_variance=3)
         self.mouse.click()
         time.sleep(0.5)
 
