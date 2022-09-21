@@ -20,7 +20,7 @@ class AloraBot(RuneLiteBot, metaclass=ABCMeta):
         '''
         self.log_msg("Enabling auto retaliate...")
         # click the combat tab
-        self.mouse.move_to(self.cp_combat, duration=1, variance=3)
+        self.mouse.move_to(self.cp_combat, duration=1, destination_variance=3)
         pag.click()
         time.sleep(0.5)
 
@@ -29,7 +29,7 @@ class AloraBot(RuneLiteBot, metaclass=ABCMeta):
         auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/alora/cp_combat_autoretal.png", self.rect_inventory, conf=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.mouse.move_to((644, 402), 0.2, variance=5)
+            self.mouse.move_to((644, 402), 0.2, destination_variance=5)
             pag.click()
         elif toggle_on:
             print("Auto retaliate is already on.")
