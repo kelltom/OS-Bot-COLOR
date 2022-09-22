@@ -157,5 +157,9 @@ cython_debug/
 ~$*
 
 # Ignore temporary files
+# images
 src/images/temp/*
 !src/images/temp/.gitkeep
+# utilities/record_mouse
+src/utilities/record_mouse/*
+!src/utilities/record_mouse/record_mouse.py
