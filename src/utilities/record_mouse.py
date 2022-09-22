@@ -22,7 +22,10 @@ def on_click(x, y, button, pressed):
     if button == mouse.Button.left and pressed:
         s = time.time()
         mouse_loc = pg.position()
-        df = pd.read_csv('click_log.csv', index_col=0)
+        try:
+            df = pd.read_csv('click_log.csv', index_col=0)
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=[x, y, time])
         frame_diff = 100
         box = (mouse_loc[0] - frame_diff, mouse_loc[1] - frame_diff,
                frame_diff * 2, frame_diff * 2)
