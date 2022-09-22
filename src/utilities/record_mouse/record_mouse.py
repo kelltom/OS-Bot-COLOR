@@ -21,7 +21,7 @@ def on_click(x, y, button, pressed):
     It also saves a screenshot of the region you clicked around in case you want to do some vision stuff later. If not,
     then those can be discarded.
 
-    Run the script to START and left click anywhere to END. The ending click will not be recorded.
+    Run the script to START and right-click anywhere to END. The ending click will not be recorded.
     """
 
     if button == mouse.Button.left and pressed:
