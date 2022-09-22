@@ -3,7 +3,7 @@ import time
 from pynput import mouse
 import pyautogui as pg
 import os
-
+import warnings
 if not os.path.exists('auto_screenshots'):
     os.mkdir('auto_screenshots')
 
@@ -25,16 +25,15 @@ def on_click(x, y, button, pressed):
         try:
             df = pd.read_csv('click_log.csv', index_col=0)
         except FileNotFoundError:
-            df = pd.DataFrame(columns=[x, y, time])
+            df = pd.DataFrame(columns=["x", "y", "time"], index=[0])
+
         frame_diff = 100
         box = (mouse_loc[0] - frame_diff, mouse_loc[1] - frame_diff,
                frame_diff * 2, frame_diff * 2)
-        pg.screenshot(f'auto_screenshots/mouse_shot_{df.index[-1] + 1}.png', region=box)
-        df = df.append({
-                           'x': x,
-                           'y': y,
-                           'time': s}, ignore_index=True)
-        df.to_csv('click`_log.csv')
+        df = pd.concat([df, pd.DataFrame({'x': x, 'y': y, 'time': s}, index=[0])], axis=0)
+        pg.screenshot(f'auto_screenshots/mouse_shot_{df.tail(1).index + 1}.png', region=box)
+        df.reset_index(inplace=True, drop=True)
+        df.to_csv('click_log.csv')
         print(df)
         return True  # Returning False if you need to stop the program when Left clicked.
     elif button == mouse.Button.right and pressed:
@@ -42,6 +41,8 @@ def on_click(x, y, button, pressed):
         return False
 
 
+record = pd.DataFrame(columns=["x", "y", "time"])
+record.to_csv('click_log.csv')
 listener = mouse.Listener(on_click=on_click)
 listener.start()
 listener.join()
