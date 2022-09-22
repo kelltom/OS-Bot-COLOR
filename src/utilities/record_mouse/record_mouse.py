@@ -7,7 +7,7 @@ import pyautogui as pg
 import os
 
 # Create folder to contain results
-PATH = pathlib.Path(__file__).parent.resolve().joinpath(datetime.now().strftime("%I_%M_%S_%p"))
+PATH = pathlib.Path(__file__).parent.resolve().joinpath(datetime.now().strftime("%Y_%m_%d - %I_%M_%S_%p"))
 if not os.path.exists(PATH):
     os.makedirs(PATH)
     os.makedirs(f'{PATH}\\screenshots')
