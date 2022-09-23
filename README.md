@@ -7,6 +7,8 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-b
 
 ⭐ If you like this project, consider leaving a Star
 
+💬 Join the Discord: https://discord.gg/Znks7Smya4
+
 # Table of Contents
 - [Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>](#developer-setup-)
 - [Features](#features)
