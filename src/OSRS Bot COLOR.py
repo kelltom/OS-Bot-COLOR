@@ -1,4 +1,4 @@
-from controller.bot_controller import BotController
+from controller.bot_controller import BotController, MockBotController
 from model import *
 from typing import List
 from view import *
@@ -16,9 +16,12 @@ class App(customtkinter.CTk):
     HEIGHT = 520
     DEFAULT_GRAY = ("gray50", "gray30")
 
-    def __init__(self):  # sourcery skip: merge-list-append, move-assign-in-block
+    def __init__(self, test: bool = False):
         super().__init__()
-
+        if not test:
+            self.build_ui()
+    
+    def build_ui(self):  # sourcery skip: merge-list-append, move-assign-in-block
         self.title("OSRS Bot COLOR")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
         self.update()
@@ -256,8 +259,21 @@ class App(customtkinter.CTk):
 
     def start(self):
         self.mainloop()
+    
+    def test(self, bot: Bot):
+        bot.set_controller(MockBotController(bot))
+        bot.set_status(BotStatus.RUNNING)
+        time.sleep(1)
+        bot.main_loop()
 
 
 if __name__ == "__main__":
-    app = App()
-    app.start()
+    # To test a bot without the GUI, address the comments for each line below.
+    app = App()  # Add the "test=True" argument to the App constructor call.
+    app.start()  # Comment out this line.
+    #app.test(Bot()) # Uncomment this line and replace argument with your bot's instance.
+
+    # Note: when testing a bot, ensure all of its options have set default values
+    # in its init() function.
+    #   E.g., self.running_time = 5
+    # Stop your bot by holding 'ESC'.
