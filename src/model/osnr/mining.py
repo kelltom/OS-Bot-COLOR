@@ -1,6 +1,3 @@
-'''
-Trains Runecrafting via Astral Runes.
-'''
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 import pyautogui as pag
@@ -14,7 +11,8 @@ class OSNRMining(OSNRBot):
                        "between some rocks and mark (shift + right-click) the ones you want to mine. Your character " +
                        "must remain stationary.")
         super().__init__(title=title, description=description)
-        self.running_time = 0
+        self.running_time = 2
+        self.logout_on_friends = False
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
