@@ -14,9 +14,6 @@ if not os.path.exists(PATH):
     os.makedirs(f'{PATH}\\screenshots')
 PATH = str(PATH).replace('\\', '/')
 
-print("Starting...")
-curr_time = time.time()
-
 
 def on_click(x, y, button, pressed, terminate: bool = False):
     """
@@ -60,6 +57,9 @@ def on_scroll(x, y, dx, dy):
     '''
     print("Stopping...")
     return False
+
+print("Starting...")
+curr_time = time.time()
 
 # Set up log file
 record = pd.DataFrame(columns=["x", "y", "button", "time"])
