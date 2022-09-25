@@ -9,3 +9,5 @@ Pillow==9.2.0
 PyAutoGUI==0.9.53
 PyGetWindow==0.0.9
 python_imagesearch==1.2.2
+pynput==1.7.6
+pandas==1.5.0
