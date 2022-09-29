@@ -1,11 +1,3 @@
-'''
-This file demonstrates how to set up a simple bot. It demonstrates how to implement the functions for
-capturing user configuration of the bot, and includes a simulated bot loop that does not have any
-side affects during testing.
-
-To better understand how to implement a bot, please see the documentation for the Bot class as well as
-the README/Wiki.
-'''
 
 from model.runelite_bot import RuneLiteBot
 from model.bot import BotStatus
