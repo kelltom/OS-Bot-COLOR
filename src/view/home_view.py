@@ -80,10 +80,10 @@ class HomeView(customtkinter.CTkFrame):
         self.btn_feedback.grid(row=3, column=2, padx=15, pady=(15, 0), sticky="w")
 
     def btn_github_clicked(self):
-        wb.open_new_tab("https://github.com/kell90/OSRS-Bot-COLOR")
+        wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR")
 
     def btn_feedback_clicked(self):
-        wb.open_new_tab("https://github.com/kell90/OSRS-Bot-COLOR/discussions")
+        wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/discussions")
 
     def btn_bug_report_clicked(self):
-        wb.open_new_tab("https://github.com/kell90/OSRS-Bot-COLOR/issues/new/choose")
+        wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/issues/new/choose")

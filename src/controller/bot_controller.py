@@ -94,3 +94,43 @@ class BotController(object):
         else:
             self.view.frame_info.setup(title="", description="")
         self.clear_log()
+
+
+class MockBotController(object):
+
+    def __init__(self, model):
+        '''
+        A mock controller for testing purposes. Allows you to run a bot without a UI.
+        Usage:
+            # Within your Bot's class...
+            if __name__ == '__main__':
+                bot = MyBot()
+                bot.set_controller(MockBotController(bot))
+                time.sleep(2)
+                bot.main_loop()
+        '''
+        self.model: Bot = model
+
+    def update_status(self):
+        '''
+        Called from model. Tells view to update status
+        '''
+        print(f"Updating status on UI to: {self.model.status}")
+
+    def update_progress(self):
+        '''
+        Called from model. Tells view to update progress.
+        '''
+        print(f"Updating progress bar on view to: {self.model.progress * 100}")  # might have the math wrong here
+
+    def update_log(self, msg: str, overwrite: bool = False):
+        '''
+        Called from model. Tells view to update log.
+        '''
+        print(f"Send log msg to UI: {msg}")
+
+    def clear_log(self):
+        '''
+        Called from model. Tells view to clear log.
+        '''
+        print("--- Clearing log ---")

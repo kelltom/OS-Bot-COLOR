@@ -7,6 +7,8 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-b
 
 ⭐ If you like this project, consider leaving a Star
 
+💬 [Join the Discord](https://discord.gg/Znks7Smya4)
+
 # Table of Contents
 - [Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>](#developer-setup-)
 - [Features](#features)
@@ -93,15 +95,15 @@ self.setup()
 ## Bot Class Architecture
 OSBC utilizes abstraction to simplify the development of new bots. This allows developers to focus on the logic loop and not the implementation details.
 
-![](documentation/media/class_design.png)
+![OSRS Bot Class Diagram](https://user-images.githubusercontent.com/44652363/192367984-dec5ef10-077e-4f3e-a386-17858d757a48.png)
 
 The [Bot](src/model/bot.py) class contains functionality and properties required by *all* bots. This includes the ability to start, stop, and pause the bot, log messages, update progress, and so on.
 
 The [RuneLiteBot](src/model/runelite_bot.py) class contains botting functionality that all RuneLite-based games will have. E.g., the ability to fetch the coordinates of all tagged objects on screen.
 
-The green boxes represent classes for specific games. Each game needs a dedicated parent class that inherits either *Bot* or *RuneLiteBot*. Every private server is different - and although they may share the RuneLite client, that does not mean their UI elements will be in the same place as other games. These classes will have game-specific functionality. E.g., banking, loading bank presets, teleporting via custom interfaces, etc.
+The blue boxes represent classes for specific games. Each game needs a dedicated parent class that inherits either *Bot* or *RuneLiteBot*. Every private server is different - and although they may share the RuneLite client, that does not mean their UI elements will be in the same place as other games. These classes will have game-specific functionality. E.g., banking, loading bank presets, teleporting via custom interfaces, etc.
 
-The orange represents custom bots. If you're a developer, this is what you'd be working with. By creating a new bot class and inheriting the appropriate parent class, you'll have access to a plethora of tools that'll make your life easier.
+The orange boxes represent custom bots. If you're a developer, this is what you'd be working with. By creating a new bot class and inheriting the appropriate parent class, you'll have access to a plethora of tools that'll make your life easier.
 
 ### RuneLiteBot Color Isolation Example
 
