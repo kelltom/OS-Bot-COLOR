@@ -12,7 +12,8 @@ import cv2
 class SeersAgilityBot(RuneLiteBot):
     def __init__(self, mouse_csv='src/files/agility/click_log.csv'):
         title = "Seers Agility Bot"
-        description = ("This bot will complete the Seers' Village Agility Course.")
+        description = ("This bot will complete the Seers' Village Agility Course. Put your character on the first"
+                       " roof to begin. Marks will only be collected every 8 laps to save on time.")
         super().__init__(title=title, description=description)
         self.running_time = 0
         self.multi_select_example = None
