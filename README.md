@@ -34,7 +34,7 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-b
 4. Run *OSRS Bot COLOR.py* (./src/OSRS Bot COLOR.py)
    1. If you are getting an OpenCV error, try downgrading its version. ```pip install opencv-python==4.5.4.60```
 
-For more developer information, see the [official documentation](https://github.com/kelltom/OSRS-Bot-COLOR/wiki). Video tutorials coming soon.
+To contribute code, please create feature branches off of the Development branch, and submit pull requests to it with complete features. For more developer information, see the [official documentation](https://github.com/kelltom/OSRS-Bot-COLOR/wiki). Video tutorials coming soon.
 
 # Features
 ## User Interface
