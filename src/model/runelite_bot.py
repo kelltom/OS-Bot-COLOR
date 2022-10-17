@@ -203,6 +203,27 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         img = cv2.imread(hp_bars)
         return str(img.mean(axis=(0, 1))) != "[0. 0. 0.]"
 
+    def has_hp_bar(self) -> bool:
+        '''
+        Returns whether the player has an HP bar above their head.
+        This function only works when the game camera is all the way up.
+        '''
+        # Position of character relative to the screen
+        char_pos = Point(self.rect_game_view.end.x / 2 + self.rect_game_view.start.x,
+                         self.rect_game_view.end.y / 2 + self.rect_game_view.start.y)
+        
+        # Make a rectangle around the character
+        offset = 30
+        char_rect = Rectangle(Point(char_pos.x - offset, char_pos.y - offset*2),
+                              Point(char_pos.x + offset, char_pos.y))
+        # Take a screenshot of rect
+        char_screenshot = bcv.capture_screen(char_rect)
+        # Isolate HP bars in that rectangle
+        hp_bars = isolate_colors(char_screenshot, [self.TAG_RED, self.TAG_GREEN], "player_hp_bar")
+        # If there are any HP bars, return True
+        img = cv2.imread(hp_bars)
+        return str(img.mean(axis=(0, 1))) != "[0. 0. 0.]"
+
     # --- NPC/Object Detection ---
     def attack_first_tagged(self, game_view: Rectangle) -> bool:
         '''
