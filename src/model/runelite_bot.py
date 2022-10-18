@@ -95,8 +95,11 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 continue
             for slot in row:
                 self.mouse.move_to((slot[0], slot[1]),
-                                   target_points=rd.randint(10, 15),
-                                   knots_count=1)
+                                   targetPoints=rd.randint(10, 15),
+                                   knotsCount=1,
+                                   distortionMeanv=0.5,
+                                   offsetBoundaryY=40,
+                                   offsetBoundaryX=40)
                 time.sleep(0.05)
                 pag.click()
         pag.keyUp("shift")
@@ -410,7 +413,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         self.log_msg("Logging out of RuneLite...")
         rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
         if rl_login_icon is not None:
-            self.mouse.move_to(rl_login_icon, 10)
+            self.mouse.move_to(rl_login_icon)
             pag.click()
             time.sleep(0.2)
             pag.press('enter')

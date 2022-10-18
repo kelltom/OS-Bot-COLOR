@@ -68,7 +68,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if empty is None:
             self.log_msg("Cannot find deposit button.")
             return False
-        self.mouse.move_to(empty, target_points=30, destination_variance=3)
+        self.mouse.move_to(empty, destination_variance=3)
         pag.click()
         time.sleep(1)
         return True
@@ -111,7 +111,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if bank_icon is None:
             self.log_msg("Bank icon not found.")
             return False
-        self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3), target_points=40)
+        self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3), targetPoints=40)
         pag.click()
 
         if not self.status_check_passed():
@@ -126,7 +126,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if len(banks) == 0:
             self.log_msg("No banks found.")
             return False
-        self.mouse.move_to(banks[0], target_points=40)
+        self.mouse.move_to(banks[0], targetPoints=40)
         pag.click()
         return True
 
@@ -140,9 +140,9 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         pag.click()
         time.sleep(0.5)
         if spellbook == self.Spellbook.standard:
-            self.mouse.move_to(self.spellbook_standard_home, target_points=50, destination_variance=1)
+            self.mouse.move_to(self.spellbook_standard_home, destination_variance=1, targetPoints=50)
         elif spellbook == self.Spellbook.ancient:
-            self.mouse.move_to(self.spellbook_ancients_home, target_points=50, destination_variance=1)
+            self.mouse.move_to(self.spellbook_ancients_home, destination_variance=1, targetPoints=50)
         pag.click()
 
     def teleport_to(self, spellbook: Spellbook, location: str) -> bool:
@@ -155,7 +155,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
             True if successful, False otherwise.
         '''
         self.log_msg(f"Teleporting to {location}...")
-        self.mouse.move_to(self.cp_spellbook, target_points=40, destination_variance=2)
+        self.mouse.move_to(self.cp_spellbook, destination_variance=2, targetPoints=50)
         pag.click()
         time.sleep(0.5)
 
@@ -163,16 +163,16 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
             return
 
         if spellbook == self.Spellbook.standard:
-            self.mouse.move_to(self.spellbook_standard_tele_menu, target_points=40)
+            self.mouse.move_to(self.spellbook_standard_tele_menu, targetPoints=40)
         elif spellbook == self.Spellbook.ancient:
-            self.mouse.move_to(self.spellbook_ancients_tele_menu, target_points=40)
+            self.mouse.move_to(self.spellbook_ancients_tele_menu, targetPoints=40)
         pag.click()
         time.sleep(1.5)
 
         if not self.status_check_passed():
             return
 
-        self.mouse.move_to(self.teleport_menu_search, target_points=40)
+        self.mouse.move_to(self.teleport_menu_search, targetPoints=40)
         pag.click()
         time.sleep(1)
         no_result_rgb = pag.pixel(self.teleport_menu_search_result.x, self.teleport_menu_search_result.y)
@@ -185,7 +185,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if no_result_rgb == pag.pixel(self.teleport_menu_search_result.x, self.teleport_menu_search_result.y):
             self.log_msg(f"No results found for {location}.")
             return False
-        self.mouse.move_to(self.teleport_menu_search_result, target_points=40, destination_variance=1)
+        self.mouse.move_to(self.teleport_menu_search_result, destination_variance=1,targetPoints=40)
         pag.click()
         self.log_msg("Teleport successful.")
         return True
@@ -234,7 +234,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal.png", self.rect_inventory, conf=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.mouse.move_to((644, 402), target_points=50, destination_variance=5)
+            self.mouse.move_to((644, 402), destination_variance=5, targetPoints=50)
             pag.click()
         elif toggle_on:
             print("Auto retaliate is already on.")
