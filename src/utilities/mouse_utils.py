@@ -1,73 +1,73 @@
 import pyautogui as pag
 import numpy as np
 import random as rd
-from typing import Callable, Union
-
+import time
+from pyclick import HumanCurve
 
 class MouseUtils:
 
-    @staticmethod
-    def move_to(point: tuple, duration: float = 0.3, destination_variance: int = 0, time_variance: float = 0,
-                tween: Union[str, Callable] = None):
+    # TODO: Change to kwargs to reduce number of parameters.
+    def move_to(self, destination: tuple, target_points: int = rd.randint(20, 50), destination_variance: int = 0, knots_count=2):
+        # sourcery skip: use-contextlib-suppress
         '''
-        Moves mouse to a point on screen with a random movement pattern.
+        Use Bezier curve to simulate human-like mouse movements.
         Args:
-            point: x, y tuple of the destination point
-            duration: duration of the movement
-            destination_variance: maximum pixel variance in final x and y position
-            time_variance: the variance absolute of duration. This number is always positive (gaussian with mean 0)
-            tween: a mouse movement object from pyautogui.
-                                If None, easeInOutSine is default.
-                                If 'rand' then a selection of random movements will be used
-                                else enter a callable pyautogui function
+            destination: x, y tuple of the destination point
+            target_points: number of points to use in the curve - more points = slower/more realistic movement
+                           (default rand(20, 50), min 10, max 100)
+            destination_variance: pixel variance to add to the destination point (default 0)
+            knots_count: number of knots to use in the curve - higher value = erratic movements (default 2)
         '''
-        if tween is None:
-            tween = pag.easeInOutSine
-        elif tween == 'rand':
-            tween = rd.choice([pag.easeOutBounce, pag.easeInBounce, pag.easeInBack,
-                               pag.easeInCirc, pag.easeInCubic, pag.easeInElastic,
-                               pag.easeInExpo, pag.easeInOutBounce, pag.easeInOutQuad,
-                               pag.easeInOutQuart, pag.easeInQuart, pag.easeInQuint,
-                               pag.easeInOutBack, pag.easeOutSine])
-        else:
-            if not isinstance(tween, Callable):
-                raise TypeError('mouse_movement must be a callable function. Use None for default or "rand" for random')
-        x, y = point
-        if destination_variance != 0:
-            x += np.random.randint(-destination_variance, destination_variance)
-            y += np.random.randint(-destination_variance, destination_variance)
-        pag.moveTo(x, y, duration=duration + np.abs(rd.gauss(0, time_variance)), tween=tween)
+        if target_points < 10:
+            target_points = 10
+        elif target_points > 100:
+            target_points = 100
 
-    def move_rel(self, x: int, y: int, duration: float = 0.3, destination_variance: int = 0, time_variance: float = 0,
-                 mouse_movement: Callable = None):
+        if destination_variance != 0:
+            destination[0] += np.random.randint(-destination_variance, destination_variance)
+            destination[1] += np.random.randint(-destination_variance, destination_variance)
+
+        start_x, start_y = pag.position()
+        for curve_x, curve_y in HumanCurve((start_x, start_y),
+                                            destination,
+                                            targetPoints=target_points,
+                                            distortionStdev=1,
+                                            knotsCount=knots_count
+                                            ).points:
+            pag.moveTo((curve_x, curve_y))
+            start_x, start_y = curve_x, curve_y
+
+    # TODO: Change to kwargs to reduce number of parameters.
+    def move_rel(self, x: int, y: int, target_points: int = rd.randint(10, 25), destination_variance: int = 0, knots_count=2):
         '''
-        Moves mouse relative to current position.
+        Use Bezier curve to simulate human-like relative mouse movements.
         Args:
             x: x distance to move
             y: y distance to move
-            duration: duration of the movement
-            destination_variance: maximum pixel variance in final x and y position
-            time_variance: the variance absolute of duration. This number is always positive (gaussian with mean 0)
-            mouse_movement: a mouse movement object from pyautogui.
-                                If None, easeInOutSine is default.
-                                If 'rand' then a selection of random movements will be used
-                                else enter a callable pyautogui function
+            target_points: number of points to use in the curve (more points = slower/more realistic movement)
+                           (default rand(10, 25), min 10, max 100)
+            destination_variance: pixel variance to add to the destination point (default 0)
+            knots_count: number of knots to use in the curve - higher value = erratic movements (default 2)
         '''
-        self.move_to((pag.position()[0] + x, pag.position()[1] + y), duration, destination_variance, time_variance,
-                     mouse_movement)
+        self.move_to((pag.position()[0] + x, pag.position()[1] + y), target_points, destination_variance, knots_count)
 
-    @staticmethod
-    def click():
+    def click(self):
         pag.click()
 
 
 if __name__ == '__main__':
-    # testing
-    test_inst = MouseUtils()
-    test_inst.move_to((100, 100), 0.5, 10, 0.1, 'rand')
-    test_inst.move_to((500, 500), 0.5, 10, 0.1, pag.easeInQuart)
-    test_inst.move_to((300, 300), 0.5, 10, 0.1)
-
-    test_inst.move_rel(100, 100, 0.5, 10, 0.1, 'rand')
-    test_inst.move_rel(-100, 100, 0.5, 10, 0.1, pag.easeInQuart)
-    test_inst.move_rel(100, -100, 0.5, 10, 0.1)
+    mouse = MouseUtils()
+    from bot_cv import Point
+    mouse.move_to(destination=Point(646, 213))
+    time.sleep(1)
+    mouse.move_to(destination=(180, 500))
+    time.sleep(1)
+    mouse.move_to(destination=(300, 350))
+    time.sleep(1)
+    mouse.move_to(destination=(300, 200), target_points=70)
+    time.sleep(1)
+    mouse.move_to(destination=(90, 80), target_points=100)
+    time.sleep(1)
+    mouse.move_rel(x=3, y=50)
+    time.sleep(1)
+    mouse.move_rel(x=60, y=2, target_points=40)
