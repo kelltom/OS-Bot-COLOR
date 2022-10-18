@@ -15,6 +15,7 @@ import cv2
 import numpy as np
 import pyautogui as pag
 import pygetwindow
+import random as rd
 import time
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
@@ -93,7 +94,9 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             if i in range(skip_rows):
                 continue
             for slot in row:
-                pag.moveTo(slot[0], slot[1])
+                self.mouse.move_to((slot[0], slot[1]),
+                                   target_points=rd.randint(10, 15),
+                                   knots_count=1)
                 time.sleep(0.05)
                 pag.click()
         pag.keyUp("shift")
@@ -248,7 +251,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 print("Cannot find moments of contour. Disregarding...")
                 continue
             if not rcv.is_point_obstructed(center, img_bgr):
-                self.mouse.move_to(Point(center.x + game_view.start.x, center.y + game_view.start.y), 0.2)
+                self.mouse.move_to(Point(center.x + game_view.start.x, center.y + game_view.start.y))
                 pag.click()
                 return True
         self.log_msg("No tagged NPCs found that aren't in combat.")
@@ -373,7 +376,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         self.log_msg("Closing RuneLite settings panel...")
         settings_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
         if settings_icon is not None:
-            self.mouse.move_to(settings_icon, 1)
+            self.mouse.move_to(settings_icon)
             pag.click()
             time.sleep(1.5)
 
@@ -395,7 +398,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         self.mouse.move_to(layout_dropdown)
         pag.click()
         time.sleep(0.8)
-        self.mouse.move_rel(-77, 19, duration=0.2)
+        self.mouse.move_rel(-77, 19)
         pag.click()
         time.sleep(1.5)
         return True
@@ -407,7 +410,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         self.log_msg("Logging out of RuneLite...")
         rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
         if rl_login_icon is not None:
-            self.mouse.move_to(rl_login_icon, 0.2)
+            self.mouse.move_to(rl_login_icon, 10)
             pag.click()
             time.sleep(0.2)
             pag.press('enter')
@@ -433,7 +436,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         zoom_start = 611
         zoom_end = 708
         x = int((percentage / 100) * (zoom_end - zoom_start) + zoom_start)
-        self.mouse.move_to(Point(x, 345), duration=0.2)
+        self.mouse.move_to(Point(x, 345))
         pag.click()
         return True
 
