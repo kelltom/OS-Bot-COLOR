@@ -3,12 +3,15 @@ A set of computer vision utilities for use with bots.
 '''
 
 import cv2
+import numpy as np
+import mss
 from easyocr import Reader
 import pathlib
 from PIL import Image, ImageGrab
 from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 import re
 from typing import NamedTuple
+
 
 
 # --- Paths to Image folders ---
@@ -21,8 +24,10 @@ BOT_IMAGES = f"{PATH}/images/bot"
 Point = NamedTuple("Point", x=int, y=int)
 Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
 
-
 # --- Screen Capture ---
+ss = mss.mss()
+
+
 def capture_screen(rect: Rectangle) -> str:
     '''
     Captures a given Rectangle and saves it to a file.
@@ -33,6 +38,24 @@ def capture_screen(rect: Rectangle) -> str:
     '''
     im = ImageGrab.grab(bbox=(rect.start.x, rect.start.y, rect.end.x, rect.end.y))
     return __save_image('/screenshot.png', im)
+
+
+def grab_screen(x=0, y=0, xx=1920, yy=1080):
+    '''
+    Captures whole screen without saving into a file.
+    Args:
+        x and y is start of the of the resolution.
+        xx: The width.
+        yy: The height.
+    Returns:
+        RGB array image of the screen.
+    '''
+    monitor = {"top": y, "left": x, "width": xx, "height": yy}
+    image = ss.grab(monitor)
+    image = np.array(image.raw)
+    image.shape = (yy, xx, 4)
+    image = image[..., :3]
+    return image
 
 
 def __save_image(filename, im):
