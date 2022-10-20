@@ -83,7 +83,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
         currentUser = os.getlogin()
 
         # executable path for runelite
-        EXECPATH = f"C:\\Users\\{currentUser}\\AppData\\Local\\RuneLite\\RueLite.exe"
+        EXECPATH = f"C:\\Users\\{currentUser}\\AppData\\Local\\RuneLite\\RuneLite.exe"
 
         if not os.path.exists(EXECPATH):
             # if the executable is not found, prompt the user to locate it
