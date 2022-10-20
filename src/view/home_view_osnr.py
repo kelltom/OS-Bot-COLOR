@@ -1,11 +1,10 @@
-import customtkinter
-import os
-from subprocess import DETACHED_PROCESS, Popen
 from pathlib import Path
 from PIL import ImageTk, Image
-import pyautogui as pag
-import shutil
+from subprocess import DETACHED_PROCESS, Popen
 from tkinter.filedialog import askopenfilename
+import customtkinter
+import os
+import shutil
 
 
 class OSNRHomeView(customtkinter.CTkFrame):
