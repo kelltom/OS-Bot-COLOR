@@ -51,7 +51,7 @@ class AloraHomeView(customtkinter.CTkFrame):
         self.label_warning = customtkinter.CTkLabel(master=self,
                                                     text=self.warning,
                                                     text_font=("Roboto", 10),
-                                                    text_color="red")
+                                                    text_color="orange")
         self.label_warning.bind('<Configure>', lambda e: self.label_warning.configure(wraplength=self.label_warning.winfo_width()-20))
         self.label_warning.grid(row=3, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
@@ -94,7 +94,7 @@ class AloraHomeView(customtkinter.CTkFrame):
             try:
                 settings_path = f"{PATH}\\runelite_settings\\alora_settings.properties"
                 shutil.copyfile(settings_path, loc)
-                self.label_status.configure(text="Settings replaced successfully. Restart RuneLite client to apply changes.")
+                self.label_status.configure(text="Settings replaced successfully. Restart RuneLite client to apply changes.", text_color="green")
                 self.main.toggle_btn_state(enabled=True)
             except Exception as e:
                 self.label_status.configure(text="Error: Could not replace settings.", text_color="red")
@@ -103,5 +103,5 @@ class AloraHomeView(customtkinter.CTkFrame):
             self.label_status.configure(text="No file selected.")
 
     def __skip(self):
-        self.label_status.configure(text="You may select a script from the menu.")
+        self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
