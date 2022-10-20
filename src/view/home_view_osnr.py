@@ -100,7 +100,7 @@ class OSNRHomeView(customtkinter.CTkFrame):
 
         # executable args for runelite to direct the client to launch with bot settings
         EXECARG1 = "--clientargs"
-        EXECARG2 = f"--config={PATH}\\runelite_settings\\temp.properties"
+        EXECARG2 = f"--config={PATH}\\runelite_settings\\temp.properties --sessionfile=bot_session"
 
         self.main.toggle_btn_state(enabled=True)
         # TODO: Try to verify this launched successfully, can't seem to get a return code

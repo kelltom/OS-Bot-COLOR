@@ -94,13 +94,13 @@ class OSRSHomeView(customtkinter.CTkFrame):
             if not EXECPATH:
                 self.label_status.configure(text="Error: Could not launch RuneLite.", text_color="red")
                 return
-        
+
         # save settings file to temp
         shutil.copyfile(f"{PATH}\\runelite_settings\\settings.properties", f"{PATH}\\runelite_settings\\temp.properties")
 
         # executable args for runelite to direct the client to launch with bot settings
         EXECARG1 = "--clientargs"
-        EXECARG2 = f"--config={PATH}\\runelite_settings\\temp.properties"
+        EXECARG2 = f"--config={PATH}\\runelite_settings\\temp.properties --sessionfile=bot_session"
 
         self.main.toggle_btn_state(enabled=True)
         # TODO: Try to verify this launched successfully, can't seem to get a return code
