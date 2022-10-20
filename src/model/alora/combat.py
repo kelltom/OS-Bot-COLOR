@@ -62,7 +62,7 @@ class AloraCombat(AloraBot):
         time.sleep(0.5)
 
         # Reselect inventory
-        self.mouse.move_to(self.cp_inventory, 0.2, destination_variance=3)
+        self.mouse.move_to(self.cp_inventory, destination_variance=3)
         self.mouse.click()
 
         self.current_iter = 0

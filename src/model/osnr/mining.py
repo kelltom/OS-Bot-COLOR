@@ -39,7 +39,7 @@ class OSNRMining(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup
-        self.setup_osnr(zoom_percentage=80)
+        self.setup_osnr(zoom_percentage=90)
 
         if not self.status_check_passed():
             return
@@ -97,7 +97,7 @@ class OSNRMining(OSNRBot):
                 if not self.status_check_passed():
                     return
                 if pag.pixel(rock.x, rock.y) == rock_rgb[i]:
-                    self.mouse.move_to(rock, duration=0.1)
+                    self.mouse.move_to(rock)
                     self.mouse.click()
                     time.sleep(0.3)
                     # Wait until the rock is depleted

@@ -69,8 +69,8 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
 
     if pos == [-1, -1]:
         return None
-    return Point(x=pos[0] + rect.start.x + width/2,
-                 y=pos[1] + rect.start.y + height/2)
+    return Point(x=int(pos[0] + rect.start.x + width/2),
+                 y=int(pos[1] + rect.start.y + height/2))
 
 
 # --- OCR ---
