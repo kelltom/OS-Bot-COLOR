@@ -1,4 +1,3 @@
-from genericpath import isfile
 from pathlib import Path
 from PIL import ImageTk, Image
 from subprocess import DETACHED_PROCESS, Popen
@@ -52,7 +51,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
         self.label_warning.bind('<Configure>', lambda e: self.label_warning.configure(wraplength=self.label_warning.winfo_width()-20))
         self.label_warning.grid(row=3, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
-        # Replace Btn
+        # Launch Btn
         self.btn_replace = customtkinter.CTkButton(master=self,
                                                    text="Launch RuneLite",
                                                    command=self.__launch_game_with_settings)
@@ -83,8 +82,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
         # currently logged in user <windows>
         currentUser = os.getlogin()
 
-        # executable path for runelite, taking the current logged in user
-        # this is a default path for a windows user
+        # executable path for runelite
         EXECPATH = f"C:\\Users\\{currentUser}\\AppData\\Local\\RuneLite\\RueLite.exe"
 
         if not os.path.exists(EXECPATH):
@@ -108,7 +106,6 @@ class OSRSHomeView(customtkinter.CTkFrame):
         # TODO: Try to verify this launched successfully, can't seem to get a return code
         Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=DETACHED_PROCESS)
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
-
 
     def __skip(self):
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
