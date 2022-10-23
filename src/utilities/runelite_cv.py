@@ -92,3 +92,55 @@ def is_point_obstructed(point: Point, im, span: int = 20) -> bool:
     except Exception:
         print("Cannot crop image. Disregarding...")
         return True
+    
+    
+def object_list(color, trim=4, trim_iter=1):
+    '''
+    This function first grabs a screenshot of the screen then mask the color of the objects highlighted.
+    Afterwards it finds all the countours from the mask image using Morphological Transformations to get rid of the
+    of the border width in the runelite plugin settings. It has two options in the runelite highlighting plugin to work properly,
+    you can have border width of 4 or greater and highlight only clickboxes or you can have 1 border and highlight outline only.
+    Args:
+        color: The color of the object highlight in a RGB list format([0, 0, 0])
+        trim: The trim to cut off the border of the hightlighted object.
+        trim_iter: The amount of times to trim.
+    Returns:
+        Returns a list of all the hightlighted objects. Each object is a list, first index is the center of the object, second is the
+        object is width and height, third is the x and y axis of the start box of the object in the left top corner, lastly
+        is all the click able pixel points in the object.
+    '''
+    image = bcv.grab_screen()
+    main_list = []
+    rgb = np.array(color[::-1])
+    mask = cv2.inRange(image, rgb, rgb)
+    count = np.count_nonzero(mask == 255)
+    if count:
+        contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours = contours[0] if len(contours) == 2 else contours[1]
+        for objects in range(len(contours)):
+            if len(contours[objects]) > 10:
+                mask_copy = mask.copy()
+                cv2.drawContours(mask_copy, contours, objects, (255, 255, 255), -1)
+                kernel = np.ones((trim, trim), np.uint8)
+                init_object = cv2.morphologyEx(mask_copy, cv2.MORPH_OPEN, kernel)
+                init_object = cv2.erode(init_object, kernel, iterations=trim_iter)
+                # cv2.imshow('Mask', init_object)
+                # cv2.waitKey(0)
+                # cv2.destroyWindow('Mask')
+                count = np.count_nonzero(init_object == 255)
+                if count:
+                    indices = np.where(init_object == [255])
+                    if indices[0].size > 0:
+                        x_min, x_max = np.min(indices[1]), np.max(indices[1])
+                        y_min, y_max = np.min(indices[0]), np.max(indices[0])
+                        width, height = x_max - x_min, y_max - y_min
+                        center = [int(x_min + (width / 2)), int(y_min + (height / 2))]
+                        axis = np.column_stack((indices[1], indices[0]))
+                        list_main = [center, [width, height], [x_min, y_min], axis]
+                        main_list.append(list_main)
+        if main_list:
+            return main_list
+        else:
+            return []
+    else:
+        return []
