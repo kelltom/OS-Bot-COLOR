@@ -1,6 +1,6 @@
 import math
 import numpy
-import runelite_cv as rcv
+import utilities.runelite_cv as rcv
 
 
 def object_detector_closest(center_me, color_object, rect: Rectangle, farthest=False, hardcode_center=None):
