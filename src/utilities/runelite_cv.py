@@ -95,7 +95,7 @@ def is_point_obstructed(point: Point, im, span: int = 20) -> bool:
         return True
     
     
-def object_list(color, trim=4, trim_iter=1):
+def object_list(color, rect: Rectangle, trim=4, trim_iter=1):
     '''
     This function first grabs a screenshot of the screen then mask the color of the objects highlighted.
     Afterwards it finds all the countours from the mask image using Morphological Transformations to get rid of the
@@ -110,7 +110,7 @@ def object_list(color, trim=4, trim_iter=1):
         object is width and height, third is the x and y axis of the start box of the object in the left top corner, lastly
         is all the click able pixel points in the object.
     '''
-    image = bcv.grab_screen()
+    image = bcv.grab_screen(rect)
     main_list = []
     rgb = np.array(color[::-1])
     mask = cv2.inRange(image, rgb, rgb)
