@@ -1,9 +1,11 @@
 import math
 import numpy
+import secrets
 import utilities.runelite_cv as rcv
 from utilities.bot_cv import Rectangle
       
-      
+sg = secrets.SystemRandom()
+ 
 def pseudo_random(mu, sigma, low, high):
     t = 2 * math.pi * sg.uniform(0.000, 1.000)
     g = mu + (sigma * math.sqrt(-1.955 * math.log(sg.uniform(0.000, 1.000)))) * math.cos(t)
