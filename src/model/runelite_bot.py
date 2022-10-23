@@ -331,10 +331,11 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         return self.__get_nearest_point(Point(int((rect.start.x + rect.end.x) / 2), int((rect.start.y + rect.end.y) / 2)), centers) if centers else None
         
         
-    def get_nearest_tag_random_pont(self, color)
+    def get_nearest_tag_random_pont(self, color) -> Point:
         rect = self.rect_full_game_view
         pixel_point = bm.point_in_normal([int((rect.start.x + rect.end.x) / 2), int((rect.start.y + rect.end.y)], color, rect)
-        return pixel_point
+        real_pixel = Point(pixel_point[0][0], pixel_ponit[0][1])
+        return real_pixel
                                           
                                           
     def __get_nearest_point(self, point: Point, points: list) -> Point:
