@@ -17,6 +17,7 @@ import pyautogui as pag
 import pygetwindow
 import random as rd
 import time
+import utilities.bot_math as bm
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
 
@@ -38,10 +39,12 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
     # ------- Main Client Rects -------
     rect_current_action = Rectangle(Point(13, 51), Point(140, 73))  # combat/skilling plugin text
     rect_game_view = Rectangle(Point(8, 50), Point(517, 362))  # gameplay area (prev start: x=9, y=31)
+    rect_full_game_view = Rectangle(Point(0, 0), Point(773, 534)) # fix for pixels
     rect_hp = Rectangle(Point(528, 81), Point(549, 95))  # hp number on status bar
     rect_prayer = Rectangle(Point(530, 117), Point(550, 130))  # prayer number on status bar
     rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
     rect_minimap = Rectangle(Point(577, 39), Point(715, 188))  # minimap area
+    
 
     # ------- Points of Interest -------
     # --- Orbs ---
@@ -327,7 +330,13 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         centers = self.get_all_tagged_in_rect(rect, color)
         return self.__get_nearest_point(Point(int((rect.start.x + rect.end.x) / 2), int((rect.start.y + rect.end.y) / 2)), centers) if centers else None
         
-
+        
+    def get_nearest_tag_random_pont(self, color)
+        rect = self.rect_full_game_view
+        pixel_point = bm.point_in_normal([int((rect.start.x + rect.end.x) / 2), int((rect.start.y + rect.end.y)], color, rect)
+        return pixel_point
+                                          
+                                          
     def __get_nearest_point(self, point: Point, points: list) -> Point:
         '''
         Returns the nearest point in a list of (x, y) coordinates.
