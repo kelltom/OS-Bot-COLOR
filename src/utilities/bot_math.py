@@ -1,33 +1,7 @@
 import math
 import numpy
 import utilities.runelite_cv as rcv
-
-
-def object_detector_closest(center_me, color_object, rect: Rectangle, farthest=False, hardcode_center=None):
-    if hardcode_center:
-        center = hardcode_center
-    else:
-        center = center_me
-    main_list = rcv.object_list(color_object, rect)
-    if center and main_list:
-        main_distance = []
-        for points in main_list:
-            init_distance = [points[0][0], points[0][1]]
-            distance = math.sqrt(((center[0] - points[0][0]) ** 2) + ((center[1] - points[0][1]) ** 2))
-            init_distance.append(distance)
-            main_distance.append(init_distance)
-        if farthest:
-            closest_distance = sorted(main_distance, key=lambda x: x[2])[-1]
-        else:
-            closest_distance = sorted(main_distance, key=lambda x: x[2])[0]
-        del closest_distance[-1]
-        if closest_distance:
-            for points in main_list:
-                if closest_distance == points[0]:
-                    return points
-        return []
-    else:
-        return []
+from utilities.bot_cv import Rectangle
       
       
 def pseudo_random(mu, sigma, low, high):
@@ -63,8 +37,34 @@ def random_start(x_axis, y_axis, width, height):
     end_y = pseudo_random(y_axis, height_a, height_b, height_c)
     return [end_x, end_y]
   
-  
-  def point_in_normal(center_me, color, farthest=False, hardcode_center=None):
+def object_detector_closest(center_me, color_object, rect: Rectangle, farthest=False, hardcode_center=None):
+    if hardcode_center:
+        center = hardcode_center
+    else:
+        center = center_me
+    main_list = rcv.object_list(color_object, rect)
+    if center and main_list:
+        main_distance = []
+        for points in main_list:
+            init_distance = [points[0][0], points[0][1]]
+            distance = math.sqrt(((center[0] - points[0][0]) ** 2) + ((center[1] - points[0][1]) ** 2))
+            init_distance.append(distance)
+            main_distance.append(init_distance)
+        if farthest:
+            closest_distance = sorted(main_distance, key=lambda x: x[2])[-1]
+        else:
+            closest_distance = sorted(main_distance, key=lambda x: x[2])[0]
+        del closest_distance[-1]
+        if closest_distance:
+            for points in main_list:
+                if closest_distance == points[0]:
+                    return points
+        return []
+    else:
+        return []
+    
+    
+def point_in_normal(center_me, color, rect: Rectangle, farthest=False, hardcode_center=None):
     if hardcode_center:
         main_object = object_detector_closest(center_me, color, farthest=farthest, hardcode_center=hardcode_center)
     else:
