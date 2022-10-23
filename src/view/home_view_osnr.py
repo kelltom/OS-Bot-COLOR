@@ -1,10 +1,10 @@
-import customtkinter
-import os
 from pathlib import Path
 from PIL import ImageTk, Image
-import pyautogui as pag
-import shutil
+from subprocess import DETACHED_PROCESS, Popen
 from tkinter.filedialog import askopenfilename
+import customtkinter
+import os
+import shutil
 
 
 class OSNRHomeView(customtkinter.CTkFrame):
@@ -17,7 +17,6 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.grid_rowconfigure(1, weight=0)  # - Title
         self.grid_rowconfigure(2, weight=0)  # - Note
         self.grid_rowconfigure(3, weight=0)  # - Warning
-        self.grid_rowconfigure(4, weight=0)  # - File Loc
         self.grid_rowconfigure(5, weight=0)  # - Replace Btn
         self.grid_rowconfigure(6, weight=0)  # - Skip Btn
         self.grid_rowconfigure(7, weight=0)  # - Status
@@ -34,9 +33,9 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
-        self.note = ("In order for these scripts to work, RuneLite must be configured in a specific way. " +
-                     "Use the buttons below to replace your current settings with our recommended ones, or skip this " +
-                     "step if you know your settings are compatible.")
+        self.note = ("For these scripts to work, RuneLite must be configured in a specific way. " +
+                     "Use the button below to launch Near-Reality with pre-configured settings, or skip this " +
+                     "step if you know your client is already configured.")
         self.label_note = customtkinter.CTkLabel(master=self,
                                                  text=self.note,
                                                  text_font=("Roboto", 12))
@@ -44,26 +43,18 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.label_note.grid(row=2, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
         # Warning label
-        self.warning = ("WARNING: This will overwrite your current settings. If you'd like to save your settings, make " +
-                        "a backup of your existing settings.properties file.")
+        self.warning = ("Please only have one instance of Near-Reality running at a time.")
         self.label_warning = customtkinter.CTkLabel(master=self,
                                                     text=self.warning,
                                                     text_font=("Roboto", 10),
-                                                    text_color="red")
+                                                    text_color="orange")
         self.label_warning.bind('<Configure>', lambda e: self.label_warning.configure(wraplength=self.label_warning.winfo_width()-20))
         self.label_warning.grid(row=3, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
-        # File location label
-        self.label_file_loc = customtkinter.CTkLabel(master=self,
-                                                     text="Default: C:/Users/[username]/.osnr/settings.properties",
-                                                     text_font=("Roboto", 10))
-        self.label_file_loc.bind('<Configure>', lambda e: self.label_file_loc.configure(wraplength=self.label_file_loc.winfo_width()-20))
-        self.label_file_loc.grid(row=4, column=0, sticky="nwes", padx=15, pady=(0, 15))
-
-        # Replace Btn
+        # Launch Btn
         self.btn_replace = customtkinter.CTkButton(master=self,
-                                                   text="Replace Settings",
-                                                   command=self.__replace_settings)
+                                                   text="Launch Near-Reality",
+                                                   command=self.__launch_game_with_settings)
         self.btn_replace.grid(row=5, column=0, sticky="nwes", padx=40, pady=(0, 15))
 
         # Skip Btn
@@ -80,26 +71,42 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.label_status.grid(row=7, column=0, sticky="nwes")
         self.label_status.bind('<Configure>', lambda e: self.label_status.configure(wraplength=self.label_status.winfo_width()-20))
 
-    def __replace_settings(self):
-        PATH = Path(__file__).parent.parent.resolve()  # src directory
-        res = pag.confirm("Please close your game client before continuing.", title="Warning", buttons=["Done", "Cancel"])
-        if res == "Cancel":
-            return
-        if loc := askopenfilename(initialdir=os.environ['USERPROFILE'],
-                                  title="Select your OSNR settings file",
-                                  filetypes=[("properties files", "*.properties")]):
-            print(f"Replacing settings in {loc}...")
-            try:
-                settings_path = f"{PATH}\\runelite_settings\\osnr_settings.properties"
-                shutil.copyfile(settings_path, loc)
-                self.label_status.configure(text="Settings replaced successfully. Restart OSNR client to apply changes.")
-                self.main.toggle_btn_state(enabled=True)
-            except Exception as e:
-                self.label_status.configure(text="Error: Could not replace settings.", text_color="red")
-                print(f"Could not replace settings: {e}")
-        else:
-            self.label_status.configure(text="No file selected.")
+    def __launch_game_with_settings(self):
+        '''
+        Launches the game with the specified Near-Reality/RuneLite settings file. If it fails to
+        find the executable, it will prompt the user to locate the executable.
+        '''
+        # src path for our runelite bot settings
+        PATH = Path(__file__).parent.parent.resolve()
+
+        # currently logged in user <windows>
+        currentUser = os.getlogin()
+
+        # executable path for OSNR
+        EXECPATH = f"C:\\Users\\{currentUser}\\AppData\\Local\\Near-Reality\\Near-Reality.exe"
+
+        if not os.path.exists(EXECPATH):
+            # if the executable is not found, prompt the user to locate it
+            self.label_status.configure(text="Near-Reality not found. Please locate the executable.", text_color="orange")
+            EXECPATH = askopenfilename(initialdir=os.environ['USERPROFILE'],
+                                       title="Near-Reality not found. Please locate the executable",
+                                       filetypes=[("exe files", "*.exe")])
+            if not EXECPATH:
+                self.label_status.configure(text="Error: Could not launch Near-Reality.", text_color="red")
+                return
+        
+        # save settings file to temp
+        shutil.copyfile(f"{PATH}\\runelite_settings\\osnr_settings.properties", f"{PATH}\\runelite_settings\\temp.properties")
+
+        # executable args for runelite to direct the client to launch with bot settings
+        EXECARG1 = "--clientargs"
+        EXECARG2 = f"--config={PATH}\\runelite_settings\\temp.properties --sessionfile=bot_session"
+
+        self.main.toggle_btn_state(enabled=True)
+        # TODO: Try to verify this launched successfully, can't seem to get a return code
+        Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=DETACHED_PROCESS)
+        self.label_status.configure(text="You may select a script from the menu.", text_color="green")
 
     def __skip(self):
-        self.label_status.configure(text="You may select a script from the menu.")
+        self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
