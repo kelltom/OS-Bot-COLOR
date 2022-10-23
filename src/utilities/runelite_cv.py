@@ -3,6 +3,7 @@ A set of computer vision utilities for use with RuneLite-based bots.
 '''
 
 import cv2
+import numpy
 import utilities.bot_cv as bcv
 from utilities.bot_cv import Point
 from typing import NamedTuple, List
