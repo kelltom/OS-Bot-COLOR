@@ -10,6 +10,7 @@ from abc import ABCMeta
 from deprecated import deprecated
 from model.bot import Bot, BotStatus
 from model.runelite_window import RuneLiteWindow
+from typing import List
 from utilities.geometry import Rectangle, Point
 from utilities.runelite_cv import Color, isolate_colors
 import cv2
@@ -26,12 +27,12 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
 
     rl: RuneLiteWindow = None
 
-    # --- Notable Colour Ranges (HSV lower, HSV upper) ---
-    TAG_BLUE = Color((90, 100, 255), (100, 255, 255))       # hex: FF00FFFF
-    TAG_PURPLE = Color((130, 100, 100), (150, 255, 255))     # hex: FFAA00FF
-    TAG_PINK = Color((145, 100, 200), (155, 255, 255))       # hex: FFFF00E7
-    TAG_GREEN = Color((40, 100, 255), (70, 255, 255))
-    TAG_RED = Color((0, 255, 255), (20, 255, 255))
+    # --- Notable Colors [R, G, B] ---
+    BLUE = [0, 255, 255]
+    PURPLE = [255, 170, 0]
+    PINK = [255, 255, 0]
+    GREEN = [0, 255, 0]
+    RED = [255, 0, 0]
 
     def drop_inventory(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
         '''
@@ -41,27 +42,28 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             skip_slots: The indices of slots to avoid dropping.
         '''
         self.log_msg("Dropping inventory...")
+        # Determine slots to skip
+        if skip_slots is None:
+            skip_slots = []
+        if skip_rows > 0:
+            row_skip = list(range(skip_rows*4))
+            skip_slots = np.unique(row_skip + skip_slots)
+        # Start dropping
         pag.keyDown("shift")
-        slot_index = -1
-        for i, row in enumerate(self.rl.inventory_slots()):
+        for i, slot in enumerate(self.rl.inventory_slots()):
             if not self.status_check_passed():
                 pag.keyUp("shift")
                 return
-            if i in range(skip_rows):
-                slot_index += 4
+            if i in skip_slots:
                 continue
-            slot_index += 1
-            if slot_index in skip_slots:
-                continue
-            for slot in row:
-                self.mouse.move_to((slot[0], slot[1]),
-                                   targetPoints=rd.randint(10, 15),
-                                   knotsCount=1,
-                                   distortionMeanv=0.5,
-                                   offsetBoundaryY=40,
-                                   offsetBoundaryX=40)
-                time.sleep(0.05)
-                pag.click()
+            self.mouse.move_to((slot[0], slot[1]),
+                                targetPoints=rd.randint(10, 15),
+                                knotsCount=1,
+                                distortionMeanv=0.5,
+                                offsetBoundaryY=40,
+                                offsetBoundaryX=40)
+            time.sleep(0.05)
+            pag.click()
         pag.keyUp("shift")
 
     def friends_nearby(self) -> bool:
@@ -72,13 +74,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         # screenshot minimap
         minimap = bcv.screenshot(self.rl.rect_minimap())
-        #bcv.save_image("minimap.png", minimap)
-        # change to hsv
-        hsv = cv2.cvtColor(minimap, cv2.COLOR_BGR2HSV)
-        #bcv.save_image("minimap_hsv.png", hsv)
-        # Threshold the HSV image to get only friend color
-        mask1 = cv2.inRange(hsv, self.TAG_GREEN[0], self.TAG_GREEN[1])
-        only_friends = cv2.bitwise_and(minimap, minimap, mask=mask1)
+        only_friends = rcv.isolate_colors(minimap, [self.GREEN])
         #bcv.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
         return str(mean) != "[0. 0. 0.]"
@@ -157,15 +153,14 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         
         # Make a rectangle around the character
         offset = 30
-        char_rect = Rectangle(Point(char_pos.x - offset, char_pos.y - offset*2),
-                              Point(char_pos.x + offset, char_pos.y))
+        char_rect = Rectangle.from_points(Point(char_pos.x - offset, char_pos.y - offset*2),
+                                          Point(char_pos.x + offset, char_pos.y))
         # Take a screenshot of rect
         char_screenshot = bcv.screenshot(char_rect)
         # Isolate HP bars in that rectangle
-        hp_bars = isolate_colors(char_screenshot, [self.TAG_RED, self.TAG_GREEN], "player_hp_bar")
+        hp_bars = isolate_colors(char_screenshot, [self.RED, self.GREEN])
         # If there are any HP bars, return True
-        img = cv2.imread(hp_bars)
-        return str(img.mean(axis=(0, 1))) != "[0. 0. 0.]"
+        return str(hp_bars.mean(axis=(0, 1))) != "[0. 0. 0.]"
 
     # --- NPC/Object Detection ---
     def attack_first_tagged(self) -> bool:
@@ -179,8 +174,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         game_view = self.rl.rect_game_view()
         img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
-        img_npcs = rcv.isolate_colors(img_game_view, [self.TAG_BLUE], "npcs")
-        img_hp_bars = rcv.isolate_colors(img_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
+        img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
+        img_hp_bars = rcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
         # Locate potential NPCs in image by determining contours
         contours = rcv.get_contours(img_npcs)
         # Click center pixel of non-combatting NPCs
@@ -208,8 +203,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         game_view = self.rl.rect_game_view()
         img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
-        img_npcs = rcv.isolate_colors(img_game_view, [self.TAG_BLUE], "npcs")
-        img_hp_bars = rcv.isolate_colors(img_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
+        img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
+        img_hp_bars = rcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
         # Locate potential NPCs in image by determining contours
         contours = rcv.get_contours(img_npcs)
         # Get center pixels of non-combatting NPCs
@@ -229,17 +224,19 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
         return Point(nearest.x + game_view.left, nearest.y + game_view.top)
 
-    def get_all_tagged_in_rect(self, rect: Rectangle, color: tuple) -> list:
+    def get_all_tagged_in_rect(self, rect: Rectangle, color: List[int]) -> list:
         '''
         Finds all contours on screen of a particular color and returns a list of center Points for each.
         Args:
             rect: The rectangle to search in.
-            color: The color to search for. Must be a tuple of (HSV upper, HSV lower) values.
+            color: The color to search for [R,G,B].
         Returns:
             A list of center Points.
         '''
         img_rect = bcv.screenshot(rect)
-        img_isolated = rcv.isolate_colors(img_rect, [color], "get_all_tagged_in_rect")
+        bcv.save_image("img_rect.png", img_rect)
+        img_isolated = rcv.isolate_colors(img_rect, [color])
+        bcv.save_image("img_isolated.png", img_isolated)
         contours = rcv.get_contours(img_isolated)
         centers = []
         for cnt in contours:
@@ -251,12 +248,12 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             centers.append(Point(center.x + rect.left, center.y + rect.top))
         return centers
     
-    def get_nearest_tag(self, color: rcv.Color) -> Point:
+    def get_nearest_tag(self, color: List[int]) -> Point:
         '''
         Finds the nearest contour of a particular color within the game view to the character and returns its center Point.
         Args:
             rect: The rectangle to search in.
-            color: The color to search for. Must be a tuple of (HSV upper, HSV lower) values.
+            color: The color to search for [R,G,B].
         Returns:
             The center Point of the nearest contour, or None if none found.
         '''
@@ -372,7 +369,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         return True
 
     # --- Setup Functions ---
-    def setup_client(self, window_title: str, set_layout_fixed: bool = True, logout_runelite: bool = False) -> None:
+    def setup_client(self, window_title: str, WindowClass: RuneLiteWindow = RuneLiteWindow, set_layout_fixed: bool = True, logout_runelite: bool = False) -> None:
         # sourcery skip: merge-nested-ifs
         '''
         Configures a RuneLite client window. This function logs messages to the script output log.
@@ -383,7 +380,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         self.log_msg("Configuring client window...")
         try:
-            self.rl = RuneLiteWindow(window_title)
+            self.rl = WindowClass(window_title)
             self.rl.focus()
         except pygetwindow.PyGetWindowException:
             self.log_msg("Error: Could not find game window.")
