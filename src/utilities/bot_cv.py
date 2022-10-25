@@ -1,58 +1,68 @@
 '''
 A set of computer vision utilities for use with bots.
 '''
-
-import cv2
+from deprecated import deprecated
 from easyocr import Reader
+from PIL import Image
+from utilities.geometry import Point, Rectangle
+import cv2
+import mss
+import numpy as np
 import pathlib
-from PIL import Image, ImageGrab
-from python_imagesearch.imagesearch import imagesearcharea, region_grabber
 import re
-from typing import NamedTuple
-
 
 # --- Paths to Image folders ---
 PATH = pathlib.Path(__file__).parent.parent.resolve()
 TEMP_IMAGES = f"{PATH}/images/temp"
 BOT_IMAGES = f"{PATH}/images/bot"
 
-# --- Custom Named Tuples ---
-# Simplifies accessing points and areas on the screen by name.
-Point = NamedTuple("Point", x=int, y=int)
-Rectangle = NamedTuple('Rectangle', start=Point, end=Point)
-
-
 # --- Screen Capture ---
-def capture_screen(rect: Rectangle) -> str:
+def screenshot(rect: Rectangle) -> cv2.Mat:
     '''
-    Captures a given Rectangle and saves it to a file.
+    Captures given Rectangle without saving into a file.
     Args:
-        rect: The Rectangle area to capture.
+        rect: Rectangle area to capture.
     Returns:
-        The path to the saved image.
+        A BGRA Numpy array representing the captured image.
     '''
-    im = ImageGrab.grab(bbox=(rect.start.x, rect.start.y, rect.end.x, rect.end.y))
-    return __save_image('/screenshot.png', im)
+    with mss.mss() as sct:
+        monitor = rect.to_dict()
+        return np.array(sct.grab(monitor))
 
-
-def __save_image(filename, im):
+def __save_image(filename, im) -> str:
     '''
     Saves an image to the temporary image directory.
     Args:
         filename: The filename to save the image as.
-        im: The image to save.
+        im: The image to save (cv2.Mat).
     Returns:
         The path to the saved image.
     Example:
         path = __save_image('/screenshot.png', im)
     '''
     path = f"{TEMP_IMAGES}{filename}"
-    im.save(path)
+    cv2.imwrite(path, im)
     return path
 
-
 # --- Image Search ---
-def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Point:
+def __imagesearcharea(template, im, precision=0.8):
+    '''
+    Locates an image within another image.
+    Args:
+        template: The path to the image to search for.
+        im: The image to search in (MSS ScreenShot or cv2.Mat).
+        precision: The precision of the search.
+    '''
+    img_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread(template, 0)
+    if template is None:
+        raise FileNotFoundError(f'Image file not found: {template}')
+
+    res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    return [-1, -1] if max_val < precision else max_loc
+
+def search_img_in_rect(img_path, rect: Rectangle, precision=0.8) -> Point:
     '''
     Searches for an image in a rectangle.
     Args:
@@ -64,14 +74,12 @@ def search_img_in_rect(img_path: str, rect: Rectangle, conf: float = 0.8) -> Poi
         otherwise None.
     '''
     width, height = Image.open(img_path).size
-    im = region_grabber((rect.start.x, rect.start.y, rect.end.x, rect.end.y))
-    pos = imagesearcharea(img_path, rect.start.x, rect.start.y, rect.end.x, rect.end.y, conf, im)
+    im = screenshot(rect)
+    pos = __imagesearcharea(img_path, im, precision)
 
     if pos == [-1, -1]:
         return None
-    return Point(x=int(pos[0] + rect.start.x + width/2),
-                 y=int(pos[1] + rect.start.y + height/2))
-
+    return Point(x=int(pos[0] + width / 2), y=int(pos[1] + height / 2))
 
 # --- OCR ---
 def get_numbers_in_rect(rect: Rectangle, is_low_res=False) -> list:
@@ -89,7 +97,7 @@ def get_numbers_in_rect(rect: Rectangle, is_low_res=False) -> list:
     res = [int(numeric_string) for numeric_string in string_nums]
     return res or None
 
-
+@deprecated(version='0.0.1', reason="get_text_in_rect may not work as expected. New solution in development.")
 def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
     # sourcery skip: class-extract-method
     '''
@@ -101,15 +109,13 @@ def get_text_in_rect(rect: Rectangle, is_low_res=False) -> str:
         The text found in the rectangle, space delimited.
     '''
     # Screenshot the rectangle and load the image
-    path = capture_screen(rect)
+    image = screenshot(rect)
     if is_low_res:
-        path = __preprocess_low_res_text_at(path)
-    image = cv2.imread(path)
+        image = __preprocess_low_res(image)
     # OCR the input image using EasyOCR
     reader = Reader(['en'], gpu=-1)
     res = reader.readtext(image)
     return "".join(f"{_text} " for _, _text, _ in res)
-
 
 def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None) -> bool:
     """
@@ -122,8 +128,7 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None)
         False if ANY blacklist words are found, else True if ANY expected text exists,
         and None if the text is irrelevant.
     """
-    path = capture_screen(rect)
-    image = cv2.imread(path)
+    image = screenshot(rect)
     reader = Reader(['en'], gpu=-1)
     res = reader.readtext(image)
     word_found = False
@@ -144,29 +149,24 @@ def search_text_in_rect(rect: Rectangle, expected: list, blacklist: list = None)
                 print(f"Expected word found: {_word}")
     return True if word_found else None
 
-
 # --- Pre-processing ---
-def __preprocess_low_res_text_at(path: str) -> str:
+def __preprocess_low_res(image: cv2.Mat) -> cv2.Mat:
     '''
     Preprocesses an image at a given path and saves it back to the same path.
-    This function improves text clarity for OCR by upscaling, antialiasing, and isolating text.
+    This function improves text clarity for OCR by upscaling and isolating text.
     Note:
         Only use for low-resolution images with pixelated text and a solid background.
     Args:
-        path: The path to the image to preprocess.
+        image: The image to preprocess.
     Returns:
-        The path to the processed image.
-    Reference: https://stackoverflow.com/questions/50862125/how-to-get-better-accurate-results-with-ocr-from-low-resolution-images
+        The upscaled image.
     '''
-    im = Image.open(path)
-    width, height = im.size
-    new_size = width*6, height*6
-    im = im.resize(new_size, Image.Resampling.LANCZOS)
-    im = im.convert('L')  # Convert to grayscale
-    intensity = 120  # Between 0 and 255, every pixel less than this value will be set to 0
-    im = im.point(lambda x: 0 if x < intensity else 255, '1')
-    return __save_image('/low_res_text_processed.png', im)
-
+    height, width, _ = image.shape
+    new_size = (width*6, height*6)
+    image = cv2.resize(image, new_size, interpolation=cv2.INTER_AREA)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(image, 120, 255, cv2.THRESH_TOZERO)
+    return thresh
 
 # --- Misc ---
 def __any_in_str(words: list, str: str) -> bool:

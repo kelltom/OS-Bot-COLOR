@@ -71,7 +71,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             True if friends are nearby, False otherwise.
         '''
         # screenshot minimap
-        minimap = bcv.capture_screen(self.rect_minimap)
+        minimap = bcv.screenshot(self.rl.rect_minimap())
         # load it as a cv2 image
         minimap = cv2.imread(minimap)
         cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap.png", minimap)
@@ -162,7 +162,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         char_rect = Rectangle(Point(char_pos.x - offset, char_pos.y - offset*2),
                               Point(char_pos.x + offset, char_pos.y))
         # Take a screenshot of rect
-        char_screenshot = bcv.capture_screen(char_rect)
+        char_screenshot = bcv.screenshot(char_rect)
         # Isolate HP bars in that rectangle
         hp_bars = isolate_colors(char_screenshot, [self.TAG_RED, self.TAG_GREEN], "player_hp_bar")
         # If there are any HP bars, return True
@@ -179,7 +179,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             True if an NPC attack was attempted, False otherwise.
         '''
         game_view = self.rl.rect_game_view()
-        path_game_view = bcv.capture_screen(game_view)
+        path_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
         path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
         path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
@@ -209,7 +209,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             The center point of the nearest tagged NPC, or None if none found.
         '''
         game_view = self.rl.rect_game_view()
-        path_game_view = bcv.capture_screen(game_view)
+        path_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
         path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
         path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
@@ -242,7 +242,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             A list of center Points.
         '''
-        path_game_view = bcv.capture_screen(rect)
+        path_game_view = bcv.screenshot(rect)
         path_tagged = rcv.isolate_colors(path_game_view, [color], "get_all_tagged_in_rect")
         contours = rcv.get_contours(path_tagged)
         centers = []
@@ -293,10 +293,10 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         client_rect = self.rl.rectangle()
         cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
                                                       client_rect,
-                                                      conf=0.95)
+                                                      precision=0.95)
         cp_settings = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings.png",
                                              client_rect,
-                                             conf=0.95)
+                                             precision=0.95)
         if cp_settings_selected is None and cp_settings is None:
             self.log_msg("Could not find settings button.")
             return False
@@ -353,7 +353,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Identifies the RuneLite logout button and clicks it.
         '''
         self.log_msg("Logging out of RuneLite...")
-        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.rl.rectangle(), conf=0.9)
+        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.rl.rectangle(), precision=0.9)
         if rl_login_icon is not None:
             self.mouse.move_to(rl_login_icon)
             pag.click()
