@@ -72,16 +72,14 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         # screenshot minimap
         minimap = bcv.screenshot(self.rl.rect_minimap())
-        # load it as a cv2 image
-        minimap = cv2.imread(minimap)
-        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap.png", minimap)
+        #bcv.save_image("minimap.png", minimap)
         # change to hsv
         hsv = cv2.cvtColor(minimap, cv2.COLOR_BGR2HSV)
-        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap_hsv.png", hsv)
+        #bcv.save_image("minimap_hsv.png", hsv)
         # Threshold the HSV image to get only friend color
         mask1 = cv2.inRange(hsv, self.TAG_GREEN[0], self.TAG_GREEN[1])
         only_friends = cv2.bitwise_and(minimap, minimap, mask=mask1)
-        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap_friends.png", only_friends)
+        #bcv.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
         return str(mean) != "[0. 0. 0.]"
 
@@ -179,21 +177,20 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             True if an NPC attack was attempted, False otherwise.
         '''
         game_view = self.rl.rect_game_view()
-        path_game_view = bcv.screenshot(game_view)
+        img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
-        path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
-        path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
+        img_npcs = rcv.isolate_colors(img_game_view, [self.TAG_BLUE], "npcs")
+        img_hp_bars = rcv.isolate_colors(img_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
         # Locate potential NPCs in image by determining contours
-        contours = rcv.get_contours(path_npcs)
+        contours = rcv.get_contours(img_npcs)
         # Click center pixel of non-combatting NPCs
-        img_bgr = cv2.imread(path_hp_bars)
         for cnt in contours:
             try:
                 center, top = rcv.get_contour_positions(cnt)
             except Exception:
-                print("Cannot find moments of contour. Disregarding...")
+                print("An NPC does not have complete outline. Disregarding. (This is normal)")
                 continue
-            if not rcv.is_point_obstructed(center, img_bgr):
+            if not rcv.is_point_obstructed(center, img_hp_bars):
                 self.mouse.move_to(Point(center.x + game_view.left, center.y + game_view.top))
                 pag.click()
                 return True
@@ -209,27 +206,26 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             The center point of the nearest tagged NPC, or None if none found.
         '''
         game_view = self.rl.rect_game_view()
-        path_game_view = bcv.screenshot(game_view)
+        img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
-        path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
-        path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
+        img_npcs = rcv.isolate_colors(img_game_view, [self.TAG_BLUE], "npcs")
+        img_hp_bars = rcv.isolate_colors(img_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
         # Locate potential NPCs in image by determining contours
-        contours = rcv.get_contours(path_npcs)
+        contours = rcv.get_contours(img_npcs)
         # Get center pixels of non-combatting NPCs
         centers = []
-        img_bgr = cv2.imread(path_hp_bars)
         for cnt in contours:
             try:
-                center, top = rcv.get_contour_positions(cnt)
+                center, _ = rcv.get_contour_positions(cnt)
             except Exception:
-                print("Cannot find moments of contour. Disregarding...")
+                print("An NPC does not have complete outline. Disregarding. (This is normal)")
                 continue
-            if not include_in_combat and not rcv.is_point_obstructed(center, img_bgr) or include_in_combat:
+            if not include_in_combat and not rcv.is_point_obstructed(center, img_hp_bars) or include_in_combat:
                 centers.append((center.x, center.y))
         if not centers:
             print("No tagged NPCs found.")
             return None
-        dims = img_bgr.shape  # (height, width, channels)
+        dims = img_hp_bars.shape  # (height, width, channels)
         nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
         return Point(nearest.x + game_view.left, nearest.y + game_view.top)
 
@@ -242,15 +238,15 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             A list of center Points.
         '''
-        path_game_view = bcv.screenshot(rect)
-        path_tagged = rcv.isolate_colors(path_game_view, [color], "get_all_tagged_in_rect")
-        contours = rcv.get_contours(path_tagged)
+        img_rect = bcv.screenshot(rect)
+        img_isolated = rcv.isolate_colors(img_rect, [color], "get_all_tagged_in_rect")
+        contours = rcv.get_contours(img_isolated)
         centers = []
         for cnt in contours:
             try:
                 center, _ = rcv.get_contour_positions(cnt)
             except Exception:
-                print("Cannot find moments of contour. Disregarding...")
+                print("Cannot find complete outline of tagged object. Disregarding. (This is normal)")
                 continue
             centers.append(Point(center.x + rect.left, center.y + rect.top))
         return centers
@@ -313,18 +309,6 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         time.sleep(0.5)
         return True
 
-    @deprecated
-    def collapse_runelite_settings_panel(self):
-        '''
-        Identifies the RuneLite settings panel and collapses it.
-        '''
-        self.log_msg("Closing RuneLite settings panel...")
-        settings_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_settings_collapse.png", self.rl.rectangle())
-        if settings_icon is not None:
-            self.mouse.move_to(settings_icon)
-            pag.click()
-            time.sleep(1.5)
-
     def did_set_layout_fixed(self) -> bool:
         '''
         Attempts to set the client's layout to "Fixed - Classic layout".
@@ -348,6 +332,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         time.sleep(1.5)
         return True
 
+    @deprecated(reason="This method is no longer needed for RuneLite games that can launch with arguments through the OSBC client.")
     def logout_runelite(self):
         '''
         Identifies the RuneLite logout button and clicks it.
@@ -387,16 +372,16 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         return True
 
     # --- Setup Functions ---
-    def setup_client(self, window_title: str, set_layout_fixed: bool) -> None:
+    def setup_client(self, window_title: str, set_layout_fixed: bool = True, logout_runelite: bool = False) -> None:
         # sourcery skip: merge-nested-ifs
         '''
         Configures a RuneLite client window. This function logs messages to the script output log.
         Args:
             window_title: The title of the window to be manipulated. Must match the actual window's title.
-            set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout".
+            set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout" (default=True).
+            logout_runelite: Whether or not to logout of RuneLite (not necessary when launching game via OSBC) (default=False).
         '''
         self.log_msg("Configuring client window...")
-
         try:
             self.rl = RuneLiteWindow(window_title)
             self.rl.focus()
@@ -404,18 +389,13 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             self.log_msg("Error: Could not find game window.")
             self.set_status(BotStatus.STOPPED)
             return
-
         # Set layout to fixed
         if set_layout_fixed:
             if not self.did_set_layout_fixed():  # if layout setup failed
                 if pag.confirm("Could not set layout to fixed. Continue anyway?") == "Cancel":
                     self.set_status(BotStatus.STOPPED)
                     return
-
         # Ensure user is logged out of RuneLite
-        # self.logout_runelite()
-
-        # Ensure RuneLite Settings pane is closed
-        self.collapse_runelite_settings_panel()
-
+        if logout_runelite:
+            self.logout_runelite()
         self.log_msg("Client window configured.")

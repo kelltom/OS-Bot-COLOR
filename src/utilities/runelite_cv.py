@@ -60,7 +60,7 @@ def isolate_colors(image: cv2.Mat, colors: List[Color]) -> cv2.Mat:
     #bcv.save_image("isolated.png", masked_image)
     return cv2.bitwise_and(image, image, mask=mask)
 
-def is_point_obstructed(point: Point, im, span: int = 20) -> bool:
+def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 20) -> bool:
     '''
     This function determines if there are non-black pixels in an image around a given point.
     This is useful for determining if an NPC is in combat (E.g., given the mid point of an NPC contour

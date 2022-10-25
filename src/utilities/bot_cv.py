@@ -38,9 +38,9 @@ def save_image(filename, im) -> str:
     Returns:
         The path to the saved image.
     Example:
-        path = __save_image('/screenshot.png', im)
+        path = __save_image('screenshot.png', im)
     '''
-    path = f"{TEMP_IMAGES}{filename}"
+    path = f"{TEMP_IMAGES}/{filename}"
     cv2.imwrite(path, im)
     return path
 
