@@ -29,7 +29,7 @@ def screenshot(rect: Rectangle) -> cv2.Mat:
         monitor = rect.to_dict()
         return np.array(sct.grab(monitor))
 
-def __save_image(filename, im) -> str:
+def save_image(filename, im) -> str:
     '''
     Saves an image to the temporary image directory.
     Args:
