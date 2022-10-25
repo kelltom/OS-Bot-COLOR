@@ -4,6 +4,7 @@ A set of computer vision utilities for use with RuneLite-based bots.
 from utilities.geometry import Point
 from typing import List, NamedTuple
 import cv2
+import numpy as np
 import utilities.bot_cv as bcv
 
 # --- Custom Named Tuple ---
@@ -39,7 +40,7 @@ def get_contour_positions(contour) -> tuple:
     top_x, top_y = contour[contour[..., 1].argmin()][0]
     return Point(center_x, center_y), Point(top_x, top_y)
 
-def isolate_colors(image: cv2.Mat, colors: List[Color]) -> cv2.Mat:
+def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
     '''
     Isolates ranges of colors within an image and saves a new resulting image.
     Args:
@@ -48,16 +49,18 @@ def isolate_colors(image: cv2.Mat, colors: List[Color]) -> cv2.Mat:
     Returns:
         The image with the isolated colors.
     '''
-    # Convert to HSV
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    # Convert to BGR
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    # Change each color to RGB
+    for i, color in enumerate(colors):
+        colors[i] = np.array(color[::-1])
     # Generate masks for each color
-    masks = [cv2.inRange(hsv, color[0], color[1]) for color in colors]
+    masks = [cv2.inRange(image, color, color) for color in colors]
     # Combine masks
     mask = masks[0]
     if len(masks) > 1:
         for i in range(1, len(masks)):
             mask = cv2.bitwise_or(mask, masks[i])
-    #bcv.save_image("isolated.png", masked_image)
     return cv2.bitwise_and(image, image, mask=mask)
 
 def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 20) -> bool:

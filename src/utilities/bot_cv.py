@@ -23,11 +23,12 @@ def screenshot(rect: Rectangle) -> cv2.Mat:
     Args:
         rect: Rectangle area to capture.
     Returns:
-        A BGRA Numpy array representing the captured image.
+        A BGR Numpy array representing the captured image.
     '''
     with mss.mss() as sct:
         monitor = rect.to_dict()
-        return np.array(sct.grab(monitor))
+        res = np.array(sct.grab(monitor))
+        return cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
 
 def save_image(filename, im) -> str:
     '''
@@ -79,7 +80,7 @@ def search_img_in_rect(img_path, rect: Rectangle, precision=0.8) -> Point:
 
     if pos == [-1, -1]:
         return None
-    return Point(x=int(pos[0] + width / 2), y=int(pos[1] + height / 2))
+    return Point(x=int(pos[0] + width / 2) + rect.left, y=int(pos[1] + height / 2) + rect.top)
 
 # --- OCR ---
 def get_numbers_in_rect(rect: Rectangle, is_low_res=False) -> list:
