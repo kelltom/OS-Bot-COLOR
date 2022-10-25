@@ -34,22 +34,25 @@ class MouseUtils:
         elif targetPoints > 100:
             targetPoints = 100
 
+        dest_x = destination[0]
+        dest_y = destination[1]
+
         if destination_variance != 0:
-            destination[0] += np.random.randint(-destination_variance, destination_variance)
-            destination[1] += np.random.randint(-destination_variance, destination_variance)
+            dest_x += np.random.randint(-destination_variance, destination_variance)
+            dest_y += np.random.randint(-destination_variance, destination_variance)
 
         start_x, start_y = pag.position()
         for curve_x, curve_y in HumanCurve((start_x, start_y),
-                                            destination,
-                                            offsetBoundaryX=offsetBoundaryX,
-                                            offsetBoundaryY=offsetBoundaryY,
-                                            knotsCount=knotsCount,
-                                            distortionMean=distortionMean,
-                                            distortionStdev=distortionStdev,
-                                            distortionFrequency=distortionFrequency,
-                                            tween=tween,
-                                            targetPoints=targetPoints
-                                            ).points:
+                                           (dest_x, dest_y),
+                                           offsetBoundaryX=offsetBoundaryX,
+                                           offsetBoundaryY=offsetBoundaryY,
+                                           knotsCount=knotsCount,
+                                           distortionMean=distortionMean,
+                                           distortionStdev=distortionStdev,
+                                           distortionFrequency=distortionFrequency,
+                                           tween=tween,
+                                           targetPoints=targetPoints
+                                           ).points:
             pag.moveTo((curve_x, curve_y))
             start_x, start_y = curve_x, curve_y
 
