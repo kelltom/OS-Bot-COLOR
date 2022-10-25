@@ -54,6 +54,18 @@ class RuneLiteWindow:
         if client := self.window:
             client.size = (width, height)
     
+    def get_relative_point(self, x, y) -> Point:
+        '''
+        Returns a Point relative to the client window.
+        Args:
+            x: The x coordinate when client is anchored to top-left of screen.
+            y: The y coordinate when client is anchored to top-left of screen.
+        Returns:
+            A Point relative to the client window.
+        '''
+        offset = self.position()
+        return Point(x + offset.x, y + offset.y)
+    
     # === Rectangles ===
     # TODO: Currently only works when client is in fixed layout mode and minsize.
     #       Need to make everything relative to the game view - which requires template matching.
@@ -96,18 +108,15 @@ class RuneLiteWindow:
     # --- Orbs ---
     def orb_compass(self) -> Point:
         '''Returns the position of the compass orb as a Point.'''
-        offset = self.position()
-        return Point(x=571 + offset.x, y=48 + offset.y)
+        return self.get_relative_point(571, 48)
     
     def orb_prayer(self) -> Point:
         '''Returns the position of the prayer orb as a Point.'''
-        offset = self.position()
-        return Point(x=565 + offset.x, y=119 + offset.y)
+        return self.get_relative_point(565, 119)
     
     def orb_spec(self) -> Point:
         '''Returns the position of the special attack orb as a Point.'''
-        offset = self.position()
-        return Point(x=597 + offset.x, y=178 + offset.y)
+        return self.get_relative_point(597, 178)
 
     # --- Control Panel ---
     def cp_tab(self, tab: int) -> Point:
@@ -132,7 +141,7 @@ class RuneLiteWindow:
         '''
         Fetches the positions of inventory slots as Points.
         Args:
-            indices: A list of inventory slot indices to return the positions of.
+            indices: A list of inventory slot indices to return the positions of (0-27).
                      If None, returns the positions of all inventory slots.
         Returns:
             A list of Points representing the positions of inventory slots.
@@ -142,10 +151,8 @@ class RuneLiteWindow:
         curr_y = inv.top + 26
         for _ in range(7):
             curr_x = inv.left + 26  # reset x
-            row = []
             for _ in range(4):
-                row.append(Point(x=curr_x, y=curr_y))
+                res.append(Point(x=curr_x, y=curr_y))
                 curr_x += 42  # x delta
-            res.append(row)
             curr_y += 36  # y delta
         return res if indices is None else [res[i] for i in indices]
