@@ -1,11 +1,10 @@
 '''
 A set of computer vision utilities for use with RuneLite-based bots.
 '''
-
+from utilities.geometry import Point, Rectangle
+from typing import List, NamedTuple
 import cv2
 import utilities.bot_cv as bcv
-from utilities.bot_cv import Point
-from typing import NamedTuple, List
 
 
 # --- Custom Named Tuple ---
