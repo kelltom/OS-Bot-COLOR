@@ -30,7 +30,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
     # --- Notable Colors [R, G, B] ---
     BLUE = [0, 255, 255]
     PURPLE = [255, 170, 0]
-    PINK = [255, 255, 0]
+    PINK = [255, 0, 231]
     GREEN = [0, 255, 0]
     RED = [255, 0, 0]
 
@@ -395,4 +395,6 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         # Ensure user is logged out of RuneLite
         if logout_runelite:
             self.logout_runelite()
+        # Resize client window
+        self.rl.resize()
         self.log_msg("Client window configured.")
