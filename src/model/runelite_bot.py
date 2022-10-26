@@ -380,7 +380,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         self.log_msg("Configuring client window...")
         try:
-            self.rl = WindowClass(window_title)
+            self.rl: RuneLiteWindow = WindowClass(window_title)
             self.rl.focus()
         except pygetwindow.PyGetWindowException:
             self.log_msg("Error: Could not find game window.")

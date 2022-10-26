@@ -50,7 +50,7 @@ class OSNRCombat(OSNRBot):
         self.toggle_auto_retaliate(toggle_on=True)
 
         # Reselect inventory
-        self.mouse.move_to(self.cp_inventory, destination_variance=3)
+        self.mouse.move_to(self.rl.cp_tab(4), destination_variance=3)
         self.mouse.click()
 
         start_time = time.time()
@@ -68,7 +68,7 @@ class OSNRCombat(OSNRBot):
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                npc = self.get_nearest_tagged_NPC(self.rect_game_view)
+                npc = self.get_nearest_tagged_NPC()
                 if npc is not None:
                     self.log_msg("Attacking NPC...")
                     self.mouse.move_to(npc)

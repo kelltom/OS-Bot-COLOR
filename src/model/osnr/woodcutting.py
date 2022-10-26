@@ -55,14 +55,14 @@ class OSNRWoodcutting(OSNRBot):
             return
 
         # Set compass
-        self.mouse.move_to(self.orb_compass)
+        self.mouse.move_to(self.nr.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
         # Move camera up
         self.move_camera_up()
 
-        last_inventory_pos = self.inventory_slots[6][3]
+        last_inventory_pos = self.nr.inventory_slots()[-1]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         logs = 0
         failed_searches = 0
@@ -75,12 +75,13 @@ class OSNRWoodcutting(OSNRBot):
                 return
 
             # If inventory is full
+            last_inventory_pos = self.nr.inventory_slots()[-1]
             if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
                 logs += 28
                 self.log_msg(f"Logs cut: ~{logs}")
                 if self.should_bank:
                     # TODO: THIS ONLY WORKS FOR ::DI AND IS A TEMPORARY SOLUTION
-                    bank = self.get_nearest_tag(self.TAG_BLUE)
+                    bank = self.get_nearest_tag(self.BLUE)
                     if bank is None:
                         self.log_msg("Could not find bank.")
                         self.set_status(BotStatus.STOPPED)
@@ -108,7 +109,7 @@ class OSNRWoodcutting(OSNRBot):
                 return
 
             # Find a tree
-            tree = self.get_nearest_tag(self.TAG_PINK)
+            tree = self.get_nearest_tag(self.PINK)
             if tree is None:
                 failed_searches += 1
                 if failed_searches > 10:
@@ -126,7 +127,7 @@ class OSNRWoodcutting(OSNRBot):
 
             # Wait so long as the player is cutting
             timer = 0
-            while bcv.search_text_in_rect(self.rect_game_view, ["Woodcutting"], ["Not"]):
+            while self.is_player_doing_action("Woodcutting"):
                 self.update_progress((time.time() - start_time) / end_time)
                 if not self.status_check_passed():
                     return
