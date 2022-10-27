@@ -20,16 +20,16 @@ class AloraBot(RuneLiteBot, metaclass=ABCMeta):
         '''
         self.log_msg("Enabling auto retaliate...")
         # click the combat tab
-        self.mouse.move_to(self.rl.cp_tab(1), duration=1, destination_variance=3)
+        self.mouse.move_to(self.win.cp_tab(1), duration=1, destination_variance=3)
         pag.click()
         time.sleep(0.5)
 
         # Search for the auto retaliate button (deselected)
         # If None, then auto retaliate is on.
-        auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/alora/cp_combat_autoretal.png", self.rl.rect_inventory(), precision=0.9)
+        auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/alora/cp_combat_autoretal.png", self.win.rect_inventory(), precision=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.mouse.move_to(self.rl.get_relative_point(644, 402), destination_variance=5, targetPoints=50)
+            self.mouse.move_to(self.win.get_relative_point(644, 402), destination_variance=5, targetPoints=50)
             pag.click()
         elif toggle_on:
             print("Auto retaliate is already on.")
@@ -51,10 +51,10 @@ class AloraBot(RuneLiteBot, metaclass=ABCMeta):
         self.log_msg("Setting layout to Fixed - Classic layout.")
         time.sleep(0.3)
         cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
-                                                      self.rl.rectangle(),
+                                                      self.win.rectangle(),
                                                       precision=0.95)
         cp_settings = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings.png",
-                                             self.rl.rectangle(),
+                                             self.win.rectangle(),
                                              precision=0.95)
         if cp_settings_selected is None and cp_settings is None:
             self.log_msg("Could not find settings button.")
@@ -70,7 +70,7 @@ class AloraBot(RuneLiteBot, metaclass=ABCMeta):
         pag.click()
         time.sleep(1.5)
         click_here_to_play = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/alora/click_here_to_play.png",
-                                                    self.rl.rectangle())
+                                                    self.win.rectangle())
         if click_here_to_play is not None:
             self.mouse.move_to(click_here_to_play)
             pag.click()

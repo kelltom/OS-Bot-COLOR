@@ -9,23 +9,47 @@ For converting RGB to HSV:
 from abc import ABCMeta
 from deprecated import deprecated
 from model.bot import Bot, BotStatus
-from model.runelite_window import RuneLiteWindow
+from model.window import Window
 from typing import List
 from utilities.geometry import Rectangle, Point
-from utilities.runelite_cv import Color, isolate_colors
-import cv2
+from utilities.runelite_cv import isolate_colors
 import numpy as np
 import pyautogui as pag
-import pygetwindow
 import random as rd
 import time
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
 
 
+class RuneLiteWindow(Window):
+    def __init__(self, window_title: str) -> None:
+        super().__init__(window_title, padding_top=26, padding_left=0)
+    
+    # Override
+    def resize(self, width: int = 773, height: int = 534) -> None:
+        '''
+        Resizes the client window. Default size is 773x534 (minsize of fixed layout).
+        Args:
+            width: The width to resize the window to.
+            height: The height to resize the window to.
+        '''
+        if client := self.window:
+            client.size = (width, height)
+
+    # === Rectangles ===
+    # The following rects are used to isolate specific areas of the client window.
+    # Their positions were identified when game client was in fixed layout & anchored to the screen origin.
+    def rect_current_action(self) -> Rectangle:
+        '''
+        Returns a Rectangle outlining the 'current action' area of the game view.
+        E.g., Woodcutting plugin, Opponent Information plugin (<name of NPC>), etc.
+        '''
+        return Rectangle.from_points(Point(13, 51), Point(140, 73), self.position())
+
+
 class RuneLiteBot(Bot, metaclass=ABCMeta):
 
-    rl: RuneLiteWindow = None
+    win: RuneLiteWindow = None
 
     # --- Notable Colors [R, G, B] ---
     BLUE = [0, 255, 255]
@@ -33,6 +57,9 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
     PINK = [255, 0, 231]
     GREEN = [0, 255, 0]
     RED = [255, 0, 0]
+
+    def __init__(self, title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
+        super().__init__(title, description, window)
 
     def drop_inventory(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
         '''
@@ -50,7 +77,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             skip_slots = np.unique(row_skip + skip_slots)
         # Start dropping
         pag.keyDown("shift")
-        for i, slot in enumerate(self.rl.inventory_slots()):
+        for i, slot in enumerate(self.win.inventory_slots()):
             if not self.status_check_passed():
                 pag.keyUp("shift")
                 return
@@ -73,7 +100,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             True if friends are nearby, False otherwise.
         '''
         # screenshot minimap
-        minimap = bcv.screenshot(self.rl.rect_minimap())
+        minimap = bcv.screenshot(self.win.rect_minimap())
         only_friends = rcv.isolate_colors(minimap, [self.GREEN])
         #bcv.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
@@ -85,7 +112,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             The HP of the player, or None if not found.
         """
-        res = bcv.get_numbers_in_rect(self.rl.rect_hp(), True)
+        res = bcv.get_numbers_in_rect(self.win.rect_hp(), True)
         print(res)
         return None if res is None else res[0]
 
@@ -95,7 +122,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             The prayer value of the player, or None if not found.
         """
-        res = bcv.get_numbers_in_rect(self.rl.rect_prayer(), True)
+        res = bcv.get_numbers_in_rect(self.win.rect_prayer(), True)
         print(res)
         return None if res is None else res[0]
 
@@ -104,7 +131,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Logs player out.
         '''
         self.log_msg("Logging out...")
-        self.mouse.move_to(self.rl.cp_tab(11))
+        self.mouse.move_to(self.win.cp_tab(11))
         pag.click()
         time.sleep(1)
         self.mouse.move_rel(0, -53, 3)  # Logout button
@@ -115,8 +142,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Moves the camera up.
         '''
         # Position the mouse somewhere on the game view
-        self.mouse.move_to(Point(self.rl.rect_game_view().left + 20,
-                                 self.rl.rect_game_view().top + 20))
+        self.mouse.move_to(Point(self.win.rect_game_view().left + 20,
+                                 self.win.rect_game_view().top + 20))
         pag.keyDown('up')
         time.sleep(2)
         pag.keyUp('up')
@@ -127,7 +154,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns whether the player is in combat. This is achieved by checking if text exists in the RuneLite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        result = bcv.get_text_in_rect(self.rl.rect_current_action())
+        result = bcv.get_text_in_rect(self.win.rect_current_action())
         return result.strip() != ""
     
     def is_player_doing_action(self, action: str):
@@ -141,7 +168,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             if self.is_player_doing_action("Woodcutting"):
                 print("Player is woodcutting!")
         '''
-        return bcv.search_text_in_rect(self.rl.rect_current_action(), [action], ["Not"])
+        return bcv.search_text_in_rect(self.win.rect_current_action(), [action], ["not", "nof", "nol"])
 
     def has_hp_bar(self) -> bool:
         '''
@@ -149,7 +176,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         This function only works when the game camera is all the way up.
         '''
         # Position of character relative to the screen
-        char_pos = self.rl.rect_game_view().get_center()
+        char_pos = self.win.rect_game_view().get_center()
         
         # Make a rectangle around the character
         offset = 30
@@ -171,7 +198,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             True if an NPC attack was attempted, False otherwise.
         '''
-        game_view = self.rl.rect_game_view()
+        game_view = self.win.rect_game_view()
         img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
         img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
@@ -200,7 +227,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             The center point of the nearest tagged NPC, or None if none found.
         '''
-        game_view = self.rl.rect_game_view()
+        game_view = self.win.rect_game_view()
         img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
         img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
@@ -257,7 +284,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             The center Point of the nearest contour, or None if none found.
         '''
-        rect = self.rl.rect_game_view()
+        rect = self.win.rect_game_view()
         centers = self.get_all_tagged_in_rect(rect, color)
         return self.__get_nearest_point(rect.get_center(), centers) if centers else None
         
@@ -283,7 +310,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             True if the settings were opened, False if an error occured.
         '''
-        client_rect = self.rl.rectangle()
+        client_rect = self.win.rectangle()
         cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
                                                       client_rect,
                                                       precision=0.95)
@@ -317,7 +344,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         if not self.__open_display_settings():
             return False
         time.sleep(0.3)
-        layout_dropdown = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_dropdown.png", self.rl.rectangle())
+        layout_dropdown = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_dropdown.png", self.win.rectangle())
         if layout_dropdown is None:
             self.log_msg("Could not find the layout dropdown.")
             return False
@@ -335,7 +362,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Identifies the RuneLite logout button and clicks it.
         '''
         self.log_msg("Logging out of RuneLite...")
-        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.rl.rectangle(), precision=0.9)
+        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.win.rectangle(), precision=0.9)
         if rl_login_icon is not None:
             self.mouse.move_to(rl_login_icon)
             pag.click()
@@ -363,29 +390,22 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         zoom_start = 611
         zoom_end = 708
         x = int((percentage / 100) * (zoom_end - zoom_start) + zoom_start)
-        client_pos = self.rl.position()
+        client_pos = self.win.position()
         self.mouse.move_to(Point(x + client_pos.x, 345 + client_pos.y))
         pag.click()
         return True
 
     # --- Setup Functions ---
-    def setup_client(self, window_title: str, WindowClass: RuneLiteWindow = RuneLiteWindow, set_layout_fixed: bool = True, logout_runelite: bool = False) -> None:
+    def setup_client(self, set_layout_fixed: bool = True, logout_runelite: bool = False) -> None:
         # sourcery skip: merge-nested-ifs
         '''
         Configures a RuneLite client window. This function logs messages to the script output log.
         Args:
-            window_title: The title of the window to be manipulated. Must match the actual window's title.
             set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout" (default=True).
             logout_runelite: Whether or not to logout of RuneLite (not necessary when launching game via OSBC) (default=False).
         '''
         self.log_msg("Configuring client window...")
-        try:
-            self.rl: RuneLiteWindow = WindowClass(window_title)
-            self.rl.focus()
-        except pygetwindow.PyGetWindowException:
-            self.log_msg("Error: Could not find game window.")
-            self.set_status(BotStatus.STOPPED)
-            return
+
         # Set layout to fixed
         if set_layout_fixed:
             if not self.did_set_layout_fixed():  # if layout setup failed
@@ -396,5 +416,5 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         if logout_runelite:
             self.logout_runelite()
         # Resize client window
-        self.rl.resize()
+        self.win.resize()
         self.log_msg("Client window configured.")

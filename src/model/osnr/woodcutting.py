@@ -55,14 +55,14 @@ class OSNRWoodcutting(OSNRBot):
             return
 
         # Set compass
-        self.mouse.move_to(self.nr.orb_compass())
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
         # Move camera up
         self.move_camera_up()
 
-        last_inventory_pos = self.nr.inventory_slots()[-1]
+        last_inventory_pos = self.win.inventory_slots()[-1]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         logs = 0
         failed_searches = 0
@@ -75,7 +75,7 @@ class OSNRWoodcutting(OSNRBot):
                 return
 
             # If inventory is full
-            last_inventory_pos = self.nr.inventory_slots()[-1]
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
                 logs += 28
                 self.log_msg(f"Logs cut: ~{logs}")

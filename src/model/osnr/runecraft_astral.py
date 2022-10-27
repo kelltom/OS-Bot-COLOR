@@ -62,7 +62,7 @@ class OSNRAstralRunes(OSNRBot):
                 self.set_status(BotStatus.STOPPED)
                 return
             time.sleep(1)
-            empty = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/bank_deposit_all.png", self.nr.rect_game_view())
+            empty = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/bank_deposit_all.png", self.win.rect_game_view())
             if empty is None:
                 self.log_msg("Failed to deposit inventory.")
                 self.set_status(BotStatus.STOPPED)
@@ -75,14 +75,14 @@ class OSNRAstralRunes(OSNRBot):
                 return
 
             # Set last inv slot pixel color if it's not set
-            last_inventory_pos = self.rl.inventory_slots()[-1]
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if last_inventory_rgb is None:
                 last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
 
             # Restock inventory
             self.load_preset()
             time.sleep(1)
-            self.mouse.move_to(self.rl.cp_tab(4))
+            self.mouse.move_to(self.win.cp_tab(4))
             pag.click()
             time.sleep(0.5)
 
@@ -90,7 +90,7 @@ class OSNRAstralRunes(OSNRBot):
                 return
 
             # -- If last inventory slot is empty, terminate bot
-            last_inventory_pos = self.rl.inventory_slots()[-1]
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) == last_inventory_rgb:
                 self.log_msg("Out of rune essence. Terminating bot.")
                 self.set_status(BotStatus.STOPPED)
@@ -114,7 +114,7 @@ class OSNRAstralRunes(OSNRBot):
                 return
 
             # Click the altar
-            points = self.get_all_tagged_in_rect(self.rl.rect_game_view(), self.PINK)
+            points = self.get_all_tagged_in_rect(self.win.rect_game_view(), self.PINK)
             if len(points) == 0:
                 self.log_msg("Failed to find altar.")
                 self.set_status(BotStatus.STOPPED)

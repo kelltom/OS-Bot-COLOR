@@ -4,12 +4,9 @@ be inherited by OSNR script classes.
 '''
 from abc import ABCMeta
 
-from model.runelite_window import RuneLiteWindow
-from ..bot import BotStatus
 import utilities.bot_cv as bcv
-import utilities.runelite_cv as rcv
 from enum import Enum
-from model.runelite_bot import RuneLiteBot
+from model.runelite_bot import RuneLiteBot, RuneLiteWindow
 from utilities.bot_cv import Point
 import pyautogui as pag
 import time
@@ -22,8 +19,8 @@ class Spellbook(Enum):
     ancient = 1
 
 class OSNRWindow(RuneLiteWindow):
-    def __init__(self, window_title: str) -> None:
-        super().__init__(window_title)
+    def __init__(self) -> None:
+        super().__init__(window_title="Near-Reality")
 
     # --- Spellbook ---
     def spellbook_home_tele(self, spellbook: Spellbook) -> Point:
@@ -83,14 +80,17 @@ class OSNRWindow(RuneLiteWindow):
 
 class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
     
-    nr = OSNRWindow(window_title="Near-Reality")
+    win: OSNRWindow = None
+
+    def __init__(self, title, description) -> None:
+        super().__init__(title, description, OSNRWindow())
 
     def __disable_private_chat(self):
         '''
         Disables private chat in game.
         '''
         self.log_msg("Disabling private chat...")
-        private_btn = self.nr.get_relative_point(218, 517)  # TODO: Make chat buttons accessible in RuneLiteWindow
+        private_btn = self.win.get_relative_point(218, 517)  # TODO: Make chat buttons accessible in RuneLiteWindow
         self.mouse.move_to(private_btn)
         pag.rightClick()
         time.sleep(0.05)
@@ -103,7 +103,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         Closes the bank interface.
         '''
         self.log_msg("Closing bank...")
-        self.mouse.move_to(self.nr.bank_close_btn(), destination_variance=1)
+        self.mouse.move_to(self.win.bank_close_btn(), destination_variance=1)
         pag.click()
         time.sleep(1)
 
@@ -111,7 +111,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         '''
         From within the banking interface, clicks the "deposit all" button.
         '''
-        empty = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/bank_deposit_all.png", self.nr.rect_game_view())
+        empty = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/bank_deposit_all.png", self.win.rect_game_view())
         if empty is None:
             self.log_msg("Cannot find deposit button.")
             return False
@@ -125,13 +125,13 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         Loads the default preset from the bank interface.
         '''
         self.log_msg("Loading preset...")
-        self.mouse.move_to(self.nr.presets_btn(), destination_variance=2)
+        self.mouse.move_to(self.win.presets_btn(), destination_variance=2)
         pag.click()
         time.sleep(1)
-        self.mouse.move_to(self.nr.presets_load_btn(), destination_variance=1)
+        self.mouse.move_to(self.win.presets_load_btn(), destination_variance=1)
         pag.click()
         time.sleep(1)
-        self.mouse.move_to(self.nr.presets_close_btn(), destination_variance=1)
+        self.mouse.move_to(self.win.presets_close_btn(), destination_variance=1)
         pag.click()
         time.sleep(1)
 
@@ -155,7 +155,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
             return
 
         bank_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap_bank_icon.png",
-                                           self.nr.rect_minimap(),
+                                           self.win.rect_minimap(),
                                            precision=0.8)
         if bank_icon is None:
             self.log_msg("Bank icon not found.")
@@ -171,7 +171,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if not self.status_check_passed():
             return
 
-        banks = self.get_all_tagged_in_rect(self.nr.rect_game_view(), self.PINK)
+        banks = self.get_all_tagged_in_rect(self.win.rect_game_view(), self.PINK)
         if len(banks) == 0:
             self.log_msg("No banks found.")
             return False
@@ -185,10 +185,10 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         Teleports to the home location.
         '''
         self.log_msg("Teleporting to home...")
-        self.mouse.move_to(self.nr.cp_tab(7), destination_variance=2)
+        self.mouse.move_to(self.win.cp_tab(7), destination_variance=2)
         pag.click()
         time.sleep(0.5)
-        self.mouse.move_to(self.nr.spellbook_home_tele(spellbook), destination_variance=1, targetPoints=50)
+        self.mouse.move_to(self.win.spellbook_home_tele(spellbook), destination_variance=1, targetPoints=50)
         pag.click()
 
     def teleport_to(self, spellbook: Spellbook, location: str) -> bool:
@@ -201,24 +201,24 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
             True if successful, False otherwise.
         '''
         self.log_msg(f"Teleporting to {location}...")
-        self.mouse.move_to(self.nr.cp_tab(7), destination_variance=2, targetPoints=50)
+        self.mouse.move_to(self.win.cp_tab(7), destination_variance=2, targetPoints=50)
         pag.click()
         time.sleep(0.5)
 
         if not self.status_check_passed():
             return
 
-        self.mouse.move_to(self.nr.teleport_menu(spellbook), targetPoints=40)
+        self.mouse.move_to(self.win.teleport_menu(spellbook), targetPoints=40)
         pag.click()
         time.sleep(1.5)
 
         if not self.status_check_passed():
             return
 
-        self.mouse.move_to(self.nr.teleport_menu_search(), targetPoints=40)
+        self.mouse.move_to(self.win.teleport_menu_search(), targetPoints=40)
         pag.click()
         time.sleep(1)
-        result = self.nr.teleport_menu_search_result()
+        result = self.win.teleport_menu_search_result()
         no_result_rgb = pag.pixel(result.x, result.y)
         pag.typewrite(location, interval=0.05)
 
@@ -226,7 +226,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
             return
 
         time.sleep(1.5)
-        new_result = self.nr.teleport_menu_search_result()
+        new_result = self.win.teleport_menu_search_result()
         if no_result_rgb == pag.pixel(new_result.x, new_result.y):
             self.log_msg(f"No results found for {location}.")
             return False
@@ -238,7 +238,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
     # Client Settings Config
     def set_compass_north(self):
         self.log_msg("Setting compass North...")
-        self.mouse.move_to(self.nr.orb_compass())
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
 
     def set_compass_west(self):
@@ -252,7 +252,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
 
     def __compass_right_click(self, msg, rel_y):
         self.log_msg(msg)
-        self.mouse.move_to(self.nr.orb_compass())
+        self.mouse.move_to(self.win.orb_compass())
         pag.rightClick()
         self.mouse.move_rel(0, rel_y)
         self.mouse.click()
@@ -265,18 +265,18 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         '''
         self.log_msg("Toggling auto retaliate...")
         # click the combat tab
-        self.mouse.move_to(self.nr.cp_tab(1), destination_variance=3)
+        self.mouse.move_to(self.win.cp_tab(1), destination_variance=3)
         pag.click()
         time.sleep(0.5)
 
         # Search for the auto retaliate button (deselected)
         # If None, then auto retaliate is on.
         auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal.png",
-                                                self.nr.rect_inventory(),
+                                                self.win.rect_inventory(),
                                                 precision=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.mouse.move_to(self.nr.get_relative_point(644, 402), destination_variance=5, targetPoints=50)
+            self.mouse.move_to(self.win.get_relative_point(644, 402), destination_variance=5, targetPoints=50)
             pag.click()
         elif toggle_on:
             print("Auto retaliate is already on.")
@@ -287,15 +287,13 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         '''
         Sets up the OSNR client.
         '''
-        self.setup_client(window_title="Near-Reality",
-                          WindowClass=OSNRWindow,
-                          set_layout_fixed=set_layout_fixed,
+        self.setup_client(set_layout_fixed=set_layout_fixed,
                           logout_runelite=logout_runelite)
         if not self.status_check_passed():
             return
         self.set_camera_zoom(zoom_percentage)
         self.log_msg("Selecting inventory...")
-        self.mouse.move_to(self.nr.cp_tab(4))
+        self.mouse.move_to(self.win.cp_tab(4))
         self.mouse.click()
         time.sleep(0.5)
         self.__disable_private_chat()

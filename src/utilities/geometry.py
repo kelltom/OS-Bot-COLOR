@@ -3,7 +3,7 @@ from typing import NamedTuple
 Point = NamedTuple("Point", x=int, y=int)
 
 class Rectangle:
-    def __init__(self, left: int, top: int, width: int, height: int, offset: Point = Point(0, 0)):
+    def __init__(self, left: int, top: int, width: int, height: int, offset: Point = (0, 0)):
         '''
         Defines a rectangle area on screen.
         Args:
@@ -11,12 +11,12 @@ class Rectangle:
             top: The topmost y coordinate of the rectangle.
             width: The width of the rectangle.
             height: The height of the rectangle.
-            offset: The offset of the rectangle from the left and top coordinates.
+            offset: The offset to apply to the rectangle.
         Returns:
             A Rectangle object.
         '''
-        self.left = left + offset.x
-        self.top = top + offset.y
+        self.left = left + offset[0]
+        self.top = top + offset[1]
         self.width = width
         self.height = height
     
@@ -27,8 +27,6 @@ class Rectangle:
         Args:
             start_point: The first point.
             end_point: The second point.
-            offset: The offset of the rectangle from the left and top coordinates.
-                    (e.g., top-left pixel of game window)
         Returns:
             A Rectangle object.
         '''

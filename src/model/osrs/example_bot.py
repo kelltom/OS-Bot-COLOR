@@ -6,8 +6,8 @@ side affects during testing.
 To better understand how to implement a bot, please see the documentation for the Bot class as well as
 the README/Wiki.
 '''
-
 from model.bot import Bot, BotStatus
+from model.window import MockWindow
 import time
 
 
@@ -16,7 +16,7 @@ class ExampleBot(Bot):
         title = "Example Bot"
         description = ("This is where the description of the bot goes. Briefly describe how the bot works " +
                        "and any important information the user needs to know before starting it.")
-        super().__init__(title=title, description=description)
+        super().__init__(title=title, description=description, window=MockWindow())
         self.running_time = 0
         self.multi_select_example = None
         self.menu_example = None

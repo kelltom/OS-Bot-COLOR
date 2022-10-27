@@ -47,13 +47,13 @@ class OSNRFishing(OSNRBot):
         self.setup_osnr(zoom_percentage=50)
 
         # Set compass
-        self.mouse.move_to(self.rl.orb_compass())
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
         self.move_camera_up()
 
-        last_inventory_pos = self.rl.inventory_slots()[-1]
+        last_inventory_pos = self.win.inventory_slots()[-1]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         fished = 0
         failed_searches = 0
@@ -66,7 +66,7 @@ class OSNRFishing(OSNRBot):
                 return
 
             # Check to drop inventory
-            last_inventory_pos = self.rl.inventory_slots()[-1]
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
                 self.drop_inventory(skip_rows=1)
                 fished += 25
@@ -78,14 +78,13 @@ class OSNRFishing(OSNRBot):
 
             # If not fishing, click fishing spot
             # TODO: this has to be removed and replaced with a API info
-            is_fishing = bcv.search_text_in_rect(self.rl.rect_current_action(), ["fishing", "fishirig"], ["not", "nof", "nol"])
-            while not is_fishing:
+            while not self.is_player_doing_action("fishing"):
                 im_path = None
                 if self.fish_type == "anglerfish":
                     im_path = f"{bcv.BOT_IMAGES}/near_reality/anglerfish_sprite.png"
                 elif self.fish_type == "salmon":
                     im_path = f"{bcv.BOT_IMAGES}/near_reality/salmon_sprite.png"
-                spot = bcv.search_img_in_rect(im_path, self.rl.rect_game_view())
+                spot = bcv.search_img_in_rect(im_path, self.win.rect_game_view())
                 if spot is None:
                     failed_searches += 1
                     time.sleep(1)

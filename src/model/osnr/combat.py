@@ -50,7 +50,7 @@ class OSNRCombat(OSNRBot):
         self.toggle_auto_retaliate(toggle_on=True)
 
         # Reselect inventory
-        self.mouse.move_to(self.rl.cp_tab(4), destination_variance=3)
+        self.mouse.move_to(self.win.cp_tab(4), destination_variance=3)
         self.mouse.click()
 
         start_time = time.time()

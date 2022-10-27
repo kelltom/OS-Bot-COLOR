@@ -62,7 +62,7 @@ class AloraCombat(AloraBot):
         time.sleep(0.5)
 
         # Reselect inventory
-        self.mouse.move_to(self.rl.cp_tab(4), destination_variance=3)
+        self.mouse.move_to(self.win.cp_tab(4), destination_variance=3)
         self.mouse.click()
 
         self.current_iter = 0
@@ -79,7 +79,7 @@ class AloraCombat(AloraBot):
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                if self.attack_first_tagged(self.rl.rect_game_view()):
+                if self.attack_first_tagged(self.win.rect_game_view()):
                     self.log_msg("Attempting to attack NPC...")
                     time.sleep(3)
                     timeout -= 3

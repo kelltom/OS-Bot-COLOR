@@ -45,7 +45,7 @@ class OSNRMining(OSNRBot):
             return
 
         # Set compass
-        self.mouse.move_to(self.rl.orb_compass())
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
@@ -55,7 +55,7 @@ class OSNRMining(OSNRBot):
         pag.keyUp('up')
         time.sleep(0.5)
 
-        last_inventory_pos = self.rl.inventory_slots()[-1]
+        last_inventory_pos = self.win.inventory_slots()[-1]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         mined = 0
         failed_searches = 0
@@ -68,7 +68,7 @@ class OSNRMining(OSNRBot):
                 return
 
             # Check to drop inventory
-            last_inventory_pos = self.rl.inventory_slots()[-1]
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
                 self.drop_inventory()
                 time.sleep(1)
@@ -85,7 +85,7 @@ class OSNRMining(OSNRBot):
                 return
             
             # Get the center pixel of each tagged rock, and it's color
-            rocks = self.get_all_tagged_in_rect(self.rl.rect_game_view(), self.PINK)
+            rocks = self.get_all_tagged_in_rect(self.win.rect_game_view(), self.PINK)
             if len(rocks) == 0:
                 self.log_msg("No tagged rocks found.")
                 self.set_status(BotStatus.STOPPED)

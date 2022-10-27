@@ -1,15 +1,26 @@
+'''
+This class contains functions for interacting with the game client window. All Bot classes have a
+Window object as a property. This class allows you to locate important points/areas on screen no 
+matter where the game client is positioned. This class can be extended to add more functionality
+(See RuneLiteWindow within runelite_bot.py for an example). 
+'''
 from deprecated import deprecated
 from utilities.geometry import Rectangle, Point
 import pygetwindow
 
 
-# TODO: We could implement template matching to make this class functional
-#       for all OSRS bots and move it to Bot.py. The only problem is when
-#       people want to identify their own custom points - they would have to
-#       be aware that you'd have to hardcode the value relative to the game view.
-class RuneLiteWindow:           
-    def __init__(self, window_title: str) -> None:
+class Window:     
+    def __init__(self, window_title: str, padding_top: int, padding_left: int) -> None:
+        '''
+        Creates a Window object with various methods for interacting with the client window.
+        Args:
+            window_title: The title of the client window.
+            padding_top: The height of the client window's header.
+            padding_left: The width of the client window's left border.
+        '''
         self.window_title = window_title
+        self.padding_top = padding_top
+        self.padding_left = padding_left
     
     def _get_window(self):
         self._client = pygetwindow.getWindowsWithTitle(self.window_title)
@@ -44,9 +55,9 @@ class RuneLiteWindow:
         if client := self.window:
             return Rectangle(client.left, client.top, client.width, client.height)
     
-    def resize(self, width: int = 773, height: int = 534) -> None:
+    def resize(self, width: int, height: int) -> None:
         '''
-        Resizes the client window. Default size is 773x534 (minsize of fixed layout).
+        Resizes the client window..
         Args:
             width: The width to resize the window to.
             height: The height to resize the window to.
@@ -54,7 +65,19 @@ class RuneLiteWindow:
         if client := self.window:
             client.size = (width, height)
     
-    def get_relative_point(self, x, y) -> Point:
+    def __get_relative_point(self, x: int, y: int) -> Point:
+        '''
+        Returns a Point relative to the client window. Do not use this method outside of this class.
+        Args:
+            x: The x coordinate when client is anchored to top-left of screen, relative to game view.
+            y: The y coordinate when client is anchored to top-left of screen, relative to game view.
+        Returns:
+            A Point relative to the client window.
+        '''
+        offset = self.position()
+        return Point(x + offset.x + self.padding_left, y + offset.y + self.padding_top)
+    
+    def get_relative_point(self, x: int, y: int) -> Point:
         '''
         Returns a Point relative to the client window.
         Args:
@@ -62,61 +85,70 @@ class RuneLiteWindow:
             y: The y coordinate when client is anchored to top-left of screen.
         Returns:
             A Point relative to the client window.
+        Example:
+            E.g., if I know the position of the Map button is (730, 160) when
+            the RuneLite client is anchored to the top-left of the screen, I can use:
+                `map_btn = self.get_relative_point(730, 160)`
+            in my bot's code to get the position of the Map button no matter
+            where the client is on screen. Consider image search as an alternative.
         '''
         offset = self.position()
         return Point(x + offset.x, y + offset.y)
     
     # === Rectangles ===
-    # TODO: Currently only works when client is in fixed layout mode and minsize.
-    #       Need to make everything relative to the game view - which requires template matching.
     # The following rects are used to isolate specific areas of the client window.
-    # Their positions were identified when game client was in fixed layout & anchored to the screen origin.
+    # Their positions are relative to the top-left corner of the GAME VIEW.
     def rect_current_action(self) -> Rectangle:
         '''
         Returns a Rectangle outlining the 'current action' area of the game view.
         E.g., Woodcutting plugin, Opponent Information plugin (<name of NPC>), etc.
         '''
-        return Rectangle.from_points(Point(13, 51), Point(140, 73), self.position())
+        return Rectangle.from_points(self.__get_relative_point(13, 25),
+                                     self.__get_relative_point(140, 47))
     
     def rect_game_view(self) -> Rectangle:
         '''Returns a Rectangle outlining the game view.'''
-        return Rectangle.from_points(Point(8, 50), Point(517, 362), self.position())
+        return Rectangle.from_points(self.__get_relative_point(8, 24),
+                                     self.__get_relative_point(517, 336))
 
     def rect_cp(self) -> Rectangle:
         '''Returns a Rectangle outlining the control panel area.'''
-        return Rectangle.from_points(Point(528, 194), Point(763, 526), self.position())
+        return Rectangle.from_points(self.__get_relative_point(528, 168),
+                                     self.__get_relative_point(763, 500))
     
-    # TODO: Deprecate once RuneLite API has been implemented.
     def rect_hp(self) -> Rectangle:
         '''Returns a Rectangle outlining the text on the HP status bar.'''
-        return Rectangle.from_points(Point(528, 81), Point(549, 95), self.position())
+        return Rectangle.from_points(self.__get_relative_point(528, 55),
+                                     self.__get_relative_point(549, 69))
     
     def rect_inventory(self) -> Rectangle:
         '''Returns a Rectangle outlining the inventory area.'''
-        return Rectangle.from_points(Point(554, 230), Point(737, 491), self.position())
+        return Rectangle.from_points(self.__get_relative_point(554, 204),
+                                     self.__get_relative_point(737, 465))
     
     def rect_minimap(self) -> Rectangle:
         '''Returns a Rectangle outlining the minimap area.'''
-        return Rectangle.from_points(Point(577, 39), Point(715, 188), self.position())
+        return Rectangle.from_points(self.__get_relative_point(577, 13),
+                                     self.__get_relative_point(715, 162))
     
-    # TODO: Deprecate once RuneLite API has been implemented.
     def rect_prayer(self) -> Rectangle:
         '''Returns a Rectangle outlining the prayer bar.'''
-        return Rectangle.from_points(Point(530, 117), Point(550, 130), self.position())
+        return Rectangle.from_points(self.__get_relative_point(530, 91),
+                                     self.__get_relative_point(550, 104))
 
     # === Points ===
     # --- Orbs ---
     def orb_compass(self) -> Point:
         '''Returns the position of the compass orb as a Point.'''
-        return self.get_relative_point(571, 48)
+        return self.__get_relative_point(571, 22)
     
     def orb_prayer(self) -> Point:
         '''Returns the position of the prayer orb as a Point.'''
-        return self.get_relative_point(565, 119)
+        return self.__get_relative_point(565, 93)
     
     def orb_spec(self) -> Point:
         '''Returns the position of the special attack orb as a Point.'''
-        return self.get_relative_point(597, 178)
+        return self.__get_relative_point(597, 152)
 
     # --- Control Panel ---
     def cp_tab(self, tab: int) -> Point:
@@ -156,3 +188,21 @@ class RuneLiteWindow:
                 curr_x += 42  # x delta
             curr_y += 36  # y delta
         return res if indices is None else [res[i] for i in indices]
+
+class MockWindow(Window):
+    def __init__(self):
+        super().__init__(window_title="None", padding_left=0, padding_top=0)
+    
+    def _get_window(self):
+        print("MockWindow._get_window() called.")
+    
+    window = property(
+        fget=_get_window,
+        doc="A Win32Window reference to the game client and its properties."
+    )
+
+    def focus(self) -> None:
+        print("MockWindow.focus() called.")
+
+    def position(self) -> Point:
+        print("MockWindow.position() called.")

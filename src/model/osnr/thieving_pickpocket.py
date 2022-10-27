@@ -111,7 +111,7 @@ class OSNRThievingPickpocket(OSNRBot):
         # Anchors/counters
         hp_threshold_pos = self.get_hp_pos()  # TODO: implement checking health threshold
         hp_threshold_rgb = pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y)
-        last_inventory_pos = self.nr.inventory_slots()[-1]
+        last_inventory_pos = self.win.inventory_slots()[-1]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         npc_search_fail_count = 0
         theft_count = 0
@@ -126,7 +126,7 @@ class OSNRThievingPickpocket(OSNRBot):
             while pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y) != hp_threshold_rgb:
                 if not self.status_check_passed():
                     return
-                foods = self.get_all_tagged_in_rect(rect=self.rl.rect_inventory(), color=self.BLUE)
+                foods = self.get_all_tagged_in_rect(rect=self.win.rect_inventory(), color=self.BLUE)
                 if len(foods) > 0:
                     self.log_msg("Eating...")
                     self.mouse.move_to(foods[0])
@@ -147,7 +147,7 @@ class OSNRThievingPickpocket(OSNRBot):
                 return
 
             # Check if we should drop inventory
-            last_inventory_pos = self.nr.inventory_slots()[-1]
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if self.should_drop_inv and pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
                 self.drop_inventory(skip_rows=self.protect_rows)
 
@@ -182,7 +182,7 @@ class OSNRThievingPickpocket(OSNRBot):
             # Click coin pouch
             if self.should_click_coin_pouch and theft_count % 10 == 0:
                 self.log_msg("Clicking coin pouch...")
-                pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rl.rect_inventory(), precision=0.9)
+                pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.win.rect_inventory(), precision=0.9)
                 if pouch:
                     self.mouse.move_to(pouch, targetPoints=40)
                     pag.click()
@@ -217,4 +217,4 @@ class OSNRThievingPickpocket(OSNRBot):
         '''
         Gets position on HP bar that we are checking the color of.
         '''
-        return self.rl.get_relative_point(541, 394)
+        return self.win.get_relative_point(541, 394)
