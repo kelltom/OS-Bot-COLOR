@@ -3,13 +3,15 @@ A Bot is a base class for bot script models. It is abstract and cannot be instan
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 '''
 from abc import ABC, abstractmethod
-import customtkinter
 from enum import Enum
-import keyboard
-from utilities.options_builder import OptionsBuilder
+from model.window import Window
 from threading import Thread
-import time
 from utilities.mouse_utils import MouseUtils
+from utilities.options_builder import OptionsBuilder
+import customtkinter
+import keyboard
+import pygetwindow
+import time
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -25,18 +27,20 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
-    status = BotStatus.STOPPED
-    progress: float = 0
-    options_set: bool = False
-    thread: Thread = None
     mouse = MouseUtils()
+    options_set: bool = False
+    progress: float = 0
+    status = BotStatus.STOPPED
+    thread: Thread = None
+    win: Window = None
 
     # ---- Abstract Functions ----
     @abstractmethod
-    def __init__(self, title, description):
+    def __init__(self, title, description, window: Window):
         self.title = title
         self.description = description
         self.options_builder = OptionsBuilder(title)
+        self.win = window
 
     @abstractmethod
     def main_loop(self):
@@ -82,6 +86,7 @@ class Bot(ABC):
                 self.log_msg("Options not set. Please set options before starting.")
                 return
             self.log_msg("Starting bot...")
+            self.__focus_win()
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
             self.thread = Thread(target=self.main_loop)
@@ -92,7 +97,19 @@ class Bot(ABC):
             self.set_status(BotStatus.PAUSED)
         elif self.status == BotStatus.PAUSED:
             self.log_msg("Resuming bot...")
+            self.__focus_win()
             self.set_status(BotStatus.RUNNING)
+    
+    def __focus_win(self):
+        '''
+        Attempts to focus the game window.
+        '''
+        try:
+            self.win.focus()
+        except pygetwindow.PyGetWindowException:
+            self.log_msg("Error: Could not find game window.")
+            self.set_status(BotStatus.STOPPED)
+            return
 
     def stop(self):
         '''
@@ -115,6 +132,7 @@ class Bot(ABC):
         elif keyboard.is_pressed("="):
             if self.status == BotStatus.PAUSED:
                 self.log_msg("Resuming bot...")
+                self.__focus_win()
                 self.set_status(BotStatus.RUNNING)
         elif keyboard.is_pressed("ESC"):
             self.stop()

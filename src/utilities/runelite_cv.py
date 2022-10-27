@@ -1,35 +1,30 @@
 '''
 A set of computer vision utilities for use with RuneLite-based bots.
 '''
-
+from utilities.geometry import Point
+from typing import List, NamedTuple
 import cv2
+import numpy as np
 import utilities.bot_cv as bcv
-from utilities.bot_cv import Point
-from typing import NamedTuple, List
-
 
 # --- Custom Named Tuple ---
 # Simplifies referencing color ranges by name.
 # See runelite_bot.py for example usage.
 Color = NamedTuple("Color", hsv_upper=tuple, hsv_lower=tuple)
 
-
-def get_contours(path: str) -> list:
+def get_contours(image: cv2.Mat) -> list:
     '''
     Gets the contours of an image.
     Args:
-        path: The path to the image.
-        thresh: The threshold to use for the image.
+        image: The image to process (assume color has been isolated).
     Returns:
         A list of contours.
     '''
-    img = cv2.imread(path)
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     thresh = 1
     _, thresh = cv2.threshold(img_gray, thresh, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     return contours
-
 
 def get_contour_positions(contour) -> tuple:
     '''
@@ -45,35 +40,30 @@ def get_contour_positions(contour) -> tuple:
     top_x, top_y = contour[contour[..., 1].argmin()][0]
     return Point(center_x, center_y), Point(top_x, top_y)
 
-
-def isolate_colors(path: str, colors: List[Color], filename: str) -> str:
+def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
     '''
     Isolates ranges of colors within an image and saves a new resulting image.
     Args:
-        path: The path to the image to isolate colors.
+        image: The image to process.
         colors: A list of rcv Colors.
-        filename: The name of the file to be saved in the temp images folder.
     Returns:
-        The path to an image with only the desired color(s).
+        The image with the isolated colors.
     '''
-    img = cv2.imread(path)
-    # Convert to HSV
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # Convert to BGR
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    # Change each color to RGB
+    for i, color in enumerate(colors):
+        colors[i] = np.array(color[::-1])
     # Generate masks for each color
-    masks = [cv2.inRange(hsv, color[0], color[1]) for color in colors]
+    masks = [cv2.inRange(image, color, color) for color in colors]
     # Combine masks
     mask = masks[0]
     if len(masks) > 1:
         for i in range(1, len(masks)):
             mask = cv2.bitwise_or(mask, masks[i])
-    masked_image = cv2.bitwise_and(img, img, mask=mask)
-    # Save the image and return path
-    color_path = f"{bcv.TEMP_IMAGES}/{filename}.png"
-    cv2.imwrite(color_path, masked_image)
-    return color_path
+    return cv2.bitwise_and(image, image, mask=mask)
 
-
-def is_point_obstructed(point: Point, im, span: int = 20) -> bool:
+def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 20) -> bool:
     '''
     This function determines if there are non-black pixels in an image around a given point.
     This is useful for determining if an NPC is in combat (E.g., given the mid point of an NPC contour

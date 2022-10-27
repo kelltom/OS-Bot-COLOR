@@ -1,8 +1,8 @@
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
+from utilities.geometry import Point
 import pyautogui as pag
 import time
-
 
 class OSNRMining(OSNRBot):
     def __init__(self):
@@ -45,7 +45,7 @@ class OSNRMining(OSNRBot):
             return
 
         # Set compass
-        self.mouse.move_to(self.orb_compass)
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
@@ -55,18 +55,10 @@ class OSNRMining(OSNRBot):
         pag.keyUp('up')
         time.sleep(0.5)
 
-        last_inventory_pos = self.inventory_slots[6][3]
+        last_inventory_pos = self.win.inventory_slots()[-1]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         mined = 0
         failed_searches = 0
-
-        # Get the center pixel of each tagged rock, and it's color
-        rocks = self.get_all_tagged_in_rect(self.rect_game_view, self.TAG_PINK)
-        if len(rocks) == 0:
-            self.log_msg("No tagged rocks found.")
-            self.set_status(BotStatus.STOPPED)
-            return
-        rock_rgb = [pag.pixel(rock.x, rock.y) for rock in rocks]
 
         # Main loop
         start_time = time.time()
@@ -76,6 +68,7 @@ class OSNRMining(OSNRBot):
                 return
 
             # Check to drop inventory
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
                 self.drop_inventory()
                 time.sleep(1)
@@ -90,6 +83,14 @@ class OSNRMining(OSNRBot):
                 self.logout()
                 self.set_status(BotStatus.STOPPED)
                 return
+            
+            # Get the center pixel of each tagged rock, and it's color
+            rocks = self.get_all_tagged_in_rect(self.win.rect_game_view(), self.PINK)
+            if len(rocks) == 0:
+                self.log_msg("No tagged rocks found.")
+                self.set_status(BotStatus.STOPPED)
+                return
+            rock_rgb = [pag.pixel(rock.x, rock.y) for rock in rocks]
 
             # Pick a rock to start whacking
             mine_success = None  # used to keep track of whether or not we successfully mined a rock

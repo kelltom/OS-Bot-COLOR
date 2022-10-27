@@ -127,17 +127,9 @@ class App(customtkinter.CTk):
         self.models["OSNRAstral"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRAstral"))
 
-        self.models["OSNRSnapegrass"] = OSNRSnapeGrass()
-        self.models["OSNRSnapegrass"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRSnapegrass"))
-
         self.models["OSNRThievingNPC"] = OSNRThievingPickpocket()
         self.models["OSNRThievingNPC"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingNPC"))
-
-        self.models["OSNRThievingStall"] = OSNRThievingStall()
-        self.models["OSNRThievingStall"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingStall"))
 
         self.models["OSNRWoodcutting"] = OSNRWoodcutting()
         self.models["OSNRWoodcutting"].set_controller(self.controller)
