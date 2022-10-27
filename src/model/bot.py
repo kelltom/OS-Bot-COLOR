@@ -27,11 +27,11 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
-    status = BotStatus.STOPPED
-    progress: float = 0
-    options_set: bool = False
-    thread: Thread = None
     mouse = MouseUtils()
+    options_set: bool = False
+    progress: float = 0
+    status = BotStatus.STOPPED
+    thread: Thread = None
     win: Window = None
 
     # ---- Abstract Functions ----
