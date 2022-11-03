@@ -34,9 +34,10 @@ class SocketTest(RuneLiteBot):
 			# TODO: Ensure fully logged in before Socket can be called
 			# TODO: HTTP Plugin installed before socket can be called
 
-			print(f"HP: {socket.get_hitpoints()}")
+			print(f"HP: {socket.get_hitpoints()[0]}")
 			print(f"WC Level: {socket.get_stat_level('woodcutting')}")
 			print(f"Player Position: {socket.get_player_position()}")
+			break
 
 		# If the bot reaches here it has completed its running time.
 		self.update_progress(1)
