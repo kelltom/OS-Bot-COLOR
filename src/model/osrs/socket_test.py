@@ -20,7 +20,7 @@ class SocketTest(RuneLiteBot):
 	def main_loop(self):  # sourcery skip: min-max-identity, switch
 
 		# --- CLIENT SETUP ---
-		self.setup_client()
+		#self.setup_client()
 		socket = Socket()
 
 		# --- RUNTIME PROPERTIES ---
@@ -40,6 +40,7 @@ class SocketTest(RuneLiteBot):
 
 			# status check
 			if not self.status_check_passed():
+				print("Bot stopped.")
 				return
 
 		# If the bot reaches here it has completed its running time.
