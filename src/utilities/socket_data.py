@@ -1,3 +1,7 @@
+'''
+Socket utility for MorgHTTPClient plugin.
+'''
+
 from requests.exceptions import ConnectionError
 from typing import List, Union, Tuple
 import requests
@@ -26,8 +30,6 @@ class Socket:
 		self.events_endpoint = "events"
 
 		self.timeout = 1
-
-	# TODO: Ensure properties contains runelite.externalPlugins=morghttpclient
 
 	def do_get(self, endpoint: str) -> Union[dict, SocketError]:
 		"""
