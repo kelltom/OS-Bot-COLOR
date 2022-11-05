@@ -263,7 +263,7 @@ class Socket:
 			if isinstance(data, SocketError):
 				return data
 
-			xp_gained = next(int(i['xp gained']) for i in data[1:] if i['stat'] == stat_name)
+			xp_gained = next(int(i['xp']) for i in data[1:] if i['stat'] == stat_name)
 			if xp_gained > starting_xp:
 				return xp_gained
 
