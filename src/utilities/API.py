@@ -1,5 +1,7 @@
 '''
-Socket utility for MorgHTTPClient plugin.
+API utility for MorgHTTPClient socket plugin.
+
+Item IDs: https://github.com/runelite/runelite/blob/master/runelite-api/src/main/java/net/runelite/api/ItemID.java
 '''
 
 from requests.exceptions import ConnectionError
@@ -18,7 +20,7 @@ class SocketError(Exception):
 		return f"{self.__error_message} endpoint: '{self.__endpoint}'"
 
 
-class Socket:
+class API:
 
 	# TODO: ID/NPC ID/Object ID conversion function/dict to get the readable name of an object
 
@@ -56,7 +58,7 @@ class Socket:
 
 		return response.json()
 
-	def __test_endpoints(self) -> bool:
+	def test_endpoints(self) -> bool:
 		"""
 		Ensures all endpoints are working correctly to avoid errors happening when any method is called
 
@@ -87,7 +89,7 @@ class Socket:
 		cur_hp, max_hp = hitpoints_data.split("/")  # hitpoints_data example = "21/21"
 		return int(cur_hp), int(max_hp)
 
-	def run_energy(self) -> Union[int, None]:
+	def get_run_energy(self) -> Union[int, None]:
 		'''
 		Fetches the current run energy of the player.
 		Returns:
@@ -141,16 +143,16 @@ class Socket:
 		# TODO: These are idle animations but there may be more
 		return data['animation pose'] in [808, 813]
 
-	def get_stat_level(self, stat_name: str) -> Union[int, None]:
+	def get_stat_level(self, skill: str) -> Union[int, None]:
 		'''
-		Gets level of inputted stat
+		Gets level of inputted skill.
 		Args:
-			stat_name: the name of the stat (not case sensitive)
+			skill: the name of the skill (not case sensitive)
 		Returns:
 			The level of the stat as an int, or None if an error occurred.
 		'''
 		# TODO: Make class for stat_names to make invalid names impossible
-		stat_name = stat_name.lower().capitalize()
+		skill = skill.lower().capitalize()
 		try:
 			data = self.__do_get(endpoint=self.stats_endpoint)
 		except SocketError as e:
@@ -158,22 +160,22 @@ class Socket:
 			return None
 
 		try:
-			level = next(int(i['level']) for i in data[1:] if i['stat'] == stat_name)
+			level = next(int(i['level']) for i in data[1:] if i['stat'] == skill)
 		except StopIteration:
-			print(f"Invalid stat name: {stat_name}")
+			print(f"Invalid stat name: {skill}")
 			return None
 
 		return level
 
-	def get_stat_xp(self, stat_name: str) -> Union[int, None]:
+	def get_stat_xp(self, skill: str) -> Union[int, None]:
 		'''
-		Gets the total xp of a stat.
+		Gets the total xp of a skill.
 		Args:
-			stat_name: the name of the stat (not case sensitive)
+			skill: the name of the skill (not case sensitive)
 		Returns:
 			The total xp of the stat as an int, or None if an error occurred.
 		'''
-		stat_name = stat_name.lower().capitalize()
+		skill = skill.lower().capitalize()
 		try:
 			data = self.__do_get(endpoint=self.stats_endpoint)
 		except SocketError as e:
@@ -181,22 +183,22 @@ class Socket:
 			return None
 
 		try:
-			total_xp = next(int(i['xp']) for i in data[1:] if i['stat'] == stat_name)
+			total_xp = next(int(i['xp']) for i in data[1:] if i['stat'] == skill)
 		except StopIteration:
-			print(f"Invalid stat name: {stat_name}")
+			print(f"Invalid stat name: {skill}")
 			return None
 
 		return total_xp
 
-	def get_stat_xp_gained(self, stat_name: str) -> Union[int, None]:
+	def get_stat_xp_gained(self, skill: str) -> Union[int, None]:
 		'''
-		Gets the xp gained of a stat. The tracker begins at 0 on client startup.
+		Gets the xp gained of a skill. The tracker begins at 0 on client startup.
 		Args:
-			stat_name: the name of the stat (not case sensitive)
+			skill: the name of the skill (not case sensitive)
 		Returns:
 			The xp gained of the stat as an int, or None if an error occurred.
 		'''
-		stat_name = stat_name.lower().capitalize()  # Ensures str is formatted correctly for socket json key
+		skill = skill.lower().capitalize()  # Ensures str is formatted correctly for socket json key
 		try:
 			data = self.__do_get(endpoint=self.stats_endpoint)
 		except SocketError as e:
@@ -204,29 +206,29 @@ class Socket:
 			return None
 
 		try:
-			xp_gained = next(int(i['xp gained']) for i in data[1:] if i['stat'] == stat_name)
+			xp_gained = next(int(i['xp gained']) for i in data[1:] if i['stat'] == skill)
 		except StopIteration:
-			print(f"Invalid stat name: {stat_name}")
+			print(f"Invalid stat name: {skill}")
 			return None
 
 		return xp_gained
 
 	def wait_til_gained_xp(
 			self,
-			stat_name: str,
+			skill: str,
 			wait_time: int = 1
 	) -> Union[int, None]:
 		'''
-		Waits until the player has gained xp in the inputted stat.
+		Waits until the player has gained xp in the inputted skill.
 		Args:
-			stat_name: the name of the stat (not case sensitive)
+			skill: the name of the stat (not case sensitive)
 			wait_time: the time in seconds to wait
 		Returns:
 			The xp gained of the stat as an int, or None if an error occurred.
 		'''
-		stat_name = stat_name.lower().capitalize()  # Ensures str is formatted correctly for socket json key
+		skill = skill.lower().capitalize()  # Ensures str is formatted correctly for socket json key
 
-		starting_xp = self.get_stat_xp(stat_name)
+		starting_xp = self.get_stat_xp(skill)
 		if starting_xp is None:
 			print("Failed to get starting xp.")
 			return None
@@ -240,7 +242,7 @@ class Socket:
 				print(e)
 				return None
 
-			final_xp = next(int(i['xp']) for i in data[1:] if i['stat'] == stat_name)
+			final_xp = next(int(i['xp']) for i in data[1:] if i['stat'] == skill)
 			if final_xp > starting_xp:
 				return final_xp
 
