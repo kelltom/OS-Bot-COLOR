@@ -238,6 +238,37 @@ class Socket:
 
 		return xp_gained
 
+	def wait_til_gained_xp(
+			self,
+			stat_name: str,
+			starting_xp: int,
+			wait_time: int = 1
+	) -> Union[SocketError, int, None]:
+		"""
+			Waits until the player as gained XP
+			Args:
+				stat_name: the name of the stat (not case sensitive)
+				starting_xp: The current XP of the player.
+				wait_time: This is how long (in seconds) the function will wait to check for XP, 1 by default
+
+			Returns: SocketError, int of new XP value, None if no XP is gained
+
+		"""
+
+		stat_name = stat_name.lower().capitalize()  # Ensures str is formatted correctly for socket json key
+		stop_time = time.time() + wait_time
+		while time.time() < stop_time:
+
+			data = self.__get_equipped()
+			if isinstance(data, SocketError):
+				return data
+
+			xp_gained = next(int(i['xp gained']) for i in data[1:] if i['stat'] == stat_name)
+			if xp_gained > starting_xp:
+				return xp_gained
+
+			return None
+
 	def get_game_tick(self) -> Union[SocketError, int]:
 		"""
 
