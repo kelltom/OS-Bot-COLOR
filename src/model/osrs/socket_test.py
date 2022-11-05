@@ -1,6 +1,6 @@
-from src.model.bot import BotStatus
-from src.model.runelite_bot import RuneLiteBot
-from src.utilities.socket_data import Socket, SocketError
+from model.bot import BotStatus
+from model.runelite_bot import RuneLiteBot
+from utilities.socket_data import Socket, SocketError
 import time
 
 
@@ -20,8 +20,7 @@ class SocketTest(RuneLiteBot):
 	def main_loop(self):  # sourcery skip: min-max-identity, switch
 
 		# --- CLIENT SETUP ---
-		self.setup_client(window_title="RuneLite", set_layout_fixed=False, logout_runelite=True,
-						  collapse_runelite_settings=False)
+		self.setup_client()
 		socket = Socket()
 
 		# --- RUNTIME PROPERTIES ---
@@ -37,7 +36,11 @@ class SocketTest(RuneLiteBot):
 			print(f"HP: {socket.get_hitpoints()[0]}")
 			print(f"WC Level: {socket.get_stat_level('woodcutting')}")
 			print(f"Player Position: {socket.get_player_position()}")
-			break
+			time.sleep(2)
+
+			# status check
+			if not self.status_check_passed():
+				return
 
 		# If the bot reaches here it has completed its running time.
 		self.update_progress(1)

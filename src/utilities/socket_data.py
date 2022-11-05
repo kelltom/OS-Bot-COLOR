@@ -1,6 +1,7 @@
+from requests.exceptions import ConnectionError
 from typing import List, Union, Tuple
 import requests
-from requests.exceptions import ConnectionError
+import time
 
 
 class SocketError:
