@@ -61,7 +61,6 @@ class SocketTest(RuneLiteBot):
 				if hp := api.get_hitpoints():
 					print(f"Current HP: {hp[0]}")
 					print(f"Max HP: {hp[1]}")
-					print(f"Current HP %: {(hp[1]/hp[0])*100}")
 				
 				print(f"Run Energy: {api.get_run_energy()}")
 				print(f"get_animation(): {api.get_animation()}")
@@ -87,7 +86,7 @@ class SocketTest(RuneLiteBot):
 				print(f"WC XP: {api.get_stat_xp('woodcutting')}")
 				print(f"WC XP Gained: {api.get_stat_xp_gained('woodcutting')}")
 				print("---waiting for wc xp to be gained---")
-				if api.wait_til_gained_xp(skill="woodcutting", wait_time=5):
+				if api.wait_til_gained_xp(skill="woodcutting", timeout=10):
 					print("Gained xp!")
 				else:
 					print("No xp gained.")

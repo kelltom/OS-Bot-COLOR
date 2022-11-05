@@ -135,13 +135,17 @@ class API:
 		Returns:
 			True if the player is idle, False otherwise, or None if an error occurred.
 		'''
-		try:
-			data = self.__do_get(endpoint=self.events_endpoint)
-		except SocketError as e:
-			print(e)
-			return None
-		# TODO: These are idle animations but there may be more
-		return data['animation pose'] in [808, 813]
+		# run a loop for 1 second
+		start_time = time.time()
+		while time.time() - start_time < 1:
+			try:
+				data = self.__do_get(endpoint=self.events_endpoint)
+			except SocketError as e:
+				print(e)
+				return None
+			if data['animation'] != -1:
+				return False
+		return True
 
 	def get_stat_level(self, skill: str) -> Union[int, None]:
 		'''
@@ -216,13 +220,13 @@ class API:
 	def wait_til_gained_xp(
 			self,
 			skill: str,
-			wait_time: int = 1
+			timeout: int = 1
 	) -> Union[int, None]:
 		'''
 		Waits until the player has gained xp in the inputted skill.
 		Args:
 			skill: the name of the stat (not case sensitive)
-			wait_time: the time in seconds to wait
+			timeout: the maximum amount of time to wait for xp gain
 		Returns:
 			The xp gained of the stat as an int, or None if an error occurred.
 		'''
@@ -233,7 +237,7 @@ class API:
 			print("Failed to get starting xp.")
 			return None
 			
-		stop_time = time.time() + wait_time
+		stop_time = time.time() + timeout
 		while time.time() < stop_time:
 
 			try:
@@ -245,6 +249,8 @@ class API:
 			final_xp = next(int(i['xp']) for i in data[1:] if i['stat'] == skill)
 			if final_xp > starting_xp:
 				return final_xp
+			
+			time.sleep(0.2)
 
 		return None
 
