@@ -117,7 +117,7 @@ class Socket:
 
 		hitpoints_data = data['health']
 		cur_hp, max_hp = hitpoints_data.split("/")  # hitpoints_data example = "21/21"
-		return cur_hp, max_hp
+		return int(cur_hp), int(max_hp)
 
 	def run_energy(self) -> Union[SocketError, int]:
 		"""
