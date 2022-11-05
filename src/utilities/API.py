@@ -143,7 +143,8 @@ class API:
 			except SocketError as e:
 				print(e)
 				return None
-			if data['animation'] != -1:
+
+			if data['animation'] != -1 or data['animation pose'] not in [808, 813]:
 				return False
 		return True
 
