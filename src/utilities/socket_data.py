@@ -267,7 +267,7 @@ class Socket:
 			if xp_gained > starting_xp:
 				return xp_gained
 
-			return None
+		return None
 
 	def get_game_tick(self) -> Union[SocketError, int]:
 		"""
