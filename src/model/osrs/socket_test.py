@@ -73,9 +73,9 @@ class SocketTest(RuneLiteBot):
 				print(f"Player position: {api.get_player_position()}")
 				print(f"Player region data: {api.get_player_region_data()}")
 				print(f"Mouse position: {api.get_mouse_position()}")
-				print(f"get_interaction_code(): {api.get_interaction_code()}")
-				print(f"get_npc_name(): {api.get_npc_name()}")
-				print(f"get_npc_health(): {api.get_npc_health()}")
+				#print(f"get_interaction_code(): {api.get_interaction_code()}")
+				print(f"Is in combat?: {api.get_is_in_combat()}")
+				print(f"get_npc_health(): {api.get_npc_hitpoints()}")
 			
 			if "inv data" in self.test_type:
 				print(f"Are logs in inventory?: {api.get_if_item_in_inv(item_id=1511)}")

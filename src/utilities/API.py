@@ -104,7 +104,7 @@ class API:
 
 	def get_animation(self) -> Union[int, None]:
 		'''
-		Fetches the current animation. (Unknown usage)
+		Fetches the current animation the actor is performing.
 		Returns:
 			An int representing the current animation, or None if an error occurred.
 		'''
@@ -117,7 +117,7 @@ class API:
 
 	def get_animation_id(self) -> Union[int, None]:
 		'''
-		Fetches the current animation ID of the player. Useful for checking if the player is doing
+		Fetches the current animation frame ID the actor is using. Useful for checking if the player is doing
 		a particular action.
 		Returns:
 			An int representing the current animation ID, or None if an error occurred.
@@ -328,21 +328,9 @@ class API:
 
 		return int(data['mouse']['x']), int(data['mouse']['y'])
 
-	def get_interaction_code(self) -> Union[int, None]:
+	def get_interaction_code(self) -> Union[str, None]:
 		'''
-		TODO: Figure out what the use case of this code is...
-		'''
-		try:
-			data = self.__do_get(endpoint=self.events_endpoint)
-		except SocketError as e:
-			print(e)
-			return None
-
-		return int(data['interacting code'])
-
-	def get_npc_name(self) -> Union[int, None]:
-		'''
-		TODO: Figure out what the use case of this code is...
+		Fetches the interacting code of the current interaction. (Use case unknown)
 		'''
 		try:
 			data = self.__do_get(endpoint=self.events_endpoint)
@@ -350,11 +338,13 @@ class API:
 			print(e)
 			return None
 
-		return int(data['npc name'])
+		return data['interacting code']
 
-	def get_npc_health(self) -> Union[int, None]:
+	def get_is_in_combat(self) -> Union[bool, None]:
 		'''
-		TODO: Figure out what the use case of this code is...
+		Determines if the player is in combat.
+		Returns:
+			True if the player is in combat, False if not, or None if an error occurred.
 		'''
 		try:
 			data = self.__do_get(endpoint=self.events_endpoint)
@@ -362,8 +352,25 @@ class API:
 			print(e)
 			return None
 
-		return int(data['npc health'])
+		res = data['npc name']
+		return res != 'null'
 
+	def get_npc_hitpoints(self) -> Union[int, None]:
+		'''
+		Fetches the HP of the NPC currently targetted.
+		TODO: Result seems to be multiplied by 6...?
+		Returns:
+			An int representing the NPC's HP, or None if an error occurred.
+			If no NPC is in combat, returns 0.
+		'''
+		try:
+			data = self.__do_get(endpoint=self.events_endpoint)
+		except SocketError as e:
+			print(e)
+			return None
+
+		return int(data['npc health '])
+		
 	def get_if_item_in_inv(self, item_id: int) -> Union[bool, None]:
 		'''
 		Checks if an item is in the inventory or not
