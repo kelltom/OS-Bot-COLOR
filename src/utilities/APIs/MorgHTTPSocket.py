@@ -20,7 +20,7 @@ class SocketError(Exception):
 		return f"{self.__error_message} endpoint: '{self.__endpoint}'"
 
 
-class API:
+class MorgHTTPSocket:
 
 	# TODO: ID/NPC ID/Object ID conversion function/dict to get the readable name of an object
 

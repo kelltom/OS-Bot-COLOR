@@ -1,6 +1,6 @@
 from model.bot import BotStatus
 from model.runelite_bot import RuneLiteBot
-from utilities.API import API, SocketError
+from utilities.APIs.MorgHTTPSocket import MorgHTTPSocket
 import time
 
 
@@ -10,7 +10,7 @@ class SocketTest(RuneLiteBot):
 		description = "Testing Socket Functionality"
 		super().__init__(title=title, description=description)
 		self.running_time = 1
-		self.test_type = "player data"
+		self.test_type = ["player data"]
 
 	def create_options(self):
 		self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 180)
@@ -35,11 +35,11 @@ class SocketTest(RuneLiteBot):
 			self.log_msg("Failed to set options.")
 			print("Developer: ensure option keys are correct.")
 
-	def main_loop(self):  # sourcery skip: min-max-identity, switch
+	def main_loop(self):
 
 		# --- CLIENT SETUP ---
 		#self.setup_client()
-		api = API()
+		api = MorgHTTPSocket()
 
 		# --- ENDPOINT TEST ---
 		if api.test_endpoints():
@@ -50,10 +50,11 @@ class SocketTest(RuneLiteBot):
 			return
 
 		# --- MAIN LOOP ---
-
 		start_time = time.time()
 		end_time = self.running_time * 60
 		while time.time() - start_time < end_time:
+
+			# Note: Making API calls in succession too quickly can result in issues
 
 			if "player data" in self.test_type:
 
@@ -95,7 +96,6 @@ class SocketTest(RuneLiteBot):
 
 			print("\n--------------------------\n")
 
-			# status check
 			if not self.status_check_passed():
 				print("Bot stopped.")
 				return
