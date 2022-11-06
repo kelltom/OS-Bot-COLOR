@@ -427,3 +427,52 @@ class MorgHTTPSocket:
 		TODO: Implement.
 		'''
 		pass
+
+# sourcery skip: remove-redundant-if
+if __name__ == "__main__":
+	api = MorgHTTPSocket()
+
+	# Note: Making API calls in succession too quickly can result in issues
+	while True:
+
+		# Player Data
+		if True:
+			# Example of safely getting player data
+			if hp := api.get_hitpoints():
+				print(f"Current HP: {hp[0]}")
+				print(f"Max HP: {hp[1]}")
+			
+			print(f"Run Energy: {api.get_run_energy()}")
+			print(f"get_animation(): {api.get_animation()}")
+			print(f"get_animation_id(): {api.get_animation_id()}")
+			print(f"Is player idle: {api.get_is_player_idle()}")
+			
+		# World Data
+		if True:
+			print(f"Game tick: {api.get_game_tick()}")
+			print(f"Player position: {api.get_player_position()}")
+			print(f"Player region data: {api.get_player_region_data()}")
+			print(f"Mouse position: {api.get_mouse_position()}")
+			#print(f"get_interaction_code(): {api.get_interaction_code()}")
+			print(f"Is in combat?: {api.get_is_in_combat()}")
+			print(f"get_npc_health(): {api.get_npc_hitpoints()}")
+		
+		# Inventory Data
+		if True:
+			print(f"Are logs in inventory?: {api.get_if_item_in_inv(item_id=1511)}")
+			print(f"Find logs in inv: {api.find_item_in_inv(item_id=1511)}")
+		
+		# Wait for XP to change
+		if True:
+			print(f"WC Level: {api.get_skill_level('woodcutting')}")
+			print(f"WC XP: {api.get_skill_xp('woodcutting')}")
+			print(f"WC XP Gained: {api.get_skill_xp_gained('woodcutting')}")
+			print("---waiting for wc xp to be gained---")
+			if api.wait_til_gained_xp(skill="woodcutting", timeout=10):
+				print("Gained xp!")
+			else:
+				print("No xp gained.")
+
+		time.sleep(2)
+
+		print("\n--------------------------\n")
