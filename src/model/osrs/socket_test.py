@@ -82,9 +82,9 @@ class SocketTest(RuneLiteBot):
 				print(f"Find logs in inv: {api.find_item_in_inv(item_id=1511)}")
 			
 			if "wait for xp" in self.test_type:
-				print(f"WC Level: {api.get_stat_level('woodcutting')}")
-				print(f"WC XP: {api.get_stat_xp('woodcutting')}")
-				print(f"WC XP Gained: {api.get_stat_xp_gained('woodcutting')}")
+				print(f"WC Level: {api.get_skill_level('woodcutting')}")
+				print(f"WC XP: {api.get_skill_xp('woodcutting')}")
+				print(f"WC XP Gained: {api.get_skill_xp_gained('woodcutting')}")
 				print("---waiting for wc xp to be gained---")
 				if api.wait_til_gained_xp(skill="woodcutting", timeout=10):
 					print("Gained xp!")

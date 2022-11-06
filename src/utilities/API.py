@@ -148,13 +148,13 @@ class API:
 				return False
 		return True
 
-	def get_stat_level(self, skill: str) -> Union[int, None]:
+	def get_skill_level(self, skill: str) -> Union[int, None]:
 		'''
 		Gets level of inputted skill.
 		Args:
 			skill: the name of the skill (not case sensitive)
 		Returns:
-			The level of the stat as an int, or None if an error occurred.
+			The level of the skill as an int, or None if an error occurred.
 		'''
 		# TODO: Make class for stat_names to make invalid names impossible
 		skill = skill.lower().capitalize()
@@ -172,13 +172,13 @@ class API:
 
 		return level
 
-	def get_stat_xp(self, skill: str) -> Union[int, None]:
+	def get_skill_xp(self, skill: str) -> Union[int, None]:
 		'''
 		Gets the total xp of a skill.
 		Args:
 			skill: the name of the skill (not case sensitive)
 		Returns:
-			The total xp of the stat as an int, or None if an error occurred.
+			The total xp of the skill as an int, or None if an error occurred.
 		'''
 		skill = skill.lower().capitalize()
 		try:
@@ -195,13 +195,13 @@ class API:
 
 		return total_xp
 
-	def get_stat_xp_gained(self, skill: str) -> Union[int, None]:
+	def get_skill_xp_gained(self, skill: str) -> Union[int, None]:
 		'''
 		Gets the xp gained of a skill. The tracker begins at 0 on client startup.
 		Args:
 			skill: the name of the skill (not case sensitive)
 		Returns:
-			The xp gained of the stat as an int, or None if an error occurred.
+			The xp gained of the skill as an int, or None if an error occurred.
 		'''
 		skill = skill.lower().capitalize()  # Ensures str is formatted correctly for socket json key
 		try:
@@ -213,7 +213,7 @@ class API:
 		try:
 			xp_gained = next(int(i['xp gained']) for i in data[1:] if i['stat'] == skill)
 		except StopIteration:
-			print(f"Invalid stat name: {skill}")
+			print(f"Invalid skill name: {skill}")
 			return None
 
 		return xp_gained
@@ -226,14 +226,14 @@ class API:
 		'''
 		Waits until the player has gained xp in the inputted skill.
 		Args:
-			skill: the name of the stat (not case sensitive)
+			skill: the name of the skill (not case sensitive)
 			timeout: the maximum amount of time to wait for xp gain
 		Returns:
-			The xp gained of the stat as an int, or None if an error occurred.
+			The xp gained of the skill as an int, or None if an error occurred.
 		'''
 		skill = skill.lower().capitalize()  # Ensures str is formatted correctly for socket json key
 
-		starting_xp = self.get_stat_xp(skill)
+		starting_xp = self.get_skill_xp(skill)
 		if starting_xp is None:
 			print("Failed to get starting xp.")
 			return None
