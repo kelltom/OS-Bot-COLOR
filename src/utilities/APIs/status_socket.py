@@ -1,10 +1,12 @@
+'''
+Requires the Status Socket plugin in RuneLite. Endpoint: "http://localhost:5000".
+'''
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 from typing import Union, List
 import simplejson as JSON
 import time
 
-# Requires the status socket plugin in RuneLite. Install and then click on the settings for it and add port 5000. "http://localhost:5000"
 # Global to store the data returned from sockets plugin
 player_data = {}
 
@@ -31,7 +33,7 @@ class RLSTATUS(BaseHTTPRequestHandler):
 		'''
 		return
 
-class API():
+class StatusSocket():
 
 	gameTick = 0.603
 
@@ -148,7 +150,7 @@ class API():
 # Test Code
 if __name__ == "__main__":
 	print("Attempting to start server...")
-	api = API()
+	api = StatusSocket()
 
 	while True:
 		#api.get_PlayerData()
