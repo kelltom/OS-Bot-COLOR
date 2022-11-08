@@ -6,7 +6,7 @@ import time
 
 # Requires the status socket plugin in RuneLite. Install and then click on the settings for it and add port 5000. "http://localhost:5000"
 # Global to store the data returned from sockets plugin
-player_Data = {}
+player_data = {}
 
 # Http request handler class to handle receiving data from the status socket
 class RLSTATUS(BaseHTTPRequestHandler):
@@ -18,12 +18,12 @@ class RLSTATUS(BaseHTTPRequestHandler):
 		self.end_headers()
 
 	def do_POST(self):
-		global player_Data
+		global player_data
 		self._set_headers()
 		self.data_bytes = self.rfile.read(int(self.headers['Content-Length']))
 		self.send_response(200)
 		self.end_headers()
-		player_Data = JSON.loads(self.data_bytes)
+		player_data = JSON.loads(self.data_bytes)
 	
 	def log_message(self, format, *args):
 		'''
@@ -49,14 +49,14 @@ class API():
 		'''
 		Fetches the entire blob of player_Data
 		'''
-		print(player_Data)
-		return player_Data
+		print(player_data)
+		return player_data
 	
 	def get_game_tick(self) -> int:
 		'''
 		Fetches the game tick from the API.
 		'''
-		return player_Data["tick"]
+		return player_data["tick"]
 	
 	def get_run_energy(self) -> int:
 		'''
@@ -64,7 +64,7 @@ class API():
 		Returns:
 			The player's current run energy as an int.
 		'''
-		return int(player_Data["runEnergy"])
+		return int(player_data["runEnergy"])
 
 	def get_is_inv_full(self) -> bool:
 		'''
@@ -72,7 +72,7 @@ class API():
 		Returns:
 			True if the player's inventory is full, False otherwise.
 		'''
-		return len(player_Data["inventory"]) >= 28
+		return len(player_data["inventory"]) >= 28
 
 	def get_inv(self) -> list:
 		'''
@@ -86,7 +86,7 @@ class API():
 			for item in inv:
 				print(f"Slot: {item['index']}, Item ID: {item['id']}, Amount: {item['amount']}")
 		'''
-		return player_Data["inventory"]
+		return player_data["inventory"]
 	
 	def get_inv_item_indices(self, id: Union[List[int], int]) -> list:
 		'''
@@ -97,7 +97,7 @@ class API():
 		Returns:
 			A list of inventory slot indexes that the item exists in.
 		'''
-		inv = player_Data["inventory"]
+		inv = player_data["inventory"]
 		if isinstance(id, int):
 			return [slot['index'] for slot in inv if slot['id'] == id]
 		elif isinstance(id, list):
@@ -113,7 +113,7 @@ class API():
 		# run a loop for 1 second
 		start_time = time.time()
 		while time.time() - start_time < 1:
-			if player_Data["attack"]["animationId"] != -1:
+			if player_data["attack"]["animationId"] != -1:
 				return False
 		return True
 
@@ -123,10 +123,10 @@ class API():
 		Returns:
 			True if the player is praying, False otherwise.
 		'''
-		return bool(player_Data["prayers"])
+		return bool(player_data["prayers"])
 
 	def get_player_equipment(self) -> list:
-		return player_Data["equipment"] or []
+		return player_data["equipment"] or []
 
 	#pass; returns a list of stats like stab, slash, crush, will return all 0s if nothing is worn
 	def get_equipment_stats(self) -> list:
@@ -136,13 +136,13 @@ class API():
 		Returns:
 			A list of your current equipment stats.
 		'''
-		return player_Data["equipmentStats"]
+		return player_data["equipmentStats"]
 
 	def get_animation_data(self) -> list:
-		return player_Data["attack"]["animationName"],player_Data["attack"]["animationId"],player_Data["attack"]["animationIsSpecial"],player_Data["attack"]["animationBaseSpellDmg"]
+		return player_data["attack"]["animationName"],player_data["attack"]["animationId"],player_data["attack"]["animationIsSpecial"],player_data["attack"]["animationBaseSpellDmg"]
 
 	def get_animation_id(self) -> int:
-		return player_Data["attack"]["animationId"] 
+		return player_data["attack"]["animationId"] 
 
 
 # Test Code
