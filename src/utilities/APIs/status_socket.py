@@ -1,5 +1,7 @@
 '''
 Requires the Status Socket plugin in RuneLite. Endpoint: "http://localhost:5000".
+
+Item IDs: https://github.com/runelite/runelite/blob/master/runelite-api/src/main/java/net/runelite/api/ItemID.java
 '''
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
