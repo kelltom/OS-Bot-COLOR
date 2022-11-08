@@ -45,20 +45,20 @@ class API():
 		httpd = HTTPServer(('127.0.0.1', port), RLSTATUS)
 		httpd.serve_forever()
 
-	def get_PlayerData(self):
+	def get_player_data(self):
 		'''
 		Fetches the entire blob of player_Data
 		'''
 		print(player_Data)
 		return player_Data
 	
-	def get_GameTick(self) -> int:
+	def get_game_tick(self) -> int:
 		'''
 		Fetches the game tick from the API.
 		'''
 		return player_Data["tick"]
 	
-	def get_PlayerRunEnergy(self) -> int:
+	def get_run_energy(self) -> int:
 		'''
 		Gets the player's current run energy.
 		Returns:
@@ -66,7 +66,7 @@ class API():
 		'''
 		return int(player_Data["runEnergy"])
 
-	def get_IsInventoryFull(self) -> bool:
+	def get_is_inv_full(self) -> bool:
 		'''
 		Checks if player's inventory is full.
 		Returns:
@@ -74,7 +74,7 @@ class API():
 		'''
 		return len(player_Data["inventory"]) >= 28
 
-	def get_Inventory(self) -> list:
+	def get_inv(self) -> list:
 		'''
 		Gets a list of dicts representing the player inventory.
 		Returns:
@@ -88,7 +88,7 @@ class API():
 		'''
 		return player_Data["inventory"]
 	
-	def get_IndexesOfItemsInInventory(self, id: Union[List[int], int]) -> list:
+	def get_inv_item_indices(self, id: Union[List[int], int]) -> list:
 		'''
 		For the given item ID, returns a list of inventory slot indexes that the item exists in.
 		Useful for locating items you do not want to drop.
@@ -103,7 +103,7 @@ class API():
 		elif isinstance(id, list):
 			return [slot['index'] for slot in inv if slot['id'] in id]
 
-	def get_IsPlayerIdle(self) -> bool:
+	def get_is_player_idle(self) -> bool:
 		'''
 		Checks if the player is idle. Note, this does not check if the player is moving - it only
 		checks if they are performing an action animation (skilling, combat, etc).
@@ -117,7 +117,7 @@ class API():
 				return False
 		return True
 
-	def get_IsPlayerPraying(self) -> bool:
+	def get_is_player_praying(self) -> bool:
 		'''
 		Checks if the player is currently praying. Useful for knowing when you've run out of prayer points.
 		Returns:
@@ -125,11 +125,11 @@ class API():
 		'''
 		return bool(player_Data["prayers"])
 
-	def get_PlayerEquipment(self) -> list:
+	def get_player_equipment(self) -> list:
 		return player_Data["equipment"] or []
 
 	#pass; returns a list of stats like stab, slash, crush, will return all 0s if nothing is worn
-	def get_EquipmentStats(self) -> list:
+	def get_equipment_stats(self) -> list:
 		'''
 		Checks your current equipment stats. Includes aStab, aSlash, aCrush, aMagic, aRange,
 		dStab, dSlash, dCrush, dMagic, dRange, str, rStr, mDmg.
@@ -138,10 +138,10 @@ class API():
 		'''
 		return player_Data["equipmentStats"]
 
-	def get_AnimationData(self) -> list:
+	def get_animation_data(self) -> list:
 		return player_Data["attack"]["animationName"],player_Data["attack"]["animationId"],player_Data["attack"]["animationIsSpecial"],player_Data["attack"]["animationBaseSpellDmg"]
 
-	def get_AnimationID(self) -> int:
+	def get_animation_id(self) -> int:
 		return player_Data["attack"]["animationId"] 
 
 
@@ -153,18 +153,16 @@ if __name__ == "__main__":
 	while True:
 		#api.get_PlayerData()
 		time.sleep(api.gameTick)
-		# print(f"Run Energy: {api.get_PlayerRunEnergy()}")
-		# print(f"Is Inventory Full: {api.get_IsInventoryFull()}")
-		# print(f"Inventory: {api.get_Inventory()}")
-		# print(f"Indexes of bones and chickens in inventory: {api.get_IndexesOfItemsInInventory([526, 2138])}")
-		# print(f"Indexs of bones in inventory: {api.get_IndexesOfItemsInInventory(526)}")
-		# print(f"Is Player Praying: {api.get_IsPlayerPraying()}")
-		# print(f"Players Prayers: {api.get_PlayersPrayers()}")
-		# print(f"Player Equipment: {api.get_PlayerEquipment()}")
-		# print(f"Equipment Stats: {api.get_EquipmentStats()}")
-		# print(f"Is Player Idle: {api.get_IsPlayerIdle()}")
-		# print(f"Animation Data: {api.get_AnimationData()}")
-		# print(f"Animation Name: {api.get_AnimationName()}")
-		# print(f"Animation ID: {api.get_AnimationID()}")
+		print(f"Run Energy: {api.get_run_energy()}")
+		print(f"Is Inventory Full: {api.get_is_inv_full()}")
+		print(f"Inventory: {api.get_inv()}")
+		print(f"Indexes of bones and chickens in inventory: {api.get_inv_item_indices([526, 2138])}")
+		print(f"Indexs of bones in inventory: {api.get_inv_item_indices(526)}")
+		print(f"Is Player Praying: {api.get_is_player_praying()}")
+		print(f"Player Equipment: {api.get_player_equipment()}")
+		print(f"Equipment Stats: {api.get_equipment_stats()}")
+		print(f"Is Player Idle: {api.get_is_player_idle()}")
+		print(f"Animation Data: {api.get_animation_data()}")
+		print(f"Animation ID: {api.get_animation_id()}")
 
 		print("-----------------------------")
