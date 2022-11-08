@@ -11,3 +11,4 @@ pyclick==0.0.2
 PyGetWindow==0.0.9
 pynput==1.7.6
 pandas==1.5.0
+simplejson==3.17.6
