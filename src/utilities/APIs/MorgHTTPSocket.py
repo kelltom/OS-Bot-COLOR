@@ -387,6 +387,26 @@ class MorgHTTPSocket:
 			return None
 
 		return any(inventory_slot['id'] == item_id for inventory_slot in data)
+	
+	def get_inv_item_indices(self, id: Union[List[int], int]) -> list:
+		'''
+		For the given item ID, returns a list of inventory slot indexes that the item exists in.
+		Useful for locating items you do not want to drop.
+		Args:
+			id: The item ID to search for (an single ID, or list of IDs).
+		Returns:
+			A list of inventory slot indexes that the item exists in.
+		'''
+		try:
+			data = self.__do_get(endpoint=self.inv_endpoint)
+		except SocketError as e:
+			print(e)
+			return None
+
+		if isinstance(id, int):
+			return [i for i, inventory_slot in enumerate(data) if inventory_slot['id'] == id]
+		elif isinstance(id, list):
+			return [i for i, inventory_slot in enumerate(data) if inventory_slot['id'] in id]
 
 	def find_item_in_inv(self, item_id: int) -> Union[List[Tuple[int, int]], None]:
 		'''
@@ -432,11 +452,14 @@ class MorgHTTPSocket:
 if __name__ == "__main__":
 	api = MorgHTTPSocket()
 
+	id_logs = 1511
+	id_bones = 526
+
 	# Note: Making API calls in succession too quickly can result in issues
 	while True:
 
 		# Player Data
-		if True:
+		if False:
 			# Example of safely getting player data
 			if hp := api.get_hitpoints():
 				print(f"Current HP: {hp[0]}")
@@ -448,7 +471,7 @@ if __name__ == "__main__":
 			print(f"Is player idle: {api.get_is_player_idle()}")
 			
 		# World Data
-		if True:
+		if False:
 			print(f"Game tick: {api.get_game_tick()}")
 			print(f"Player position: {api.get_player_position()}")
 			print(f"Player region data: {api.get_player_region_data()}")
@@ -461,9 +484,10 @@ if __name__ == "__main__":
 		if True:
 			print(f"Are logs in inventory?: {api.get_if_item_in_inv(item_id=1511)}")
 			print(f"Find logs in inv: {api.find_item_in_inv(item_id=1511)}")
+			print(f"Get position of all bones in inv: {api.get_inv_item_indices(id=[526])}")
 		
 		# Wait for XP to change
-		if True:
+		if False:
 			print(f"WC Level: {api.get_skill_level('woodcutting')}")
 			print(f"WC XP: {api.get_skill_xp('woodcutting')}")
 			print(f"WC XP Gained: {api.get_skill_xp_gained('woodcutting')}")
