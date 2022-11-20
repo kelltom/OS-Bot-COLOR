@@ -104,7 +104,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         only_friends = rcv.isolate_colors(minimap, [self.GREEN])
         #bcv.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
-        return str(mean) != "[0. 0. 0.]"
+        return mean != 0.0
 
     def get_hp(self) -> int:
         """
@@ -177,7 +177,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         # Position of character relative to the screen
         char_pos = self.win.rect_game_view().get_center()
-        
+
         # Make a rectangle around the character
         offset = 30
         char_rect = Rectangle.from_points(Point(char_pos.x - offset, char_pos.y - offset*2),
@@ -187,7 +187,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         # Isolate HP bars in that rectangle
         hp_bars = isolate_colors(char_screenshot, [self.RED, self.GREEN])
         # If there are any HP bars, return True
-        return str(hp_bars.mean(axis=(0, 1))) != "[0. 0. 0.]"
+        return hp_bars.mean(axis=(0, 1)) != 0.0
 
     # --- NPC/Object Detection ---
     def attack_first_tagged(self) -> bool:
