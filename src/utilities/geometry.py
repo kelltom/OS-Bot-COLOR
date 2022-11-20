@@ -144,8 +144,6 @@ class Shape:
         '''
         Gets the distance between the shape and it's Rectangle parent center.
         Useful for sorting lists of Shapes.
-        Args:
-            point: The point to measure the distance from.
         Returns:
             The distance from the point to the center of the shape.
         '''
