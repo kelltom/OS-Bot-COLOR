@@ -15,7 +15,6 @@ from utilities.geometry import Rectangle, Point, Shape
 from utilities.runelite_cv import isolate_colors
 import numpy as np
 import pyautogui as pag
-import random as rd
 import time
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
@@ -83,9 +82,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             if i in skip_slots:
                 continue
             self.mouse.move_to((slot[0], slot[1]),
-                                targetPoints=rd.randint(10, 15),
+                                mouseSpeed='fastest',
                                 knotsCount=1,
-                                distortionMeanv=0.5,
                                 offsetBoundaryY=40,
                                 offsetBoundaryX=40)
             time.sleep(0.05)
@@ -298,7 +296,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             return False
         self.mouse.move_to(layout_dropdown)
         pag.click()
-        time.sleep(0.8)
+        time.sleep(0.5)
         self.mouse.move_rel(-77, 19)
         pag.click()
         time.sleep(1.5)
@@ -331,10 +329,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         elif percentage > 100:
             percentage = 100
         self.log_msg(f"Setting camera zoom to {percentage}%...")
-        time.sleep(0.3)
         if not self.__open_display_settings():
             return False
-        time.sleep(0.3)
         zoom_start = 611
         zoom_end = 708
         x = int((percentage / 100) * (zoom_end - zoom_start) + zoom_start)
@@ -353,7 +349,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             logout_runelite: Whether or not to logout of RuneLite (not necessary when launching game via OSBC) (default=False).
         '''
         self.log_msg("Configuring client window...")
-
+        time.sleep(0.5)
         # Set layout to fixed
         if set_layout_fixed:
             if not self.did_set_layout_fixed():  # if layout setup failed

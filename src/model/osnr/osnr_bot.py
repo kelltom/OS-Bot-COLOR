@@ -160,7 +160,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if bank_icon is None:
             self.log_msg("Bank icon not found.")
             return False
-        self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3), targetPoints=40)
+        self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3))
         pag.click()
 
         if not self.status_check_passed():
@@ -175,7 +175,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if len(banks) == 0:
             self.log_msg("No banks found.")
             return False
-        self.mouse.move_to(banks[0], targetPoints=40)
+        self.mouse.move_to(banks[0])
         pag.click()
         return True
 
@@ -188,7 +188,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         self.mouse.move_to(self.win.cp_tab(7), destination_variance=2)
         pag.click()
         time.sleep(0.5)
-        self.mouse.move_to(self.win.spellbook_home_tele(spellbook), destination_variance=1, targetPoints=50)
+        self.mouse.move_to(self.win.spellbook_home_tele(spellbook), destination_variance=1, mouseSpeed='medium')
         pag.click()
 
     def teleport_to(self, spellbook: Spellbook, location: str) -> bool:
@@ -201,21 +201,21 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
             True if successful, False otherwise.
         '''
         self.log_msg(f"Teleporting to {location}...")
-        self.mouse.move_to(self.win.cp_tab(7), destination_variance=2, targetPoints=50)
+        self.mouse.move_to(self.win.cp_tab(7), destination_variance=2, mouseSpeed='medium')
         pag.click()
         time.sleep(0.5)
 
         if not self.status_check_passed():
             return
 
-        self.mouse.move_to(self.win.teleport_menu(spellbook), targetPoints=40)
+        self.mouse.move_to(self.win.teleport_menu(spellbook), mouseSpeed='medium')
         pag.click()
         time.sleep(1.5)
 
         if not self.status_check_passed():
             return
 
-        self.mouse.move_to(self.win.teleport_menu_search(), targetPoints=40)
+        self.mouse.move_to(self.win.teleport_menu_search(), mouseSpeed='medium')
         pag.click()
         time.sleep(1)
         result = self.win.teleport_menu_search_result()
@@ -230,7 +230,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if no_result_rgb == pag.pixel(new_result.x, new_result.y):
             self.log_msg(f"No results found for {location}.")
             return False
-        self.mouse.move_to(new_result, destination_variance=1,targetPoints=40)
+        self.mouse.move_to(new_result, destination_variance=1,mouseSpeed='medium')
         pag.click()
         self.log_msg("Teleport successful.")
         return True
@@ -276,7 +276,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
                                                 precision=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.mouse.move_to(self.win.get_relative_point(644, 402), destination_variance=5, targetPoints=50)
+            self.mouse.move_to(self.win.get_relative_point(644, 402), destination_variance=5, mouseSpeed='medium')
             pag.click()
         elif toggle_on:
             print("Auto retaliate is already on.")

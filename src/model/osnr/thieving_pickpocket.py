@@ -20,7 +20,7 @@ class OSNRThievingPickpocket(OSNRBot):
         super().__init__(title=title, description=description)
         self.running_time = 5
         self.logout_on_friends = False
-        self.pickpocket_option = 0
+        self.pickpocket_option = 1
         self.compass_direction = 0
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
@@ -156,14 +156,14 @@ class OSNRThievingPickpocket(OSNRBot):
             # Steal from NPC
             npc_pos: Shape = self.get_nearest_tag(self.BLUE)
             if npc_pos is not None:
-                self.mouse.move_to(npc_pos.center(), targetPoints=15)
+                self.mouse.move_to(npc_pos.center(), mouseSpeed='fastest')
                 if self.pickpocket_option != 0:
                     pag.rightClick()
                     if self.pickpocket_option == 1:
                         delta_y = 41
                     elif self.pickpocket_option == 2:
                         delta_y = 56
-                    self.mouse.move_rel(x=0, y=delta_y)
+                    self.mouse.move_rel(x=0, y=delta_y, mouseSpeed="fastest")
                 pag.click()
                 if self.pickpocket_option == 0:
                     time.sleep(0.3)
@@ -179,11 +179,11 @@ class OSNRThievingPickpocket(OSNRBot):
                     return
 
             # Click coin pouch
-            if self.should_click_coin_pouch and theft_count % 10 == 0:
+            if self.should_click_coin_pouch and theft_count % 20 == 0:
                 self.log_msg("Clicking coin pouch...")
                 pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.win.rect_inventory(), precision=0.9)
                 if pouch:
-                    self.mouse.move_to(pouch, targetPoints=40)
+                    self.mouse.move_to(pouch, mouseSpeed='fast')
                     pag.click()
                     time.sleep(0.2)
                     no_pouch_count = 0
