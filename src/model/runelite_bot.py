@@ -10,8 +10,8 @@ from abc import ABCMeta
 from deprecated import deprecated
 from model.bot import Bot, BotStatus
 from model.window import Window
-from typing import List
-from utilities.geometry import Rectangle, Point
+from typing import List, Callable
+from utilities.geometry import Rectangle, Point, Shape
 from utilities.runelite_cv import isolate_colors
 import numpy as np
 import pyautogui as pag
@@ -19,7 +19,6 @@ import random as rd
 import time
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
-
 
 class RuneLiteWindow(Window):
     def __init__(self, window_title: str) -> None:
@@ -190,42 +189,14 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         return hp_bars.mean(axis=(0, 1)) != 0.0
 
     # --- NPC/Object Detection ---
-    def attack_first_tagged(self) -> bool:
-        '''
-        Attacks the first-seen tagged NPC that is not already in combat.
-        Args:
-            game_view: The rectangle to search in.
-        Returns:
-            True if an NPC attack was attempted, False otherwise.
-        '''
-        game_view = self.win.rect_game_view()
-        img_game_view = bcv.screenshot(game_view)
-        # Isolate colors in image
-        img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
-        img_hp_bars = rcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
-        # Locate potential NPCs in image by determining contours
-        contours = rcv.get_contours(img_npcs)
-        # Click center pixel of non-combatting NPCs
-        for cnt in contours:
-            try:
-                center, top = rcv.get_contour_positions(cnt)
-            except Exception:
-                print("An NPC does not have complete outline. Disregarding. (This is normal)")
-                continue
-            if not rcv.is_point_obstructed(center, img_hp_bars):
-                self.mouse.move_to(Point(center.x + game_view.left, center.y + game_view.top))
-                pag.click()
-                return True
-        self.log_msg("No tagged NPCs found that aren't in combat.")
-        return False
-
     def get_nearest_tagged_NPC(self, include_in_combat: bool = False) -> Point:
+        # sourcery skip: use-next
         '''
-        Returns the nearest tagged NPC.
+        Locates the nearest tagged NPC, optionally including those in combat.
         Args:
-            game_view: The rectangle to search in.
+            include_in_combat: Whether to include NPCs that are already in combat.
         Returns:
-            The center point of the nearest tagged NPC, or None if none found.
+            A Shape object or None if no tagged NPCs are found.
         '''
         game_view = self.win.rect_game_view()
         img_game_view = bcv.screenshot(game_view)
@@ -233,75 +204,52 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
         img_hp_bars = rcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
         # Locate potential NPCs in image by determining contours
-        contours = rcv.get_contours(img_npcs)
-        # Get center pixels of non-combatting NPCs
-        centers = []
-        for cnt in contours:
-            try:
-                center, _ = rcv.get_contour_positions(cnt)
-            except Exception:
-                print("An NPC does not have complete outline. Disregarding. (This is normal)")
-                continue
-            if not include_in_combat and not rcv.is_point_obstructed(center, img_hp_bars) or include_in_combat:
-                centers.append((center.x, center.y))
-        if not centers:
+        shapes = rcv.extract_shapes(img_npcs)
+        if not shapes:
             print("No tagged NPCs found.")
             return None
-        dims = img_hp_bars.shape  # (height, width, channels)
-        nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
-        return Point(nearest.x + game_view.left, nearest.y + game_view.top)
+        for shape in shapes:
+            shape.set_rectangle_reference(self.win.rect_game_view)
+        # Sort shapes by distance from player
+        shapes = sorted(shapes, key=Shape.distance_from_rect_center)
+        if include_in_combat:
+            return shapes[0]
+        for shape in shapes:
+            if not rcv.is_point_obstructed(shape._center, img_hp_bars):
+                return shape
+        return None
 
-    def get_all_tagged_in_rect(self, rect: Rectangle, color: List[int]) -> list:
+    def get_all_tagged_in_rect(self, rect_function: Callable, color: List[int]) -> List[Shape]:
         '''
-        Finds all contours on screen of a particular color and returns a list of center Points for each.
+        Finds all contours on screen of a particular color and returns a list of Shapes.
         Args:
-            rect: The rectangle to search in.
+            rect: rect_function: A reference to the function used to get info for the rectangle
+                                 that this shape belongs in (E.g., Bot.win.rect_game_view - without brackets).
             color: The color to search for [R,G,B].
         Returns:
-            A list of center Points.
+            A list of Shapes or empty list if none found.
         '''
-        img_rect = bcv.screenshot(rect)
-        bcv.save_image("img_rect.png", img_rect)
-        img_isolated = rcv.isolate_colors(img_rect, [color])
-        bcv.save_image("img_isolated.png", img_isolated)
-        contours = rcv.get_contours(img_isolated)
-        centers = []
-        for cnt in contours:
-            try:
-                center, _ = rcv.get_contour_positions(cnt)
-            except Exception:
-                print("Cannot find complete outline of tagged object. Disregarding. (This is normal)")
-                continue
-            centers.append(Point(center.x + rect.left, center.y + rect.top))
-        return centers
+        img_rect = bcv.screenshot(rect_function())
+        bcv.save_image("get_all_tagged_in_rect.png", img_rect)
+        isolated_colors = rcv.isolate_colors(img_rect, [color])
+        shapes = rcv.extract_shapes(isolated_colors)
+        for shape in shapes:
+            shape.set_rectangle_reference(rect_function)
+        return shapes
     
     def get_nearest_tag(self, color: List[int]) -> Point:
         '''
-        Finds the nearest contour of a particular color within the game view to the character and returns its center Point.
+        Finds the nearest Shape of a particular color within the game view and returns its center Point.
         Args:
-            rect: The rectangle to search in.
             color: The color to search for [R,G,B].
         Returns:
-            The center Point of the nearest contour, or None if none found.
+            The nearest Shape to the character, or None if none found.
         '''
-        rect = self.win.rect_game_view()
-        centers = self.get_all_tagged_in_rect(rect, color)
-        return self.__get_nearest_point(rect.get_center(), centers) if centers else None
-        
-    def __get_nearest_point(self, point: Point, points: list) -> Point:
-        '''
-        Returns the nearest point in a list of (x, y) coordinates.
-        Args:
-            point: The point to compare to.
-            points: The list of (x, y) coordinates to compare.
-        Returns:
-            The closest point in the list.
-        '''
-        point = (point.x, point.y)
-        nodes = np.asarray(points)
-        dist_2 = np.sum((nodes - point) ** 2, axis=1)
-        p = np.argmin(dist_2)
-        return Point(points[p][0], points[p][1])
+        if shapes := self.get_all_tagged_in_rect(self.win.rect_game_view, color):
+            shapes_sorted = sorted(shapes, key=Shape.distance_from_rect_center)
+            return shapes_sorted[0]
+        else:
+            return None
 
     # --- Client Settings ---
     def __open_display_settings(self) -> bool:

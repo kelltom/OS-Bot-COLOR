@@ -1,4 +1,5 @@
-from typing import NamedTuple
+from typing import NamedTuple, Callable
+import math
 
 Point = NamedTuple("Point", x=int, y=int)
 
@@ -89,9 +90,66 @@ class Rectangle:
         return self.__str__()
 
 
-def Shape():
-    # Should have a color, and all the properties required to draw it and figure out points.
-    # Then, it would be passed to a cv function to find those points.
+class Shape:
 
-    # A RuneLiteBot function would be the one to fetch the shapes - prob using a cv function.
-    pass
+    rect_ref = None
+
+    def __init__(self, x_min, x_max, y_min, y_max, width, height, center, axis):
+        '''
+        Represents a shape on screen, typically used to represent tagged/outlined objects.
+        Args:
+            x_min, x_max: The min/max x coordinates of the shape.
+            y_min, y_max: The min/max y coordinates of the shape.
+            width: The width of the shape.
+            height: The height of the shape.
+            center: The center of the shape.
+            axis: A 2-column stacked array of points that make up the shape.
+        '''
+        self._x_min = x_min
+        self._x_max = x_max
+        self._y_min = y_min
+        self._y_max = y_max
+        self._width = width
+        self._height = height
+        self._center = center
+        self._axis = axis
+    
+    def set_rectangle_reference(self, rect_function: Callable):
+        '''
+        Sets the rectangle reference of the shape.
+        Args:
+            rect_function: A reference to the function used to get info for the rectangle
+                           that this shape belongs in (E.g., Bot.win.rect_game_view).
+        '''
+        self.rect_ref = rect_function
+        
+    def __point_exists(self, p: tuple) -> bool:
+        '''
+        Checks if a point exists in the shape.
+        '''
+        pass
+
+    def center(self) -> Point:  # sourcery skip: raise-specific-error
+        '''
+        Gets the center of the shape relative to the client.
+        Returns:
+            A Point.
+        '''
+        if self.rect_ref is None:
+            raise Exception("Rectangle reference not set for shape.")
+        rect: Rectangle = self.rect_ref()
+        return Point(self._center[0] + rect.left, self._center[1] + rect.top)
+
+    def distance_from_rect_center(self) -> float:
+        '''
+        Gets the distance between the shape and it's Rectangle parent center.
+        Useful for sorting lists of Shapes.
+        Args:
+            point: The point to measure the distance from.
+        Returns:
+            The distance from the point to the center of the shape.
+        '''
+        center: Point = self.center()
+        rect: Rectangle = self.rect_ref()
+        rect_center: Point = rect.get_center()
+        return math.dist([center.x, center.y], [rect_center.x, rect_center.y])

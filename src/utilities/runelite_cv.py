@@ -1,44 +1,51 @@
 '''
 A set of computer vision utilities for use with RuneLite-based bots.
 '''
-from utilities.geometry import Point
-from typing import List, NamedTuple
+from typing import List
+from utilities.geometry import Point, Shape
 import cv2
 import numpy as np
 import utilities.bot_cv as bcv
 
-# --- Custom Named Tuple ---
-# Simplifies referencing color ranges by name.
-# See runelite_bot.py for example usage.
-Color = NamedTuple("Color", hsv_upper=tuple, hsv_lower=tuple)
-
-def get_contours(image: cv2.Mat) -> list:
+def extract_shapes(image: cv2.Mat) -> List[Shape]:
     '''
-    Gets the contours of an image.
+    Given an image of enclosed outlines, this function will extract information
+    from each outlined shape into a data structure.
     Args:
-        image: The image to process (assume color has been isolated).
+        image: The image to process.
     Returns:
-        A list of contours.
+        A list of Shape objects, or an empty list if no shapes are found.
     '''
-    img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    thresh = 1
-    _, thresh = cv2.threshold(img_gray, thresh, 255, cv2.THRESH_BINARY)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    return contours
-
-def get_contour_positions(contour) -> tuple:
-    '''
-    Gets the center and top pixel positions of a contour.
-    Args:
-        contour: The contour to get the positions of.
-    Returns:
-        A center and top pixel positions as Points.
-    '''
-    moments = cv2.moments(contour)
-    center_x = int(moments["m10"] / moments["m00"])
-    center_y = int(moments["m01"] / moments["m00"])
-    top_x, top_y = contour[contour[..., 1].argmin()][0]
-    return Point(center_x, center_y), Point(top_x, top_y)
+    # Dilate the outlines
+    kernel = np.ones((4, 4), np.uint8)
+    mask = cv2.dilate(image, kernel, iterations=1)
+    # If no shapes are found, return an empty list
+    if not np.count_nonzero(mask == 255):
+        return []
+    # Find the contours
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Extract the shapes from each contoured object
+    shapes: List[Shape] = []
+    for objects in range(len(contours)):
+        if len(contours[objects]) > 2:
+            # Fill in the outline with white pixels
+            mask_copy = mask.copy()
+            cv2.drawContours(mask_copy, contours, objects, (255, 255, 255), -1)
+            # Clean up imperfections
+            kernel = np.ones((7, 7), np.uint8)
+            init_object = cv2.morphologyEx(mask_copy, cv2.MORPH_OPEN, kernel)
+            bcv.save_image("extract_shapes.png", init_object)
+            if np.count_nonzero(init_object == 255):
+                indices = np.where(init_object == [255])
+                if indices[0].size > 0:
+                    # Convert to Shape
+                    x_min, x_max = np.min(indices[1]), np.max(indices[1])
+                    y_min, y_max = np.min(indices[0]), np.max(indices[0])
+                    width, height = x_max - x_min, y_max - y_min
+                    center = (int(x_min + (width / 2)), int(y_min + (height / 2)))
+                    axis = np.column_stack((indices[1], indices[0]))
+                    shapes.append(Shape(x_min, x_max, y_min, y_max, width, height, center, axis))
+    return shapes or []
 
 def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
     '''
@@ -47,7 +54,7 @@ def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
         image: The image to process.
         colors: A list of rcv Colors.
     Returns:
-        The image with the isolated colors.
+        The image with the isolated colors (all shown as white).
     '''
     # Convert to BGR
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -61,9 +68,10 @@ def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
     if len(masks) > 1:
         for i in range(1, len(masks)):
             mask = cv2.bitwise_or(mask, masks[i])
-    return cv2.bitwise_and(image, image, mask=mask)
+    bcv.save_image("isolate_colors.png", cv2.bitwise_and(image, image, mask=mask))
+    return mask
 
-def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 20) -> bool:
+def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 30) -> bool:
     '''
     This function determines if there are non-black pixels in an image around a given point.
     This is useful for determining if an NPC is in combat (E.g., given the mid point of an NPC contour
@@ -76,9 +84,9 @@ def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 20) -> bool:
         True if the point is obstructed, False otherwise.
     '''
     try:
-        crop = im[point.y-span:point.y+span, point.x-span:point.x+span]
+        crop = im[point[1]-span:point[1]+span, point[0]-span:point[0]+span]
         mean = crop.mean(axis=(0, 1))
-        return str(mean) != "[0. 0. 0.]"
-    except Exception:
-        print("Cannot crop image. Disregarding...")
+        return mean != 0.0
+    except Exception as e:
+        print(f"Error in is_point_obstructed(): {e}")
         return True
