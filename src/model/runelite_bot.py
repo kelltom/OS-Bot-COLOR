@@ -169,8 +169,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
 
     def has_hp_bar(self) -> bool:
         '''
-        Returns whether the player has an HP bar above their head.
-        This function only works when the game camera is all the way up.
+        Returns whether the player has an HP bar above their head. Useful alternative to using OCR to check if the
+        player is in combat. This function only works when the game camera is all the way up.
         '''
         # Position of character relative to the screen
         char_pos = self.win.rect_game_view().get_center()
@@ -334,8 +334,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         zoom_start = 611
         zoom_end = 708
         x = int((percentage / 100) * (zoom_end - zoom_start) + zoom_start)
-        client_pos = self.win.position()
-        self.mouse.move_to(Point(x + client_pos.x, 345 + client_pos.y))
+        self.mouse.move_to(self.win.get_relative_point(x, 345))
         pag.click()
         return True
 
