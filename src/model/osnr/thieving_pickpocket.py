@@ -6,7 +6,8 @@ from model.osnr.osnr_bot import OSNRBot
 import pathlib
 import pyautogui as pag
 import time
-from utilities.bot_cv import Point
+from utilities.APIs.status_socket import StatusSocket
+from utilities.geometry import Point, Shape
 import utilities.bot_cv as bcv
 
 
@@ -17,13 +18,13 @@ class OSNRThievingPickpocket(OSNRBot):
                        "If you have food, tag all in inventory as light-blue. Start bot with full HP, " +
                        "and empty last inventory slot. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
         super().__init__(title=title, description=description)
-        self.running_time = 0
+        self.running_time = 5
         self.logout_on_friends = False
         self.pickpocket_option = 0
         self.compass_direction = 0
-        self.should_click_coin_pouch = False
-        self.should_drop_inv = False
-        self.protect_rows = 0
+        self.should_click_coin_pouch = True
+        self.should_drop_inv = True
+        self.protect_rows = 5
         self.coin_pouch_path = f"{pathlib.Path(__file__).parent.parent.parent.resolve()}/images/bot/near_reality/coin_pouch.png"
 
     def create_options(self):
@@ -94,6 +95,7 @@ class OSNRThievingPickpocket(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
+        api = StatusSocket()
         self.setup_osnr(zoom_percentage=50)
 
         # Config camera
@@ -111,8 +113,6 @@ class OSNRThievingPickpocket(OSNRBot):
         # Anchors/counters
         hp_threshold_pos = self.get_hp_pos()  # TODO: implement checking health threshold
         hp_threshold_rgb = pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y)
-        last_inventory_pos = self.win.inventory_slots()[-1]
-        last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         npc_search_fail_count = 0
         theft_count = 0
         no_pouch_count = 0
@@ -147,17 +147,16 @@ class OSNRThievingPickpocket(OSNRBot):
                 return
 
             # Check if we should drop inventory
-            last_inventory_pos = self.win.inventory_slots()[-1]
-            if self.should_drop_inv and pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
+            if self.should_drop_inv and api.get_is_inv_full():
                 self.drop_inventory(skip_rows=self.protect_rows)
 
             if not self.status_check_passed():
                 return
 
             # Steal from NPC
-            npc_pos = self.get_nearest_tag(self.BLUE)
+            npc_pos: Shape = self.get_nearest_tag(self.BLUE)
             if npc_pos is not None:
-                self.mouse.move_to(npc_pos, targetPoints=15)
+                self.mouse.move_to(npc_pos.center(), targetPoints=15)
                 if self.pickpocket_option != 0:
                     pag.rightClick()
                     if self.pickpocket_option == 1:

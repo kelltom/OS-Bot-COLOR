@@ -1,6 +1,8 @@
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
-from utilities.geometry import Point
+from typing import List
+from utilities.APIs.status_socket import StatusSocket
+from utilities.geometry import Shape
 import pyautogui as pag
 import time
 
@@ -39,7 +41,8 @@ class OSNRMining(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup
-        self.setup_osnr(zoom_percentage=90)
+        api = StatusSocket()
+        self.setup_osnr(zoom_percentage=80)
 
         if not self.status_check_passed():
             return
@@ -55,8 +58,6 @@ class OSNRMining(OSNRBot):
         pag.keyUp('up')
         time.sleep(0.5)
 
-        last_inventory_pos = self.win.inventory_slots()[-1]
-        last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         mined = 0
         failed_searches = 0
 
@@ -68,8 +69,7 @@ class OSNRMining(OSNRBot):
                 return
 
             # Check to drop inventory
-            last_inventory_pos = self.win.inventory_slots()[-1]
-            if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
+            if api.get_is_inv_full():
                 self.drop_inventory()
                 time.sleep(1)
                 continue
@@ -85,8 +85,11 @@ class OSNRMining(OSNRBot):
                 return
             
             # Get the center pixel of each tagged rock, and it's color
-            rocks = self.get_all_tagged_in_rect(self.win.rect_game_view(), self.PINK)
-            if len(rocks) == 0:
+            rocks: List[Shape] = self.get_all_tagged_in_rect(self.win.rect_game_view, self.PINK)
+            for i, rock in enumerate(rocks):
+                rocks[i] = rock.center()
+
+            if not rocks:
                 self.log_msg("No tagged rocks found.")
                 self.set_status(BotStatus.STOPPED)
                 return

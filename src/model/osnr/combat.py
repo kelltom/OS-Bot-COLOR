@@ -3,6 +3,7 @@ Combat bot for OSNR. Attacks tagged monsters.
 '''
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
+from utilities.geometry import Shape
 import time
 
 
@@ -68,10 +69,10 @@ class OSNRCombat(OSNRBot):
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                npc = self.get_nearest_tagged_NPC()
+                npc: Shape = self.get_nearest_tagged_NPC()
                 if npc is not None:
                     self.log_msg("Attacking NPC...")
-                    self.mouse.move_to(npc)
+                    self.mouse.move_to(npc.center())
                     self.mouse.click()
                     time.sleep(3)
                     timeout -= 3
