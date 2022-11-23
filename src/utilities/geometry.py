@@ -1,5 +1,7 @@
-from typing import NamedTuple, Callable
+from random_util import RandomUtil
+from typing import NamedTuple, Callable, List
 import math
+import numpy as np
 
 Point = NamedTuple("Point", x=int, y=int)
 
@@ -123,12 +125,6 @@ class Shape:
         '''
         self.rect_ref = rect_function
         
-    def __point_exists(self, p: tuple) -> bool:
-        '''
-        Checks if a point exists in the shape.
-        '''
-        pass
-
     def center(self) -> Point:  # sourcery skip: raise-specific-error
         '''
         Gets the center of the shape relative to the client.
@@ -151,3 +147,38 @@ class Shape:
         rect: Rectangle = self.rect_ref()
         rect_center: Point = rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
+
+    def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
+        '''
+        Gets a random point within the shape.
+        Args:
+            custom_seeds: A list of custom seeds to use for the random point. You can generate
+                          a seeds list using RandomUtil's random_seeds() function with args.
+                          Default: A random seed list based on current date and shape position.
+        Returns:
+            A random Point within the shape.
+        '''
+        if custom_seeds is None:
+            custom_seeds = RandomUtil.random_seeds(mod=(self._center[0] + self._center[1]))
+        # TODO make it return the point relative to the window - right now it's just relative to the image
+        x, y = RandomUtil.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
+        return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.center()
+
+    def __relative_point(self, point: List[int]) -> Point:
+        '''
+        Gets a point relative to the shape's container (and thus, the client window).
+        Args:
+            point: The point to get relative to the shape in the format [x, y].
+        Returns:
+            A Point relative to the client window.
+        '''
+        rect: Rectangle = self.rect_ref()
+        return Point(point[0] + rect.left, point[1] + rect.top)
+
+    def __point_exists(self, p: list) -> bool:
+        '''
+        Checks if a point exists in the shape.
+        Args:
+            p: The point to check in the format [x, y].
+        '''
+        return (self._axis == np.array(p)).all(axis=1).any()
