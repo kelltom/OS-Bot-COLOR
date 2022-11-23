@@ -5,7 +5,6 @@ from typing import List
 from utilities.geometry import Point, RuneLiteObject
 import cv2
 import numpy as np
-import utilities.bot_cv as bcv
 
 def extract_objects(image: cv2.Mat) -> List[RuneLiteObject]:
     '''
@@ -45,30 +44,6 @@ def extract_objects(image: cv2.Mat) -> List[RuneLiteObject]:
                     axis = np.column_stack((indices[1], indices[0]))
                     objs.append(RuneLiteObject(x_min, x_max, y_min, y_max, width, height, center, axis))
     return objs or []
-
-def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
-    '''
-    Isolates ranges of colors within an image and saves a new resulting image.
-    Args:
-        image: The image to process.
-        colors: A list of rcv Colors.
-    Returns:
-        The image with the isolated colors (all shown as white).
-    '''
-    # Convert to BGR
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    # Change each color to RGB
-    for i, color in enumerate(colors):
-        colors[i] = np.array(color[::-1])
-    # Generate masks for each color
-    masks = [cv2.inRange(image, color, color) for color in colors]
-    # Combine masks
-    mask = masks[0]
-    if len(masks) > 1:
-        for i in range(1, len(masks)):
-            mask = cv2.bitwise_or(mask, masks[i])
-    bcv.save_image("isolate_colors.png", cv2.bitwise_and(image, image, mask=mask))
-    return mask
 
 def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 30) -> bool:
     '''

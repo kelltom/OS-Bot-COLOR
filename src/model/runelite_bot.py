@@ -113,29 +113,6 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         print(res)
         return None if res is None else res[0]
 
-    def is_red_click(self) -> bool:
-
-        """
-        Gets if a click was red, must be called directly after clicking
-        Returns:
-            True if the click was red, False if yellow click
-        """
-
-        mouse_x, mouse_y = pag.position()  # Get current position of cursor
-        mouse_rect = Rectangle(Point(mouse_x - 3, mouse_y - 3),
-                               Point(mouse_x + 3, mouse_y + 3))  # Make rect around cursor for screenshot
-
-        # Take a screenshot of rect
-        mouse_screenshot = bcv.capture_screen(mouse_rect)
-        # Isolate red click from screenshot
-        mouse_red_click = isolate_colors(mouse_screenshot, [self.TAG_RED], "mouse_click")
-        img_bgr = cv2.imread(mouse_red_click)
-
-        if np.any(img_bgr):
-            return True
-
-        return False
-
     def get_prayer(self) -> int:
         """
         Gets the prayer value of the player.

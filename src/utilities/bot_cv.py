@@ -4,6 +4,7 @@ A set of computer vision utilities for use with bots.
 from deprecated import deprecated
 from easyocr import Reader
 from PIL import Image
+from typing import List 
 from utilities.geometry import Point, Rectangle
 import cv2
 import mss
@@ -44,6 +45,31 @@ def save_image(filename, im) -> str:
     path = f"{TEMP_IMAGES}/{filename}"
     cv2.imwrite(path, im)
     return path
+
+# --- Color Isolation ---
+def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
+    '''
+    Isolates ranges of colors within an image and saves a new resulting image.
+    Args:
+        image: The image to process.
+        colors: A list of rcv Colors.
+    Returns:
+        The image with the isolated colors (all shown as white).
+    '''
+    # Convert to BGR
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    # Change each color to RGB
+    for i, color in enumerate(colors):
+        colors[i] = np.array(color[::-1])
+    # Generate masks for each color
+    masks = [cv2.inRange(image, color, color) for color in colors]
+    # Combine masks
+    mask = masks[0]
+    if len(masks) > 1:
+        for i in range(1, len(masks)):
+            mask = cv2.bitwise_or(mask, masks[i])
+    save_image("isolate_colors.png", cv2.bitwise_and(image, image, mask=mask))
+    return mask
 
 # --- Image Search ---
 def __imagesearcharea(template, im, precision=0.8):
