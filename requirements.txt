@@ -7,7 +7,8 @@ opencv-python==4.5.4.60
 opencv_python_headless==4.5.4.60
 Pillow==9.2.0
 PyAutoGUI==0.9.53
+pyclick==0.0.2
 PyGetWindow==0.0.9
-python_imagesearch==1.2.2
 pynput==1.7.6
 pandas==1.5.0
+simplejson==3.17.6

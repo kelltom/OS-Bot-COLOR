@@ -1,8 +1,7 @@
-'''
-Trains Runecrafting via Astral Runes.
-'''
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
+from utilities.APIs.status_socket import StatusSocket
+from utilities.geometry import Point, RuneLiteObject
 import pyautogui as pag
 import time
 import utilities.bot_cv as bcv
@@ -46,17 +45,16 @@ class OSNRFishing(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
+        api = StatusSocket()
         self.setup_osnr(zoom_percentage=50)
 
         # Set compass
-        self.mouse.move_to(self.orb_compass)
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
         self.move_camera_up()
 
-        last_inventory_pos = self.inventory_slots[6][3]
-        last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         fished = 0
         failed_searches = 0
 
@@ -68,7 +66,7 @@ class OSNRFishing(OSNRBot):
                 return
 
             # Check to drop inventory
-            if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
+            if api.get_is_inv_full():
                 self.drop_inventory(skip_rows=1)
                 fished += 25
                 self.log_msg(f"Fishes fished: ~{fished}")
@@ -78,14 +76,14 @@ class OSNRFishing(OSNRBot):
                 return
 
             # If not fishing, click fishing spot
-            is_fishing = bcv.search_text_in_rect(self.rect_current_action, ["fishing", "fishirig"], ["not"])
-            while not is_fishing:
+            # TODO: this has to be removed and replaced with a API info
+            while not self.is_player_doing_action("fishing"):
                 im_path = None
                 if self.fish_type == "anglerfish":
                     im_path = f"{bcv.BOT_IMAGES}/near_reality/anglerfish_sprite.png"
                 elif self.fish_type == "salmon":
                     im_path = f"{bcv.BOT_IMAGES}/near_reality/salmon_sprite.png"
-                spot = bcv.search_img_in_rect(im_path, self.rect_game_view)
+                spot = bcv.search_img_in_rect(im_path, self.win.rect_game_view())
                 if spot is None:
                     failed_searches += 1
                     time.sleep(1)

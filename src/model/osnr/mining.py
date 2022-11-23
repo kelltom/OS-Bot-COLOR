@@ -1,21 +1,23 @@
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
+from typing import List
+from utilities.APIs.status_socket import StatusSocket
+from utilities.geometry import RuneLiteObject, Rectangle
 import pyautogui as pag
+import random
 import time
-
 
 class OSNRMining(OSNRBot):
     def __init__(self):
         title = "Mining"
-        description = ("This bot mines rocks. Equip a pickaxe, empty your inventory, place your character " +
-                       "between some rocks and mark (shift + right-click) the ones you want to mine. Your character " +
-                       "must remain stationary.")
+        description = ("This bot power-mines rocks. Equip a pickaxe, place your character between some rocks and mark " +
+                       "(Shift + Right-Click) the ones you want to mine.")
         super().__init__(title=title, description=description)
         self.running_time = 2
         self.logout_on_friends = False
 
     def create_options(self):
-        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
+        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
 
     def save_options(self, options: dict):
@@ -39,13 +41,14 @@ class OSNRMining(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup
-        self.setup_osnr(zoom_percentage=80)
+        api = StatusSocket()
+        self.setup_osnr(zoom_percentage=70)
 
         if not self.status_check_passed():
             return
 
         # Set compass
-        self.mouse.move_to(self.orb_compass)
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
@@ -55,18 +58,8 @@ class OSNRMining(OSNRBot):
         pag.keyUp('up')
         time.sleep(0.5)
 
-        last_inventory_pos = self.inventory_slots[6][3]
-        last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         mined = 0
         failed_searches = 0
-
-        # Get the center pixel of each tagged rock, and it's color
-        rocks = self.get_all_tagged_in_rect(self.rect_game_view, self.TAG_PINK)
-        if len(rocks) == 0:
-            self.log_msg("No tagged rocks found.")
-            self.set_status(BotStatus.STOPPED)
-            return
-        rock_rgb = [pag.pixel(rock.x, rock.y) for rock in rocks]
 
         # Main loop
         start_time = time.time()
@@ -76,7 +69,7 @@ class OSNRMining(OSNRBot):
                 return
 
             # Check to drop inventory
-            if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
+            if api.get_is_inv_full():
                 self.drop_inventory()
                 time.sleep(1)
                 continue
@@ -86,46 +79,32 @@ class OSNRMining(OSNRBot):
 
             # Check to logout
             if self.logout_on_friends and self.friends_nearby():
-                self.log_msg("Friends nearby. Logging out.")
-                self.logout()
-                self.set_status(BotStatus.STOPPED)
+                self.__logout("Friends nearby. Logging out.")
                 return
 
-            # Pick a rock to start whacking
-            mine_success = None  # used to keep track of whether or not we successfully mined a rock
-            for i, rock in enumerate(rocks):
+            # Get the rocks
+            rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.rect_game_view, self.PINK)
+            if rocks is None:
+                failed_searches += 1
+                if failed_searches > 5:
+                    self.__logout("Failed to find a rock to mine. Logging out.")
+                    self.set_status(BotStatus.STOPPED)
+                    return
+                time.sleep(1)
+                continue
+
+            # Whack the rock
+            failed_searches = 0
+            self.log_msg("Clicking a rock...")
+            self.mouse.move_to(rocks[0].random_point(), rect=Rectangle(0, 0, 0, 0), mouseSpeed="fastest")
+            self.mouse.click()
+
+            while not api.get_is_player_idle():
                 if not self.status_check_passed():
                     return
-                if pag.pixel(rock.x, rock.y) == rock_rgb[i]:
-                    self.mouse.move_to(rock, duration=0.1)
-                    self.mouse.click()
-                    time.sleep(0.3)
-                    # Wait until the rock is depleted
-                    wait_time, timeout = 0, 15
-                    while pag.pixel(rock.x, rock.y) == rock_rgb[i]:
-                        time.sleep(0.6)
-                        wait_time += 0.6
-                        if wait_time > timeout:
-                            self.log_msg("Timed out mining rock. Moving on.")
-                            mine_success = False
-                            break
-                    if mine_success is None:
-                        mine_success = True
-                        mined += 1
-                        self.log_msg(f"Rocks mined: {mined}")
-                        failed_searches = 0
-                        time.sleep(0.15)
-                    break
 
-            if not mine_success:
-                failed_searches += 1
-                self.log_msg("Failed to find rock. Waiting...")
-                time.sleep(2)
-
-            if failed_searches > 5:
-                self.log_msg("Timed out looking for rocks. Stopping.")
-                self.set_status(BotStatus.STOPPED)
-                return
+            mined += 1
+            self.log_msg(f"Rocks mined: {mined}")
 
             if not self.status_check_passed():
                 return
@@ -134,6 +113,9 @@ class OSNRMining(OSNRBot):
             self.update_progress((time.time() - start_time) / end_time)
 
         self.update_progress(1)
-        self.log_msg("Finished.")
+        self.__logout("Finished.")
+
+    def __logout(self, msg: str):
+        self.log_msg(msg)
         self.logout()
         self.set_status(BotStatus.STOPPED)

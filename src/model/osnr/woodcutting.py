@@ -55,14 +55,14 @@ class OSNRWoodcutting(OSNRBot):
             return
 
         # Set compass
-        self.mouse.move_to(self.orb_compass)
+        self.mouse.move_to(self.win.orb_compass())
         self.mouse.click()
         time.sleep(0.5)
 
         # Move camera up
         self.move_camera_up()
 
-        last_inventory_pos = self.inventory_slots[6][3]
+        last_inventory_pos = self.win.inventory_slots()[-1]
         last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         logs = 0
         failed_searches = 0
@@ -75,17 +75,18 @@ class OSNRWoodcutting(OSNRBot):
                 return
 
             # If inventory is full
+            last_inventory_pos = self.win.inventory_slots()[-1]
             if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
                 logs += 28
                 self.log_msg(f"Logs cut: ~{logs}")
                 if self.should_bank:
                     # TODO: THIS ONLY WORKS FOR ::DI AND IS A TEMPORARY SOLUTION
-                    bank = self.get_nearest_tag(self.TAG_BLUE)
+                    bank = self.get_nearest_tag(self.BLUE)
                     if bank is None:
                         self.log_msg("Could not find bank.")
                         self.set_status(BotStatus.STOPPED)
                         return
-                    self.mouse.move_to(bank)
+                    self.mouse.move_to(bank.random_point())
                     self.mouse.click()
                     time.sleep(3)
                     if not self.deposit_inventory():
@@ -102,31 +103,27 @@ class OSNRWoodcutting(OSNRBot):
 
             # Check to logout
             if self.logout_on_friends and self.friends_nearby():
-                self.log_msg("Friends nearby. Logging out.")
-                self.logout()
-                self.set_status(BotStatus.STOPPED)
+                self.__logout("Friends nearby. Logging out.")
                 return
 
             # Find a tree
-            tree = self.get_nearest_tag(self.TAG_PINK)
+            tree = self.get_nearest_tag(self.PINK)
             if tree is None:
                 failed_searches += 1
                 if failed_searches > 10:
-                    self.log_msg("No tagged trees found. Logging out.")
-                    self.logout()
-                    self.set_status(BotStatus.STOPPED)
+                    self.__logout("No tagged trees found. Logging out.")
                     return
                 time.sleep(1)
                 continue
 
             # Click tree and wait to start cutting
-            self.mouse.move_to(tree)
+            self.mouse.move_to(tree.random_point())
             self.mouse.click()
             time.sleep(3)
 
             # Wait so long as the player is cutting
             timer = 0
-            while bcv.search_text_in_rect(self.rect_game_view, ["Woodcutting"], ["Not"]):
+            while self.is_player_doing_action("Woodcutting"):
                 self.update_progress((time.time() - start_time) / end_time)
                 if not self.status_check_passed():
                     return
@@ -142,6 +139,9 @@ class OSNRWoodcutting(OSNRBot):
             self.update_progress((time.time() - start_time) / end_time)
 
         self.update_progress(1)
-        self.log_msg("Finished.")
+        self.__logout("Finished.")
+
+    def __logout(self, msg):
+        self.log_msg(msg)
         self.logout()
         self.set_status(BotStatus.STOPPED)
