@@ -131,7 +131,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         self.mouse.move_to(self.win.cp_tab(11))
         pag.click()
         time.sleep(1)
-        self.mouse.move_rel(0, -53, 3)  # Logout button
+        self.mouse.move_rel(0, -53, 5, 5)  # Logout button
         pag.click()
     
     def move_camera_up(self):
@@ -187,14 +187,14 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         return hp_bars.mean(axis=(0, 1)) != 0.0
 
     # --- NPC/Object Detection ---
-    def get_nearest_tagged_NPC(self, include_in_combat: bool = False) -> Point:
+    def get_nearest_tagged_NPC(self, include_in_combat: bool = False) -> RuneLiteObject:
         # sourcery skip: use-next
         '''
         Locates the nearest tagged NPC, optionally including those in combat.
         Args:
             include_in_combat: Whether to include NPCs that are already in combat.
         Returns:
-            A Shape object or None if no tagged NPCs are found.
+            A RuneLiteObject object or None if no tagged NPCs are found.
         '''
         game_view = self.win.rect_game_view()
         img_game_view = bcv.screenshot(game_view)
@@ -235,7 +235,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             shape.set_rectangle_reference(rect_function)
         return shapes
     
-    def get_nearest_tag(self, color: List[int]) -> Point:
+    def get_nearest_tag(self, color: List[int]) -> RuneLiteObject:
         '''
         Finds the nearest Shape of a particular color within the game view and returns its center Point.
         Args:

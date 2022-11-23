@@ -103,7 +103,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         Closes the bank interface.
         '''
         self.log_msg("Closing bank...")
-        self.mouse.move_to(self.win.bank_close_btn(), destination_variance=1)
+        self.mouse.move_to(self.win.bank_close_btn())
         pag.click()
         time.sleep(1)
 
@@ -115,7 +115,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if empty is None:
             self.log_msg("Cannot find deposit button.")
             return False
-        self.mouse.move_to(empty, destination_variance=3)
+        self.mouse.move_to(empty)
         pag.click()
         time.sleep(1)
         return True
@@ -125,13 +125,13 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         Loads the default preset from the bank interface.
         '''
         self.log_msg("Loading preset...")
-        self.mouse.move_to(self.win.presets_btn(), destination_variance=2)
+        self.mouse.move_to(self.win.presets_btn())
         pag.click()
         time.sleep(1)
-        self.mouse.move_to(self.win.presets_load_btn(), destination_variance=1)
+        self.mouse.move_to(self.win.presets_load_btn())
         pag.click()
         time.sleep(1)
-        self.mouse.move_to(self.win.presets_close_btn(), destination_variance=1)
+        self.mouse.move_to(self.win.presets_close_btn())
         pag.click()
         time.sleep(1)
 
@@ -185,10 +185,10 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         Teleports to the home location.
         '''
         self.log_msg("Teleporting to home...")
-        self.mouse.move_to(self.win.cp_tab(7), destination_variance=2)
+        self.mouse.move_to(self.win.cp_tab(7))
         pag.click()
         time.sleep(0.5)
-        self.mouse.move_to(self.win.spellbook_home_tele(spellbook), destination_variance=1, mouseSpeed='medium')
+        self.mouse.move_to(self.win.spellbook_home_tele(spellbook), mouseSpeed='medium')
         pag.click()
 
     def teleport_to(self, spellbook: Spellbook, location: str) -> bool:
@@ -201,7 +201,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
             True if successful, False otherwise.
         '''
         self.log_msg(f"Teleporting to {location}...")
-        self.mouse.move_to(self.win.cp_tab(7), destination_variance=2, mouseSpeed='medium')
+        self.mouse.move_to(self.win.cp_tab(7), mouseSpeed='medium')
         pag.click()
         time.sleep(0.5)
 
@@ -230,7 +230,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if no_result_rgb == pag.pixel(new_result.x, new_result.y):
             self.log_msg(f"No results found for {location}.")
             return False
-        self.mouse.move_to(new_result, destination_variance=1,mouseSpeed='medium')
+        self.mouse.move_to(new_result, mouseSpeed='medium')
         pag.click()
         self.log_msg("Teleport successful.")
         return True
@@ -265,7 +265,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         '''
         self.log_msg("Toggling auto retaliate...")
         # click the combat tab
-        self.mouse.move_to(self.win.cp_tab(1), destination_variance=3)
+        self.mouse.move_to(self.win.cp_tab(1))
         pag.click()
         time.sleep(0.5)
 
@@ -276,7 +276,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
                                                 precision=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.mouse.move_to(self.win.get_relative_point(644, 402), destination_variance=5, mouseSpeed='medium')
+            self.mouse.move_to(self.win.get_relative_point(644, 402), mouseSpeed='medium')
             pag.click()
         elif toggle_on:
             print("Auto retaliate is already on.")

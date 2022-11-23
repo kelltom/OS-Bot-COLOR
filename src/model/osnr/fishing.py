@@ -1,7 +1,7 @@
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 from utilities.APIs.status_socket import StatusSocket
-from utilities.geometry import Point, Shape
+from utilities.geometry import Point, RuneLiteObject
 import pyautogui as pag
 import time
 import utilities.bot_cv as bcv

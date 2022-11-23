@@ -3,11 +3,12 @@ import numpy as np
 import pyautogui as pag
 import pytweening
 import time
+from utilities.geometry import Rectangle
 import random as rd
 
 class MouseUtils:
 
-    def move_to(self, destination: tuple, destination_variance: int = 0, **kwargs):
+    def move_to(self, destination: tuple, **kwargs):
         # sourcery skip: use-contextlib-suppress
         '''
         Use Bezier curve to simulate human-like mouse movements.
@@ -34,10 +35,6 @@ class MouseUtils:
         dest_x = destination[0]
         dest_y = destination[1]
 
-        if destination_variance != 0:
-            dest_x += np.random.randint(-destination_variance, destination_variance)
-            dest_y += np.random.randint(-destination_variance, destination_variance)
-
         start_x, start_y = pag.position()
         for curve_x, curve_y in HumanCurve((start_x, start_y),
                                            (dest_x, dest_y),
@@ -53,19 +50,23 @@ class MouseUtils:
             pag.moveTo((curve_x, curve_y))
             start_x, start_y = curve_x, curve_y
 
-    def move_rel(self, x: int, y: int, destination_variance: int = 0, **kwargs):
+    def move_rel(self, x: int, y: int, x_var: int = 0, y_var: int = 0, **kwargs):
         '''
         Use Bezier curve to simulate human-like relative mouse movements.
         Args:
             x: x distance to move
             y: y distance to move
-            destination_variance: pixel variance to add to the destination point (default 0)
+            x_var: random upper-bound pixel variance to add to the x distance (default 0)
+            y_var: random upper-bound pixel variance to add to the y distance (default 0)
         Kwargs:
-            knotsCount: default 0 to prevent movement from closing right-click menus in game.
-            See MouseUtils.move_to()
+            knotsCount: if right-click menus are being cancelled due to erratic mouse movements,
+                        try setting this value to 0.
         '''
-        self.move_to((pag.position()[0] + x, pag.position()[1] + y),
-                      destination_variance, **kwargs, knotsCount=0)
+        if x_var != 0:
+            x += np.random.randint(-x_var, x_var)
+        if y_var != 0:
+            y += np.random.randint(-y_var, y_var)
+        self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
     
     def click(self):
         pag.click()
