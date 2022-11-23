@@ -3,13 +3,12 @@ The OSNRBot class contains properties and functions that are specific to the OSN
 be inherited by OSNR script classes.
 '''
 from abc import ABCMeta
-
-import utilities.bot_cv as bcv
 from enum import Enum
 from model.runelite_bot import RuneLiteBot, RuneLiteWindow
 from utilities.bot_cv import Point
 import pyautogui as pag
 import time
+import utilities.bot_cv as bcv
 
 class Spellbook(Enum):
     '''

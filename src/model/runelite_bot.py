@@ -98,7 +98,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         # screenshot minimap
         minimap = bcv.screenshot(self.win.rect_minimap())
-        only_friends = rcv.isolate_colors(minimap, [self.GREEN])
+        only_friends = bcv.isolate_colors(minimap, [self.GREEN])
         #bcv.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
         return mean != 0.0
@@ -199,8 +199,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         game_view = self.win.rect_game_view()
         img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
-        img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
-        img_hp_bars = rcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
+        img_npcs = bcv.isolate_colors(img_game_view, [self.BLUE])
+        img_hp_bars = bcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
         # Locate potential NPCs in image by determining contours
         shapes = rcv.extract_objects(img_npcs)
         if not shapes:
@@ -229,7 +229,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         img_rect = bcv.screenshot(rect_function())
         bcv.save_image("get_all_tagged_in_rect.png", img_rect)
-        isolated_colors = rcv.isolate_colors(img_rect, [color])
+        isolated_colors = bcv.isolate_colors(img_rect, [color])
         shapes = rcv.extract_objects(isolated_colors)
         for shape in shapes:
             shape.set_rectangle_reference(rect_function)
