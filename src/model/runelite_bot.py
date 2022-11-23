@@ -12,7 +12,6 @@ from model.bot import Bot, BotStatus
 from model.window import Window
 from typing import List, Callable
 from utilities.geometry import Rectangle, Point, RuneLiteObject
-from utilities.runelite_cv import isolate_colors
 import numpy as np
 import pyautogui as pag
 import time
@@ -182,7 +181,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         # Take a screenshot of rect
         char_screenshot = bcv.screenshot(char_rect)
         # Isolate HP bars in that rectangle
-        hp_bars = isolate_colors(char_screenshot, [self.RED, self.GREEN])
+        hp_bars = bcv.isolate_colors(char_screenshot, [self.RED, self.GREEN])
         # If there are any HP bars, return True
         return hp_bars.mean(axis=(0, 1)) != 0.0
 
