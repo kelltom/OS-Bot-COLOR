@@ -105,7 +105,7 @@ class RuneLiteObject:
             width: The width of the object.
             height: The height of the object.
             center: The center of the object.
-            axis: A 2-column stacked array of points that make up the object.
+            axis: A 2-column stacked array of points that exist inside the object outline.
         '''
         self._x_min = x_min
         self._x_max = x_max
