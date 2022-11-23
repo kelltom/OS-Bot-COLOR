@@ -3,10 +3,12 @@ Thieving bot for OSNR. Pickpockets from NPCs.
 '''
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
+from typing import List
+from utilities.APIs.status_socket import StatusSocket
+from utilities.geometry import Point, RuneLiteObject
 import pathlib
 import pyautogui as pag
 import time
-from utilities.bot_cv import Point
 import utilities.bot_cv as bcv
 
 
@@ -14,16 +16,16 @@ class OSNRThievingPickpocket(OSNRBot):
     def __init__(self):
         title = "Thieving: Pickpocket"
         description = ("This bot steals from NPCs in OSNR. Position your character near the NPC you wish to steal from. " +
-                       "If you have food, tag all in inventory as light-blue. Start bot with full HP, " +
-                       "and empty last inventory slot. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
+                       "If you have food, tag all in inventory as light-blue. Start bot with > 50% HP, If you risk " +
+                       "attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
         super().__init__(title=title, description=description)
-        self.running_time = 0
+        self.running_time = 5
         self.logout_on_friends = False
-        self.pickpocket_option = 0
+        self.pickpocket_option = 1
         self.compass_direction = 0
-        self.should_click_coin_pouch = False
-        self.should_drop_inv = False
-        self.protect_rows = 0
+        self.should_click_coin_pouch = True
+        self.should_drop_inv = True
+        self.protect_rows = 5
         self.coin_pouch_path = f"{pathlib.Path(__file__).parent.parent.parent.resolve()}/images/bot/near_reality/coin_pouch.png"
 
     def create_options(self):
@@ -94,6 +96,7 @@ class OSNRThievingPickpocket(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
+        api = StatusSocket()
         self.setup_osnr(zoom_percentage=50)
 
         # Config camera
@@ -105,14 +108,12 @@ class OSNRThievingPickpocket(OSNRBot):
             self.set_compass_south()
         elif self.compass_direction == 3:
             self.set_compass_west()
-        
+
         self.move_camera_up()
 
         # Anchors/counters
-        hp_threshold_pos = Point(541, 394)  # TODO: implement checking health threshold
+        hp_threshold_pos = self.get_hp_pos()  # TODO: implement checking health threshold
         hp_threshold_rgb = pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y)
-        last_inventory_pos = self.inventory_slots[6][3]  # TODO: or [-1][-1]?
-        last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         npc_search_fail_count = 0
         theft_count = 0
         no_pouch_count = 0
@@ -122,47 +123,42 @@ class OSNRThievingPickpocket(OSNRBot):
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
             # Check if we should eat
+            hp_threshold_pos = self.get_hp_pos()
             while pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y) != hp_threshold_rgb:
                 if not self.status_check_passed():
                     return
-                foods = self.get_all_tagged_in_rect(rect=self.rect_inventory, color=self.TAG_BLUE)
-                if len(foods) > 0:
+                foods: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.rect_inventory, color=self.BLUE)
+                if foods:
                     self.log_msg("Eating...")
-                    self.mouse.move_to(foods[0])
-                    time.sleep(0.3)
-                    pag.click()
+                    self.__click_food(foods[0])
                     if len(foods) > 1:  # eat another if available
                         time.sleep(1)
-                        self.mouse.move_to(foods[1])
-                        time.sleep(0.3)
-                        pag.click()
+                        self.__click_food(foods[1])
                 else:
-                    self.log_msg("Out of food. Aborting...")
-                    self.logout()
-                    self.set_status(BotStatus.STOPPED)
+                    self.__logout("Out of food. Aborting...")
                     return
 
             if not self.status_check_passed():
                 return
 
             # Check if we should drop inventory
-            if self.should_drop_inv and pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
+            if self.should_drop_inv and api.get_is_inv_full():
                 self.drop_inventory(skip_rows=self.protect_rows)
 
             if not self.status_check_passed():
                 return
 
             # Steal from NPC
-            npc_pos = self.get_nearest_tagged_NPC(game_view=self.rect_game_view)
+            npc_pos: RuneLiteObject = self.get_nearest_tag(self.BLUE)
             if npc_pos is not None:
-                self.mouse.move_to(npc_pos, duration=0.1)
+                self.mouse.move_to(npc_pos.random_point(), mouseSpeed='fastest')
                 if self.pickpocket_option != 0:
                     pag.rightClick()
                     if self.pickpocket_option == 1:
                         delta_y = 41
                     elif self.pickpocket_option == 2:
                         delta_y = 56
-                    self.mouse.move_rel(x=0, y=delta_y, duration=0.2)
+                    self.mouse.move_rel(x=0, y=delta_y, x_var=5, y_var=2, mouseSpeed="fastest")
                 pag.click()
                 if self.pickpocket_option == 0:
                     time.sleep(0.3)
@@ -178,11 +174,11 @@ class OSNRThievingPickpocket(OSNRBot):
                     return
 
             # Click coin pouch
-            if self.should_click_coin_pouch and theft_count % 10 == 0:
+            if self.should_click_coin_pouch and theft_count % 20 == 0:
                 self.log_msg("Clicking coin pouch...")
-                pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.rect_inventory, conf=0.9)
+                pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.win.rect_inventory(), precision=0.9)
                 if pouch:
-                    self.mouse.move_to(pouch, duration=0.7)
+                    self.mouse.move_to(pouch, mouseSpeed='fast')
                     pag.click()
                     time.sleep(0.2)
                     no_pouch_count = 0
@@ -195,9 +191,7 @@ class OSNRThievingPickpocket(OSNRBot):
 
             # Check for mods
             if self.logout_on_friends and self.friends_nearby():
-                self.log_msg("Friends detected nearby...")
-                self.logout()
-                self.set_status(BotStatus.STOPPED)
+                self.__logout("Friends detected nearby...")
                 return
 
             if not self.status_check_passed():
@@ -207,6 +201,20 @@ class OSNRThievingPickpocket(OSNRBot):
             self.update_progress((time.time() - start_time) / end_time)
 
         self.update_progress(1)
-        self.log_msg("Finished.")
+        self.__logout("Finished.")
+
+    def __click_food(self, food: RuneLiteObject):
+        self.mouse.move_to(food.random_point())
+        time.sleep(0.3)
+        pag.click()
+
+    def __logout(self, msg):
+        self.log_msg(msg)
         self.logout()
         self.set_status(BotStatus.STOPPED)
+    
+    def get_hp_pos(self) -> Point:
+        '''
+        Gets position on HP bar that we are checking the color of.
+        '''
+        return self.win.get_relative_point(541, 394)
