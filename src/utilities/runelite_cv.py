@@ -24,25 +24,24 @@ def extract_shapes(image: cv2.Mat) -> List[Shape]:
         return []
     # Find the contours
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    black_image = np.zeros(mask.shape, dtype="uint8")
     # Extract the shapes from each contoured object
     shapes: List[Shape] = []
     for objects in range(len(contours)):
         if len(contours[objects]) > 2:
             # Fill in the outline with white pixels
-            mask_copy = mask.copy()
-            cv2.drawContours(mask_copy, contours, objects, (255, 255, 255), -1)
-            # Clean up imperfections
+            black_copy = black_image.copy()
+            cv2.drawContours(black_copy, contours, objects, (255, 255, 255), -1)
             kernel = np.ones((7, 7), np.uint8)
-            init_object = cv2.morphologyEx(mask_copy, cv2.MORPH_OPEN, kernel)
-            bcv.save_image("extract_shapes.png", init_object)
-            if np.count_nonzero(init_object == 255):
-                indices = np.where(init_object == [255])
+            black_copy = cv2.morphologyEx(black_copy, cv2.MORPH_OPEN, kernel)
+            black_copy = cv2.erode(black_copy, kernel, iterations=2)
+            if np.count_nonzero(black_copy == 255):
+                indices = np.where(black_copy == [255])
                 if indices[0].size > 0:
-                    # Convert to Shape
                     x_min, x_max = np.min(indices[1]), np.max(indices[1])
                     y_min, y_max = np.min(indices[0]), np.max(indices[0])
                     width, height = x_max - x_min, y_max - y_min
-                    center = (int(x_min + (width / 2)), int(y_min + (height / 2)))
+                    center = [int(x_min + (width / 2)), int(y_min + (height / 2))]
                     axis = np.column_stack((indices[1], indices[0]))
                     shapes.append(Shape(x_min, x_max, y_min, y_max, width, height, center, axis))
     return shapes or []
