@@ -3,6 +3,9 @@ This class contains functions for interacting with the game client window. All B
 Window object as a property. This class allows you to locate important points/areas on screen no 
 matter where the game client is positioned. This class can be extended to add more functionality
 (See RuneLiteWindow within runelite_bot.py for an example). 
+
+TODO: Nearly all defined rectangle functions within this class should eventually be converted to 
+use template matching instead of hardcoded pixels.
 '''
 from deprecated import deprecated
 from utilities.geometry import Rectangle, Point

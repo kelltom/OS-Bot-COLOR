@@ -114,9 +114,9 @@ class StatusSocket():
 		Returns:
 			True if the player is idle, False otherwise.
 		'''
-		# run a loop for 1 second
+		# run a loop for 0.6 second
 		start_time = time.time()
-		while time.time() - start_time < 1:
+		while time.time() - start_time < 0.8:
 			if player_data["attack"]["animationId"] != -1:
 				return False
 		return True

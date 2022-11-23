@@ -1,6 +1,7 @@
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
-from utilities.geometry import Point
+from utilities.APIs.status_socket import StatusSocket
+from utilities.geometry import Point, RuneLiteObject
 import pyautogui as pag
 import time
 import utilities.bot_cv as bcv
@@ -44,6 +45,7 @@ class OSNRFishing(OSNRBot):
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
+        api = StatusSocket()
         self.setup_osnr(zoom_percentage=50)
 
         # Set compass
@@ -53,8 +55,6 @@ class OSNRFishing(OSNRBot):
 
         self.move_camera_up()
 
-        last_inventory_pos = self.win.inventory_slots()[-1]
-        last_inventory_rgb = pag.pixel(last_inventory_pos.x, last_inventory_pos.y)
         fished = 0
         failed_searches = 0
 
@@ -66,8 +66,7 @@ class OSNRFishing(OSNRBot):
                 return
 
             # Check to drop inventory
-            last_inventory_pos = self.win.inventory_slots()[-1]
-            if pag.pixel(last_inventory_pos.x, last_inventory_pos.y) != last_inventory_rgb:
+            if api.get_is_inv_full():
                 self.drop_inventory(skip_rows=1)
                 fished += 25
                 self.log_msg(f"Fishes fished: ~{fished}")

@@ -106,7 +106,7 @@ class OSNRAstralRunes(OSNRBot):
                 return
 
             # Move closer to altar
-            self.mouse.move_to(Point(667, 125))
+            self.mouse.move_to(self.win.get_relative_point(667, 125))
             pag.click()
             time.sleep(3)
 
@@ -114,12 +114,12 @@ class OSNRAstralRunes(OSNRBot):
                 return
 
             # Click the altar
-            points = self.get_all_tagged_in_rect(self.win.rect_game_view(), self.PINK)
-            if len(points) == 0:
+            shapes = self.get_all_tagged_in_rect(self.win.rect_game_view, self.PINK)
+            if len(shapes) == 0:
                 self.log_msg("Failed to find altar.")
                 self.set_status(BotStatus.STOPPED)
                 return
-            self.mouse.move_to(points[0])
+            self.mouse.move_to(shapes[0].random_point())
             pag.click()
 
             runes_crafted += 28

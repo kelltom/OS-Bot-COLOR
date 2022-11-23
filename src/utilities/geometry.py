@@ -1,4 +1,7 @@
-from typing import NamedTuple
+from utilities.random_util import RandomUtil
+from typing import NamedTuple, Callable, List
+import math
+import numpy as np
 
 Point = NamedTuple("Point", x=int, y=int)
 
@@ -89,9 +92,93 @@ class Rectangle:
         return self.__str__()
 
 
-def Shape():
-    # Should have a color, and all the properties required to draw it and figure out points.
-    # Then, it would be passed to a cv function to find those points.
+class RuneLiteObject:
 
-    # A RuneLiteBot function would be the one to fetch the shapes - prob using a cv function.
-    pass
+    rect_ref = None
+
+    def __init__(self, x_min, x_max, y_min, y_max, width, height, center, axis):
+        '''
+        Represents an outlined object on screen.
+        Args:
+            x_min, x_max: The min/max x coordinates of the object.
+            y_min, y_max: The min/max y coordinates of the object.
+            width: The width of the object.
+            height: The height of the object.
+            center: The center of the object.
+            axis: A 2-column stacked array of points that exist inside the object outline.
+        '''
+        self._x_min = x_min
+        self._x_max = x_max
+        self._y_min = y_min
+        self._y_max = y_max
+        self._width = width
+        self._height = height
+        self._center = center
+        self._axis = axis
+    
+    def set_rectangle_reference(self, rect_function: Callable):
+        '''
+        Sets the rectangle reference of the object.
+        Args:
+            rect_function: A reference to the function used to get info for the rectangle
+                           that this object belongs in (E.g., Bot.win.rect_game_view).
+        '''
+        self.rect_ref = rect_function
+        
+    def center(self) -> Point:  # sourcery skip: raise-specific-error
+        '''
+        Gets the center of the object relative to the client.
+        Returns:
+            A Point.
+        '''
+        if self.rect_ref is None:
+            raise Exception("Rectangle reference not set for object.")
+        rect: Rectangle = self.rect_ref()
+        return Point(self._center[0] + rect.left, self._center[1] + rect.top)
+
+    def distance_from_rect_center(self) -> float:
+        '''
+        Gets the distance between the object and it's Rectangle parent center.
+        Useful for sorting lists of RuneLiteObjects.
+        Returns:
+            The distance from the point to the center of the object.
+        '''
+        center: Point = self.center()
+        rect: Rectangle = self.rect_ref()
+        rect_center: Point = rect.get_center()
+        return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
+
+    def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
+        '''
+        Gets a random point within the object.
+        Args:
+            custom_seeds: A list of custom seeds to use for the random point. You can generate
+                          a seeds list using RandomUtil's random_seeds() function with args.
+                          Default: A random seed list based on current date and object position.
+        Returns:
+            A random Point within the object.
+        '''
+        if custom_seeds is None:
+            custom_seeds = RandomUtil.random_seeds(mod=(self._center[0] + self._center[1]))
+        # TODO make it return the point relative to the window - right now it's just relative to the image
+        x, y = RandomUtil.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
+        return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.center()
+
+    def __relative_point(self, point: List[int]) -> Point:
+        '''
+        Gets a point relative to the object's container (and thus, the client window).
+        Args:
+            point: The point to get relative to the object in the format [x, y].
+        Returns:
+            A Point relative to the client window.
+        '''
+        rect: Rectangle = self.rect_ref()
+        return Point(point[0] + rect.left, point[1] + rect.top)
+
+    def __point_exists(self, p: list) -> bool:
+        '''
+        Checks if a point exists in the object.
+        Args:
+            p: The point to check in the format [x, y].
+        '''
+        return (self._axis == np.array(p)).all(axis=1).any()

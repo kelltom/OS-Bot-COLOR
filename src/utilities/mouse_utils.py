@@ -1,13 +1,14 @@
+from pyclick import HumanCurve
+import numpy as np
 import pyautogui as pag
 import pytweening
-import numpy as np
-import random as rd
 import time
-from pyclick import HumanCurve
+from utilities.geometry import Rectangle
+import random as rd
 
 class MouseUtils:
 
-    def move_to(self, destination: tuple, destination_variance: int = 0, **kwargs):
+    def move_to(self, destination: tuple, **kwargs):
         # sourcery skip: use-contextlib-suppress
         '''
         Use Bezier curve to simulate human-like mouse movements.
@@ -15,31 +16,24 @@ class MouseUtils:
             destination: x, y tuple of the destination point
             destination_variance: pixel variance to add to the destination point (default 0)
         Kwargs:
-            knotsCount: number of knots to use in the curve, higher value = more erratic movements (default 2)
+            knotsCount: number of knots to use in the curve, higher value = more erratic movements
+                        (default determined by distance)
+            mouseSpeed: speed of the mouse (options: 'slowest', 'slow', 'medium', 'fast', 'fastest')
+                        (default 'fast')
             tween: tweening function to use (default easeOutQuad)
-            targetPoints: number of points to use in the curve, where more points = slower/smoother movement
-                          (default rand(20, 50), min 10, max 100)
         '''
         offsetBoundaryX = kwargs.get("offsetBoundaryX", 100)
         offsetBoundaryY = kwargs.get("offsetBoundaryY", 100)
-        knotsCount = kwargs.get("knotsCount", 2)
+        knotsCount = kwargs.get("knotsCount", self.__calculate_knots(destination))
         distortionMean = kwargs.get("distortionMean", 1)
         distortionStdev = kwargs.get("distortionStdev", 1)
         distortionFrequency = kwargs.get("distortionFrequency", 0.5)
         tween = kwargs.get("tweening", pytweening.easeOutQuad)
-        targetPoints = kwargs.get("targetPoints", rd.randint(20, 50))
-
-        if targetPoints < 10:
-            targetPoints = 10
-        elif targetPoints > 100:
-            targetPoints = 100
+        mouseSpeed = kwargs.get("mouseSpeed", "fast")
+        mouseSpeed = self.__get_mouse_speed(mouseSpeed)
 
         dest_x = destination[0]
         dest_y = destination[1]
-
-        if destination_variance != 0:
-            dest_x += np.random.randint(-destination_variance, destination_variance)
-            dest_y += np.random.randint(-destination_variance, destination_variance)
 
         start_x, start_y = pag.position()
         for curve_x, curve_y in HumanCurve((start_x, start_y),
@@ -51,39 +45,79 @@ class MouseUtils:
                                            distortionStdev=distortionStdev,
                                            distortionFrequency=distortionFrequency,
                                            tween=tween,
-                                           targetPoints=targetPoints
+                                           targetPoints=mouseSpeed
                                            ).points:
             pag.moveTo((curve_x, curve_y))
             start_x, start_y = curve_x, curve_y
 
-    def move_rel(self, x: int, y: int, destination_variance: int = 0, **kwargs):
+    def move_rel(self, x: int, y: int, x_var: int = 0, y_var: int = 0, **kwargs):
         '''
         Use Bezier curve to simulate human-like relative mouse movements.
         Args:
             x: x distance to move
             y: y distance to move
-            destination_variance: pixel variance to add to the destination point (default 0)
-            kwargs: see move_to()
+            x_var: random upper-bound pixel variance to add to the x distance (default 0)
+            y_var: random upper-bound pixel variance to add to the y distance (default 0)
+        Kwargs:
+            knotsCount: if right-click menus are being cancelled due to erratic mouse movements,
+                        try setting this value to 0.
         '''
-        self.move_to((pag.position()[0] + x, pag.position()[1] + y), destination_variance, **kwargs)
-
+        if x_var != 0:
+            x += np.random.randint(-x_var, x_var)
+        if y_var != 0:
+            y += np.random.randint(-y_var, y_var)
+        self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
+    
     def click(self):
         pag.click()
+    
+    def right_click(self):
+        pag.rightClick()
+    
+    def __calculate_knots(self, destination: tuple):
+        '''
+        Calculate the knots to use in the Bezier curve based on distance.
+        Args:
+            destination: x, y tuple of the destination point
+        '''
+        # calculate the distance between the start and end points
+        distance = np.sqrt((destination[0] - pag.position()[0]) ** 2 + (destination[1] - pag.position()[1]) ** 2)
+        res = round(distance / 200)
+        return min(res, 3)
+    
+    def __get_mouse_speed(self, speed: str) -> int:
+        '''
+        Converts a text speed to a numeric speed for HumanCurve (targetPoints).
+        '''
+        if speed == "slowest":
+            return rd.randint(85, 100)
+        elif speed == "slow":
+            return rd.randint(65, 80)
+        elif speed == "medium":
+            return rd.randint(45, 60)
+        elif speed == "fast":
+            return rd.randint(20, 40)
+        elif speed == "fastest":
+            return rd.randint(10, 15)
+        else:
+            raise ValueError("Invalid mouse speed. Try 'slowest', 'slow', 'medium', 'fast', or 'fastest'.")
 
 
 if __name__ == '__main__':
     mouse = MouseUtils()
-    from bot_cv import Point
-    mouse.move_to(destination=Point(646, 213), targetPoints=100)
+    from geometry import Point
+    mouse.move_to((1,1))
     time.sleep(1)
-    mouse.move_to(destination=(180, 500), knotsCount=4)
+    mouse.move_to(destination=Point(765, 503), mouseSpeed="slowest")
     time.sleep(1)
-    mouse.move_to(destination=(300, 350), distortionStdev=2)
+    mouse.move_to(destination=(1, 1), mouseSpeed='slow')
     time.sleep(1)
-    mouse.move_to(destination=(300, 200))
+    mouse.move_to(destination=(300, 350), mouseSpeed='medium')
     time.sleep(1)
-    mouse.move_to(destination=(90, 80), targetPoints=10)
+    mouse.move_to(destination=(400, 450), mouseSpeed='fast')
     time.sleep(1)
-    mouse.move_rel(x=3, y=50, targetPoints=10)
+    mouse.move_to(destination=(234, 122), mouseSpeed='fastest')
     time.sleep(1)
-    mouse.move_rel(x=60, y=2)
+    mouse.move_rel(0, 100)
+    time.sleep(1)
+    mouse.move_rel(0, 100)

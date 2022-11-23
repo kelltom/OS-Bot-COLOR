@@ -86,7 +86,7 @@ class OSNRWoodcutting(OSNRBot):
                         self.log_msg("Could not find bank.")
                         self.set_status(BotStatus.STOPPED)
                         return
-                    self.mouse.move_to(bank)
+                    self.mouse.move_to(bank.random_point())
                     self.mouse.click()
                     time.sleep(3)
                     if not self.deposit_inventory():
@@ -103,9 +103,7 @@ class OSNRWoodcutting(OSNRBot):
 
             # Check to logout
             if self.logout_on_friends and self.friends_nearby():
-                self.log_msg("Friends nearby. Logging out.")
-                self.logout()
-                self.set_status(BotStatus.STOPPED)
+                self.__logout("Friends nearby. Logging out.")
                 return
 
             # Find a tree
@@ -113,15 +111,13 @@ class OSNRWoodcutting(OSNRBot):
             if tree is None:
                 failed_searches += 1
                 if failed_searches > 10:
-                    self.log_msg("No tagged trees found. Logging out.")
-                    self.logout()
-                    self.set_status(BotStatus.STOPPED)
+                    self.__logout("No tagged trees found. Logging out.")
                     return
                 time.sleep(1)
                 continue
 
             # Click tree and wait to start cutting
-            self.mouse.move_to(tree)
+            self.mouse.move_to(tree.random_point())
             self.mouse.click()
             time.sleep(3)
 
@@ -143,6 +139,9 @@ class OSNRWoodcutting(OSNRBot):
             self.update_progress((time.time() - start_time) / end_time)
 
         self.update_progress(1)
-        self.log_msg("Finished.")
+        self.__logout("Finished.")
+
+    def __logout(self, msg):
+        self.log_msg(msg)
         self.logout()
         self.set_status(BotStatus.STOPPED)
