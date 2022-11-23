@@ -84,7 +84,7 @@ class OSNRMining(OSNRBot):
 
             # Get the rocks
             rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.rect_game_view, self.PINK)
-            if rocks is None:
+            if not rocks:
                 failed_searches += 1
                 if failed_searches > 5:
                     self.__logout("Failed to find a rock to mine. Logging out.")
@@ -95,9 +95,11 @@ class OSNRMining(OSNRBot):
 
             # Whack the rock
             failed_searches = 0
-            self.log_msg("Clicking a rock...")
             self.mouse.move_to(rocks[0].random_point(), rect=Rectangle(0, 0, 0, 0), mouseSpeed="fastest")
-            self.mouse.click()
+            if not self.mouse.click():
+                self.log_msg("Failed to click rock.")
+                time.sleep(1)
+                continue
 
             while not api.get_is_player_idle():
                 if not self.status_check_passed():

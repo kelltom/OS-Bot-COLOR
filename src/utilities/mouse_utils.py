@@ -1,10 +1,11 @@
 from pyclick import HumanCurve
+from utilities.geometry import Rectangle, Point
 import numpy as np
 import pyautogui as pag
 import pytweening
-import time
-from utilities.geometry import Rectangle
 import random as rd
+import time
+import utilities.bot_cv as bcv
 
 class MouseUtils:
 
@@ -68,12 +69,32 @@ class MouseUtils:
             y += np.random.randint(-y_var, y_var)
         self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
     
-    def click(self):
+    def click(self) -> bool:
+        '''
+        Clicks on the current mouse position.
+        Returns:
+            True if the click was red, False if the click was yellow.
+        '''
         pag.click()
+        return self.__is_red_click()
     
     def right_click(self):
         pag.rightClick()
     
+    def __is_red_click(self) -> bool:
+        '''
+        Checks if a click was red, must be called directly after clicking.
+        Returns:
+            True if the click was red, False if the click was yellow.
+        '''
+        mouse_x, mouse_y = pag.position()
+        # Make rect around cursor for screenshot
+        mouse_rect = Rectangle.from_points(Point(mouse_x - 3, mouse_y - 3),
+                                           Point(mouse_x + 3, mouse_y + 3))
+        # Isolate red click from screenshot
+        mouse_red_click = bcv.isolate_colors(bcv.screenshot(mouse_rect), [[255, 0, 0]])
+        return np.any(mouse_red_click)
+
     def __calculate_knots(self, destination: tuple):
         '''
         Calculate the knots to use in the Bezier curve based on distance.
