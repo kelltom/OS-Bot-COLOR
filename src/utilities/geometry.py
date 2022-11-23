@@ -1,4 +1,4 @@
-from random_util import RandomUtil
+from utilities.random_util import RandomUtil
 from typing import NamedTuple, Callable, List
 import math
 import numpy as np
@@ -92,20 +92,20 @@ class Rectangle:
         return self.__str__()
 
 
-class Shape:
+class RuneLiteObject:
 
     rect_ref = None
 
     def __init__(self, x_min, x_max, y_min, y_max, width, height, center, axis):
         '''
-        Represents a shape on screen, typically used to represent tagged/outlined objects.
+        Represents an outlined object on screen.
         Args:
-            x_min, x_max: The min/max x coordinates of the shape.
-            y_min, y_max: The min/max y coordinates of the shape.
-            width: The width of the shape.
-            height: The height of the shape.
-            center: The center of the shape.
-            axis: A 2-column stacked array of points that make up the shape.
+            x_min, x_max: The min/max x coordinates of the object.
+            y_min, y_max: The min/max y coordinates of the object.
+            width: The width of the object.
+            height: The height of the object.
+            center: The center of the object.
+            axis: A 2-column stacked array of points that make up the object.
         '''
         self._x_min = x_min
         self._x_max = x_max
@@ -118,30 +118,30 @@ class Shape:
     
     def set_rectangle_reference(self, rect_function: Callable):
         '''
-        Sets the rectangle reference of the shape.
+        Sets the rectangle reference of the object.
         Args:
             rect_function: A reference to the function used to get info for the rectangle
-                           that this shape belongs in (E.g., Bot.win.rect_game_view).
+                           that this object belongs in (E.g., Bot.win.rect_game_view).
         '''
         self.rect_ref = rect_function
         
     def center(self) -> Point:  # sourcery skip: raise-specific-error
         '''
-        Gets the center of the shape relative to the client.
+        Gets the center of the object relative to the client.
         Returns:
             A Point.
         '''
         if self.rect_ref is None:
-            raise Exception("Rectangle reference not set for shape.")
+            raise Exception("Rectangle reference not set for object.")
         rect: Rectangle = self.rect_ref()
         return Point(self._center[0] + rect.left, self._center[1] + rect.top)
 
     def distance_from_rect_center(self) -> float:
         '''
-        Gets the distance between the shape and it's Rectangle parent center.
-        Useful for sorting lists of Shapes.
+        Gets the distance between the object and it's Rectangle parent center.
+        Useful for sorting lists of RuneLiteObjects.
         Returns:
-            The distance from the point to the center of the shape.
+            The distance from the point to the center of the object.
         '''
         center: Point = self.center()
         rect: Rectangle = self.rect_ref()
@@ -150,13 +150,13 @@ class Shape:
 
     def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
         '''
-        Gets a random point within the shape.
+        Gets a random point within the object.
         Args:
             custom_seeds: A list of custom seeds to use for the random point. You can generate
                           a seeds list using RandomUtil's random_seeds() function with args.
-                          Default: A random seed list based on current date and shape position.
+                          Default: A random seed list based on current date and object position.
         Returns:
-            A random Point within the shape.
+            A random Point within the object.
         '''
         if custom_seeds is None:
             custom_seeds = RandomUtil.random_seeds(mod=(self._center[0] + self._center[1]))
@@ -166,9 +166,9 @@ class Shape:
 
     def __relative_point(self, point: List[int]) -> Point:
         '''
-        Gets a point relative to the shape's container (and thus, the client window).
+        Gets a point relative to the object's container (and thus, the client window).
         Args:
-            point: The point to get relative to the shape in the format [x, y].
+            point: The point to get relative to the object in the format [x, y].
         Returns:
             A Point relative to the client window.
         '''
@@ -177,7 +177,7 @@ class Shape:
 
     def __point_exists(self, p: list) -> bool:
         '''
-        Checks if a point exists in the shape.
+        Checks if a point exists in the object.
         Args:
             p: The point to check in the format [x, y].
         '''

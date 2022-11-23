@@ -11,7 +11,7 @@ from deprecated import deprecated
 from model.bot import Bot, BotStatus
 from model.window import Window
 from typing import List, Callable
-from utilities.geometry import Rectangle, Point, Shape
+from utilities.geometry import Rectangle, Point, RuneLiteObject
 from utilities.runelite_cv import isolate_colors
 import numpy as np
 import pyautogui as pag
@@ -202,14 +202,14 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         img_npcs = rcv.isolate_colors(img_game_view, [self.BLUE])
         img_hp_bars = rcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
         # Locate potential NPCs in image by determining contours
-        shapes = rcv.extract_shapes(img_npcs)
+        shapes = rcv.extract_objects(img_npcs)
         if not shapes:
             print("No tagged NPCs found.")
             return None
         for shape in shapes:
             shape.set_rectangle_reference(self.win.rect_game_view)
         # Sort shapes by distance from player
-        shapes = sorted(shapes, key=Shape.distance_from_rect_center)
+        shapes = sorted(shapes, key=RuneLiteObject.distance_from_rect_center)
         if include_in_combat:
             return shapes[0]
         for shape in shapes:
@@ -217,7 +217,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 return shape
         return None
 
-    def get_all_tagged_in_rect(self, rect_function: Callable, color: List[int]) -> List[Shape]:
+    def get_all_tagged_in_rect(self, rect_function: Callable, color: List[int]) -> List[RuneLiteObject]:
         '''
         Finds all contours on screen of a particular color and returns a list of Shapes.
         Args:
@@ -230,7 +230,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         img_rect = bcv.screenshot(rect_function())
         bcv.save_image("get_all_tagged_in_rect.png", img_rect)
         isolated_colors = rcv.isolate_colors(img_rect, [color])
-        shapes = rcv.extract_shapes(isolated_colors)
+        shapes = rcv.extract_objects(isolated_colors)
         for shape in shapes:
             shape.set_rectangle_reference(rect_function)
         return shapes
@@ -244,7 +244,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             The nearest Shape to the character, or None if none found.
         '''
         if shapes := self.get_all_tagged_in_rect(self.win.rect_game_view, color):
-            shapes_sorted = sorted(shapes, key=Shape.distance_from_rect_center)
+            shapes_sorted = sorted(shapes, key=RuneLiteObject.distance_from_rect_center)
             return shapes_sorted[0]
         else:
             return None
