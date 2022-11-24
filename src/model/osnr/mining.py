@@ -95,7 +95,7 @@ class OSNRMining(OSNRBot):
 
             # Whack the rock
             failed_searches = 0
-            self.mouse.move_to(rocks[0].random_point(), rect=Rectangle(0, 0, 0, 0), mouseSpeed="fastest")
+            self.mouse.move_to(rocks[0].random_point(), mouseSpeed="fastest")
             if not self.mouse.click():
                 self.log_msg("Failed to click rock.")
                 time.sleep(1)
