@@ -30,6 +30,7 @@ class Rectangle:
         Args:
             start_point: The first point.
             end_point: The second point.
+            offset: The offset to apply to the rectangle.
         Returns:
             A Rectangle object.
         '''

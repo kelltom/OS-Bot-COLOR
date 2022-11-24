@@ -201,19 +201,19 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         img_npcs = bcv.isolate_colors(img_game_view, [self.BLUE])
         img_hp_bars = bcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
         # Locate potential NPCs in image by determining contours
-        shapes = rcv.extract_objects(img_npcs)
-        if not shapes:
+        objs = rcv.extract_objects(img_npcs)
+        if not objs:
             print("No tagged NPCs found.")
             return None
-        for shape in shapes:
-            shape.set_rectangle_reference(self.win.rect_game_view)
+        for obj in objs:
+            obj.set_rectangle_reference(self.win.rect_game_view)
         # Sort shapes by distance from player
-        shapes = sorted(shapes, key=RuneLiteObject.distance_from_rect_center)
+        objs = sorted(objs, key=RuneLiteObject.distance_from_rect_center)
         if include_in_combat:
-            return shapes[0]
-        for shape in shapes:
-            if not rcv.is_point_obstructed(shape._center, img_hp_bars):
-                return shape
+            return objs[0]
+        for obj in objs:
+            if not rcv.is_point_obstructed(obj._center, img_hp_bars):
+                return obj
         return None
 
     def get_all_tagged_in_rect(self, rect_function: Callable, color: List[int]) -> List[RuneLiteObject]:
@@ -222,23 +222,23 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Args:
             rect: rect_function: A reference to the function used to get info for the rectangle
                                  that this shape belongs in (E.g., Bot.win.rect_game_view - without brackets).
-            color: The color to search for [R,G,B].
+            color: The color to search for in [R, G, B] format.
         Returns:
-            A list of Shapes or empty list if none found.
+            A list of RuneLiteObjects or empty list if none found.
         '''
         img_rect = bcv.screenshot(rect_function())
         bcv.save_image("get_all_tagged_in_rect.png", img_rect)
         isolated_colors = bcv.isolate_colors(img_rect, [color])
-        shapes = rcv.extract_objects(isolated_colors)
-        for shape in shapes:
-            shape.set_rectangle_reference(rect_function)
-        return shapes
+        objs = rcv.extract_objects(isolated_colors)
+        for obj in objs:
+            obj.set_rectangle_reference(rect_function)
+        return objs
     
     def get_nearest_tag(self, color: List[int]) -> RuneLiteObject:
         '''
         Finds the nearest Shape of a particular color within the game view and returns its center Point.
         Args:
-            color: The color to search for [R,G,B].
+            color: The color to search for in [R, G, B] format.
         Returns:
             The nearest Shape to the character, or None if none found.
         '''

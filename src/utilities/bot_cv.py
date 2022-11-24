@@ -52,7 +52,7 @@ def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
     Isolates ranges of colors within an image and saves a new resulting image.
     Args:
         image: The image to process.
-        colors: A list of rcv Colors.
+        colors: A list of colors in [R, G, B] format.
     Returns:
         The image with the isolated colors (all shown as white).
     '''
@@ -95,7 +95,7 @@ def search_img_in_rect(img_path, rect: Rectangle, precision=0.8) -> Point:
     Args:
         img_path: The path to the image to search for.
         rect: The rectangle to search in.
-        conf: The confidence level of the search.
+        precision: The confidence level of the search.
     Returns:
         The coordinates of the center of the image if found (as a Point) relative to display,
         otherwise None.
