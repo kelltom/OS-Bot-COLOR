@@ -37,6 +37,22 @@ class Rectangle:
         start_point = Point(start_point.x + offset.x, start_point.y + offset.y)
         end_point = Point(end_point.x + offset.x, end_point.y + offset.y)
         return cls(start_point.x, start_point.y, end_point.x - start_point.x, end_point.y - start_point.y)
+    
+    def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
+        '''
+        Gets a random point within the Rectangle.
+        Args:
+            custom_seeds: A list of custom seeds to use for the random point. You can generate
+                            a seeds list using RandomUtil's random_seeds() function with args.
+                            Default: A random seed list based on current date and object position.
+        Returns:
+            A random Point within the Rectangle.
+        '''
+        if custom_seeds is None:
+            center = self.get_center()
+            custom_seeds = RandomUtil.random_seeds(mod=(center[0] + center[1]))
+        x, y = RandomUtil.random_point_in(self.left, self.top, self.width, self.height, custom_seeds)
+        return Point(x, y)
 
     def get_center(self) -> Point:
         '''
@@ -161,7 +177,6 @@ class RuneLiteObject:
         '''
         if custom_seeds is None:
             custom_seeds = RandomUtil.random_seeds(mod=(self._center[0] + self._center[1]))
-        # TODO make it return the point relative to the window - right now it's just relative to the image
         x, y = RandomUtil.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
         return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.center()
 
