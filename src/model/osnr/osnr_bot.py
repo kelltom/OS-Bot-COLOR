@@ -114,7 +114,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         if empty is None:
             self.log_msg("Cannot find deposit button.")
             return False
-        self.mouse.move_to(empty)
+        self.mouse.move_to(empty.random_point())
         pag.click()
         time.sleep(1)
         return True
@@ -155,11 +155,11 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
 
         bank_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap_bank_icon.png",
                                            self.win.rect_minimap(),
-                                           precision=0.8)
+                                           confidence=0.8)
         if bank_icon is None:
             self.log_msg("Bank icon not found.")
             return False
-        self.mouse.move_to(Point(bank_icon.x-3, bank_icon.y-3))
+        self.mouse.move_to(bank_icon.random_point())
         pag.click()
 
         if not self.status_check_passed():
@@ -262,25 +262,24 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         Args:
             toggle_on: Whether to turn on or off.
         '''
-        self.log_msg("Toggling auto retaliate...")
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling auto retaliate {state}...")
         # click the combat tab
         self.mouse.move_to(self.win.cp_tab(1))
         pag.click()
         time.sleep(0.5)
 
-        # Search for the auto retaliate button (deselected)
-        # If None, then auto retaliate is on.
-        auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal.png",
-                                                self.win.rect_inventory(),
-                                                precision=0.9)
-
-        if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
-            self.mouse.move_to(self.win.get_relative_point(644, 402), mouseSpeed='medium')
-            pag.click()
-        elif toggle_on:
-            print("Auto retaliate is already on.")
+        if toggle_on:
+            if auto_retal_btn := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal.png", self.win.rect_inventory()):
+                self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+            else:
+                self.log_msg("Auto retaliate is already on.")
+        elif auto_retal_btn := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal_on.png", self.win.rect_inventory()):
+            self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
+            self.mouse.click()
         else:
-            print("Auto retaliate is already off.")
+            self.log_msg("Auto retaliate is already off.")
 
     def setup_osnr(self, set_layout_fixed=True, logout_runelite=False, zoom_percentage=25):
         '''

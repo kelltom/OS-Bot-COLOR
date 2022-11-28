@@ -26,7 +26,7 @@ class OSNRThievingPickpocket(OSNRBot):
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
         self.protect_rows = 5
-        self.coin_pouch_path = f"{pathlib.Path(__file__).parent.parent.parent.resolve()}/images/bot/near_reality/coin_pouch.png"
+        self.coin_pouch_path = f"{bcv.BOT_IMAGES}/near_reality/coin_pouch.png"
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
@@ -176,9 +176,9 @@ class OSNRThievingPickpocket(OSNRBot):
             # Click coin pouch
             if self.should_click_coin_pouch and theft_count % 20 == 0:
                 self.log_msg("Clicking coin pouch...")
-                pouch = bcv.search_img_in_rect(img_path=self.coin_pouch_path, rect=self.win.rect_inventory(), precision=0.9)
+                pouch = bcv.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.rect_inventory())
                 if pouch:
-                    self.mouse.move_to(pouch, mouseSpeed='fast')
+                    self.mouse.move_to(pouch.random_point(), mouseSpeed='fast')
                     pag.click()
                     time.sleep(0.2)
                     no_pouch_count = 0

@@ -26,7 +26,7 @@ class AloraBot(RuneLiteBot, metaclass=ABCMeta):
 
         # Search for the auto retaliate button (deselected)
         # If None, then auto retaliate is on.
-        auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/alora/cp_combat_autoretal.png", self.win.rect_inventory(), precision=0.9)
+        auto_retal_btn = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/alora/cp_combat_autoretal.png", self.win.rect_inventory(), confidence=0.9)
 
         if toggle_on and auto_retal_btn is not None or not toggle_on and auto_retal_btn is None:
             self.mouse.move_to(self.win.get_relative_point(644, 402), destination_variance=5, mouseSpeed='medium')
@@ -52,10 +52,10 @@ class AloraBot(RuneLiteBot, metaclass=ABCMeta):
         time.sleep(0.3)
         cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
                                                       self.win.rectangle(),
-                                                      precision=0.95)
+                                                      confidence=0.95)
         cp_settings = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings.png",
                                              self.win.rectangle(),
-                                             precision=0.95)
+                                             confidence=0.95)
         if cp_settings_selected is None and cp_settings is None:
             self.log_msg("Could not find settings button.")
             return False

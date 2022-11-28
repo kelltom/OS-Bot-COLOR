@@ -257,23 +257,21 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         client_rect = self.win.rectangle()
         cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
-                                                      client_rect,
-                                                      precision=0.95)
+                                                      client_rect)
         cp_settings = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings.png",
-                                             client_rect,
-                                             precision=0.95)
+                                             client_rect)
         if cp_settings_selected is None and cp_settings is None:
             self.log_msg("Could not find settings button.")
             return False
         elif cp_settings is not None and cp_settings_selected is None:
-            self.mouse.move_to(cp_settings)
+            self.mouse.move_to(cp_settings.random_point())
             pag.click()
         time.sleep(0.5)
         display_tab = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_display_tab.png", client_rect)
         if display_tab is None:
             self.log_msg("Could not find the display settings tab.")
             return False
-        self.mouse.move_to(display_tab)
+        self.mouse.move_to(display_tab.random_point())
         pag.click()
         time.sleep(0.5)
         return True
@@ -293,7 +291,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         if layout_dropdown is None:
             self.log_msg("Could not find the layout dropdown.")
             return False
-        self.mouse.move_to(layout_dropdown)
+        self.mouse.move_to(layout_dropdown.random_point())
         pag.click()
         time.sleep(0.5)
         self.mouse.move_rel(-77, 19)
@@ -307,9 +305,9 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Identifies the RuneLite logout button and clicks it.
         '''
         self.log_msg("Logging out of RuneLite...")
-        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.win.rectangle(), precision=0.9)
+        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.win.rectangle(), confidence=0.9)
         if rl_login_icon is not None:
-            self.mouse.move_to(rl_login_icon)
+            self.mouse.move_to(rl_login_icon.random_point())
             pag.click()
             time.sleep(0.2)
             pag.press('enter')
