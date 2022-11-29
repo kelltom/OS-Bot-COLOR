@@ -15,13 +15,16 @@ class Window:
 
     client_fixed: bool = None
 
+    # CP Area
     control_panel: Rectangle = None
     cp_tabs: List[Rectangle] = None
     inventory_slots: List[Rectangle] = None
 
+    # Chat Area
     chat: Rectangle = None
     chat_tabs: List[Rectangle] = None
 
+    # Minimap Area
     minimap_area: Rectangle = None
     minimap: Rectangle = None
     compass_orb: Rectangle = None
@@ -31,6 +34,7 @@ class Window:
     run_orb: Rectangle = None
     spec_orb: Rectangle = None
 
+    # Game View Area
     game_view: Rectangle = None
 
     def __init__(self, window_title: str, padding_top: int, padding_left: int) -> None:
@@ -101,9 +105,9 @@ class Window:
         b = self.__locate_chat(client_rect)
         c = self.__locate_control_panel(client_rect)
         d = self.__locate_game_view(client_rect)
-        if all(a, b, c, d): # if all templates found
+        if all(a, b, c, d): # if all templates found\
+            print(f"Window.initialize() took {time.time() - start_time} seconds.")
             return True
-        print(f"Window.initialize() took {time.time() - start_time} seconds.")
         return False
         
     def __locate_chat(self, client_rect: Rectangle) -> bool:
