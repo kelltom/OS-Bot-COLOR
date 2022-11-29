@@ -111,6 +111,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         mean = only_friends.mean(axis=(0, 1))
         return mean != 0.0
 
+    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function, or check colors on the win.hp_bar.")
     def get_hp(self) -> int:
         """
         Gets the HP value of the player.
@@ -121,6 +122,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         print(res)
         return None if res is None else res[0]
 
+    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function, or check colors on the win.prayer_bar.")
     def get_prayer(self) -> int:
         """
         Gets the prayer value of the player.
@@ -153,6 +155,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         pag.keyUp('up')
         time.sleep(0.5)
 
+    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function to check if player is idle.")
     def is_in_combat(self) -> bool:
         '''
         Returns whether the player is in combat. This is achieved by checking if text exists in the RuneLite opponent info
@@ -161,6 +164,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         result = bcv.get_text_in_rect(self.win.current_action)
         return result.strip() != ""
     
+    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function to check if player is idle.")
     def is_player_doing_action(self, action: str):
         '''
         Returns whether the player is doing the given action.

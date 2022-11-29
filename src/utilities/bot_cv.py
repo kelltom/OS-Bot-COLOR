@@ -26,6 +26,7 @@ BOT_IMAGES = f"{PATH}/images/bot"
 def screenshot(rect: Rectangle) -> cv2.Mat:
     '''
     Captures given Rectangle without saving into a file.
+    TODO: Consider moving to Rectangle as class method, since only Rectangles are ever screenshotted.
     Args:
         rect: Rectangle area to capture.
     Returns:
