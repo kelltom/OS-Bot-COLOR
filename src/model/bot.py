@@ -113,7 +113,11 @@ class Bot(ABC):
         try:
             self.win.focus()
             time.sleep(0.5)
-            return self.win.initialize()
+            success, msg = self.win.initialize()
+            if not success:
+                self.log_msg(msg)
+                return False
+            return True
         except pygetwindow.PyGetWindowException as e:
             print(f"Error: {e}")
             self.set_status(BotStatus.STOPPED)

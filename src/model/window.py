@@ -92,12 +92,12 @@ class Window:
         if client := self.window:
             client.size = (width, height)
     
-    def initialize(self) -> bool:
+    def initialize(self) -> Union[bool, str]:
         '''
         Initializes the client window by locating critical UI regions.
         This function should be called when the bot is started or resumed (done by default).
         Returns:
-            True if successful, False otherwise.
+            True if successful, False otherwise along with an error message.
         '''
         start_time = time.time()
         client_rect = self.rectangle()
@@ -107,10 +107,11 @@ class Window:
         d = self.__locate_game_view(client_rect)
         if all(a, b, c, d): # if all templates found
             print(f"Window.initialize() took {time.time() - start_time} seconds.")
-            return True
-        print("Window.initialize(): Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' " +
-              "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON).")
-        return False
+            return True, None
+        msg = "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' " \
+              "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
+        print(msg)
+        return False, msg
         
     def __locate_chat(self, client_rect: Rectangle) -> bool:
         '''
