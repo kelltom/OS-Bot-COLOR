@@ -3,16 +3,36 @@ This class contains functions for interacting with the game client window. All B
 Window object as a property. This class allows you to locate important points/areas on screen no 
 matter where the game client is positioned. This class can be extended to add more functionality
 (See RuneLiteWindow within runelite_bot.py for an example). 
-
-TODO: Nearly all defined rectangle functions within this class should eventually be converted to 
-use template matching instead of hardcoded pixels.
 '''
 from deprecated import deprecated
+from typing import List, Union
 from utilities.geometry import Rectangle, Point
 import pygetwindow
+import time
+import utilities.bot_cv as bcv
 
+class Window:
 
-class Window:     
+    client_fixed: bool = None
+
+    control_panel: Rectangle = None
+    cp_tabs: List[Rectangle] = None
+    inventory_slots: List[Rectangle] = None
+
+    chat: Rectangle = None
+    chat_tabs: List[Rectangle] = None
+
+    minimap_area: Rectangle = None
+    minimap: Rectangle = None
+    compass_orb: Rectangle = None
+    hp_orb_text: Rectangle = None
+    prayer_orb_text: Rectangle = None
+    quick_prayer_orb: Rectangle = None
+    run_orb: Rectangle = None
+    spec_orb: Rectangle = None
+
+    game_view: Rectangle = None
+
     def __init__(self, window_title: str, padding_top: int, padding_left: int) -> None:
         '''
         Creates a Window object with various methods for interacting with the client window.
@@ -68,129 +88,144 @@ class Window:
         if client := self.window:
             client.size = (width, height)
     
-    def __get_relative_point(self, x: int, y: int) -> Point:
+    def initialize(self) -> bool:
         '''
-        Returns a Point relative to the client window. Do not use this method outside of this class.
-        Args:
-            x: The x coordinate when client is anchored to top-left of screen, relative to game view.
-            y: The y coordinate when client is anchored to top-left of screen, relative to game view.
+        Initializes the client window by locating critical UI regions.
+        This function should be called when the bot is started or resumed (done by default).
         Returns:
-            A Point relative to the client window.
+            True if successful, False otherwise.
         '''
-        offset = self.position()
-        return Point(x + offset.x + self.padding_left, y + offset.y + self.padding_top)
-    
-    def get_relative_point(self, x: int, y: int) -> Point:
+        start_time = time.time()
+        client_rect = self.rectangle()
+        a = self.__locate_minimap(client_rect)
+        b = self.__locate_chat(client_rect)
+        c = self.__locate_control_panel(client_rect)
+        d = self.__locate_game_view(client_rect)
+        if all(a, b, c, d): # if all templates found
+            return True
+        print(f"Window.initialize() took {time.time() - start_time} seconds.")
+        return False
+        
+    def __locate_chat(self, client_rect: Rectangle) -> bool:
         '''
-        Returns a Point relative to the client window.
+        Locates the chat area on the client.
         Args:
-            x: The x coordinate when client is anchored to top-left of screen.
-            y: The y coordinate when client is anchored to top-left of screen.
+            client_rect: The client area to search in.
         Returns:
-            A Point relative to the client window.
-        Example:
-            E.g., if I know the position of the Map button is (730, 160) when
-            the RuneLite client is anchored to the top-left of the screen, I can use:
-                `map_btn = self.get_relative_point(730, 160)`
-            in my bot's code to get the position of the Map button no matter
-            where the client is on screen. Consider image search as an alternative.
+            True if successful, False otherwise.
         '''
-        offset = self.position()
-        return Point(x + offset.x, y + offset.y)
+        if chat := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/chat.png", client_rect):
+            # Locate chat tabs
+            x, y = 5, 143
+            for i in range(7):
+                self.chat_tabs[i] = Rectangle(left=x + chat.left, top=y + chat.top, width=52, height=19)
+                x += 62  # btn width is 52px, gap between each is 10px
+            self.chat = chat
+            return True
+        print("Window.__locate_chat(): Failed to find chatbox.")
+        return False
     
-    # === Rectangles ===
-    # The following rects are used to isolate specific areas of the client window.
-    # Their positions are relative to the top-left corner of the GAME VIEW.
-    def rect_current_action(self) -> Rectangle:
+    def __locate_control_panel(self, client_rect: Rectangle) -> bool:
         '''
-        Returns a Rectangle outlining the 'current action' area of the game view.
-        E.g., Woodcutting plugin, Opponent Information plugin (<name of NPC>), etc.
-        '''
-        return Rectangle.from_points(self.__get_relative_point(13, 25),
-                                     self.__get_relative_point(140, 47))
-    
-    def rect_game_view(self) -> Rectangle:
-        '''Returns a Rectangle outlining the game view.'''
-        return Rectangle.from_points(self.__get_relative_point(8, 24),
-                                     self.__get_relative_point(517, 336))
-
-    def rect_cp(self) -> Rectangle:
-        '''Returns a Rectangle outlining the control panel area.'''
-        return Rectangle.from_points(self.__get_relative_point(528, 168),
-                                     self.__get_relative_point(763, 500))
-    
-    def rect_hp(self) -> Rectangle:
-        '''Returns a Rectangle outlining the text on the HP status bar.'''
-        return Rectangle.from_points(self.__get_relative_point(528, 55),
-                                     self.__get_relative_point(549, 69))
-    
-    def rect_inventory(self) -> Rectangle:
-        '''Returns a Rectangle outlining the inventory area.'''
-        return Rectangle.from_points(self.__get_relative_point(554, 204),
-                                     self.__get_relative_point(737, 465))
-    
-    def rect_minimap(self) -> Rectangle:
-        '''Returns a Rectangle outlining the minimap area.'''
-        return Rectangle.from_points(self.__get_relative_point(577, 13),
-                                     self.__get_relative_point(715, 162))
-    
-    def rect_prayer(self) -> Rectangle:
-        '''Returns a Rectangle outlining the prayer bar.'''
-        return Rectangle.from_points(self.__get_relative_point(530, 91),
-                                     self.__get_relative_point(550, 104))
-
-    # === Points ===
-    # --- Orbs ---
-    def orb_compass(self) -> Point:
-        '''Returns the position of the compass orb as a Point.'''
-        return self.__get_relative_point(571, 22)
-    
-    def orb_prayer(self) -> Point:
-        '''Returns the position of the prayer orb as a Point.'''
-        return self.__get_relative_point(565, 93)
-    
-    def orb_spec(self) -> Point:
-        '''Returns the position of the special attack orb as a Point.'''
-        return self.__get_relative_point(597, 152)
-
-    # --- Control Panel ---
-    def cp_tab(self, tab: int) -> Point:
-        '''
-        Returns the position of a control panel tab as a Point.
+        Locates the control panel area on the client.
         Args:
-            tab: The index of the tab to return the position of.
-                (top-left tab = 1, bottom-right tab = 14)
+            client_rect: The client area to search in.
         Returns:
-            The position of a control panel tab as a Point.
+            True if successful, False otherwise.
         '''
-        if (tab < 1) or (tab > 14):
-            raise ValueError("Tab index must be between 1 and 14.")
-        cp = self.rect_cp()
-        if tab <= 7:
-            return Point(x=cp.left + 16 + ((tab - 1) * 33), y=cp.top + 16)
-        else:
-            return Point(x=cp.left + 16 + ((tab % 8) * 33), y=cp.top + cp.height - 16)
+        if cp := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/inv.png", client_rect):
+            self.__locate_inv_slots(cp)
+            self.cp_tabs = self.__locate_cp_tabs(cp)
+            self.control_panel = cp
+            return True
+        print("Window.__locate_control_panel(): Failed to find control panel.")
+        return False
 
-    # --- Inventory ---
-    def inventory_slots(self, indices: list[int] = None) -> list[Point]:
+    def __locate_inv_slots(self, cp: Rectangle) -> None:
         '''
-        Fetches the positions of inventory slots as Points.
-        Args:
-            indices: A list of inventory slot indices to return the positions of (0-27).
-                     If None, returns the positions of all inventory slots.
-        Returns:
-            A list of Points representing the positions of inventory slots.
+        Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
         '''
-        inv = self.rect_inventory()
-        res = []
-        curr_y = inv.top + 26
+        slot_w, slot_h = 36, 32  # dimensions of a slot
+        gap_x, gap_y = 5, 3  # pixel gap between slots
+        i = 0
+        y = 44 + cp.top  # start y relative to cp template
         for _ in range(7):
-            curr_x = inv.left + 26  # reset x
+            x = 40 + cp.left  # start x relative to cp template
             for _ in range(4):
-                res.append(Point(x=curr_x, y=curr_y))
-                curr_x += 42  # x delta
-            curr_y += 36  # y delta
-        return res if indices is None else [res[i] for i in indices]
+                self.inventory_slots[i] = Rectangle(left=x, top=y, width=slot_w, height=slot_h)
+                x += slot_w + gap_x
+                i += 1
+            y += slot_h + gap_y
+    
+    def __locate_cp_tabs(self, cp: Rectangle) -> None:
+        '''
+        Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
+        '''
+        slot_w, slot_h = 29, 26  # top row tab dimensions
+        gap = 4  # 4px gap between tabs
+        y = 4  # 4px from top for first row
+        i = 0
+        for _ in range(2):
+            x = 8 + cp.left
+            for _ in range(7):
+                self.cp_tabs[i] = Rectangle(left=x, top=y, width=slot_w, height=slot_h)
+                x += slot_w + gap
+                i += 1
+            y = 303  # 303px from top for second row
+            slot_h = 28  # slightly taller tab Rectangles for second row
+    
+    def __locate_game_view(self, client_rect: Rectangle) -> bool:
+        '''
+        Locates the game view while considering the client mode (Fixed/Resizable), as well
+        as surrounding UI elements.
+        Args:
+            client_rect: The client area to search in.
+        Returns:
+            True if successful, False otherwise.
+        '''
+        if self.minimap_area is None or self.chat is None or self.control_panel is None:
+            print("Window.__locate_game_view(): Failed to locate game view. Missing minimap, chat, or control panel.")
+            return False
+        if self.client_fixed:
+            self.game_view = Rectangle(left=self.chat.left, top=self.chat.top - 337, width=517, height=337)
+        else:
+            self.game_view = client_rect
+            self.game_view.subtract_list = [self.minimap.to_dict(), self.chat.to_dict(), self.control_panel.to_dict()]
+        return True
+
+    def __locate_minimap(self, client_rect: Rectangle) -> bool:
+        '''
+        Locates the minimap area on the clent window and all of its internal positions.
+        Args:
+            client_rect: The client area to search in.
+        Returns:
+            True if successful, False otherwise.
+        '''
+        # 'm' refers to minimap area
+        if m := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap.png", client_rect):
+            self.client_fixed = False
+            self.minimap = Rectangle(left=52 + m.left, top=5 + m.top, width=154, height=155)
+            self.compass_orb = Rectangle(left=40 + m.left, top=7 + m.top, width=24, height=26)
+            self.hp_orb_text = Rectangle(left=4 + m.left, top=55 + m.top, width=20, height=13)
+            self.quick_prayer_orb = Rectangle(left=31 + m.left, top=85 + m.top, width=17, height=21)
+            self.prayer_orb_text = Rectangle(left=4 + m.left, top=94 + m.top, width=20, height=13)
+            self.run_orb = Rectangle(left=40 + m.left, top=119 + m.top, width=17, height=21)
+            self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
+            self.minimap_area = m
+            return True
+        if m := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap_fixed.png", client_rect):
+            self.client_fixed = True
+            self.minimap = Rectangle(left=52 + m.left, top=4 + m.top, width=147, height=160)
+            self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
+            self.hp_orb_text = Rectangle(left=4 + m.left, top=60 + m.top, width=20, height=13)
+            self.quick_prayer_orb = Rectangle(left=30 + m.left, top=80 + m.top, width=19, height=20)
+            self.prayer_orb_text = Rectangle(left=4 + m.left, top=89 + m.top, width=20, height=13)
+            self.run_orb = Rectangle(left=40 + m.left, top=112 + m.top, width=19, height=20)
+            self.spec_orb = Rectangle(left=62 + m.left, top=137 + m.top, width=19, height=20)
+            self.minimap_area = m
+            return True
+        print("Window.__locate_minimap(): Failed to find minimap.")
+        return False
 
 class MockWindow(Window):
     def __init__(self):
@@ -203,7 +238,10 @@ class MockWindow(Window):
         fget=_get_window,
         doc="A Win32Window reference to the game client and its properties."
     )
-
+    
+    def initialize(self) -> None:
+        print("MockWindow.initialize() called.")
+    
     def focus(self) -> None:
         print("MockWindow.focus() called.")
 

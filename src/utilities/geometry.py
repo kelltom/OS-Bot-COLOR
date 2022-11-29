@@ -1,11 +1,21 @@
-from utilities.random_util import RandomUtil
 from typing import NamedTuple, Callable, List
+from utilities.random_util import RandomUtil
 import math
 import numpy as np
 
 Point = NamedTuple("Point", x=int, y=int)
 
 class Rectangle:
+
+    '''
+    In very rare cases, we may want to exclude areas within a Rectangle (E.g., resizable game view).
+    This should contain a list of dicts that represent rectangles {left, top, width, height} that
+    will be subtracted from this Rectangle during screenshotting.
+    TODO: Since we only really screenshot Rectangles, maybe just move the Screenshot utility into
+          here...
+    '''
+    subtract_list: List[dict] = None
+
     def __init__(self, left: int, top: int, width: int, height: int, offset: Point = (0, 0)):
         '''
         Defines a rectangle area on screen.

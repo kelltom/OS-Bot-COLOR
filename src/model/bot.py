@@ -76,17 +76,19 @@ class Bot(ABC):
         self.options_builder.options = {}
         return view
 
-    def play_pause(self):  # sourcery skip: extract-method
+    def play_pause(self):
         '''
         Depending on the bot status, this function either starts a bot's main_loop() on a new thread, or pauses it.
         '''
         if self.status == BotStatus.STOPPED:
             self.clear_log()
+            self.log_msg("Starting bot...")
             if not self.options_set:
                 self.log_msg("Options not set. Please set options before starting.")
                 return
-            self.log_msg("Starting bot...")
-            self.__focus_win()
+            if not self.__initialize_window():
+                self.log_msg("Bot.play_pause(): Failed to initialize window.")
+                return
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
             self.thread = Thread(target=self.main_loop)
@@ -97,19 +99,24 @@ class Bot(ABC):
             self.set_status(BotStatus.PAUSED)
         elif self.status == BotStatus.PAUSED:
             self.log_msg("Resuming bot...")
-            self.__focus_win()
+            if not self.__initialize_window():
+                self.set_status(BotStatus.STOPPED)
+                print("Bot.play_pause(): Failed to initialize window.")
             self.set_status(BotStatus.RUNNING)
     
-    def __focus_win(self):
+    def __initialize_window(self) -> bool:
         '''
-        Attempts to focus the game window.
+        Attempts to focus and initialize the game window by identifying core UI elements.
+        Returns:
+            bool - True if the window was successfully initialized, False otherwise.
         '''
         try:
             self.win.focus()
-        except pygetwindow.PyGetWindowException:
-            self.log_msg("Error: Could not find game window.")
+            return self.win.initialize()
+        except pygetwindow.PyGetWindowException as e:
+            print(f"Error: {e}")
             self.set_status(BotStatus.STOPPED)
-            return
+            return False
 
     def stop(self):
         '''
@@ -132,12 +139,15 @@ class Bot(ABC):
         elif keyboard.is_pressed("="):
             if self.status == BotStatus.PAUSED:
                 self.log_msg("Resuming bot...")
-                self.__focus_win()
+                if not self.__initialize_window():
+                    self.set_status(BotStatus.STOPPED)
+                    print("Bot.__check_interrupt(): Failed to initialize window.")
+                    return
                 self.set_status(BotStatus.RUNNING)
         elif keyboard.is_pressed("ESC"):
             self.stop()
 
-    def status_check_passed(self, timeout: int = 60) -> bool:
+    def status_check_passed(self, timeout: int = 120) -> bool:
         '''
         Does routine check for:
             - Bot status (stops/pauses)

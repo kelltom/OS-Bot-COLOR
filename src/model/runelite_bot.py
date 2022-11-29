@@ -19,8 +19,15 @@ import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
 
 class RuneLiteWindow(Window):
+
+    current_action: Rectangle = None
+
     def __init__(self, window_title: str) -> None:
         super().__init__(window_title, padding_top=26, padding_left=0)
+    
+    def initialize(self) -> None:
+        super().initialize()
+        self.current_action = Rectangle(left=10 + self.game_view.left, top=24 + self.game_view.top, width=128, height=18)
     
     # Override
     def resize(self, width: int = 773, height: int = 534) -> None:
@@ -32,17 +39,6 @@ class RuneLiteWindow(Window):
         '''
         if client := self.window:
             client.size = (width, height)
-
-    # === Rectangles ===
-    # The following rects are used to isolate specific areas of the client window.
-    # Their positions were identified when game client was in fixed layout & anchored to the screen origin.
-    def rect_current_action(self) -> Rectangle:
-        '''
-        Returns a Rectangle outlining the 'current action' area of the game view.
-        E.g., Woodcutting plugin, Opponent Information plugin (<name of NPC>), etc.
-        '''
-        return Rectangle.from_points(Point(13, 51), Point(140, 73), self.position())
-
 
 class RuneLiteBot(Bot, metaclass=ABCMeta):
 
