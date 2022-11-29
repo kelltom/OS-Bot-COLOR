@@ -123,10 +123,6 @@ class App(customtkinter.CTk):
         self.models["OSNRMining"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRMining"))
 
-        self.models["OSNRAstral"] = OSNRAstralRunes()
-        self.models["OSNRAstral"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRAstral"))
-
         self.models["OSNRThievingNPC"] = OSNRThievingPickpocket()
         self.models["OSNRThievingNPC"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingNPC"))

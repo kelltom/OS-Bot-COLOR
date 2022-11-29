@@ -10,79 +10,12 @@ import pyautogui as pag
 import time
 import utilities.bot_cv as bcv
 
-class Spellbook(Enum):
-    '''
-    TODO: Consider moving to parent class.
-    '''
-    standard = 0
-    ancient = 1
-
-class OSNRWindow(RuneLiteWindow):
-    def __init__(self) -> None:
-        super().__init__(window_title="Near-Reality")
-
-    # --- Spellbook ---
-    def spellbook_home_tele(self, spellbook: Spellbook) -> Point:
-        '''
-        Returns the Point of the home teleport.
-        '''
-        if spellbook == Spellbook.standard:
-            return self.get_relative_point(578, 258)
-        elif spellbook == Spellbook.ancient:
-            return self.get_relative_point(581, 251)
-
-    def teleport_menu(self, spellbook: Spellbook):
-        '''
-        Returns the Point that opens the custom teleport menu.
-        '''
-        if spellbook == Spellbook.standard:
-            return self.get_relative_point(591, 307)
-        elif spellbook == Spellbook.ancient:
-            return self.get_relative_point(713, 250)
-    
-    def teleport_menu_search(self):
-        '''
-        Returns the Point of the teleport menu search button.
-        '''
-        return self.get_relative_point(63, 49)
-    
-    def teleport_menu_search_result(self):
-        '''
-        Returns the Point of the teleport menu search result.
-        '''
-        return self.get_relative_point(305, 100)
-    
-    # --- Banking ---
-    def presets_btn(self):
-        '''
-        Returns the Point of the presets button in the bank interface.
-        '''
-        return self.get_relative_point(458, 50)
-    
-    def presets_load_btn(self):
-        '''
-        Returns the Point of the load button in the presets interface.
-        '''
-        return self.get_relative_point(76, 315)
-    
-    def presets_close_btn(self):
-        '''
-        Returns the Point of the close button in the presets interface.
-        '''
-        return self.get_relative_point(490, 65)
-    
-    def bank_close_btn(self):
-        '''
-        Returns the Point of the close button in the bank interface.
-        '''
-        return self.get_relative_point(491, 51)
-
 class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
     
-    win: OSNRWindow = None
+    win: RuneLiteWindow = None
 
     def __init__(self, title, description) -> None:
-        super().__init__(title, description, OSNRWindow())
+        super().__init__(title, description, RuneLiteWindow("Near-Reality"))
 
     def __disable_private_chat(self):
         '''
