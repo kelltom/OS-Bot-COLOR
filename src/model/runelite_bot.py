@@ -232,12 +232,12 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         Finds all contours on screen of a particular color and returns a list of Shapes.
         Args:
-            rect: rect: A reference to the Rectangle that this shape belongs in (E.g., Bot.win.control_panel).
+            rect: A reference to the Rectangle that this shape belongs in (E.g., Bot.win.control_panel).
             color: The color to search for in [R, G, B] format.
         Returns:
             A list of RuneLiteObjects or empty list if none found.
         '''
-        img_rect = bcv.screenshot(rect())
+        img_rect = bcv.screenshot(rect)
         bcv.save_image("get_all_tagged_in_rect.png", img_rect)
         isolated_colors = bcv.isolate_colors(img_rect, [color])
         objs = rcv.extract_objects(isolated_colors)
@@ -253,7 +253,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             The nearest Shape to the character, or None if none found.
         '''
-        if shapes := self.get_all_tagged_in_rect(self.win.rect_game_view, color):
+        if shapes := self.get_all_tagged_in_rect(self.win.game_view, color):
             shapes_sorted = sorted(shapes, key=RuneLiteObject.distance_from_rect_center)
             return shapes_sorted[0]
         else:
@@ -287,29 +287,6 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         time.sleep(0.5)
         return True
 
-    def did_set_layout_fixed(self) -> bool:
-        '''
-        Attempts to set the client's layout to "Fixed - Classic layout".
-        Returns:
-            True if the layout was set, False if an issue occured.
-        '''
-        self.log_msg("Setting layout to Fixed - Classic layout.")
-        time.sleep(0.3)
-        if not self.__open_display_settings():
-            return False
-        time.sleep(0.3)
-        layout_dropdown = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_dropdown.png", self.win.rectangle())
-        if layout_dropdown is None:
-            self.log_msg("Could not find the layout dropdown.")
-            return False
-        self.mouse.move_to(layout_dropdown.random_point())
-        pag.click()
-        time.sleep(0.5)
-        self.mouse.move_rel(-77, 19)
-        pag.click()
-        time.sleep(1.5)
-        return True
-
     @deprecated(reason="This method is no longer needed for RuneLite games that can launch with arguments through the OSBC client.")
     def logout_runelite(self):
         '''
@@ -339,10 +316,11 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         self.log_msg(f"Setting camera zoom to {percentage}%...")
         if not self.__open_display_settings():
             return False
-        zoom_start = 611
-        zoom_end = 708
-        x = int((percentage / 100) * (zoom_end - zoom_start) + zoom_start)
-        self.mouse.move_to(self.win.get_relative_point(x, 345))
+        scroll_rect = Rectangle(left=self.win.control_panel.left + 84, top=self.win.control_panel.top + 146,
+                                width=102, height=8)
+        x = int((percentage / 100) * (scroll_rect.left + scroll_rect.width - scroll_rect.left) + scroll_rect.left)
+        p = scroll_rect.random_point()
+        self.mouse.move_to((x, p.y))
         pag.click()
         return True
 
