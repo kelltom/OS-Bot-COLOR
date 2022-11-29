@@ -266,11 +266,11 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             True if the settings were opened, False if an error occured.
         '''
-        client_rect = self.win.rectangle()
+        control_panel = self.win.control_panel
         cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
-                                                      client_rect)
+                                                      control_panel)
         cp_settings = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings.png",
-                                             client_rect)
+                                             control_panel)
         if cp_settings_selected is None and cp_settings is None:
             self.log_msg("Could not find settings button.")
             return False
@@ -278,7 +278,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             self.mouse.move_to(cp_settings.random_point())
             pag.click()
         time.sleep(0.5)
-        display_tab = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_display_tab.png", client_rect)
+        display_tab = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_display_tab.png", control_panel)
         if display_tab is None:
             self.log_msg("Could not find the display settings tab.")
             return False
@@ -323,27 +323,3 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         self.mouse.move_to((x, p.y))
         pag.click()
         return True
-
-    # --- Setup Functions ---
-    def setup_client(self, set_layout_fixed: bool = True, logout_runelite: bool = False) -> None:
-        # sourcery skip: merge-nested-ifs
-        '''
-        Configures a RuneLite client window. This function logs messages to the script output log.
-        Args:
-            set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout" (default=True).
-            logout_runelite: Whether or not to logout of RuneLite (not necessary when launching game via OSBC) (default=False).
-        '''
-        self.log_msg("Configuring client window...")
-        time.sleep(0.5)
-        # Set layout to fixed
-        if set_layout_fixed:
-            if not self.did_set_layout_fixed():  # if layout setup failed
-                if pag.confirm("Could not set layout to fixed. Continue anyway?") == "Cancel":
-                    self.set_status(BotStatus.STOPPED)
-                    return
-        # Ensure user is logged out of RuneLite
-        if logout_runelite:
-            self.logout_runelite()
-        # Resize client window
-        self.win.resize()
-        self.log_msg("Client window configured.")
