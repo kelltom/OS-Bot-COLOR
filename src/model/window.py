@@ -17,12 +17,12 @@ class Window:
 
     # CP Area
     control_panel: Rectangle = None  # https://i.imgur.com/BeMFCIe.png
-    cp_tabs: List[Rectangle] = None  # https://i.imgur.com/huwNOWa.png
-    inventory_slots: List[Rectangle] = None  # https://i.imgur.com/gBwhAwE.png
+    cp_tabs: List[Rectangle] = []  # https://i.imgur.com/huwNOWa.png
+    inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
-    chat_tabs: List[Rectangle] = None  # https://i.imgur.com/2DH2SiL.png
+    chat_tabs: List[Rectangle] = []  # https://i.imgur.com/2DH2SiL.png
 
     # Minimap Area
     minimap_area: Rectangle = None  # https://i.imgur.com/idfcIPU.png OR https://i.imgur.com/xQ9xg1Z.png
@@ -92,7 +92,7 @@ class Window:
         if client := self.window:
             client.size = (width, height)
     
-    def initialize(self) -> Union[bool, str]:
+    def initialize(self) -> bool:
         '''
         Initializes the client window by locating critical UI regions.
         This function should be called when the bot is started or resumed (done by default).
@@ -105,13 +105,10 @@ class Window:
         b = self.__locate_chat(client_rect)
         c = self.__locate_control_panel(client_rect)
         d = self.__locate_game_view(client_rect)
-        if all(a, b, c, d): # if all templates found
+        if all([a, b, c, d]): # if all templates found
             print(f"Window.initialize() took {time.time() - start_time} seconds.")
-            return True, None
-        msg = "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' " \
-              "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
-        print(msg)
-        return False, msg
+            return True
+        return False
         
     def __locate_chat(self, client_rect: Rectangle) -> bool:
         '''
@@ -123,9 +120,10 @@ class Window:
         '''
         if chat := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/chat.png", client_rect):
             # Locate chat tabs
+            self.chat_tabs = []
             x, y = 5, 143
-            for i in range(7):
-                self.chat_tabs[i] = Rectangle(left=x + chat.left, top=y + chat.top, width=52, height=19)
+            for _ in range(7):
+                self.chat_tabs.append(Rectangle(left=x + chat.left, top=y + chat.top, width=52, height=19))
                 x += 62  # btn width is 52px, gap between each is 10px
             self.chat = chat
             return True
@@ -152,32 +150,30 @@ class Window:
         '''
         Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
         '''
+        self.inventory_slots = []
         slot_w, slot_h = 36, 32  # dimensions of a slot
         gap_x, gap_y = 5, 3  # pixel gap between slots
-        i = 0
         y = 44 + cp.top  # start y relative to cp template
         for _ in range(7):
             x = 40 + cp.left  # start x relative to cp template
             for _ in range(4):
-                self.inventory_slots[i] = Rectangle(left=x, top=y, width=slot_w, height=slot_h)
+                self.inventory_slots.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap_x
-                i += 1
             y += slot_h + gap_y
     
     def __locate_cp_tabs(self, cp: Rectangle) -> None:
         '''
         Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
         '''
+        self.cp_tabs = []
         slot_w, slot_h = 29, 26  # top row tab dimensions
         gap = 4  # 4px gap between tabs
         y = 4  # 4px from top for first row
-        i = 0
         for _ in range(2):
             x = 8 + cp.left
             for _ in range(7):
-                self.cp_tabs[i] = Rectangle(left=x, top=y, width=slot_w, height=slot_h)
+                self.cp_tabs.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap
-                i += 1
             y = 303  # 303px from top for second row
             slot_h = 28  # slightly taller tab Rectangles for second row
 

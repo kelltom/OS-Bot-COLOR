@@ -87,7 +87,6 @@ class Bot(ABC):
                 self.log_msg("Options not set. Please set options before starting.")
                 return
             if not self.__initialize_window():
-                self.log_msg("Bot.play_pause(): Failed to initialize window.")
                 return
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
@@ -113,8 +112,10 @@ class Bot(ABC):
         try:
             self.win.focus()
             time.sleep(0.5)
-            success, msg = self.win.initialize()
+            success = self.win.initialize()
             if not success:
+                msg = "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' " \
+                      "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
                 self.log_msg(msg)
                 return False
             return True

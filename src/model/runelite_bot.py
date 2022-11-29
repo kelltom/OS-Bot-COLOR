@@ -27,19 +27,27 @@ class RuneLiteWindow(Window):
     def __init__(self, window_title: str) -> None:
         super().__init__(window_title, padding_top=26, padding_left=0)
     
-    def initialize(self) -> None:
-        super().initialize()
-        self.__locate_hp_prayer_bars()
+    def initialize(self) -> bool:
+        '''
+        Overrirde of Window.initialize(). This function is called when the bot is started.
+        '''
+        success = super().initialize()
+        if not success:
+            return False
+        self.__locate_hp_prayer_bars(self.control_panel)
         self.current_action = Rectangle(left=10 + self.game_view.left, top=24 + self.game_view.top, width=128, height=18)
+        return True
     
-    def __locate_hp_prayer_bars(self) -> None:
+    def __locate_hp_prayer_bars(self, cp: Rectangle) -> None:
         '''
         Creates Rectangles for the HP and Prayer bars on either side of the control panel, storing it in the 
         class property.
+        Args:
+            cp: The control panel Rectangle.
         '''
         bar_w, bar_h = 18, 250  # dimensions of the bars
-        self.hp_bar = Rectangle(left=self.control_panel.left + 7, top=self.control_panel.top + 42, width=bar_w, height=bar_h)
-        self.prayer_bar = Rectangle(left=self.control_panel + 217, top=self.control_panel.top + 42, width=bar_w, height=bar_h)
+        self.hp_bar = Rectangle(left=cp.left + 7, top=cp.top + 42, width=bar_w, height=bar_h)
+        self.prayer_bar = Rectangle(left=cp.left + 217, top=cp.top + 42, width=bar_w, height=bar_h)
     
     # Override
     def resize(self, width: int = 773, height: int = 534) -> None:

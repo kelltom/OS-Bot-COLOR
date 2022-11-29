@@ -135,6 +135,9 @@ class App(customtkinter.CTk):
         self.models["AloraCombat"] = AloraCombat()
         self.models["AloraCombat"].set_controller(self.controller)
         self.btn_map["Alora"].append(self.__create_button("AloraCombat"))
+        self.models["TestBot"] = TestBot()
+        self.models["TestBot"].set_controller(self.controller)
+        self.btn_map["OSRS"].append(self.__create_button("TestBot"))
 
         # Status variables to track state of views and buttons
         self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]
