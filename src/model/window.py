@@ -172,7 +172,7 @@ class Window:
         for _ in range(2):
             x = 8 + cp.left
             for _ in range(7):
-                self.cp_tabs.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                self.cp_tabs.append(Rectangle(left=x, top=y + cp.top, width=slot_w, height=slot_h))
                 x += slot_w + gap
             y = 303  # 303px from top for second row
             slot_h = 28  # slightly taller tab Rectangles for second row
