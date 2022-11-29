@@ -16,8 +16,6 @@ class Window:
     client_fixed: bool = None
 
     # CP Area
-    hp_bar: Rectangle = None
-    prayer_bar: Rectangle = None
     control_panel: Rectangle = None  # https://i.imgur.com/BeMFCIe.png
     cp_tabs: List[Rectangle] = None  # https://i.imgur.com/huwNOWa.png
     inventory_slots: List[Rectangle] = None  # https://i.imgur.com/gBwhAwE.png

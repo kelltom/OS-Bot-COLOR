@@ -21,6 +21,8 @@ import utilities.runelite_cv as rcv
 class RuneLiteWindow(Window):
 
     current_action: Rectangle = None
+    hp_bar: Rectangle = None
+    prayer_bar: Rectangle = None
 
     def __init__(self, window_title: str) -> None:
         super().__init__(window_title, padding_top=26, padding_left=0)
