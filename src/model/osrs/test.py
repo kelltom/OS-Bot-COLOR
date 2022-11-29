@@ -1,90 +1,68 @@
 '''
-This file demonstrates how to set up a simple bot. It demonstrates how to implement the functions for
-capturing user configuration of the bot, and includes a simulated bot loop that does not have any
-side affects during testing.
-
-To better understand how to implement a bot, please see the documentation for the Bot class as well as
-the README/Wiki.
+This script is used to ensure that the Window properties are being set correctly.
 '''
 from model.runelite_bot import RuneLiteBot, BotStatus
 from typing import List
 from utilities.geometry import Rectangle
+from model.runelite_bot import RuneLiteWindow
 import time
-
 
 class TestBot(RuneLiteBot):
     def __init__(self):
         title = "Test Bot"
         description = ("This bot is for testing the new Window feature.")
-        super().__init__(title=title, description=description)
-        self.running_time = 1
-        self.multi_select_example = None
-        self.menu_example = None
+        super().__init__(title=title, description=description, window=RuneLiteWindow(window_title="RuneLite"))
 
     def create_options(self):
-        '''
-        Use the OptionsBuilder to define the options for the bot. For each function call below,
-        we define the type of option we want to create, its key, a label for the option that the user will
-        see, and the possible values the user can select. The key is used in the save_options function to
-        unpack the dictionary of options after the user has selected them.
-        '''
-        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 180)  # max 180 minutes
-        self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
-        self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
+        pass
 
     def save_options(self, options: dict):
-        '''
-        For each option in the dictionary, if it is an expected option, save the value as a property of the bot.
-        If any unexpected options are found, log a warning. If an option is missing, set the options_set flag to
-        False. No need to set bot status.
-        '''
         self.options_set = True
-        for option in options:
-            if option == "running_time":
-                self.running_time = options[option]
-                self.log_msg(f"Bot will run for {self.running_time} minutes.")
-            elif option == "multi_select_example":
-                self.multi_select_example = options[option]
-                self.log_msg(f"Multi-select example set to: {self.multi_select_example}")
-            elif option == "menu_example":
-                self.menu_example = options[option]
-                self.log_msg(f"Menu example set to: {self.menu_example}")
-            else:
-                self.log_msg(f"Unknown option: {option}")
-                self.options_set = False
+        self.log_msg("Options set successfully.")
 
-        if self.options_set:
-            self.log_msg("Options set successfully.")
-        else:
-            self.log_msg("Failed to set options.")
-            print("Developer: ensure option keys are correct, and that the option values are being accessed correctly.")
+    def main_loop(self):  # sourcery skip: merge-list-append, merge-list-appends-into-extend, merge-list-extend, unwrap-iterable-construction
 
-    def main_loop(self):  # sourcery skip: merge-list-append
+        '''The first thing that happens when the Play button is pressed is the client window
+        is scanned and initialized. Then, all of the window properties are available.
+        The program will let you know if the initialization failed.
+        
+        If you need to move the client for any reason, pause the bot first, then it will re-initialize
+        once your resume. That won't work in this script though, since we are hardcoding the positions
+        into the list before the loop. It is best practice to only use the window properties within
+        your bot loop.'''
 
-        # First thing that happens when the play button is pressed is the client window
-        # is scanned and initialized.
-
-        # Let's move the mouse to important locations on the screen.
-
+        # Here, we'll define some points on screen that we'll move the mouse to.
         spots: List[tuple] = []
         spots.append(("Moving to chatbox...", self.win.chat))
         spots.append(("Moving to control panel...", self.win.control_panel))
+        spots.append(("Moving to minimaparea...", self.win.minimap_area))
         spots.append(("Moving to game view...", self.win.game_view))
+        spots.append(("Moving to minimap...", self.win.minimap))
+        spots.append(("Moving to hp orb text...", self.win.hp_orb_text))
+        spots.append(("Moving to prayer orb text...", self.win.prayer_orb_text))
+        spots.append(("Moving to quick pray orb...", self.win.quick_prayer_orb))
+        spots.append(("Moving to run orb...", self.win.run_orb))
+        spots.append(("Moving to spec orb...", self.win.spec_orb))
+        spots.append(("Moving to compass...", self.win.compass_orb))
+        spots.append(("Moving to control panel tabs...", self.win.cp_tabs))
+        spots.append(("Moving to inv slots...", self.win.inventory_slots))
+        spots.append(("Moving to chat tabs...", self.win.chat_tabs))
 
-        for spot in spots:
+        for spot_count, spot in enumerate(spots, start=1):
             self.log_msg(spot[0])
             if isinstance(spot[1], Rectangle):
                 self.mouse.move_to(spot[1].get_center())
-            elif isinstance(spot[1], List[Rectangle]):
-                for rect in spot[1]:
-                    self.mouse.move_to(rect.get_center())
             else:
-                self.log_msg("Unknown type in spot list.")
-            time.sleep(1.5)
+                for rect in spot[1]:
+                    self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
+                    if not self.status_check_passed():
+                        return
+            time.sleep(0.2)
 
-            # Check once more for status and keyboard interrupts
             if not self.status_check_passed():
                 return
+
+            self.update_progress(spot_count / len(spots))
 
         # If the bot reaches here it has completed its running time.
         self.update_progress(1)
