@@ -26,7 +26,7 @@ class OSNRThievingPickpocket(OSNRBot):
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
         self.protect_rows = 5
-        self.coin_pouch_path = f"{bcv.BOT_IMAGES}/near_reality/coin_pouch.png"
+        self.coin_pouch_path = f"{bcv.BOT_IMAGES}/coin_pouch.png"
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)

@@ -105,7 +105,7 @@ class Window:
         b = self.__locate_chat(client_rect)
         c = self.__locate_control_panel(client_rect)
         d = self.__locate_game_view(client_rect)
-        if all(a, b, c, d): # if all templates found\
+        if all(a, b, c, d): # if all templates found
             print(f"Window.initialize() took {time.time() - start_time} seconds.")
             return True
         return False
