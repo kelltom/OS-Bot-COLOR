@@ -20,8 +20,8 @@ import utilities.runelite_cv as rcv
 
 class RuneLiteWindow(Window):
 
-    current_action: Rectangle = None
-    hp_bar: Rectangle = None
+    current_action: Rectangle = None  # https://i.imgur.com/fKXuIyO.png
+    hp_bar: Rectangle = None  # https://i.imgur.com/2lCovGV.png
     prayer_bar: Rectangle = None
 
     def __init__(self, window_title: str) -> None:
@@ -36,7 +36,6 @@ class RuneLiteWindow(Window):
         '''
         Creates Rectangles for the HP and Prayer bars on either side of the control panel, storing it in the 
         class property.
-        Like this: https://i.imgur.com/2lCovGV.png
         '''
         bar_w, bar_h = 18, 250  # dimensions of the bars
         self.hp_bar = Rectangle(left=self.control_panel.left + 7, top=self.control_panel.top + 42, width=bar_w, height=bar_h)
