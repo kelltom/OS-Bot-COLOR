@@ -27,7 +27,18 @@ class RuneLiteWindow(Window):
     
     def initialize(self) -> None:
         super().initialize()
+        self.__locate_hp_prayer_bars()
         self.current_action = Rectangle(left=10 + self.game_view.left, top=24 + self.game_view.top, width=128, height=18)
+    
+    def __locate_hp_prayer_bars(self) -> None:
+        '''
+        Creates Rectangles for the HP and Prayer bars on either side of the control panel, storing it in the 
+        class property.
+        Like this: https://i.imgur.com/2lCovGV.png
+        '''
+        bar_w, bar_h = 18, 250  # dimensions of the bars
+        self.hp_bar = Rectangle(left=self.control_panel.left + 7, top=self.control_panel.top + 42, width=bar_w, height=bar_h)
+        self.prayer_bar = Rectangle(left=self.control_panel + 217, top=self.control_panel.top + 42, width=bar_w, height=bar_h)
     
     # Override
     def resize(self, width: int = 773, height: int = 534) -> None:
@@ -70,13 +81,14 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             skip_slots = np.unique(row_skip + skip_slots)
         # Start dropping
         pag.keyDown("shift")
-        for i, slot in enumerate(self.win.inventory_slots()):
+        for i, slot in enumerate(self.win.inventory_slots):
             if not self.status_check_passed():
                 pag.keyUp("shift")
                 return
             if i in skip_slots:
                 continue
-            self.mouse.move_to((slot[0], slot[1]),
+            p = slot.random_point()
+            self.mouse.move_to((p[0], p[1]),
                                 mouseSpeed='fastest',
                                 knotsCount=1,
                                 offsetBoundaryY=40,
@@ -92,7 +104,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             True if friends are nearby, False otherwise.
         '''
         # screenshot minimap
-        minimap = bcv.screenshot(self.win.rect_minimap())
+        minimap = bcv.screenshot(self.win.minimap)
         only_friends = bcv.isolate_colors(minimap, [self.GREEN])
         #bcv.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
@@ -104,7 +116,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             The HP of the player, or None if not found.
         """
-        res = bcv.get_numbers_in_rect(self.win.rect_hp(), True)
+        res = bcv.get_numbers_in_rect(self.win.hp_orb_text, True)
         print(res)
         return None if res is None else res[0]
 
@@ -114,7 +126,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             The prayer value of the player, or None if not found.
         """
-        res = bcv.get_numbers_in_rect(self.win.rect_prayer(), True)
+        res = bcv.get_numbers_in_rect(self.win.prayer_orb_text, True)
         print(res)
         return None if res is None else res[0]
 
@@ -123,7 +135,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Logs player out.
         '''
         self.log_msg("Logging out...")
-        self.mouse.move_to(self.win.cp_tab(11))
+        self.mouse.move_to(self.win.cp_tabs[10].random_point())
         pag.click()
         time.sleep(1)
         self.mouse.move_rel(0, -53, 5, 5)  # Logout button
@@ -134,8 +146,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Moves the camera up.
         '''
         # Position the mouse somewhere on the game view
-        self.mouse.move_to(Point(self.win.rect_game_view().left + 20,
-                                 self.win.rect_game_view().top + 20))
+        self.mouse.move_to(self.win.game_view.get_center())
         pag.keyDown('up')
         time.sleep(2)
         pag.keyUp('up')
@@ -146,7 +157,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns whether the player is in combat. This is achieved by checking if text exists in the RuneLite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        result = bcv.get_text_in_rect(self.win.rect_current_action())
+        result = bcv.get_text_in_rect(self.win.current_action)
         return result.strip() != ""
     
     def is_player_doing_action(self, action: str):
@@ -160,7 +171,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             if self.is_player_doing_action("Woodcutting"):
                 print("Player is woodcutting!")
         '''
-        return bcv.search_text_in_rect(self.win.rect_current_action(), [action], ["not", "nof", "nol"])
+        return bcv.search_text_in_rect(self.win.current_action, [action], ["not", "nof", "nol"])
 
     def has_hp_bar(self) -> bool:
         '''
@@ -168,7 +179,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         player is in combat. This function only works when the game camera is all the way up.
         '''
         # Position of character relative to the screen
-        char_pos = self.win.rect_game_view().get_center()
+        char_pos = self.win.game_view.get_center()
 
         # Make a rectangle around the character
         offset = 30
@@ -191,7 +202,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Returns:
             A RuneLiteObject object or None if no tagged NPCs are found.
         '''
-        game_view = self.win.rect_game_view()
+        game_view = self.win.game_view
         img_game_view = bcv.screenshot(game_view)
         # Isolate colors in image
         img_npcs = bcv.isolate_colors(img_game_view, [self.BLUE])
@@ -202,7 +213,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             print("No tagged NPCs found.")
             return None
         for obj in objs:
-            obj.set_rectangle_reference(self.win.rect_game_view)
+            obj.set_rectangle_reference(self.win.game_view)
         # Sort shapes by distance from player
         objs = sorted(objs, key=RuneLiteObject.distance_from_rect_center)
         if include_in_combat:

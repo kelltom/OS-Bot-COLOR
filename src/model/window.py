@@ -142,7 +142,6 @@ class Window:
         if cp := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/inv.png", client_rect):
             self.__locate_inv_slots(cp)
             self.__locate_cp_tabs(cp)
-            self.__locate_hp_prayer_bars(cp)
             self.control_panel = cp
             return True
         print("Window.__locate_control_panel(): Failed to find control panel.")
@@ -181,21 +180,10 @@ class Window:
                 i += 1
             y = 303  # 303px from top for second row
             slot_h = 28  # slightly taller tab Rectangles for second row
-    
-    def __locate_hp_prayer_bars(self, cp: Rectangle) -> None:
-        '''
-        Creates Rectangles for the HP and Prayer bars on either side of the control panel, storing it in the 
-        class property.
-        Like this: https://i.imgur.com/2lCovGV.png
-        '''
-        bar_w, bar_h = 18, 250  # dimensions of the bars
-        self.hp_bar = Rectangle(left=cp.left + 7, top=cp.top + 42, width=bar_w, height=bar_h)
-        self.prayer_bar = Rectangle(left=cp.left + 217, top=cp.top + 42, width=bar_w, height=bar_h)
-    
+
     def __locate_game_view(self, client_rect: Rectangle) -> bool:
         '''
-        Locates the game view while considering the client mode (Fixed/Resizable), as well
-        as surrounding UI elements.
+        Locates the game view while considering the client mode (Fixed/Resizable). https://i.imgur.com/uuCQbxp.png
         Args:
             client_rect: The client area to search in.
         Returns:
@@ -205,9 +193,12 @@ class Window:
             print("Window.__locate_game_view(): Failed to locate game view. Missing minimap, chat, or control panel.")
             return False
         if self.client_fixed:
+            # Uses the chatbox and known fixed size of game_view to locate it in fixed mode
             self.game_view = Rectangle(left=self.chat.left, top=self.chat.top - 337, width=517, height=337)
         else:
-            self.game_view = client_rect
+            # Uses control panel to find right-side bounds of game view in resizable mode
+            self.game_view = Rectangle.from_points(Point(client_rect.left + self.padding_left, client_rect.top + self.padding_top),
+                                                   self.control_panel.get_bottom_right())
             self.game_view.subtract_list = [self.minimap.to_dict(), self.chat.to_dict(), self.control_panel.to_dict()]
         return True
 
