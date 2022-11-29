@@ -16,18 +16,18 @@ class Window:
     client_fixed: bool = None
 
     # CP Area
-    control_panel: Rectangle = None
-    cp_tabs: List[Rectangle] = None
-    inventory_slots: List[Rectangle] = None
     hp_bar: Rectangle = None
     prayer_bar: Rectangle = None
+    control_panel: Rectangle = None  # https://i.imgur.com/BeMFCIe.png
+    cp_tabs: List[Rectangle] = None  # https://i.imgur.com/huwNOWa.png
+    inventory_slots: List[Rectangle] = None  # https://i.imgur.com/gBwhAwE.png
 
     # Chat Area
-    chat: Rectangle = None
-    chat_tabs: List[Rectangle] = None
+    chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
+    chat_tabs: List[Rectangle] = None  # https://i.imgur.com/2DH2SiL.png
 
     # Minimap Area
-    minimap_area: Rectangle = None
+    minimap_area: Rectangle = None  # https://i.imgur.com/idfcIPU.png OR https://i.imgur.com/xQ9xg1Z.png
     minimap: Rectangle = None
     compass_orb: Rectangle = None
     hp_orb_text: Rectangle = None
@@ -150,7 +150,6 @@ class Window:
     def __locate_inv_slots(self, cp: Rectangle) -> None:
         '''
         Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
-        Looks like: https://i.imgur.com/bJXS0Vt.png
         '''
         slot_w, slot_h = 36, 32  # dimensions of a slot
         gap_x, gap_y = 5, 3  # pixel gap between slots

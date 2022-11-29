@@ -223,22 +223,21 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 return obj
         return None
 
-    def get_all_tagged_in_rect(self, rect_function: Callable, color: List[int]) -> List[RuneLiteObject]:
+    def get_all_tagged_in_rect(self, rect: Rectangle, color: List[int]) -> List[RuneLiteObject]:
         '''
         Finds all contours on screen of a particular color and returns a list of Shapes.
         Args:
-            rect: rect_function: A reference to the function used to get info for the rectangle
-                                 that this shape belongs in (E.g., Bot.win.rect_game_view - without brackets).
+            rect: rect: A reference to the Rectangle that this shape belongs in (E.g., Bot.win.control_panel).
             color: The color to search for in [R, G, B] format.
         Returns:
             A list of RuneLiteObjects or empty list if none found.
         '''
-        img_rect = bcv.screenshot(rect_function())
+        img_rect = bcv.screenshot(rect())
         bcv.save_image("get_all_tagged_in_rect.png", img_rect)
         isolated_colors = bcv.isolate_colors(img_rect, [color])
         objs = rcv.extract_objects(isolated_colors)
         for obj in objs:
-            obj.set_rectangle_reference(rect_function)
+            obj.set_rectangle_reference(rect)
         return objs
     
     def get_nearest_tag(self, color: List[int]) -> RuneLiteObject:
