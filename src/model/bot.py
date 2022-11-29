@@ -112,6 +112,7 @@ class Bot(ABC):
         '''
         try:
             self.win.focus()
+            time.sleep(0.5)
             return self.win.initialize()
         except pygetwindow.PyGetWindowException as e:
             print(f"Error: {e}")
