@@ -19,6 +19,8 @@ class Window:
     control_panel: Rectangle = None
     cp_tabs: List[Rectangle] = None
     inventory_slots: List[Rectangle] = None
+    hp_bar: Rectangle = None
+    prayer_bar: Rectangle = None
 
     # Chat Area
     chat: Rectangle = None
@@ -139,7 +141,8 @@ class Window:
         '''
         if cp := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/inv.png", client_rect):
             self.__locate_inv_slots(cp)
-            self.cp_tabs = self.__locate_cp_tabs(cp)
+            self.__locate_cp_tabs(cp)
+            self.__locate_hp_prayer_bars(cp)
             self.control_panel = cp
             return True
         print("Window.__locate_control_panel(): Failed to find control panel.")
@@ -148,6 +151,7 @@ class Window:
     def __locate_inv_slots(self, cp: Rectangle) -> None:
         '''
         Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
+        Looks like: https://i.imgur.com/bJXS0Vt.png
         '''
         slot_w, slot_h = 36, 32  # dimensions of a slot
         gap_x, gap_y = 5, 3  # pixel gap between slots
@@ -177,6 +181,16 @@ class Window:
                 i += 1
             y = 303  # 303px from top for second row
             slot_h = 28  # slightly taller tab Rectangles for second row
+    
+    def __locate_hp_prayer_bars(self, cp: Rectangle) -> None:
+        '''
+        Creates Rectangles for the HP and Prayer bars on either side of the control panel, storing it in the 
+        class property.
+        Like this: https://i.imgur.com/2lCovGV.png
+        '''
+        bar_w, bar_h = 18, 250  # dimensions of the bars
+        self.hp_bar = Rectangle(left=cp.left + 7, top=cp.top + 42, width=bar_w, height=bar_h)
+        self.prayer_bar = Rectangle(left=cp.left + 217, top=cp.top + 42, width=bar_w, height=bar_h)
     
     def __locate_game_view(self, client_rect: Rectangle) -> bool:
         '''
