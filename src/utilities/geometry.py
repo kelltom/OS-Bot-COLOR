@@ -121,7 +121,7 @@ class Rectangle:
 
 class RuneLiteObject:
 
-    rect_ref = None
+    rect = None
 
     def __init__(self, x_min, x_max, y_min, y_max, width, height, center, axis):
         '''
@@ -143,14 +143,14 @@ class RuneLiteObject:
         self._center = center
         self._axis = axis
     
-    def set_rectangle_reference(self, rect_function: Callable):
+    def set_rectangle_reference(self, rect: Rectangle):
         '''
         Sets the rectangle reference of the object.
         Args:
-            rect_function: A reference to the function used to get info for the rectangle
-                           that this object belongs in (E.g., Bot.win.rect_game_view).
+            rect: A reference to the the rectangle that this object belongs in 
+                  (E.g., Bot.win.game_view).
         '''
-        self.rect_ref = rect_function
+        self.rect = rect
         
     def center(self) -> Point:  # sourcery skip: raise-specific-error
         '''
@@ -158,10 +158,9 @@ class RuneLiteObject:
         Returns:
             A Point.
         '''
-        if self.rect_ref is None:
+        if self.rect is None:
             raise Exception("Rectangle reference not set for object.")
-        rect: Rectangle = self.rect_ref()
-        return Point(self._center[0] + rect.left, self._center[1] + rect.top)
+        return Point(self._center[0] + self.rect.left, self._center[1] + self.rect.top)
 
     def distance_from_rect_center(self) -> float:
         '''
@@ -171,8 +170,7 @@ class RuneLiteObject:
             The distance from the point to the center of the object.
         '''
         center: Point = self.center()
-        rect: Rectangle = self.rect_ref()
-        rect_center: Point = rect.get_center()
+        rect_center: Point = self.rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
 
     def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
@@ -198,8 +196,7 @@ class RuneLiteObject:
         Returns:
             A Point relative to the client window.
         '''
-        rect: Rectangle = self.rect_ref()
-        return Point(point[0] + rect.left, point[1] + rect.top)
+        return Point(point[0] + self.rect.left, point[1] + self.rect.top)
 
     def __point_exists(self, p: list) -> bool:
         '''
