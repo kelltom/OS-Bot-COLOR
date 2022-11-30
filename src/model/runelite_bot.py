@@ -10,10 +10,11 @@ from abc import ABCMeta
 from deprecated import deprecated
 from model.bot import Bot, BotStatus
 from model.window import Window
-from typing import List, Callable
+from typing import List
 from utilities.geometry import Rectangle, Point, RuneLiteObject
 import numpy as np
 import pyautogui as pag
+import pytweening
 import time
 import utilities.bot_cv as bcv
 import utilities.runelite_cv as rcv
@@ -100,7 +101,8 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                                 mouseSpeed='fastest',
                                 knotsCount=1,
                                 offsetBoundaryY=40,
-                                offsetBoundaryX=40)
+                                offsetBoundaryX=40,
+                                tween=pytweening.easeInOutQuad)
             pag.click()
         pag.keyUp("shift")
 
