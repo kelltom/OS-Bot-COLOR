@@ -1,14 +1,8 @@
 '''
 A set of computer vision utilities for use with bots.
-
-Image Search References:
-- https://stackoverflow.com/questions/71302061/how-do-i-find-an-image-on-screen-ignoring-transparent-pixels/71302306#71302306
-- https://stackoverflow.com/questions/61779288/how-to-template-match-a-simple-2d-shape-in-opencv/61780200#61780200
-- https://stackoverflow.com/questions/74594219/template-matching-with-transparent-image-templates-using-opencv-python?noredirect=1#comment131674563_74594219
 '''
 from deprecated import deprecated
 from easyocr import Reader
-from PIL import Image
 from typing import List, Union
 from utilities.geometry import Point, Rectangle
 import cv2
@@ -35,7 +29,11 @@ def screenshot(rect: Rectangle) -> cv2.Mat:
     with mss.mss() as sct:
         monitor = rect.to_dict()
         res = np.array(sct.grab(monitor))
-        return cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
+        res = cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
+        if rect.subtract_list:
+            for area in rect.subtract_list:
+                res[area['top']:area['top']+area['height'], area['left']:area['left']+area['width']] = np.array([0,0,0])
+        return res
 
 def save_image(filename, im) -> str:
     '''
