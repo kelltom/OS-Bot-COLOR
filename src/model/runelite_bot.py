@@ -9,9 +9,9 @@ For converting RGB to HSV:
 from abc import ABCMeta
 from deprecated import deprecated
 from model.bot import Bot, BotStatus
-from model.window import Window
 from typing import List
 from utilities.geometry import Rectangle, Point, RuneLiteObject
+from utilities.window import Window
 import pyautogui as pag
 import time
 import utilities.bot_cv as bcv

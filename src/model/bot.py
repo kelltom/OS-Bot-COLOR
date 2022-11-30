@@ -5,11 +5,11 @@ pre-implemented and can be used by subclasses, or called by the controller. Code
 from abc import ABC, abstractmethod
 from deprecated import deprecated
 from enum import Enum
-from model.window import Window, WindowInitializationError
 from threading import Thread
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
+from utilities.window import Window, WindowInitializationError
 import customtkinter
 import keyboard
 import numpy as np
@@ -125,6 +125,7 @@ class Bot(ABC):
             return self.__halt_with_msg(str(e))
         try:
             self.win.initialize()
+            return True
         except WindowInitializationError as e:
             return self.__halt_with_msg(str(e))
 

@@ -7,9 +7,8 @@ To better understand how to implement a bot, please see the documentation for th
 the README/Wiki.
 '''
 from model.bot import Bot, BotStatus
-from model.window import MockWindow
+from utilities.window import MockWindow
 import time
-
 
 class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game, change "Bot" to "RuneLiteBot"
     def __init__(self):
