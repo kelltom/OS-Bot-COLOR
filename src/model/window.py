@@ -195,7 +195,20 @@ class Window:
             # Uses control panel to find right-side bounds of game view in resizable mode
             self.game_view = Rectangle.from_points(Point(client_rect.left + self.padding_left, client_rect.top + self.padding_top),
                                                    self.control_panel.get_bottom_right())
-            self.game_view.subtract_list = [self.minimap.to_dict(), self.chat.to_dict(), self.control_panel.to_dict()]
+            # Locate the positions of the UI elements to be subtracted from the game_view, relative to the game_view
+            minimap = self.minimap_area.to_dict()
+            minimap['left'] -= self.game_view.left
+            minimap['top'] -= self.game_view.top
+
+            chat = self.chat.to_dict()
+            chat['left'] -= self.game_view.left
+            chat['top'] -= self.game_view.top
+
+            control_panel = self.control_panel.to_dict()
+            control_panel['left'] -= self.game_view.left
+            control_panel['top'] -= self.game_view.top
+
+            self.game_view.subtract_list = [minimap, chat, control_panel]
         return True
 
     def __locate_minimap(self, client_rect: Rectangle) -> bool:
@@ -216,9 +229,7 @@ class Window:
             self.prayer_orb_text = Rectangle(left=4 + m.left, top=94 + m.top, width=20, height=13)
             self.run_orb = Rectangle(left=40 + m.left, top=119 + m.top, width=17, height=21)
             self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
-            self.minimap_area = m
-            return True
-        if m := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap_fixed.png", client_rect):
+        elif m := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap_fixed.png", client_rect):
             self.client_fixed = True
             self.minimap = Rectangle(left=52 + m.left, top=4 + m.top, width=147, height=160)
             self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
@@ -227,6 +238,9 @@ class Window:
             self.prayer_orb_text = Rectangle(left=4 + m.left, top=89 + m.top, width=20, height=13)
             self.run_orb = Rectangle(left=40 + m.left, top=112 + m.top, width=19, height=20)
             self.spec_orb = Rectangle(left=62 + m.left, top=137 + m.top, width=19, height=20)
+        if m:
+            # Take a bite out of the bottom-left corner of the minimap to exclude orb's green numbers
+            self.minimap.subtract_list = [{'left': 0, 'top': self.minimap.height-20, 'width': 20, 'height': 20}]
             self.minimap_area = m
             return True
         print("Window.__locate_minimap(): Failed to find minimap.")
