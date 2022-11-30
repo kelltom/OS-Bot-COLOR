@@ -11,13 +11,15 @@ from model.window import MockWindow
 import time
 
 
-class ExampleBot(Bot):
+class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game, change "Bot" to "RuneLiteBot"
     def __init__(self):
         title = "Example Bot"
         description = ("This is where the description of the bot goes. Briefly describe how the bot works " +
                        "and any important information the user needs to know before starting it.")
+        # If you're writing a bot for a RuneLite-based game, change "MockWindow()" to "RuneLiteWindow("<name of your game>")" below
         super().__init__(title=title, description=description, window=MockWindow())
-        self.running_time = 0
+        # This is where you should initialize any options/properties you want to use in the bot
+        self.running_time = 1
         self.multi_select_example = None
         self.menu_example = None
 
@@ -39,27 +41,28 @@ class ExampleBot(Bot):
         False. No need to set bot status.
         '''
         self.options_set = True
+        # Unpack the options dictionary received from the Options Menu UI
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
-                self.log_msg(f"Bot will run for {self.running_time} minutes.")
             elif option == "multi_select_example":
                 self.multi_select_example = options[option]
-                self.log_msg(f"Multi-select example set to: {self.multi_select_example}")
             elif option == "menu_example":
                 self.menu_example = options[option]
-                self.log_msg(f"Menu example set to: {self.menu_example}")
             else:
                 self.log_msg(f"Unknown option: {option}")
                 self.options_set = False
-
-        if self.options_set:
-            self.log_msg("Options set successfully.")
-        else:
+        if not self.options_set:
             self.log_msg("Failed to set options.")
             print("Developer: ensure option keys are correct, and that the option values are being accessed correctly.")
+            return
+        # Let the user know what options were set
+        self.log_msg(f"Bot will run for {self.running_time} minutes.")
+        self.log_msg(f"Multi-select example set to: {self.multi_select_example}")
+        self.log_msg(f"Menu example set to: {self.menu_example}")
+        return
 
-    def main_loop(self):  # sourcery skip: min-max-identity, switch
+    def main_loop(self):
         '''
         When implementing this function, you have the following responsibilities:
         1. Frequently check the status of the bot throughout the loop using self.status_check_passed(). Call it
@@ -73,26 +76,34 @@ class ExampleBot(Bot):
         5. At the end of the main loop, make sure to set the status to STOPPED.
 
         Additional notes:
-        1. Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions (E.g., 
-           finding nearby NPCs, banking, teleporting, checking if players are nearby, etc.). Visit the Wiki for more.
+        1. Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions.
+           Visit the Wiki for more.
         2. A bot's main_loop() is called on a daemon thread, so it will terminate when the program is closed.
            If things ever get weird, closing the program will terminate the bot.
         '''
+
         # --- SCENARIO EXPLANATION ---
-        # This example bot loop simulates a character moving between Location A and B. Time.sleep() is used to
-        # simulate the bot waiting for conditions.
-        # Depending on your bot, it might be wise to add variables that keep track of progress/failed-attempts/etc.
+        '''
+        This ExampleBot script simulates a character moving between Location A and B. Time.sleep() is used to
+        simulate the bot waiting for conditions. Depending on your bot, it might be wise to add variables that
+        keep track of progress, failed-attempts, etc.
+        '''
         player_position = "A"
         times_walked = 0
 
         # --- CLIENT SETUP ---
-        # Before entering the bot loop, consider configuring the client window. Most bots will have a built-in 'setup()'
-        # function that does this, though you may want to make additional adjustments (E.g., setting auto-retaliate on/off).
-        # E.g., self.setup(some_option=True...)
+        '''
+        Before entering the bot loop, consider configuring the client window (E.g., setting auto-retaliate on/off,
+        zooming to a certain percentage, making sure the inventory tab is open, etc.). This is not required, but it
+        can be useful.
+        '''
+        # self.set_camera_zoom(50) # <-- zooms the camera to 50%
 
         # --- MAIN LOOP ---
-        # This program runs until the time elapsed exceeds the specified time limit.
-        # You may change this however you like (E.g., you may want to run the bot for a fixed number of iterations/kills).
+        '''
+        This program runs until the time elapsed exceeds the user-defined time limit.
+        You may change this however you like (E.g., you may want to run the bot for a fixed number of iterations/kills).
+        '''
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:

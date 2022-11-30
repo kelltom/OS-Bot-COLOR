@@ -197,7 +197,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
         state = "on" if toggle_on else "off"
         self.log_msg(f"Toggling auto retaliate {state}...")
         # click the combat tab
-        self.mouse.move_to(self.win.cp_tabs[0])
+        self.mouse.move_to(self.win.cp_tabs[0].random_point())
         pag.click()
         time.sleep(0.5)
 

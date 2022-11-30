@@ -44,9 +44,6 @@ class OSNRCombat(OSNRBot):
     def main_loop(self):
 
         # Client setup
-        self.set_camera_zoom(50)
-
-        # Make sure auto retaliate is on
         self.toggle_auto_retaliate(toggle_on=True)
 
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
