@@ -11,7 +11,7 @@ class OSNRFishing(OSNRBot):
     def __init__(self):
         title = "Fishing"
         description = ("This bot fishes... fish. Take out a rod and bait, position your character " +
-                       "near a fishing spot, and press play. Make sure the rest of your inventory is empty.")
+                       "near a tagged fishing spot, and press play.")
         super().__init__(title=title, description=description)
         self.running_time = 2
         self.protect_slots = 2

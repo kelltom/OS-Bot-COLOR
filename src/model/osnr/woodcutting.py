@@ -11,8 +11,7 @@ import time
 class OSNRWoodcutting(OSNRBot):
     def __init__(self):
         title = "Woodcutting"
-        description = ("This bot chops wood. Position your character near some trees, tag them, equip your axe, " +
-                      "and press the play button. NOTE: This bot ONLY banks at ::di.")
+        description = ("This bot chops wood. Position your character near some trees, tag them, and press the play button.")
         super().__init__(title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0
@@ -100,7 +99,7 @@ class OSNRWoodcutting(OSNRBot):
             # Click tree and wait to start cutting
             self.mouse.move_to(tree.random_point())
             self.mouse.click()
-            time.sleep(3)
+            time.sleep(5)
 
             # Wait so long as the player is cutting
             # -Could alternatively check the API for the player's idle status-

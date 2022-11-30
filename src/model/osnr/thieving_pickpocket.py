@@ -14,7 +14,7 @@ import utilities.bot_cv as bcv
 class OSNRThievingPickpocket(OSNRBot):
     def __init__(self):
         title = "Thieving: Pickpocket"
-        description = ("This bot steals from NPCs in OSNR. Position your character near the NPC you wish to steal from. " +
+        description = ("This bot steals from NPCs in OSNR. Position your character near a tagged NPC you wish to steal from. " +
                        "If you have food, tag all in inventory as light-blue. Start bot with > 50% HP. If you risk " +
                        "attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
         super().__init__(title=title, description=description)
