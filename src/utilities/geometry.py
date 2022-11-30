@@ -16,7 +16,7 @@ class Rectangle:
     '''
     subtract_list: List[dict] = None
 
-    def __init__(self, left: int, top: int, width: int, height: int, offset: Point = (0, 0)):
+    def __init__(self, left: int, top: int, width: int, height: int):
         '''
         Defines a rectangle area on screen.
         Args:
@@ -28,13 +28,13 @@ class Rectangle:
         Returns:
             A Rectangle object.
         '''
-        self.left = left + offset[0]
-        self.top = top + offset[1]
+        self.left = left
+        self.top = top
         self.width = width
         self.height = height
     
     @classmethod
-    def from_points(cls, start_point: Point, end_point: Point, offset: Point = Point(0, 0)):
+    def from_points(cls, start_point: Point, end_point: Point):
         '''
         Creates a Rectangle from two points.
         Args:
@@ -44,8 +44,6 @@ class Rectangle:
         Returns:
             A Rectangle object.
         '''
-        start_point = Point(start_point.x + offset.x, start_point.y + offset.y)
-        end_point = Point(end_point.x + offset.x, end_point.y + offset.y)
         return cls(start_point.x, start_point.y, end_point.x - start_point.x, end_point.y - start_point.y)
     
     def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
