@@ -1,2 +1,2 @@
 from .example_bot import ExampleBot
-from .test import TestBot
+from .ui_test_bot import TestBot

@@ -2,15 +2,16 @@
 This script is used to ensure that the Window properties are being set correctly.
 '''
 from model.runelite_bot import RuneLiteBot, BotStatus
+from model.runelite_bot import RuneLiteWindow
 from typing import List
 from utilities.geometry import Rectangle
-from model.runelite_bot import RuneLiteWindow
 import time
 
 class TestBot(RuneLiteBot):
     def __init__(self):
         title = "Test Bot"
-        description = ("This bot is for testing the new Window feature.")
+        description = ("This bot is for testing the new Window feature. Open an instance of RuneLite to see how the " +
+                       "mouse travels to the UI elements.")
         super().__init__(title=title, description=description, window=RuneLiteWindow(window_title="RuneLite"))
 
     def create_options(self):
