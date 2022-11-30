@@ -39,13 +39,13 @@ class RandomUtil:
             A random [x, y] coordinate within the bounding box.
         '''
         sg = secrets.SystemRandom()
+        if sg.randrange(0, 101) > 75:
+            return RandomUtil.__random_from(x, y, width, height)
         offset_percentage = sg.uniform(0.150, 0.350)
         start_inner_x = round(width * offset_percentage + x)
         start_inner_y = round(height * offset_percentage + y)
         start_x_percent = round(width * (1.000 - (offset_percentage * 2)))
         start_y_percent = round(height * (1.000 - (offset_percentage * 2)))
-        if sg.randrange(0, 101) > 75:
-            return RandomUtil.__random_from(x, y, width, height)
         random_index = sg.randrange(0, len(seeds))
         init_ratio_x = round(start_x_percent * seeds[random_index][0])
         init_ratio_y = round(start_y_percent * seeds[random_index][1])
@@ -53,7 +53,6 @@ class RandomUtil:
         start_fix_width, end_fix_width = real_start_x - x, width - init_ratio_x
         start_fix_height, end_fix_height = real_start_y - y, height - init_ratio_y
         real_width = start_fix_width if start_fix_width <= end_fix_width else end_fix_width
-
         if start_fix_height <= end_fix_height:
             real_height = start_fix_height
         else:
