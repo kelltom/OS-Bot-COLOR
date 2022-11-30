@@ -6,7 +6,6 @@ from model.osnr.osnr_bot import OSNRBot
 from typing import List
 from utilities.APIs.status_socket import StatusSocket
 from utilities.geometry import Point, RuneLiteObject
-import pathlib
 import pyautogui as pag
 import time
 import utilities.bot_cv as bcv
@@ -16,13 +15,12 @@ class OSNRThievingPickpocket(OSNRBot):
     def __init__(self):
         title = "Thieving: Pickpocket"
         description = ("This bot steals from NPCs in OSNR. Position your character near the NPC you wish to steal from. " +
-                       "If you have food, tag all in inventory as light-blue. Start bot with > 50% HP, If you risk " +
+                       "If you have food, tag all in inventory as light-blue. Start bot with > 50% HP. If you risk " +
                        "attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
         super().__init__(title=title, description=description)
         self.running_time = 5
         self.logout_on_friends = False
         self.pickpocket_option = 1
-        self.compass_direction = 0
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
         self.protect_rows = 5
@@ -32,7 +30,6 @@ class OSNRThievingPickpocket(OSNRBot):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("pickpocket_option", "Where is the pickpocket option?", ["Left-click", "2nd option", "3rd option"])
-        #self.options_builder.add_dropdown_option("compass_direction", "Compass direction?", ["North", "East", "South", "West"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
         self.options_builder.add_slider_option("protect_rows", "If dropping, protect rows?", 0, 6)
@@ -59,19 +56,6 @@ class OSNRThievingPickpocket(OSNRBot):
                 elif res == "3rd option":
                     self.pickpocket_option = 2
                     self.log_msg("Right click pickpocket enabled - 3rd option.")
-            elif option == "compass_direction":
-                if res == "North":
-                    self.compass_direction = 0
-                    self.log_msg("Compass direction: North.")
-                elif res == "East":
-                    self.compass_direction = 1
-                    self.log_msg("Compass direction: East.")
-                elif res == "South":
-                    self.compass_direction = 2
-                    self.log_msg("Compass direction: South.")
-                elif res == "West":
-                    self.compass_direction = 3
-                    self.log_msg("Compass direction: West.")
             elif option == "should_click_coin_pouch":
                 if res == "Yes":
                     self.should_click_coin_pouch = True
@@ -97,22 +81,23 @@ class OSNRThievingPickpocket(OSNRBot):
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
         api = StatusSocket()
-        self.setup_osnr(zoom_percentage=50)
+        
+        # Client setup
+        self.set_camera_zoom(40)
+
+        self.log_msg("Selecting inventory...")
+        self.mouse.move_to(self.win.cp_tabs[3].random_point())
+        self.mouse.click()
+
+        time.sleep(0.5)
+        self.disable_private_chat()
+        time.sleep(0.5)
 
         # Config camera
-        if self.compass_direction == 0:
-            self.set_compass_north()
-        elif self.compass_direction == 1:
-            self.set_compass_east()
-        elif self.compass_direction == 2:
-            self.set_compass_south()
-        elif self.compass_direction == 3:
-            self.set_compass_west()
-
         self.move_camera_up()
 
         # Anchors/counters
-        hp_threshold_pos = self.get_hp_pos()  # TODO: implement checking health threshold
+        hp_threshold_pos = self.__get_hp_pos()  # TODO: implement checking health threshold
         hp_threshold_rgb = pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y)
         npc_search_fail_count = 0
         theft_count = 0
@@ -123,11 +108,11 @@ class OSNRThievingPickpocket(OSNRBot):
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
             # Check if we should eat
-            hp_threshold_pos = self.get_hp_pos()
+            hp_threshold_pos = self.__get_hp_pos()
             while pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y) != hp_threshold_rgb:
                 if not self.status_check_passed():
                     return
-                foods: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.rect_inventory, color=self.BLUE)
+                foods: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.control_panel, color=self.BLUE)
                 if foods:
                     self.log_msg("Eating...")
                     self.__click_food(foods[0])
@@ -159,8 +144,11 @@ class OSNRThievingPickpocket(OSNRBot):
                     elif self.pickpocket_option == 2:
                         delta_y = 56
                     self.mouse.move_rel(x=0, y=delta_y, x_var=5, y_var=2, mouseSpeed="fastest")
-                pag.click()
-                if self.pickpocket_option == 0:
+                red_click = self.mouse.click_with_check()
+                if self.pickpocket_option == 0 and red_click:
+                    # If we missclicked on a left-click pickpocket, wait for a second to recalculate position
+                    time.sleep(1)
+                elif self.pickpocket_option == 0:
                     time.sleep(0.3)
                 npc_search_fail_count = 0
                 theft_count += 1
@@ -176,7 +164,7 @@ class OSNRThievingPickpocket(OSNRBot):
             # Click coin pouch
             if self.should_click_coin_pouch and theft_count % 20 == 0:
                 self.log_msg("Clicking coin pouch...")
-                pouch = bcv.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.rect_inventory())
+                pouch = bcv.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.control_panel)
                 if pouch:
                     self.mouse.move_to(pouch.random_point(), mouseSpeed='fast')
                     pag.click()
@@ -213,8 +201,8 @@ class OSNRThievingPickpocket(OSNRBot):
         self.logout()
         self.set_status(BotStatus.STOPPED)
     
-    def get_hp_pos(self) -> Point:
+    def __get_hp_pos(self) -> Point:
         '''
         Gets position on HP bar that we are checking the color of.
         '''
-        return self.win.get_relative_point(541, 394)
+        return self.win.hp_bar.get_center()

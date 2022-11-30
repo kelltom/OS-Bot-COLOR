@@ -42,17 +42,22 @@ class OSNRCombat(OSNRBot):
         self.log_msg("Options set successfully.")
 
     def main_loop(self):
-        self.setup_osnr(zoom_percentage=40)
 
-        self.set_compass_north()
-        self.move_camera_up()
+        # Client setup
+        self.set_camera_zoom(50)
 
         # Make sure auto retaliate is on
         self.toggle_auto_retaliate(toggle_on=True)
 
-        # Reselect inventory
-        self.mouse.move_to(self.win.cp_tab(4))
+        self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
+
+        time.sleep(0.5)
+        self.disable_private_chat()
+        time.sleep(0.5)
+
+        self.set_compass_north()
+        self.move_camera_up()
 
         start_time = time.time()
         end_time = self.running_time * 60

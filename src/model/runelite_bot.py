@@ -31,8 +31,7 @@ class RuneLiteWindow(Window):
         '''
         Overrirde of Window.initialize(). This function is called when the bot is started.
         '''
-        success = super().initialize()
-        if not success:
+        if not super().initialize():
             return False
         self.__locate_hp_prayer_bars(self.control_panel)
         self.current_action = Rectangle(left=10 + self.game_view.left, top=24 + self.game_view.top, width=128, height=18)
@@ -102,7 +101,6 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                                 knotsCount=1,
                                 offsetBoundaryY=40,
                                 offsetBoundaryX=40)
-            time.sleep(0.05)
             pag.click()
         pag.keyUp("shift")
 
@@ -114,8 +112,9 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         # screenshot minimap
         minimap = bcv.screenshot(self.win.minimap)
+        bcv.save_image("minimap.png", minimap)
         only_friends = bcv.isolate_colors(minimap, [self.GREEN])
-        #bcv.save_image("minimap_friends.png", only_friends)
+        bcv.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
         return mean != 0.0
 
