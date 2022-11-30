@@ -5,7 +5,7 @@ pre-implemented and can be used by subclasses, or called by the controller. Code
 from abc import ABC, abstractmethod
 from deprecated import deprecated
 from enum import Enum
-from model.window import Window
+from model.window import Window, WindowInitializationError
 from threading import Thread
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
@@ -121,17 +121,12 @@ class Bot(ABC):
         try:
             self.win.focus()
             time.sleep(0.5)
-            success = self.win.initialize()
-            if not success:
-                msg = "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' " \
-                      "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
-                self.log_msg(msg)
-                return False
-            return True
         except pygetwindow.PyGetWindowException as e:
-            print(f"Error: {e}")
-            self.set_status(BotStatus.STOPPED)
-            return False
+            return self.__halt_with_msg(str(e))
+        try:
+            self.win.initialize()
+        except WindowInitializationError as e:
+            return self.__halt_with_msg(str(e))
 
     def stop(self):
         '''
@@ -184,7 +179,6 @@ class Bot(ABC):
         if self.status == BotStatus.STOPPED:
             self.log_msg("Bot has been stopped.")
             return False
-        # If paused, enter loop until status is not paused
         elif self.status == BotStatus.PAUSED:
             self.log_msg("Bot is paused.\n")
             while self.status == BotStatus.PAUSED:
@@ -195,13 +189,16 @@ class Bot(ABC):
                     return False
                 timeout -= 1
                 if timeout == 0:
-                    self.log_msg("Timeout reached, stopping...")
-                    self.set_status(BotStatus.STOPPED)
-                    return False
+                    return self.__halt_with_msg("Timeout reached, stopping...")
                 if self.status == BotStatus.PAUSED:
                     self.log_msg(msg=f"Terminating in {timeout}.", overwrite=True)
                     continue
         return True
+
+    def __halt_with_msg(self, msg):
+        self.log_msg(msg)
+        self.set_status(BotStatus.STOPPED)
+        return False
 
     # ---- Controller Setter ----
     def set_controller(self, controller):

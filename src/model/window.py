@@ -2,14 +2,27 @@
 This class contains functions for interacting with the game client window. All Bot classes have a
 Window object as a property. This class allows you to locate important points/areas on screen no 
 matter where the game client is positioned. This class can be extended to add more functionality
-(See RuneLiteWindow within runelite_bot.py for an example). 
+(See RuneLiteWindow within runelite_bot.py for an example).
+
+At the moment, it only works for 2007-style interfaces. In the future, to accomodate other interface
+styles, this class should be abstracted, then extended for each interface style.
 '''
 from deprecated import deprecated
-from typing import List, Union
+from typing import List
 from utilities.geometry import Rectangle, Point
 import pygetwindow
 import time
 import utilities.bot_cv as bcv
+
+class WindowInitializationError(Exception):
+    '''
+    Exception raised for errors in the Window class.
+    '''
+    def __init__(self, message=None):
+        if message is None:
+            message = "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' " \
+                      "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
+        super().__init__(message)
 
 class Window:
 
@@ -92,7 +105,7 @@ class Window:
         if client := self.window:
             client.size = (width, height)
     
-    def initialize(self) -> bool:
+    def initialize(self):
         '''
         Initializes the client window by locating critical UI regions.
         This function should be called when the bot is started or resumed (done by default).
@@ -108,7 +121,9 @@ class Window:
         if all([a, b, c, d]): # if all templates found
             print(f"Window.initialize() took {time.time() - start_time} seconds.")
             return True
-        return False
+        msg = "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' " \
+                      "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
+        raise WindowInitializationError(msg)
         
     def __locate_chat(self, client_rect: Rectangle) -> bool:
         '''
