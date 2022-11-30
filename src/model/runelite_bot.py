@@ -30,6 +30,7 @@ class RuneLiteWindow(Window):
         '''
         super().__init__(window_title, padding_top=26, padding_left=0)
     
+    # Override
     def initialize(self) -> bool:
         '''
         Overrirde of Window.initialize(). This function is called when the bot is started.

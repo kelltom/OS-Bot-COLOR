@@ -305,7 +305,7 @@ class Bot(ABC):
         self.mouse.move_to(self.win.cp_tabs[10].random_point())
         pag.click()
         time.sleep(1)
-        self.mouse.move_rel(0, -53, 5, 5)  # Logout button
+        self.mouse.move_rel(0, -53, 5, 5)
         pag.click()
 
     # --- Player Status Functions ---
@@ -363,6 +363,27 @@ class Bot(ABC):
         pag.keyUp('up')
         time.sleep(0.5)
 
+    def set_compass_north(self):
+        self.log_msg("Setting compass North...")
+        self.mouse.move_to(self.win.compass_orb.random_point())
+        self.mouse.click()
+
+    def set_compass_west(self):
+        self.__compass_right_click("Setting compass West...", 72)
+
+    def set_compass_east(self):
+        self.__compass_right_click("Setting compass East...", 43)
+
+    def set_compass_south(self):
+        self.__compass_right_click("Setting compass South...", 57)
+
+    def __compass_right_click(self, msg, rel_y):
+        self.log_msg(msg)
+        self.mouse.move_to(self.win.compass_orb.random_point())
+        pag.rightClick()
+        self.mouse.move_rel(0, rel_y, 5, 2)
+        self.mouse.click()
+
     def set_camera_zoom(self, percentage: int) -> bool:
         '''
         Sets the camera zoom level.
@@ -385,6 +406,31 @@ class Bot(ABC):
         self.mouse.move_to((x, p.y))
         self.mouse.click()
         return True
+    
+    def toggle_auto_retaliate(self, toggle_on: bool):
+        '''
+        Toggles auto retaliate. Assumes client window is configured.
+        Args:
+            toggle_on: Whether to turn on or off.
+        '''
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling auto retaliate {state}...")
+        # click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point())
+        pag.click()
+        time.sleep(0.5)
+
+        if toggle_on:
+            if auto_retal_btn := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal.png", self.win.control_panel):
+                self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+            else:
+                self.log_msg("Auto retaliate is already on.")
+        elif auto_retal_btn := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal_on.png", self.win.control_panel):
+            self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
+            self.mouse.click()
+        else:
+            self.log_msg("Auto retaliate is already off.")
     
     def __open_display_settings(self) -> bool:
         '''
