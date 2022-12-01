@@ -71,11 +71,17 @@ class MouseUtils:
     
     def click(self) -> bool:
         '''
-        Clicks on the current mouse position.
+        Clicks on the current mouse position. Identical to pyautogui.click().
+        '''
+        pag.click()
+    
+    def click_with_check(self) -> bool:
+        '''
+        Clicks on the current mouse position and checks if the click was red.
         Returns:
             True if the click was red, False if the click was yellow.
         '''
-        pag.click()
+        self.click()
         return self.__is_red_click()
     
     def right_click(self):

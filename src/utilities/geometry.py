@@ -1,12 +1,22 @@
-from utilities.random_util import RandomUtil
 from typing import NamedTuple, Callable, List
+from utilities.random_util import RandomUtil
 import math
 import numpy as np
 
 Point = NamedTuple("Point", x=int, y=int)
 
 class Rectangle:
-    def __init__(self, left: int, top: int, width: int, height: int, offset: Point = (0, 0)):
+
+    '''
+    In very rare cases, we may want to exclude areas within a Rectangle (E.g., resizable game view).
+    This should contain a list of dicts that represent rectangles {left, top, width, height} that
+    will be subtracted from this Rectangle during screenshotting.
+    TODO: Since we only really screenshot Rectangles, maybe just move the Screenshot utility into
+          here...
+    '''
+    subtract_list: List[dict] = None
+
+    def __init__(self, left: int, top: int, width: int, height: int):
         '''
         Defines a rectangle area on screen.
         Args:
@@ -18,13 +28,13 @@ class Rectangle:
         Returns:
             A Rectangle object.
         '''
-        self.left = left + offset[0]
-        self.top = top + offset[1]
+        self.left = left
+        self.top = top
         self.width = width
         self.height = height
     
     @classmethod
-    def from_points(cls, start_point: Point, end_point: Point, offset: Point = Point(0, 0)):
+    def from_points(cls, start_point: Point, end_point: Point):
         '''
         Creates a Rectangle from two points.
         Args:
@@ -34,9 +44,23 @@ class Rectangle:
         Returns:
             A Rectangle object.
         '''
-        start_point = Point(start_point.x + offset.x, start_point.y + offset.y)
-        end_point = Point(end_point.x + offset.x, end_point.y + offset.y)
         return cls(start_point.x, start_point.y, end_point.x - start_point.x, end_point.y - start_point.y)
+    
+    def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
+        '''
+        Gets a random point within the Rectangle.
+        Args:
+            custom_seeds: A list of custom seeds to use for the random point. You can generate
+                            a seeds list using RandomUtil's random_seeds() function with args.
+                            Default: A random seed list based on current date and object position.
+        Returns:
+            A random Point within the Rectangle.
+        '''
+        if custom_seeds is None:
+            center = self.get_center()
+            custom_seeds = RandomUtil.random_seeds(mod=(center[0] + center[1]))
+        x, y = RandomUtil.random_point_in(self.left, self.top, self.width, self.height, custom_seeds)
+        return Point(x, y)
 
     def get_center(self) -> Point:
         '''
@@ -95,7 +119,7 @@ class Rectangle:
 
 class RuneLiteObject:
 
-    rect_ref = None
+    rect = None
 
     def __init__(self, x_min, x_max, y_min, y_max, width, height, center, axis):
         '''
@@ -117,14 +141,14 @@ class RuneLiteObject:
         self._center = center
         self._axis = axis
     
-    def set_rectangle_reference(self, rect_function: Callable):
+    def set_rectangle_reference(self, rect: Rectangle):
         '''
         Sets the rectangle reference of the object.
         Args:
-            rect_function: A reference to the function used to get info for the rectangle
-                           that this object belongs in (E.g., Bot.win.rect_game_view).
+            rect: A reference to the the rectangle that this object belongs in 
+                  (E.g., Bot.win.game_view).
         '''
-        self.rect_ref = rect_function
+        self.rect = rect
         
     def center(self) -> Point:  # sourcery skip: raise-specific-error
         '''
@@ -132,10 +156,9 @@ class RuneLiteObject:
         Returns:
             A Point.
         '''
-        if self.rect_ref is None:
+        if self.rect is None:
             raise Exception("Rectangle reference not set for object.")
-        rect: Rectangle = self.rect_ref()
-        return Point(self._center[0] + rect.left, self._center[1] + rect.top)
+        return Point(self._center[0] + self.rect.left, self._center[1] + self.rect.top)
 
     def distance_from_rect_center(self) -> float:
         '''
@@ -145,8 +168,7 @@ class RuneLiteObject:
             The distance from the point to the center of the object.
         '''
         center: Point = self.center()
-        rect: Rectangle = self.rect_ref()
-        rect_center: Point = rect.get_center()
+        rect_center: Point = self.rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
 
     def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
@@ -161,7 +183,6 @@ class RuneLiteObject:
         '''
         if custom_seeds is None:
             custom_seeds = RandomUtil.random_seeds(mod=(self._center[0] + self._center[1]))
-        # TODO make it return the point relative to the window - right now it's just relative to the image
         x, y = RandomUtil.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
         return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.center()
 
@@ -173,8 +194,7 @@ class RuneLiteObject:
         Returns:
             A Point relative to the client window.
         '''
-        rect: Rectangle = self.rect_ref()
-        return Point(point[0] + rect.left, point[1] + rect.top)
+        return Point(point[0] + self.rect.left, point[1] + self.rect.top)
 
     def __point_exists(self, p: list) -> bool:
         '''

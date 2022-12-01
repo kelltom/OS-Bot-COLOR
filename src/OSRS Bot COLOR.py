@@ -60,7 +60,7 @@ class App(customtkinter.CTk):
         # There should be a key for each game title, and the value should be a list of buttons for that game
         self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
             "Select a game": [],
-            "Alora": [],
+            #"Alora": [],
             "Near-Reality": [],  # AKA: OSNR
             "OSRS": []
         }
@@ -87,7 +87,7 @@ class App(customtkinter.CTk):
         self.home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
         self.views["Select a game"] = self.home_view
         self.views["OSRS"] = OSRSHomeView(parent=self, main=self)
-        self.views["Alora"] = AloraHomeView(parent=self, main=self)
+        #self.views["Alora"] = AloraHomeView(parent=self, main=self)
         self.views["Near-Reality"] = OSNRHomeView(parent=self, main=self)
 
         # Script view and controller [DO NOT EDIT]
@@ -110,6 +110,14 @@ class App(customtkinter.CTk):
         self.models["ExampleBot"].set_controller(self.controller)
         self.btn_map["OSRS"].append(self.__create_button("ExampleBot"))
 
+        self.models["TestBot"] = TestBot()
+        self.models["TestBot"].set_controller(self.controller)
+        self.btn_map["OSRS"].append(self.__create_button("TestBot"))
+
+        self.models["OSRSWoodcutter"] = OSRSWoodcutter()
+        self.models["OSRSWoodcutter"].set_controller(self.controller)
+        self.btn_map["OSRS"].append(self.__create_button("OSRSWoodcutter"))
+
         # ----- Old School Near-Reality (OSNR) Bots -----
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
@@ -123,10 +131,6 @@ class App(customtkinter.CTk):
         self.models["OSNRMining"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRMining"))
 
-        self.models["OSNRAstral"] = OSNRAstralRunes()
-        self.models["OSNRAstral"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRAstral"))
-
         self.models["OSNRThievingNPC"] = OSNRThievingPickpocket()
         self.models["OSNRThievingNPC"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingNPC"))
@@ -134,11 +138,6 @@ class App(customtkinter.CTk):
         self.models["OSNRWoodcutting"] = OSNRWoodcutting()
         self.models["OSNRWoodcutting"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRWoodcutting"))
-
-        # ----- Alora Bots -----
-        self.models["AloraCombat"] = AloraCombat()
-        self.models["AloraCombat"].set_controller(self.controller)
-        self.btn_map["Alora"].append(self.__create_button("AloraCombat"))
 
         # Status variables to track state of views and buttons
         self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]

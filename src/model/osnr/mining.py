@@ -42,21 +42,24 @@ class OSNRMining(OSNRBot):
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup
         api = StatusSocket()
-        self.setup_osnr(zoom_percentage=70)
+        
+        # Client setup
+        self.set_camera_zoom(50)
+
+        self.log_msg("Selecting inventory...")
+        self.mouse.move_to(self.win.cp_tabs[3].random_point())
+        self.mouse.click()
+
+        time.sleep(0.5)
+        self.disable_private_chat()
+        time.sleep(0.5)
+
+        # Set compass
+        self.set_compass_north()
+        self.move_camera_up()
 
         if not self.status_check_passed():
             return
-
-        # Set compass
-        self.mouse.move_to(self.win.orb_compass())
-        self.mouse.click()
-        time.sleep(0.5)
-
-        # Move camera up
-        pag.keyDown('up')
-        time.sleep(2)
-        pag.keyUp('up')
-        time.sleep(0.5)
 
         mined = 0
         failed_searches = 0
@@ -83,7 +86,7 @@ class OSNRMining(OSNRBot):
                 return
 
             # Get the rocks
-            rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.rect_game_view, self.PINK)
+            rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.game_view, self.PINK)
             if not rocks:
                 failed_searches += 1
                 if failed_searches > 5:
@@ -96,7 +99,7 @@ class OSNRMining(OSNRBot):
             # Whack the rock
             failed_searches = 0
             self.mouse.move_to(rocks[0].random_point(), mouseSpeed="fastest")
-            if not self.mouse.click():
+            if not self.mouse.click_with_check():
                 self.log_msg("Failed to click rock.")
                 time.sleep(1)
                 continue

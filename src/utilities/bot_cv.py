@@ -3,8 +3,7 @@ A set of computer vision utilities for use with bots.
 '''
 from deprecated import deprecated
 from easyocr import Reader
-from PIL import Image
-from typing import List 
+from typing import List, Union
 from utilities.geometry import Point, Rectangle
 import cv2
 import mss
@@ -21,6 +20,7 @@ BOT_IMAGES = f"{PATH}/images/bot"
 def screenshot(rect: Rectangle) -> cv2.Mat:
     '''
     Captures given Rectangle without saving into a file.
+    TODO: Consider moving to Rectangle as class method, since only Rectangles are ever screenshotted.
     Args:
         rect: Rectangle area to capture.
     Returns:
@@ -29,7 +29,11 @@ def screenshot(rect: Rectangle) -> cv2.Mat:
     with mss.mss() as sct:
         monitor = rect.to_dict()
         res = np.array(sct.grab(monitor))
-        return cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
+        res = cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
+        if rect.subtract_list:
+            for area in rect.subtract_list:
+                res[area['top']:area['top']+area['height'], area['left']:area['left']+area['width']] = np.array([0,0,0])
+        return res
 
 def save_image(filename, im) -> str:
     '''
@@ -72,41 +76,50 @@ def isolate_colors(image: cv2.Mat, colors: List[List[int]]) -> cv2.Mat:
     return mask
 
 # --- Image Search ---
-def __imagesearcharea(template, im, precision=0.8):
+def __imagesearcharea(template: cv2.Mat, im: cv2.Mat, confidence: float) -> Rectangle:
     '''
     Locates an image within another image.
     Args:
-        template: The path to the image to search for.
-        im: The image to search in (MSS ScreenShot or cv2.Mat).
-        precision: The precision of the search.
-    '''
-    img_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread(template, 0)
-    if template is None:
-        raise FileNotFoundError(f'Image file not found: {template}')
-
-    res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    return [-1, -1] if max_val < precision else max_loc
-
-def search_img_in_rect(img_path, rect: Rectangle, precision=0.8) -> Point:
-    '''
-    Searches for an image in a rectangle.
-    Args:
-        img_path: The path to the image to search for.
-        rect: The rectangle to search in.
-        precision: The confidence level of the search.
+        template: The image to search for.
+        im: The image to search in.
+        confidence: The confidence level of the search in range 0 to 1, where 0 is a perfect match.
     Returns:
-        The coordinates of the center of the image if found (as a Point) relative to display,
-        otherwise None.
+        A Rectangle outlining the found template inside the image.
     '''
-    width, height = Image.open(img_path).size
-    im = screenshot(rect)
-    pos = __imagesearcharea(img_path, im, precision)
+    # Get template dimensions
+    hh, ww = template.shape[:2]
 
-    if pos == [-1, -1]:
+    # Extract base image and alpha channel
+    base = template[:,:,0:3]
+    alpha = template[:,:,3]
+    alpha = cv2.merge([alpha,alpha,alpha])
+
+    correlation = cv2.matchTemplate(im, base, cv2.TM_SQDIFF_NORMED, mask=alpha)
+    min_val, _, min_loc, _ = cv2.minMaxLoc(correlation)
+    if min_val < confidence:
+        return Rectangle.from_points(Point(min_loc[0], min_loc[1]), Point(min_loc[0]+ww, min_loc[1]+hh))
+    return None
+
+def search_img_in_rect(image: Union[cv2.Mat, str], rect: Rectangle, confidence=0.15) -> Rectangle:
+    '''
+    Searches for an image in a rectangle. This function works with images containing transparency (sprites).
+    Args:
+        image: The path to the image to search for, or the image itself.
+        rect: The Rectangle to search in.
+        confidence: The confidence level of the search in range 0 to 1, where 0 is a perfect match.
+    Returns:
+        A Rectangle outlining the found image relative to the container, or None.
+    '''
+    if isinstance(image, str):
+        image = cv2.imread(image, cv2.IMREAD_UNCHANGED)
+    im = screenshot(rect)
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    if found_rect := __imagesearcharea(image, im, confidence):
+        found_rect.left += rect.left
+        found_rect.top += rect.top
+        return found_rect
+    else:
         return None
-    return Point(x=int(pos[0] + width / 2) + rect.left, y=int(pos[1] + height / 2) + rect.top)
 
 # --- OCR ---
 def get_numbers_in_rect(rect: Rectangle, is_low_res=False) -> list:

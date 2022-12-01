@@ -3,7 +3,7 @@ API utility for MorgHTTPClient socket plugin.
 
 Item IDs: https://github.com/runelite/runelite/blob/master/runelite-api/src/main/java/net/runelite/api/ItemID.java
 '''
-
+from deprecated import deprecated
 from requests.exceptions import ConnectionError
 from typing import List, Union, Tuple
 import requests
@@ -221,13 +221,13 @@ class MorgHTTPSocket:
 	def wait_til_gained_xp(
 			self,
 			skill: str,
-			timeout: int = 1
+			timeout: int = 10
 	) -> Union[int, None]:
 		'''
 		Waits until the player has gained xp in the inputted skill.
 		Args:
-			skill: the name of the skill (not case sensitive)
-			timeout: the maximum amount of time to wait for xp gain
+			skill: the name of the skill (not case sensitive).
+			timeout: the maximum amount of time to wait for xp gain (seconds).
 		Returns:
 			The xp gained of the skill as an int, or None if an error occurred.
 		'''
@@ -356,6 +356,7 @@ class MorgHTTPSocket:
 		res = data['npc name']
 		return res != 'null'
 
+	@deprecated(reason="This method seems to return unreliable values for the NPC's HP.")
 	def get_npc_hitpoints(self) -> Union[int, None]:
 		'''
 		Fetches the HP of the NPC currently targetted.
@@ -390,12 +391,12 @@ class MorgHTTPSocket:
 	
 	def get_inv_item_indices(self, id: Union[List[int], int]) -> list:
 		'''
-		For the given item ID, returns a list of inventory slot indexes that the item exists in.
+		For the given item ID(s), returns a list of inventory slot indexes that the item exists in.
 		Useful for locating items you do not want to drop.
 		Args:
 			id: The item ID to search for (an single ID, or list of IDs).
 		Returns:
-			A list of inventory slot indexes that the item exists in.
+			A list of inventory slot indexes that the item(s) exists in.
 		'''
 		try:
 			data = self.__do_get(endpoint=self.inv_endpoint)
@@ -408,6 +409,7 @@ class MorgHTTPSocket:
 		elif isinstance(id, list):
 			return [i for i, inventory_slot in enumerate(data) if inventory_slot['id'] in id]
 
+	@deprecated(reason="This function needs to be rewritten, as one item can't be stacked in multiple slots. Consider get_inv_item_indices instead.")
 	def find_item_in_inv(self, item_id: int) -> Union[List[Tuple[int, int]], None]:
 		'''
 		Finds an item in the inventory and returns a list of tuples containing the slot and quantity.
