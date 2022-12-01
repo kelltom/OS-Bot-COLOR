@@ -114,6 +114,10 @@ class App(customtkinter.CTk):
         self.models["TestBot"].set_controller(self.controller)
         self.btn_map["OSRS"].append(self.__create_button("TestBot"))
 
+        self.models["OSRSWoodcutter"] = OSRSWoodcutter()
+        self.models["OSRSWoodcutter"].set_controller(self.controller)
+        self.btn_map["OSRS"].append(self.__create_button("OSRSWoodcutter"))
+
         # ----- Old School Near-Reality (OSNR) Bots -----
         self.models["OSNRCombat"] = OSNRCombat()
         self.models["OSNRCombat"].set_controller(self.controller)
