@@ -32,7 +32,7 @@ def screenshot(rect: Rectangle) -> cv2.Mat:
         res = cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
         if rect.subtract_list:
             for area in rect.subtract_list:
-                res[area['top']:area['top']+area['height'], area['left']:area['left']+area['width']] = np.array([0,0,0])
+                res[area['top']:area['top']+area['height'], area['left']:area['left']+area['width']] = 0
         return res
 
 def save_image(filename, im) -> str:
