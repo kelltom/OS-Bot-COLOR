@@ -3,8 +3,12 @@ The RuneLiteBot class contains properties and functions that are common across a
 can be inherited by additional abstract classes representing all bots for a specific game (E.g., OSNRBot, AloraBot, etc.).
 
 To determine Thresholds for finding contours: https://pinetools.com/threshold-image
+
 For converting RGB to HSV:
     https://stackoverflow.com/questions/10948589/choosing-the-correct-upper-and-lower-hsv-boundaries-for-color-detection-withcv/48367205#48367205
+
+Item ID Database:
+    https://www.runelocus.com/tools/osrs-item-id-list/
 '''
 from abc import ABCMeta
 from deprecated import deprecated
@@ -69,6 +73,20 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
     BLUE = [0, 255, 255]
     PURPLE = [255, 170, 0]
     PINK = [255, 0, 231]
+
+    # RuneLite IDs of food to not drop
+    # TODO: Complete list of IDs
+    food_list = [
+        315,  # shrimp
+        1993, # jug of wine
+        329, # salmon
+        361, # tuna
+        379, # lobster
+        373, # swordfish
+        7946, # monkfish
+        3144, # karambwan
+        385, # shark
+    ]
 
     def __init__(self, title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
         super().__init__(title, description, window)

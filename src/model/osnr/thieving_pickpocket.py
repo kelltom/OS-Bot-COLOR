@@ -7,16 +7,15 @@ from typing import List
 from utilities.APIs.status_socket import StatusSocket
 from utilities.geometry import Point, RuneLiteObject
 import pyautogui as pag
+import pytweening
 import time
 import utilities.bot_cv as bcv
-
 
 class OSNRThievingPickpocket(OSNRBot):
     def __init__(self):
         title = "Thieving: Pickpocket"
         description = ("This bot steals from NPCs in OSNR. Position your character near a tagged NPC you wish to steal from. " +
-                       "If you have food, tag all in inventory as light-blue. Start bot with > 50% HP. If you risk " +
-                       "attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
+                       "Start bot with > 50% HP. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
         super().__init__(title=title, description=description)
         self.running_time = 5
         self.logout_on_friends = False
@@ -27,7 +26,7 @@ class OSNRThievingPickpocket(OSNRBot):
         self.coin_pouch_path = f"{bcv.BOT_IMAGES}/coin_pouch.png"
 
     def create_options(self):
-        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
+        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("pickpocket_option", "Where is the pickpocket option?", ["Left-click", "2nd option", "3rd option"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
@@ -82,19 +81,9 @@ class OSNRThievingPickpocket(OSNRBot):
         # Setup
         api = StatusSocket()
         
-        # Client setup
-        self.set_camera_zoom(40)
-
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
-
-        time.sleep(0.5)
-        self.disable_private_chat()
-        time.sleep(0.5)
-
-        # Config camera
-        self.move_camera_up()
 
         # Anchors/counters
         hp_threshold_pos = self.__get_hp_pos()  # TODO: implement checking health threshold
@@ -112,15 +101,17 @@ class OSNRThievingPickpocket(OSNRBot):
             while pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y) != hp_threshold_rgb:
                 if not self.status_check_passed():
                     return
-                foods: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.control_panel, color=self.BLUE)
-                if foods:
+                food_indexes = api.get_inv_item_indices(self.food_list)
+                if food_indexes:
                     self.log_msg("Eating...")
-                    self.__click_food(foods[0])
-                    if len(foods) > 1:  # eat another if available
+                    self.mouse.move_to(self.win.inventory_slots[food_indexes[0]].random_point())
+                    self.mouse.click()
+                    if len(food_indexes) > 1:  # eat another if available
                         time.sleep(1)
-                        self.__click_food(foods[1])
+                        self.mouse.move_to(self.win.inventory_slots[food_indexes[1]].random_point())
+                        self.mouse.click()
                 else:
-                    self.__logout("Out of food. Aborting...")
+                    self.__logout(f"Out of food. Bot ran for {(time.time() - start_time) / 60} minutes.")
                     return
 
             if not self.status_check_passed():
@@ -128,7 +119,13 @@ class OSNRThievingPickpocket(OSNRBot):
 
             # Check if we should drop inventory
             if self.should_drop_inv and api.get_is_inv_full():
-                self.drop_inventory(skip_rows=self.protect_rows)
+                skip_slots = api.get_inv_item_indices(self.food_list)
+                # Always drop the last row
+                remove = range(24, 28)
+                for index in remove:
+                    if index in skip_slots:
+                        skip_slots.remove(index)
+                self.drop_inventory(skip_rows=self.protect_rows, skip_slots=skip_slots)
 
             if not self.status_check_passed():
                 return
@@ -156,9 +153,7 @@ class OSNRThievingPickpocket(OSNRBot):
                 npc_search_fail_count += 1
                 time.sleep(1)
                 if npc_search_fail_count > 39:
-                    self.log_msg(f"No NPC found for {npc_search_fail_count} seconds. Aborting...")
-                    self.logout()
-                    self.set_status(BotStatus.STOPPED)
+                    self.__logout(f"No NPC found for {npc_search_fail_count} seconds. Bot ran for {(time.time() - start_time) / 60} minutes.")
                     return
 
             # Click coin pouch
@@ -166,7 +161,7 @@ class OSNRThievingPickpocket(OSNRBot):
                 self.log_msg("Clicking coin pouch...")
                 pouch = bcv.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.control_panel)
                 if pouch:
-                    self.mouse.move_to(pouch.random_point(), mouseSpeed='fast')
+                    self.mouse.move_to(pouch.random_point(), mouseSpeed='fast', tween=pytweening.easeInOutQuad)
                     pag.click()
                     time.sleep(0.2)
                     no_pouch_count = 0
@@ -179,7 +174,7 @@ class OSNRThievingPickpocket(OSNRBot):
 
             # Check for mods
             if self.logout_on_friends and self.friends_nearby():
-                self.__logout("Friends detected nearby...")
+                self.__logout(f"Friends detected nearby. Bot ran for {(time.time() - start_time) / 60} minutes.")
                 return
 
             if not self.status_check_passed():
@@ -190,11 +185,6 @@ class OSNRThievingPickpocket(OSNRBot):
 
         self.update_progress(1)
         self.__logout("Finished.")
-
-    def __click_food(self, food: RuneLiteObject):
-        self.mouse.move_to(food.random_point())
-        time.sleep(0.3)
-        pag.click()
 
     def __logout(self, msg):
         self.log_msg(msg)
