@@ -26,7 +26,7 @@ class OSNRThievingPickpocket(OSNRBot):
         self.coin_pouch_path = f"{bcv.BOT_IMAGES}/coin_pouch.png"
 
     def create_options(self):
-        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 200)
+        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("pickpocket_option", "Where is the pickpocket option?", ["Left-click", "2nd option", "3rd option"])
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
