@@ -355,6 +355,15 @@ class Bot(ABC):
         res = ocr.extract_text(img, ocr.PLAIN_11)
         return int(res) if (res := re.findall(r'\d+', res)) else None
     
+    def get_special_energy(self) -> int:
+        '''
+        Gets the special attack energy of the player.
+        '''
+        img = clr.isolate_colors(self.win.spec_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(img, ocr.PLAIN_11)
+        return int(res) if (res := re.findall(r'\d+', res)) else None
+    
+    # --- OCR Functions ---
     def mouseover_text(self, contains: str = None) -> Union[bool, str]:
         '''
         Examines the mouseover text area.

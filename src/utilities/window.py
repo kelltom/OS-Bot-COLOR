@@ -39,14 +39,15 @@ class Window:
     chat_tabs: List[Rectangle] = []  # https://i.imgur.com/2DH2SiL.png
 
     # Minimap Area
-    minimap_area: Rectangle = None  # https://i.imgur.com/idfcIPU.png OR https://i.imgur.com/xQ9xg1Z.png
-    minimap: Rectangle = None
     compass_orb: Rectangle = None
     hp_orb_text: Rectangle = None
+    minimap_area: Rectangle = None  # https://i.imgur.com/idfcIPU.png OR https://i.imgur.com/xQ9xg1Z.png
+    minimap: Rectangle = None
     prayer_orb_text: Rectangle = None
-    quick_prayer_orb: Rectangle = None
-    run_orb: Rectangle = None
+    prayer_orb: Rectangle = None
     run_orb_text: Rectangle = None
+    run_orb: Rectangle = None
+    spec_orb_text: Rectangle = None
     spec_orb: Rectangle = None
 
     # Game View Area
@@ -245,21 +246,23 @@ class Window:
             self.compass_orb = Rectangle(left=40 + m.left, top=7 + m.top, width=24, height=26)
             self.hp_orb_text = Rectangle(left=4 + m.left, top=60 + m.top, width=20, height=13)
             self.minimap = Rectangle(left=52 + m.left, top=5 + m.top, width=154, height=155)
+            self.prayer_orb = Rectangle(left=30 + m.left, top=86 + m.top, width=20, height=20)
             self.prayer_orb_text = Rectangle(left=4 + m.left, top=94 + m.top, width=20, height=13)
-            self.quick_prayer_orb = Rectangle(left=30 + m.left, top=86 + m.top, width=20, height=20)
             self.run_orb = Rectangle(left=39 + m.left, top=118 + m.top, width=20, height=20)
             self.run_orb_text = Rectangle(left=14 + m.left, top=126 + m.top, width=20, height=13)
             self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
+            self.spec_orb_text = Rectangle(left=36 + m.left, top=151 + m.top, width=20, height=13)
         elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("minimap_fixed.png"), client_rect):
             self.client_fixed = True
             self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
             self.hp_orb_text = Rectangle(left=4 + m.left, top=55 + m.top, width=20, height=13)
             self.minimap = Rectangle(left=52 + m.left, top=4 + m.top, width=147, height=160)
             self.prayer_orb_text = Rectangle(left=4 + m.left, top=89 + m.top, width=20, height=13)
-            self.quick_prayer_orb = Rectangle(left=30 + m.left, top=80 + m.top, width=19, height=20)
+            self.prayer_orb = Rectangle(left=30 + m.left, top=80 + m.top, width=19, height=20)
             self.run_orb = Rectangle(left=40 + m.left, top=112 + m.top, width=19, height=20)
             self.run_orb_text = Rectangle(left=14 + m.left, top=121 + m.top, width=20, height=13)
             self.spec_orb = Rectangle(left=62 + m.left, top=137 + m.top, width=19, height=20)
+            self.spec_orb_text = Rectangle(left=36 + m.left, top=146 + m.top, width=20, height=13)
         if m:
             # Take a bite out of the bottom-left corner of the minimap to exclude orb's green numbers
             self.minimap.subtract_list = [{'left': 0, 'top': self.minimap.height-20, 'width': 20, 'height': 20}]
