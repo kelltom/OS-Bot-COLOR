@@ -12,7 +12,8 @@ from typing import List
 from utilities.geometry import Rectangle, Point
 import pygetwindow
 import time
-import utilities.bot_cv as bcv
+import utilities.debug as debug
+import utilities.imagesearch as imsearch
 
 class WindowInitializationError(Exception):
     '''
@@ -45,10 +46,12 @@ class Window:
     prayer_orb_text: Rectangle = None
     quick_prayer_orb: Rectangle = None
     run_orb: Rectangle = None
+    run_orb_text: Rectangle = None
     spec_orb: Rectangle = None
 
     # Game View Area
     game_view: Rectangle = None
+    mouseover: Rectangle = None
 
     def __init__(self, window_title: str, padding_top: int, padding_left: int) -> None:
         '''
@@ -133,7 +136,7 @@ class Window:
         Returns:
             True if successful, False otherwise.
         '''
-        if chat := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/chat.png", client_rect):
+        if chat := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("chat.png"), client_rect):
             # Locate chat tabs
             self.chat_tabs = []
             x, y = 5, 143
@@ -153,7 +156,7 @@ class Window:
         Returns:
             True if successful, False otherwise.
         '''
-        if cp := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/inv.png", client_rect):
+        if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("inv.png"), client_rect):
             self.__locate_inv_slots(cp)
             self.__locate_cp_tabs(cp)
             self.control_panel = cp
@@ -224,6 +227,8 @@ class Window:
             control_panel['top'] -= self.game_view.top
 
             self.game_view.subtract_list = [minimap, chat, control_panel]
+        self.mouseover = Rectangle(left=self.game_view.left, top=self.game_view.top, width=407, height=26)
+        self.game_view.subtract_list.append(self.mouseover.to_dict())
         return True
 
     def __locate_minimap(self, client_rect: Rectangle) -> bool:
@@ -235,23 +240,25 @@ class Window:
             True if successful, False otherwise.
         '''
         # 'm' refers to minimap area
-        if m := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap.png", client_rect):
+        if m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("minimap.png"), client_rect):
             self.client_fixed = False
-            self.minimap = Rectangle(left=52 + m.left, top=5 + m.top, width=154, height=155)
             self.compass_orb = Rectangle(left=40 + m.left, top=7 + m.top, width=24, height=26)
-            self.hp_orb_text = Rectangle(left=4 + m.left, top=55 + m.top, width=20, height=13)
-            self.quick_prayer_orb = Rectangle(left=31 + m.left, top=85 + m.top, width=17, height=21)
-            self.prayer_orb_text = Rectangle(left=4 + m.left, top=94 + m.top, width=20, height=13)
-            self.run_orb = Rectangle(left=40 + m.left, top=119 + m.top, width=17, height=21)
-            self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
-        elif m := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/minimap_fixed.png", client_rect):
-            self.client_fixed = True
-            self.minimap = Rectangle(left=52 + m.left, top=4 + m.top, width=147, height=160)
-            self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
             self.hp_orb_text = Rectangle(left=4 + m.left, top=60 + m.top, width=20, height=13)
-            self.quick_prayer_orb = Rectangle(left=30 + m.left, top=80 + m.top, width=19, height=20)
+            self.minimap = Rectangle(left=52 + m.left, top=5 + m.top, width=154, height=155)
+            self.prayer_orb_text = Rectangle(left=4 + m.left, top=94 + m.top, width=20, height=13)
+            self.quick_prayer_orb = Rectangle(left=30 + m.left, top=86 + m.top, width=20, height=20)
+            self.run_orb = Rectangle(left=39 + m.left, top=118 + m.top, width=20, height=20)
+            self.run_orb_text = Rectangle(left=14 + m.left, top=126 + m.top, width=20, height=13)
+            self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
+        elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("minimap_fixed.png"), client_rect):
+            self.client_fixed = True
+            self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
+            self.hp_orb_text = Rectangle(left=4 + m.left, top=55 + m.top, width=20, height=13)
+            self.minimap = Rectangle(left=52 + m.left, top=4 + m.top, width=147, height=160)
             self.prayer_orb_text = Rectangle(left=4 + m.left, top=89 + m.top, width=20, height=13)
+            self.quick_prayer_orb = Rectangle(left=30 + m.left, top=80 + m.top, width=19, height=20)
             self.run_orb = Rectangle(left=40 + m.left, top=112 + m.top, width=19, height=20)
+            self.run_orb_text = Rectangle(left=14 + m.left, top=121 + m.top, width=20, height=13)
             self.spec_orb = Rectangle(left=62 + m.left, top=137 + m.top, width=19, height=20)
         if m:
             # Take a bite out of the bottom-left corner of the minimap to exclude orb's green numbers

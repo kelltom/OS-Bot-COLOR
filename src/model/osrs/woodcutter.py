@@ -1,11 +1,9 @@
-'''
-Trains Runecrafting via Astral Runes.
-'''
+
 from model.runelite_bot import RuneLiteBot, BotStatus
-from utilities.APIs.morg_http_client import MorgHTTPSocket
-from utilities.APIs.status_socket import StatusSocket
-import pyautogui as pag
+from utilities.api.morg_http_client import MorgHTTPSocket
+from utilities.api.status_socket import StatusSocket
 import time
+import utilities.color as clr
 
 class OSRSWoodcutter(RuneLiteBot):
     def __init__(self):
@@ -66,7 +64,7 @@ class OSRSWoodcutter(RuneLiteBot):
                 return
 
             # Find a tree
-            tree = self.get_nearest_tag(self.PINK)
+            tree = self.get_nearest_tag(clr.PINK)
             if tree is None:
                 failed_searches += 1
                 if failed_searches % 10 == 0:

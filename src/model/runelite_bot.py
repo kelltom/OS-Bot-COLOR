@@ -18,7 +18,10 @@ from utilities.geometry import Rectangle, Point, RuneLiteObject
 from utilities.window import Window
 import pyautogui as pag
 import time
-import utilities.bot_cv as bcv
+import utilities.color as clr
+import utilities.debug as debug
+import utilities.imagesearch as imsearch
+import utilities.ocr as ocr
 import utilities.runelite_cv as rcv
 
 class RuneLiteWindow(Window):
@@ -42,7 +45,7 @@ class RuneLiteWindow(Window):
         if not super().initialize():
             return False
         self.__locate_hp_prayer_bars()
-        self.current_action = Rectangle(left=10 + self.game_view.left, top=24 + self.game_view.top, width=128, height=18)
+        self.current_action = Rectangle(left=10 + self.game_view.left, top=27 + self.game_view.top, width=128, height=18)
         return True
     
     def __locate_hp_prayer_bars(self) -> None:
@@ -69,50 +72,30 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
 
     win: RuneLiteWindow = None
 
-    # --- Notable Colors [R, G, B] ---
-    BLUE = [0, 255, 255]
-    PURPLE = [255, 170, 0]
-    PINK = [255, 0, 231]
-
-    # RuneLite IDs of food to not drop
-    # TODO: Complete list of IDs
-    food_list = [
-        315,  # shrimp
-        1993, # jug of wine
-        329, # salmon
-        361, # tuna
-        379, # lobster
-        373, # swordfish
-        7946, # monkfish
-        3144, # karambwan
-        385, # shark
-    ]
-
     def __init__(self, title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
         super().__init__(title, description, window)
 
-    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function to check if player is idle.")
+    @deprecated(reason="This function may be innacurate. Consider using an API function to check if player is in combat.")
     def is_in_combat(self) -> bool:
         '''
         Returns whether the player is in combat. This is achieved by checking if text exists in the RuneLite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        result = bcv.get_text_in_rect(self.win.current_action)
-        return result.strip() != ""
+        img = clr.isolate_colors(self.win.current_action.screenshot(), clr.WHITE)
+        if ocr.extract_text(img, ocr.PLAIN_12):
+            return True
     
-    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function to check if player is idle.")
     def is_player_doing_action(self, action: str):
         '''
-        Returns whether the player is doing the given action.
+        Returns whether the player character is doing a given action. This works by checking the text in the current action
+        region of the game view.
         Args:
-            action: The action to check for.
+            action: The action to check for (E.g., "Woodcutting" - case sensitive).
         Returns:
             True if the player is doing the given action, False otherwise.
-        Example:
-            if self.is_player_doing_action("Woodcutting"):
-                print("Player is woodcutting!")
         '''
-        return bcv.search_text_in_rect(self.win.current_action, [action], ["not", "nof", "nol"])
+        isolated_colors = clr.isolate_colors(self.win.current_action.screenshot(), clr.GREEN)
+        return ocr.find_text(action, isolated_colors, ocr.PLAIN_12)
 
     # --- NPC/Object Detection ---
     def get_nearest_tagged_NPC(self, include_in_combat: bool = False) -> RuneLiteObject:
@@ -125,10 +108,10 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             A RuneLiteObject object or None if no tagged NPCs are found.
         '''
         game_view = self.win.game_view
-        img_game_view = bcv.screenshot(game_view)
+        img_game_view = game_view.screenshot()
         # Isolate colors in image
-        img_npcs = bcv.isolate_colors(img_game_view, [self.BLUE])
-        img_hp_bars = bcv.isolate_colors(img_game_view, [self.GREEN, self.RED])
+        img_npcs = clr.isolate_colors(img_game_view, clr.CYAN)
+        img_fighting_entities = clr.isolate_colors(img_game_view, [clr.GREEN, clr.RED])
         # Locate potential NPCs in image by determining contours
         objs = rcv.extract_objects(img_npcs)
         if not objs:
@@ -141,34 +124,34 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         if include_in_combat:
             return objs[0]
         for obj in objs:
-            if not rcv.is_point_obstructed(obj._center, img_hp_bars):
+            if not rcv.is_point_obstructed(obj._center, img_fighting_entities):
                 return obj
         return None
 
-    def get_all_tagged_in_rect(self, rect: Rectangle, color: List[int]) -> List[RuneLiteObject]:
+    def get_all_tagged_in_rect(self, rect: Rectangle, color: clr.Color) -> List[RuneLiteObject]:
         '''
         Finds all contours on screen of a particular color and returns a list of Shapes.
         Args:
             rect: A reference to the Rectangle that this shape belongs in (E.g., Bot.win.control_panel).
-            color: The color to search for in [R, G, B] format.
+            color: The clr.Color to search for.
         Returns:
             A list of RuneLiteObjects or empty list if none found.
         '''
-        img_rect = bcv.screenshot(rect)
-        bcv.save_image("get_all_tagged_in_rect.png", img_rect)
-        isolated_colors = bcv.isolate_colors(img_rect, [color])
+        img_rect = rect.screenshot()
+        #debug.save_image("get_all_tagged_in_rect.png", img_rect)
+        isolated_colors = clr.isolate_colors(img_rect, color)
         objs = rcv.extract_objects(isolated_colors)
         for obj in objs:
             obj.set_rectangle_reference(rect)
         return objs
     
-    def get_nearest_tag(self, color: List[int]) -> RuneLiteObject:
+    def get_nearest_tag(self, color: clr.Color) -> RuneLiteObject:
         '''
-        Finds the nearest Shape of a particular color within the game view and returns its center Point.
+        Finds the nearest outlined object of a particular color within the game view and returns it as a RuneLiteObject.
         Args:
-            color: The color to search for in [R, G, B] format.
+            color: The clr.Color to search for.
         Returns:
-            The nearest Shape to the character, or None if none found.
+            The nearest outline to the character as a RuneLiteObject, or None if none found.
         '''
         if shapes := self.get_all_tagged_in_rect(self.win.game_view, color):
             shapes_sorted = sorted(shapes, key=RuneLiteObject.distance_from_rect_center)
@@ -183,7 +166,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Identifies the RuneLite logout button and clicks it.
         '''
         self.log_msg("Logging out of RuneLite...")
-        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.win.rectangle(), confidence=0.9)
+        rl_login_icon = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath('runelite_logout.png'), self.win.rectangle(), confidence=0.9)
         if rl_login_icon is not None:
             self.mouse.move_to(rl_login_icon.random_point())
             pag.click()

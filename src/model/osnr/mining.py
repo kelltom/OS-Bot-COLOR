@@ -1,10 +1,9 @@
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 from typing import List
-from utilities.APIs.status_socket import StatusSocket
+from utilities.api.status_socket import StatusSocket
 from utilities.geometry import RuneLiteObject, Rectangle
-import pyautogui as pag
-import random
+import utilities.color as clr
 import time
 
 class OSNRMining(OSNRBot):
@@ -70,7 +69,7 @@ class OSNRMining(OSNRBot):
         while time.time() - start_time < end_time:
             if not self.status_check_passed():
                 return
-
+            
             # Check to drop inventory
             if api.get_is_inv_full():
                 self.drop_inventory()
@@ -86,7 +85,7 @@ class OSNRMining(OSNRBot):
                 return
 
             # Get the rocks
-            rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.game_view, self.PINK)
+            rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.game_view, clr.PINK)
             if not rocks:
                 failed_searches += 1
                 if failed_searches > 5:
@@ -99,10 +98,7 @@ class OSNRMining(OSNRBot):
             # Whack the rock
             failed_searches = 0
             self.mouse.move_to(rocks[0].random_point(), mouseSpeed="fastest")
-            if not self.mouse.click_with_check():
-                self.log_msg("Failed to click rock.")
-                time.sleep(1)
-                continue
+            self.mouse.click()
 
             while not api.get_is_player_idle():
                 if not self.status_check_passed():

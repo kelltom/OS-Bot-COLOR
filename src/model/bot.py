@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from deprecated import deprecated
 from enum import Enum
 from threading import Thread
+from typing import Union, List
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
@@ -16,8 +17,12 @@ import numpy as np
 import pyautogui as pag
 import pygetwindow
 import pytweening
+import re
 import time
-import utilities.bot_cv as bcv
+import utilities.color as clr
+import utilities.debug as debug
+import utilities.imagesearch as imsearch
+import utilities.ocr as ocr
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -33,15 +38,13 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
+    # --- Properties ---
     mouse = MouseUtils()
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED
     thread: Thread = None
     win: Window = None
-
-    GREEN = [0, 255, 0]
-    RED = [255, 0, 0]
 
     # ---- Abstract Functions ----
     @abstractmethod
@@ -289,15 +292,14 @@ class Bot(ABC):
         Returns:
             True if friends are nearby, False otherwise.
         '''
-        # screenshot minimap
-        minimap = bcv.screenshot(self.win.minimap)
-        bcv.save_image("minimap.png", minimap)
-        only_friends = bcv.isolate_colors(minimap, [self.GREEN])
-        bcv.save_image("minimap_friends.png", only_friends)
+        minimap = self.win.minimap.screenshot()
+        #debug.save_image("minimap.png", minimap)
+        only_friends = clr.isolate_colors(minimap, [clr.GREEN])
+        #debug.save_image("minimap_friends.png", only_friends)
         mean = only_friends.mean(axis=(0, 1))
         return mean != 0.0
 
-    def logout(self):
+    def logout(self):  # sourcery skip: class-extract-method
         '''
         Logs player out.
         '''
@@ -319,36 +321,73 @@ class Bot(ABC):
 
         # Make a rectangle around the character
         offset = 30
-        char_rect = Rectangle.from_points(Point(char_pos.x - offset, char_pos.y - offset*2),
-                                          Point(char_pos.x + offset, char_pos.y))
+        char_rect = Rectangle.from_points(Point(char_pos.x - offset, char_pos.y - offset),
+                                          Point(char_pos.x + offset, char_pos.y + offset))
         # Take a screenshot of rect
-        char_screenshot = bcv.screenshot(char_rect)
+        char_screenshot = char_rect.screenshot()
         # Isolate HP bars in that rectangle
-        hp_bars = bcv.isolate_colors(char_screenshot, [self.RED, self.GREEN])
+        hp_bars = clr.isolate_colors(char_screenshot, [clr.RED, clr.GREEN])
+        debug.save_image("hp_bars.png", hp_bars)
         # If there are any HP bars, return True
         return hp_bars.mean(axis=(0, 1)) != 0.0
     
-    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function, or check colors on the win.hp_bar.")
     def get_hp(self) -> int:
-        """
+        '''
         Gets the HP value of the player.
-        Returns:
-            The HP of the player, or None if not found.
-        """
-        res = bcv.get_numbers_in_rect(self.win.hp_orb_text, True)
-        print(res)
-        return None if res is None else res[0]
+        '''
+        img = clr.isolate_colors(self.win.hp_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(img, ocr.PLAIN_11)
+        return int(res[0]) if (res := re.findall(r'\d+', res)) else None
 
-    @deprecated(reason="The OCR this function uses may be innacurate. Consider using an API function, or check colors on the win.prayer_bar.")
     def get_prayer(self) -> int:
-        """
-        Gets the prayer value of the player.
+        '''
+        Gets the Prayer points of the player.
+        '''
+        img = clr.isolate_colors(self.win.prayer_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(img, ocr.PLAIN_11)
+        return int(res) if (res := re.findall(r'\d+', res)) else None
+    
+    def get_run_energy(self) -> int:
+        '''
+        Gets the run energy of the player.
+        '''
+        img = clr.isolate_colors(self.win.run_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(img, ocr.PLAIN_11)
+        return int(res) if (res := re.findall(r'\d+', res)) else None
+    
+    def mouseover_text(self, contains: str = None) -> Union[bool, str]:
+        '''
+        Examines the mouseover text area.
+        Args:
+            contains: The text to search for (single word or phrase). Case sensitive. If left blank, 
+                      returns all text in the mouseover area.
         Returns:
-            The prayer value of the player, or None if not found.
-        """
-        res = bcv.get_numbers_in_rect(self.win.prayer_orb_text, True)
-        print(res)
-        return None if res is None else res[0]
+            True if exact string is found, False otherwise.
+            If args are left blank, returns the text in the mouseover area.
+        '''
+        img = self.win.mouseover.screenshot()
+        img = clr.isolate_colors(img, [clr.OFF_CYAN, clr.OFF_GREEN, clr.OFF_ORANGE, clr.OFF_WHITE, clr.OFF_YELLOW])
+        if contains is None:
+            return ocr.extract_text(img, ocr.BOLD_12)
+        if ocr.find_text(contains, img, ocr.BOLD_12):
+            return True
+    
+    def chatbox_text(self, contains: str = None) -> Union[bool, str]:
+        '''
+        Examines the chatbox for text. Currently only captures player chat text.
+        Args:
+            contains: The text to search for (single word or phrase). Case sensitive. If left blank, 
+                      returns all text in the chatbox.
+        Returns:
+            True if exact string is found, False otherwise.
+            If args are left blank, returns the text in the chatbox.
+        '''
+        img = self.win.chat.screenshot()
+        img = clr.isolate_colors(img, clr.BLUE)
+        if contains is None:
+            return ocr.extract_text(img, ocr.PLAIN_12)
+        if ocr.find_text(contains, img, ocr.PLAIN_12):
+            return True
 
     # --- Client Settings ---
     # TODO: Add anti-ban functions that move camera around randomly
@@ -421,12 +460,12 @@ class Bot(ABC):
         time.sleep(0.5)
 
         if toggle_on:
-            if auto_retal_btn := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal.png", self.win.control_panel):
+            if auto_retal_btn := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath('near_reality', 'cp_combat_autoretal.png'), self.win.control_panel):
                 self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
                 self.mouse.click()
             else:
                 self.log_msg("Auto retaliate is already on.")
-        elif auto_retal_btn := bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/near_reality/cp_combat_autoretal_on.png", self.win.control_panel):
+        elif auto_retal_btn := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath('near_reality', 'cp_combat_autoretal_on.png'), self.win.control_panel):
             self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
             self.mouse.click()
         else:
@@ -442,7 +481,7 @@ class Bot(ABC):
         self.mouse.move_to(self.win.cp_tabs[11].random_point())
         self.mouse.click()
         time.sleep(0.5)
-        display_tab = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_display_tab.png", control_panel)
+        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath('cp_settings_display_tab.png'), control_panel)
         if display_tab is None:
             self.log_msg("Could not find the display settings tab.")
             return False

@@ -3,10 +3,9 @@ Trains Runecrafting via Astral Runes.
 '''
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
-from utilities.APIs.status_socket import StatusSocket
-import pyautogui as pag
+from utilities.api.status_socket import StatusSocket
 import time
-
+import utilities.color as clr
 
 class OSNRWoodcutting(OSNRBot):
     def __init__(self):
@@ -87,7 +86,7 @@ class OSNRWoodcutting(OSNRBot):
                 return
 
             # Find a tree
-            tree = self.get_nearest_tag(self.PINK)
+            tree = self.get_nearest_tag(clr.PINK)
             if tree is None:
                 failed_searches += 1
                 if failed_searches > 10:
