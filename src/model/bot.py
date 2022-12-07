@@ -364,22 +364,26 @@ class Bot(ABC):
         return int(res) if (res := re.findall(r'\d+', res)) else None
     
     # --- OCR Functions ---
-    def mouseover_text(self, contains: str = None) -> Union[bool, str]:
+    def mouseover_text(self, contains: str = None, color: Union[clr.Color, List[clr.Color]]=None) -> Union[bool, str]:
         '''
         Examines the mouseover text area.
         Args:
             contains: The text to search for (single word or phrase). Case sensitive. If left blank, 
                       returns all text in the mouseover area.
+            color: The color(s) to isolate. If left blank, isolates all expected colors. Consider using
+                   clr.OFF_* colors for best results.
         Returns:
             True if exact string is found, False otherwise.
             If args are left blank, returns the text in the mouseover area.
         '''
+        if color is None:
+            color = [clr.OFF_CYAN, clr.OFF_GREEN, clr.OFF_ORANGE, clr.OFF_WHITE, clr.OFF_YELLOW]
         img = self.win.mouseover.screenshot()
-        img = clr.isolate_colors(img, [clr.OFF_CYAN, clr.OFF_GREEN, clr.OFF_ORANGE, clr.OFF_WHITE, clr.OFF_YELLOW])
+        img = clr.isolate_colors(img, color)
+        debug.save_image("mouseover", img)
         if contains is None:
             return ocr.extract_text(img, ocr.BOLD_12)
-        if ocr.find_text(contains, img, ocr.BOLD_12):
-            return True
+        return bool(ocr.find_text(contains, img, ocr.BOLD_12))
     
     def chatbox_text(self, contains: str = None) -> Union[bool, str]:
         '''
