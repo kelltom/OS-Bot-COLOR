@@ -75,6 +75,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
     def __init__(self, title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
         super().__init__(title, description, window)
 
+    # --- OCR Functions ---
     @deprecated(reason="This function may be innacurate. Consider using an API function to check if player is in combat.")
     def is_in_combat(self) -> bool:
         '''
@@ -96,6 +97,40 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         isolated_colors = clr.isolate_colors(self.win.current_action.screenshot(), clr.GREEN)
         return ocr.find_text(action, isolated_colors, ocr.PLAIN_12)
+
+    def pickup_loot(self, item: str, supress_warning=True) -> bool:
+        '''
+        Picks up a single purple loot item off the ground. It is your responsibility to ensure you have
+        enough inventory space to pick up the item.
+        Args:
+            item: The name of the item to pick up (E.g., "Coins").
+        Returns:
+            True if the item was clicked, False otherwise.
+        '''
+        item = item.capitalize()
+        # Locate Ground Items text
+        img = clr.isolate_colors(self.win.game_view.screenshot(), clr.PURPLE)
+        if item_text := ocr.find_text(item, img, ocr.PLAIN_11, self.win.game_view):
+            self.mouse.move_to(item_text[0].get_center())
+            for _ in range(5):
+                if self.mouseover_text(contains=item, color=clr.OFF_ORANGE):
+                    break
+                self.mouse.move_rel(0, 5, 1, 1, mouseSpeed="fastest")
+                if not self.status_check_passed():
+                    return
+            self.mouse.right_click()
+            # search the right-click menu for "Take item name"
+            img = clr.isolate_colors(self.win.game_view.screenshot(), [clr.WHITE, clr.PURPLE, clr.ORANGE])
+            if take_text := ocr.find_text(f"Take {item}", img, ocr.BOLD_12, self.win.game_view):
+                self.mouse.move_to(take_text[0].random_point(), mouseSpeed="medium")
+                self.mouse.click()
+                return True
+            else:
+                self.log_msg(f"Could not find 'Take {item}' in right-click menu.")
+                return False
+        elif not supress_warning:
+            self.log_msg(f"Could not find '{item}' on the ground.")
+            return False
 
     # --- NPC/Object Detection ---
     def get_nearest_tagged_NPC(self, include_in_combat: bool = False) -> RuneLiteObject:

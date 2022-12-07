@@ -4,6 +4,7 @@ from typing import List
 import cv2
 import numpy as np
 import pathlib
+import utilities.debug as debug
 
 def __load_font(font: str):
     '''
