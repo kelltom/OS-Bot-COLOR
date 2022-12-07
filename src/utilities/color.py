@@ -49,7 +49,7 @@ YELLOW = Color([255, 255, 0])
 '''Colors for use with semi-transparent text'''
 OFF_CYAN = Color([0, 200, 200], [70, 255, 255])
 OFF_GREEN = Color([0, 100, 0], [30, 255, 255])
-OFF_ORANGE = Color([200, 120, 50], [255, 166, 103])
+OFF_ORANGE = Color([180, 100, 30], [255, 166, 103])
 OFF_WHITE = Color([190, 190, 190], [255, 255, 255])
 OFF_YELLOW = Color([190, 190, 0], [255, 255, 120])
 

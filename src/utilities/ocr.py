@@ -54,7 +54,7 @@ def extract_text(image: cv2.Mat, font: dict) -> str:
     # Join the charachers into a string
     return result.join(letter for letter, _, _ in char_list)
 
-def find_text(text: str, image: cv2.Mat, font: dict, rect_rel: dict=None) -> List[Rectangle]:
+def find_text(text: str, image: cv2.Mat, font: dict, rect_rel: Rectangle=None) -> List[Rectangle]:
     '''
     Searches for exact, white text within an image. This function IS case sensitive.
     Args:
@@ -100,8 +100,8 @@ def find_text(text: str, image: cv2.Mat, font: dict, rect_rel: dict=None) -> Lis
                 # get the width (height is the same for all letters)
                 width = char_list[index+len(word)-1][1] - left + w
                 if rect_rel:
-                    left += rect_rel['left']
-                    top += rect_rel['top']
+                    left += rect_rel.left
+                    top += rect_rel.top
                 words_found.append(Rectangle(left, top, width, h))
                 index += len(word)
     return words_found

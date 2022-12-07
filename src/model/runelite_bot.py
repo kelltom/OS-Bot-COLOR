@@ -45,7 +45,7 @@ class RuneLiteWindow(Window):
         if not super().initialize():
             return False
         self.__locate_hp_prayer_bars()
-        self.current_action = Rectangle(left=10 + self.game_view.left, top=27 + self.game_view.top, width=128, height=18)
+        self.current_action = Rectangle(left=10 + self.game_view.left, top=25 + self.game_view.top, width=128, height=20)
         return True
     
     def __locate_hp_prayer_bars(self) -> None:
