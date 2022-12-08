@@ -59,7 +59,7 @@ class OSNRCombat(OSNRBot):
                 return
 
             # loot
-            if not api.get_is_inv_full() and self.pickup_loot("Cowhide"):
+            if not api.get_is_inv_full() and self.pick_up_loot("Cowhide"):
                 inv_count = len(api.get_inv())
                 self.log_msg("Looting...")
                 loot_timeout = 5  # wait up to 5 seconds to finish picking it up

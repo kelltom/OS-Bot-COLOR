@@ -1,10 +1,11 @@
 from utilities.geometry import Rectangle
 from operator import itemgetter
-from typing import List
+from typing import List, Union
 import cv2
 import numpy as np
 import pathlib
 import utilities.debug as debug
+import utilities.color as clr
 
 def __load_font(font: str):
     '''
@@ -55,18 +56,20 @@ def extract_text(image: cv2.Mat, font: dict) -> str:
     # Join the charachers into a string
     return result.join(letter for letter, _, _ in char_list)
 
-def find_text(text: str, image: cv2.Mat, font: dict, rect_rel: Rectangle=None) -> List[Rectangle]:
+def find_text(text: str, rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> List[Rectangle]:
     '''
     Searches for exact, white text within an image. This function IS case sensitive.
     Args:
         text: The text to search for. Can be a phrase or a single word. Case sensitive.
-        image: The image to search.
+        rect: The rectangle to search within.
         font: The font type to search for.
-        rect_rel: The rectangle the image belongs to. If included, the returned coordinates
-                  will be relative to this Rectangle.
+        color: The color(s) of the text to search for.
     Returns:
         A list of Rectangles containing the coordinates of the text found.
     '''
+    # Screenshot and isolate colors
+    image = clr.isolate_colors(rect.screenshot(), color)
+
     # Extract unique characters from input text
     chars = ''.join(set(''.join(text))).replace(' ', '')
     char_list = []
@@ -100,9 +103,6 @@ def find_text(text: str, image: cv2.Mat, font: dict, rect_rel: Rectangle=None) -
                 h, w = font[word[-1]].shape[:2]
                 # get the width (height is the same for all letters)
                 width = char_list[index+len(word)-1][1] - left + w
-                if rect_rel:
-                    left += rect_rel.left
-                    top += rect_rel.top
-                words_found.append(Rectangle(left, top, width, h))
+                words_found.append(Rectangle(left + rect.left, top + rect.top, width, h))
                 index += len(word)
     return words_found

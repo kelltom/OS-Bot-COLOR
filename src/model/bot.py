@@ -383,7 +383,7 @@ class Bot(ABC):
         debug.save_image("mouseover", img)
         if contains is None:
             return ocr.extract_text(img, ocr.BOLD_12)
-        return bool(ocr.find_text(contains, img, ocr.BOLD_12))
+        return bool(ocr.find_text(contains, self.win.mouseover, ocr.BOLD_12, color))
     
     def chatbox_text(self, contains: str = None) -> Union[bool, str]:
         '''
@@ -399,7 +399,7 @@ class Bot(ABC):
         img = clr.isolate_colors(img, clr.BLUE)
         if contains is None:
             return ocr.extract_text(img, ocr.PLAIN_12)
-        if ocr.find_text(contains, img, ocr.PLAIN_12):
+        if ocr.find_text(contains, self.win.chat, ocr.PLAIN_12, color=clr.BLUE):
             return True
 
     # --- Client Settings ---
