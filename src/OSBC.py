@@ -114,6 +114,10 @@ class App(customtkinter.CTk):
         self.models["TestBot"].set_controller(self.controller)
         self.btn_map["OSRS"].append(self.__create_button("TestBot"))
 
+        self.models["OSRSCombat"] = OSRSCombat()
+        self.models["OSRSCombat"].set_controller(self.controller)
+        self.btn_map["OSRS"].append(self.__create_button("OSRSCombat"))
+
         self.models["OSRSWoodcutter"] = OSRSWoodcutter()
         self.models["OSRSWoodcutter"].set_controller(self.controller)
         self.btn_map["OSRS"].append(self.__create_button("OSRSWoodcutter"))
