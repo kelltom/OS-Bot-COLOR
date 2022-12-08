@@ -31,15 +31,19 @@ BOLD_12 = __load_font("Bold12") # Main text, top-left mouseover text, overhead c
 QUILL = __load_font("Quill") # Large bold quest text
 QUILL_8 = __load_font("Quill8") # Small quest text
 
-def extract_text(image: cv2.Mat, font: dict) -> str:
+def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> str:
     '''
     Extracts white text from an image.
     Args:
         rect: The rectangle to search.
         font: The font type to search for.
+        color: The color(s) of the text to search for.
     Returns:
         A single string containing the text found in order, no spaces.
     '''
+    # Screenshot and isolate colors
+    image = clr.isolate_colors(rect.screenshot(), color)
+
     result = ''
     char_list = []
     for key in font:

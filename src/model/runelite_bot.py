@@ -76,14 +76,13 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         super().__init__(title, description, window)
 
     # --- OCR Functions ---
-    @deprecated(reason="This function may be innacurate. Consider using an API function to check if player is in combat.")
+    @deprecated(reason="This is a slow way of checking if you are in combat. Consider using an API function instead.")
     def is_in_combat(self) -> bool:
         '''
         Returns whether the player is in combat. This is achieved by checking if text exists in the RuneLite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        img = clr.isolate_colors(self.win.current_action.screenshot(), clr.WHITE)
-        if ocr.extract_text(img, ocr.PLAIN_12):
+        if ocr.extract_text(self.win.current_action, ocr.PLAIN_12, clr.WHITE):
             return True
     
     def is_player_doing_action(self, action: str):

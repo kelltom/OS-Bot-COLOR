@@ -335,32 +335,28 @@ class Bot(ABC):
         '''
         Gets the HP value of the player.
         '''
-        img = clr.isolate_colors(self.win.hp_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
-        res = ocr.extract_text(img, ocr.PLAIN_11)
+        res = ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
         return int(res[0]) if (res := re.findall(r'\d+', res)) else None
 
     def get_prayer(self) -> int:
         '''
         Gets the Prayer points of the player.
         '''
-        img = clr.isolate_colors(self.win.prayer_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
-        res = ocr.extract_text(img, ocr.PLAIN_11)
+        res = ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
         return int(res) if (res := re.findall(r'\d+', res)) else None
     
     def get_run_energy(self) -> int:
         '''
         Gets the run energy of the player.
         '''
-        img = clr.isolate_colors(self.win.run_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
-        res = ocr.extract_text(img, ocr.PLAIN_11)
+        res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
         return int(res) if (res := re.findall(r'\d+', res)) else None
     
     def get_special_energy(self) -> int:
         '''
         Gets the special attack energy of the player.
         '''
-        img = clr.isolate_colors(self.win.spec_orb_text.screenshot(), [clr.ORB_GREEN, clr.ORB_RED])
-        res = ocr.extract_text(img, ocr.PLAIN_11)
+        res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
         return int(res) if (res := re.findall(r'\d+', res)) else None
     
     # --- OCR Functions ---
@@ -378,11 +374,8 @@ class Bot(ABC):
         '''
         if color is None:
             color = [clr.OFF_CYAN, clr.OFF_GREEN, clr.OFF_ORANGE, clr.OFF_WHITE, clr.OFF_YELLOW]
-        img = self.win.mouseover.screenshot()
-        img = clr.isolate_colors(img, color)
-        debug.save_image("mouseover", img)
         if contains is None:
-            return ocr.extract_text(img, ocr.BOLD_12)
+            return ocr.extract_text(self.win.mouseover, ocr.BOLD_12, color)
         return bool(ocr.find_text(contains, self.win.mouseover, ocr.BOLD_12, color))
     
     def chatbox_text(self, contains: str = None) -> Union[bool, str]:
@@ -395,11 +388,9 @@ class Bot(ABC):
             True if exact string is found, False otherwise.
             If args are left blank, returns the text in the chatbox.
         '''
-        img = self.win.chat.screenshot()
-        img = clr.isolate_colors(img, clr.BLUE)
         if contains is None:
-            return ocr.extract_text(img, ocr.PLAIN_12)
-        if ocr.find_text(contains, self.win.chat, ocr.PLAIN_12, color=clr.BLUE):
+            return ocr.extract_text(self.win.chat, ocr.PLAIN_12, clr.BLUE)
+        if ocr.find_text(contains, self.win.chat, ocr.PLAIN_12, clr.BLUE):
             return True
 
     # --- Client Settings ---
