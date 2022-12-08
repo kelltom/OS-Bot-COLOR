@@ -13,7 +13,7 @@ Item ID Database:
 from abc import ABCMeta
 from deprecated import deprecated
 from model.bot import Bot, BotStatus
-from typing import List
+from typing import List, Union
 from utilities.geometry import Rectangle, Point, RuneLiteObject
 from utilities.window import Window
 import pyautogui as pag
@@ -96,36 +96,42 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         '''
         return ocr.find_text(action, self.win.current_action, ocr.PLAIN_12, clr.GREEN)
 
-    def pick_up_loot(self, item: str, supress_warning=True) -> bool:
+    def pick_up_loot(self, items: Union[str, List[str]], supress_warning=True) -> bool:
         '''
         Attempts to pick up a single purple loot item off the ground. It is your responsibility to ensure you have
         enough inventory space to pick up the item.
         Args:
-            item: The name of the item to pick up (E.g., "Coins").
+            item: The name(s) of the item(s) to pick up (E.g., "Coins", or ["Coins", "Dragon bones"]).
         Returns:
             True if the item was clicked, False otherwise.
         '''
-        item = item.capitalize()
+        # Capitalize each item name
+        if isinstance(items, list):
+            for i, item in enumerate(items):
+                item = item.capitalize()
+                items[i] = item
+        else:
+            items = items.capitalize()
         # Locate Ground Items text
-        if item_text := ocr.find_text(item, self.win.game_view, ocr.PLAIN_11, clr.PURPLE):
-            self.mouse.move_to(item_text[-1].get_center())
+        if item_text := ocr.find_text(items, self.win.game_view, ocr.PLAIN_11, clr.PURPLE):
+            self.mouse.move_to(item_text[len(item_text) // 2].get_center())
             for _ in range(5):
-                if self.mouseover_text(contains=item, color=clr.OFF_ORANGE):
+                if self.mouseover_text(contains=["Take"] + items, color=[clr.OFF_WHITE, clr.OFF_ORANGE]):
                     break
-                self.mouse.move_rel(0, 5, 1, 1, mouseSpeed="fastest")
+                self.mouse.move_rel(0, 3, 1, mouseSpeed="fastest")
                 if not self.status_check_passed():
                     return
             self.mouse.right_click()
-            # search the right-click menu for "Take item name"
-            if take_text := ocr.find_text(f"Take {item}", self.win.game_view, ocr.BOLD_12, [clr.WHITE, clr.PURPLE, clr.ORANGE]):
+            # search the right-click menu
+            if take_text := ocr.find_text(items, self.win.game_view, ocr.BOLD_12, [clr.WHITE, clr.PURPLE, clr.ORANGE]):
                 self.mouse.move_to(take_text[0].random_point(), mouseSpeed="medium")
                 self.mouse.click()
                 return True
             else:
-                self.log_msg(f"Could not find 'Take {item}' in right-click menu.")
+                self.log_msg(f"Could not find 'Take {items}' in right-click menu.")
                 return False
         elif not supress_warning:
-            self.log_msg(f"Could not find '{item}' on the ground.")
+            self.log_msg(f"Could not find '{items}' on the ground.")
             return False
 
     # --- NPC/Object Detection ---

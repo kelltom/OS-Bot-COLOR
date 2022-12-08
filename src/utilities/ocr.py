@@ -60,11 +60,12 @@ def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.C
     # Join the charachers into a string
     return result.join(letter for letter, _, _ in char_list)
 
-def find_text(text: str, rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> List[Rectangle]:
+def find_text(text: Union[str, List[str]], rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> List[Rectangle]:
     '''
-    Searches for exact, white text within an image. This function IS case sensitive.
+    Searches for exact text within an image. The text IS case sensitive.
     Args:
-        text: The text to search for. Can be a phrase or a single word. Case sensitive.
+        text: The text to search for. Can be a phrase or a single word. You may also pass a list of strings to search for,
+              but you may not be able to distinguish between them in the function output.
         rect: The rectangle to search within.
         font: The font type to search for.
         color: The color(s) of the text to search for.

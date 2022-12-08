@@ -360,11 +360,11 @@ class Bot(ABC):
         return int(res) if (res := re.findall(r'\d+', res)) else None
     
     # --- OCR Functions ---
-    def mouseover_text(self, contains: str = None, color: Union[clr.Color, List[clr.Color]]=None) -> Union[bool, str]:
+    def mouseover_text(self, contains: Union[str, List[str]] = None, color: Union[clr.Color, List[clr.Color]]=None) -> Union[bool, str]:
         '''
         Examines the mouseover text area.
         Args:
-            contains: The text to search for (single word or phrase). Case sensitive. If left blank, 
+            contains: The text to search for (single word, phrase, or list of words). Case sensitive. If left blank, 
                       returns all text in the mouseover area.
             color: The color(s) to isolate. If left blank, isolates all expected colors. Consider using
                    clr.OFF_* colors for best results.
