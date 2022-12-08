@@ -4,12 +4,14 @@ Thieving bot for OSNR. Pickpockets from NPCs.
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 from typing import List
-from utilities.APIs.status_socket import StatusSocket
+from utilities.api.status_socket import StatusSocket
 from utilities.geometry import Point, RuneLiteObject
 import pyautogui as pag
 import pytweening
 import time
-import utilities.bot_cv as bcv
+import utilities.api.item_ids as item_ids
+import utilities.color as clr
+import utilities.imagesearch as imsearch
 
 class OSNRThievingPickpocket(OSNRBot):
     def __init__(self):
@@ -23,7 +25,7 @@ class OSNRThievingPickpocket(OSNRBot):
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
         self.protect_rows = 5
-        self.coin_pouch_path = f"{bcv.BOT_IMAGES}/coin_pouch.png"
+        self.coin_pouch_path = imsearch.BOT_IMAGES.joinpath('coin_pouch.png')
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
@@ -86,8 +88,6 @@ class OSNRThievingPickpocket(OSNRBot):
         self.mouse.click()
 
         # Anchors/counters
-        hp_threshold_pos = self.__get_hp_pos()  # TODO: implement checking health threshold
-        hp_threshold_rgb = pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y)
         npc_search_fail_count = 0
         theft_count = 0
         no_pouch_count = 0
@@ -97,11 +97,10 @@ class OSNRThievingPickpocket(OSNRBot):
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
             # Check if we should eat
-            hp_threshold_pos = self.__get_hp_pos()
-            while pag.pixel(hp_threshold_pos.x, hp_threshold_pos.y) != hp_threshold_rgb:
+            while self.get_hp() < 50:
                 if not self.status_check_passed():
                     return
-                food_indexes = api.get_inv_item_indices(self.food_list)
+                food_indexes = api.get_inv_item_indices(item_ids.food_list)
                 if food_indexes:
                     self.log_msg("Eating...")
                     self.mouse.move_to(self.win.inventory_slots[food_indexes[0]].random_point())
@@ -119,7 +118,7 @@ class OSNRThievingPickpocket(OSNRBot):
 
             # Check if we should drop inventory
             if self.should_drop_inv and api.get_is_inv_full():
-                skip_slots = api.get_inv_item_indices(self.food_list)
+                skip_slots = api.get_inv_item_indices(item_ids.food_list)
                 # Always drop the last row
                 remove = range(24, 28)
                 for index in remove:
@@ -131,7 +130,7 @@ class OSNRThievingPickpocket(OSNRBot):
                 return
 
             # Steal from NPC
-            npc_pos: RuneLiteObject = self.get_nearest_tag(self.BLUE)
+            npc_pos: RuneLiteObject = self.get_nearest_tag(clr.CYAN)
             if npc_pos is not None:
                 self.mouse.move_to(npc_pos.random_point(), mouseSpeed='fastest')
                 if self.pickpocket_option != 0:
@@ -159,7 +158,7 @@ class OSNRThievingPickpocket(OSNRBot):
             # Click coin pouch
             if self.should_click_coin_pouch and theft_count % 20 == 0:
                 self.log_msg("Clicking coin pouch...")
-                pouch = bcv.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.control_panel)
+                pouch = imsearch.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.control_panel)
                 if pouch:
                     self.mouse.move_to(pouch.random_point(), mouseSpeed='fast', tween=pytweening.easeInOutQuad)
                     pag.click()
@@ -190,9 +189,3 @@ class OSNRThievingPickpocket(OSNRBot):
         self.log_msg(msg)
         self.logout()
         self.set_status(BotStatus.STOPPED)
-    
-    def __get_hp_pos(self) -> Point:
-        '''
-        Gets position on HP bar that we are checking the color of.
-        '''
-        return self.win.hp_bar.get_center()

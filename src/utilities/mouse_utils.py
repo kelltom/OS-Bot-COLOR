@@ -1,3 +1,4 @@
+from deprecated import deprecated
 from pyclick import HumanCurve
 from utilities.geometry import Rectangle, Point
 import numpy as np
@@ -5,7 +6,7 @@ import pyautogui as pag
 import pytweening
 import random as rd
 import time
-import utilities.bot_cv as bcv
+import utilities.color as clr
 
 class MouseUtils:
 
@@ -75,6 +76,7 @@ class MouseUtils:
         '''
         pag.click()
     
+    @deprecated(version='0.2.0', reason="Currently unreliable. Use click() instead.")
     def click_with_check(self) -> bool:
         '''
         Clicks on the current mouse position and checks if the click was red.
@@ -95,10 +97,10 @@ class MouseUtils:
         '''
         mouse_x, mouse_y = pag.position()
         # Make rect around cursor for screenshot
-        mouse_rect = Rectangle.from_points(Point(mouse_x - 3, mouse_y - 3),
-                                           Point(mouse_x + 3, mouse_y + 3))
+        mouse_rect = Rectangle.from_points(Point(mouse_x - 5, mouse_y - 5),
+                                           Point(mouse_x + 5, mouse_y + 5))
         # Isolate red click from screenshot
-        mouse_red_click = bcv.isolate_colors(bcv.screenshot(mouse_rect), [[255, 0, 0]])
+        mouse_red_click = clr.isolate_colors(mouse_rect.screenshot(), clr.RED)
         return np.any(mouse_red_click)
 
     def __calculate_knots(self, destination: tuple):

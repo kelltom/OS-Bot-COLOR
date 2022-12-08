@@ -1,1 +1,0 @@
-Any scripts within this folder & subfolders are experimental and for testing purposes only. They are not guaranteed to work, and may be removed at any time.

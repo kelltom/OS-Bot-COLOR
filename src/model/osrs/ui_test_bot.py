@@ -41,7 +41,7 @@ class TestBot(RuneLiteBot):
         spots.append(("Moving to minimap...", self.win.minimap))
         spots.append(("Moving to hp orb text...", self.win.hp_orb_text))
         spots.append(("Moving to prayer orb text...", self.win.prayer_orb_text))
-        spots.append(("Moving to quick pray orb...", self.win.quick_prayer_orb))
+        spots.append(("Moving to quick pray orb...", self.win.prayer_orb))
         spots.append(("Moving to run orb...", self.win.run_orb))
         spots.append(("Moving to spec orb...", self.win.spec_orb))
         spots.append(("Moving to compass...", self.win.compass_orb))

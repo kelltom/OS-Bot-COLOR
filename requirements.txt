@@ -1,6 +1,5 @@
 customtkinter==4.5.10
 Deprecated==1.2.13
-easyocr==1.5.0
 keyboard==0.13.5
 numpy==1.23.1
 opencv-python==4.5.4.60

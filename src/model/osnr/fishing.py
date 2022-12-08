@@ -1,10 +1,10 @@
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
-from utilities.APIs.status_socket import StatusSocket
+from utilities.api.status_socket import StatusSocket
 from utilities.geometry import Point, RuneLiteObject
 import pyautogui as pag
 import time
-import utilities.bot_cv as bcv
+import utilities.color as clr
 
 
 class OSNRFishing(OSNRBot):
@@ -77,8 +77,8 @@ class OSNRFishing(OSNRBot):
                 return
 
             # If not fishing, click fishing spot
-            while api.get_is_player_idle():
-                spot = self.get_nearest_tag(self.BLUE)
+            while not self.is_player_doing_action("Fishing"):
+                spot = self.get_nearest_tag(clr.CYAN)
                 if spot is None:
                     failed_searches += 1
                     time.sleep(2)
@@ -90,6 +90,7 @@ class OSNRFishing(OSNRBot):
                     self.log_msg("Clicking fishing spot...")
                     self.mouse.move_to(spot.random_point())
                     pag.click()
+                    time.sleep(1)
                     break
             time.sleep(3)
             if not self.status_check_passed():

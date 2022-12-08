@@ -1,6 +1,8 @@
-from typing import NamedTuple, Callable, List
+from typing import NamedTuple, List
 from utilities.random_util import RandomUtil
+import cv2
 import math
+import mss
 import numpy as np
 
 Point = NamedTuple("Point", x=int, y=int)
@@ -11,10 +13,8 @@ class Rectangle:
     In very rare cases, we may want to exclude areas within a Rectangle (E.g., resizable game view).
     This should contain a list of dicts that represent rectangles {left, top, width, height} that
     will be subtracted from this Rectangle during screenshotting.
-    TODO: Since we only really screenshot Rectangles, maybe just move the Screenshot utility into
-          here...
     '''
-    subtract_list: List[dict] = None
+    subtract_list: List[dict] = []
 
     def __init__(self, left: int, top: int, width: int, height: int):
         '''
@@ -45,6 +45,20 @@ class Rectangle:
             A Rectangle object.
         '''
         return cls(start_point.x, start_point.y, end_point.x - start_point.x, end_point.y - start_point.y)
+    
+    def screenshot(self) -> cv2.Mat:
+        '''
+        Screenshots the Rectangle.
+        Returns:
+            A BGR Numpy array representing the captured image.
+        '''
+        with mss.mss() as sct:
+            monitor = self.to_dict()
+            res = np.array(sct.grab(monitor))[:, :, :3]
+            if self.subtract_list:
+                for area in self.subtract_list:
+                    res[area['top']:area['top']+area['height'], area['left']:area['left']+area['width']] = 0
+            return res
     
     def random_point(self, custom_seeds: List[List[int]]=None) -> Point:
         '''
