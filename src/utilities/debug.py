@@ -2,6 +2,7 @@
 A set tools for debugging scripts.
 '''
 import cv2
+import time
 import pathlib
 
 def save_image(filename: str, im: cv2.Mat):
@@ -13,3 +14,21 @@ def save_image(filename: str, im: cv2.Mat):
     '''
     path = pathlib.Path(__file__).parent.parent.joinpath('images', 'temp', filename)
     cv2.imwrite(f"{path}.png", im)
+
+def start_timer():
+    '''
+    Starts a timer.
+    Returns:
+        The start time.
+    '''
+    return time.time()
+
+def stop_timer(start: float):
+    '''
+    Ends a timer.
+    Args:
+        start: The start time.
+    Returns:
+        The time elapsed since the start time.
+    '''
+    return time.time() - start
