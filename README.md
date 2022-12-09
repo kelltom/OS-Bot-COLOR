@@ -1,40 +1,44 @@
-### ⚠️ This project is WIP ⚠️
+### ⚠️ This project is in Alpha *v0.2.0* ⚠️
 
 # ![](documentation/media/logo.png)
-OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring color-based automation scripts (bots) for OSRS and private server alternatives. This project also contains a library of tools for streamlining the development of new bots, even for inexperienced developers.
+OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts (bots) for OSRS and private server alternatives. This project is paired with a custom library of tools for streamlining the development of new bots, even for inexperienced developers. Unlike most botting frameworks that employ code injection into the game client, OSBC uses a combination of color manipulation, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to emulate human eyes and hands, and wrap that complex logic in a simple, easy-to-use framework.
 
-📹 Watch the [showcase](https://www.youtube.com/watch?v=DAbyiW5mY3M) or a [1-hour tutorial]() on YouTube
+💬 [Join the Discord](https://discord.gg/Znks7Smya4) to discuss the project, ask questions, and follow development
 
-⭐ If you like this project, consider leaving a Star
+📹 Subscribe to [Kell's Code](https://www.youtube.com/@KellsCode/featured) on YouTube for updates and tutorials
 
-💬 [Join the Discord](https://discord.gg/Znks7Smya4)
+⭐ If you like this project, please leave a Star :)
 
 # Table of Contents
-- [Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>](#developer-setup-)
+- [](#)
+- [Table of Contents](#table-of-contents)
+- [Developer Setup ](#developer-setup-)
+- [Documentation](#documentation)
 - [Features](#features)
   - [User Interface](#user-interface)
-    - [Simple Option Menus](#simple-option-menus)
     - [Script Log](#script-log)
-  - [Client Settings Uniformity](#client-settings-uniformity)
-    - [RuneLite Settings](#runelite-settings)
-    - [Automated In-Game UI Setup](#automated-in-game-ui-setup)
-  - [Bot Class Architecture](#bot-class-architecture)
-    - [RuneLiteBot Color Isolation Example](#runelitebot-color-isolation-example)
-  - [Bot Utilities (Computer Vision, OCR, Mouse movements)](#bot-utilities-computer-vision-ocr-mouse-movements)
+    - [Simple Option Menus](#simple-option-menus)
+  - [RuneLite Launcher](#runelite-launcher)
+  - [Any Client Size, Anywhere](#any-client-size-anywhere)
+  - [Human-like Mouse Movement](#human-like-mouse-movement)
+  - [RuneLite Leverage](#runelite-leverage)
+    - [Object Detection](#object-detection)
+    - [API](#api)
+  - [Random Click Distribution](#random-click-distribution)
+  - [Efficient Image Searching](#efficient-image-searching)
+  - [Lightning Fast OCR](#lightning-fast-ocr)
 - [Packaging an Executable](#packaging-an-executable)
 - [Support](#support)
 
 # Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>
-1. Clone/download the repository.
-2. Install Python 3.10.
-3. Open the repository folder in a terminal window.
-   1. Create a virtual environment. ```python -m venv env```
-   2. Activate the newly created virtual environment. ```.\env\Scripts\activate```
-   3. Install the depedencies. ```pip install -r requirements.txt```
-4. Open the project folder in your IDE (VS Code preferred).
-5. Run *OSRS Bot COLOR.py* (./src/OSRS Bot COLOR.py)
-
-To contribute code, please create feature branches off of the _Development_ branch, and submit pull requests to it with complete features.
+1. Install [Python 3.10](https://www.python.org/downloads/release/python-3109/) *(newer versions are not compatible)*
+2. Clone/download this repository
+3. Open the project folder in your IDE (VS Code preferred)
+4. Open the repository folder in a terminal window
+   1. Create a virtual environment ```python -m venv env```
+   2. Activate the newly created virtual environment ```.\env\Scripts\activate```
+   3. Install the depedencies ```pip install -r requirements.txt```
+5. Run `./src/*OSBC.py*`
 
 # Documentation
 
@@ -42,7 +46,7 @@ See the [Wiki](https://github.com/kelltom/OSRS-Bot-COLOR/wiki) for tutorials, an
 
 # Features
 ## User Interface
-Gone are the days of manually running your bot scripts from an IDE. OSBC offers a clean interface for configuring, running, and monitoring your bots. For developers, this means that all you need to do is write a bot's logic loop, and *the UI is already built for you*.
+Gone are the days of manually running your bot scripts from an IDE. OSBC offers a clean interface for configuring, running, and monitoring your Python bots. For developers, this means that all you need to do is write a bot's logic loop, and *the UI is already built for you*.
 
 ![intro_demo](https://user-images.githubusercontent.com/44652363/197059102-27a9a942-25b6-4012-b83b-90ae8399b4e8.gif)
 
@@ -59,46 +63,52 @@ OSBC allows developers to create option menus and parse user selections with eas
 ```python
 def create_options(self):
   ''' Declare what should appear when the user opens the Options menu '''
-    self.options_builder.add_slider_option("kills", "How many kills?", 1, 300)
-    self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
-
-def save_options(self, options: dict):
-  ''' Receive's user selections as a dictionary and saves them to the bot '''
-    for option in options:
-        if option == "kills":
-            self.kills = options[option]
-            self.log_msg(f"The bot will kill {self.kills} NPCs.")
-        elif option == "prefs":
-            if "Loot" in options[option]:
-                self.should_loot = True
-                self.log_msg("The bot will pick up loot.")
-            if "Bank" in options[option]:
-                self.should_bank = True
-                self.log_msg("The bot will bank.")
+  self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 180) 
+  self.options_builder.add_text_edit_option("text_edit_example", "Text Edit Example", "Placeholder text here")
+  self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
+  self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
 ```
 
-![options_menu](https://user-images.githubusercontent.com/44652363/197066453-d108c0ba-351a-4a8a-96ed-57d7cfd5f6c5.png)
+PUT OPTIONS MENU PNG HERE
 
-## Client Settings Uniformity
-Color bots rely on very specific in-game settings. Traditionally, users must manually configure their game clients so that they work with their bot scripts. This can be a hassle for those who have highly customized RuneLite settings. Luckily, OSBC offers numerous client configuration features.
+## RuneLite Launcher
+Color bots rely on very specific in-game settings. In one click, you can launch RuneLite with pre-configured, *legal* plugins that allow OSBC to work its magic. This works completely separate from your normal RuneLite installation, so your personal configuration is not affected.
 
-### RuneLite Settings
-Launch a pre-configured instance of RuneLite directly from the OSBC app. This trims your client down to use minimal plugins and cleans up the bot's environment.
+ADD RUNELITE LAUNCHER GIF HERE
 
-![launch_runelite](https://user-images.githubusercontent.com/44652363/197061911-2ab29a8b-9897-4142-9f46-3728e6548997.png)
+## Any Client Size, Anywhere
+New in *v0.2.0*, your scripts will work no matter what size your client is, or where it is on your primary monitor. OSBC locates important UI elements and allows you to access them by name.
 
-### Automated In-Game UI Setup
-In a single line of code, much of the in-game UI can be automatically configured to ensure everything is where it needs to be. Color bots rely on specific pixel coordinates, so this feature ensures uniformity.
+ADD RESIZEABLE GIF HERE
 
-```python
-self.setup_client()
-```
+## Human-like Mouse Movement
+OSBC uses Bezier curves to create smooth, human-like mouse movements.
 
-![game_settings](https://user-images.githubusercontent.com/44652363/197063629-dcc8f3d1-6a11-4bb4-910d-88d415c409a9.gif)
+ADD MOUSE MOVEMENT GIF HERE
 
-## Color Isolation
+## RuneLite Leverage
+### Object Detection
+Official RuneLite plugins exist to add quality of life to players. Many plugins offer highlighting/outlining of in-game objects with solid colors, making them easier to see. This inadvertedly makes them easier to detect for bots as well. Using color isolation, OSBC can quickly detect these outlined objects and extract its properties into a simple data structure.
 
-![color_isolation_example](https://user-images.githubusercontent.com/44652363/197067212-effe91b2-ad0e-43ed-bcf8-7949f1b6e5b7.gif)
+ADD OBJECT DETECTION PNG HERE
+
+### API
+There are some RuneLite plugins that expose game data to a localhost API endpoint. OSBC can leverage this data to provide a more robust botting experience without the need to modify the game client. See the [API utility folder](src/utilities/api/) for more.
+
+## Random Click Distribution
+With the help of the OSBC community, we've created a randomization algorithm that distributes clicks in a way that is more human-like. We followed the same principles used by individuals who've beat the system and achieved max levels without lifting a finger. This feature is a work in progress.
+
+ADD RANDOM CLICK GIF HERE
+
+## Efficient Image Searching
+Sometimes, your bot might need to find a specific image on screen. This can be done with the help of OpenCV's template matching algorithm. We've modified it to be more efficient and reliable with RuneScape UI elements and sprites - even supporting images with transparency.
+
+ADD IMAGE SEARCH PNG HERE
+
+## Lightning Fast OCR
+In *v0.2.0*, we've ditched machine learned OCR in favor of a much faster and more reliable custom implementation. OSBC can locate text on screen in as little as **2 milliseconds**. That's **0.002 seconds**.
+
+Add OCR PNG HERE
 
 # Packaging an Executable
 Due to some issues with dependencies, it's not possible to build this project into a *single file* executable, however, a directory-based executable can be made.
@@ -108,18 +118,16 @@ Due to some issues with dependencies, it's not possible to build this project in
 3. Run AutoPyToEXE via the terminal command: ```auto-py-to-exe```
    1. You may need to install it first. ```pip install auto-py-to-exe```
 4. Configure the window similarly to the figure below (or import the [auto-py-to-exe_settings.json](auto-py-to-exe_settings.json) file included in the root of this repository to speed up the process).
-   1. Ensure the *Additional Files* paths are correct.
+   1. Ensure the *Additional Files* paths are correct for *your system*.
    2. Under the *Icon* tab, you may point it to the [icon](documentation/media/icon.ico) file included, or use your own.
 5. Click the *Convert* button.
-6. Navigate to the generated *./output/OSRS Bot COLOR* folder, and within that folder you can run the *OSRS Bot COLOR.exe* file. You may move this folder to wherever you'd like.
+6. Navigate to the generated `./output/OSBC` folder, and within that folder you can run the `OSBC.exe` file. You may move this folder to wherever you'd like.
 
 ![](documentation/media/auto-py-to-exe-settings.png)
 
-*Note: CustomTkinter and EasyOCR need to be pointed to in the Additional Files section.
+*Note: CustomTkinter need to be pointed to in the Additional Files section.
 
 ```{path to repo}/env/Lib/site-packages/customtkinter;customtkinter```
-
-```{path to repo}/env/Lib/site-packages/easyocr;easyocr```
 
 # Support
 <p align="center">

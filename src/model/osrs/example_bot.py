@@ -19,6 +19,7 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         super().__init__(title=title, description=description, window=MockWindow())
         # This is where you should initialize any options/properties you want to use in the bot
         self.running_time = 1
+        self.text_edit_example = None
         self.multi_select_example = None
         self.menu_example = None
 
@@ -30,6 +31,7 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         unpack the dictionary of options after the user has selected them.
         '''
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 180)  # max 180 minutes
+        self.options_builder.add_text_edit_option("text_edit_example", "Text Edit Example", "Placeholder text here")
         self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
         self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
 
