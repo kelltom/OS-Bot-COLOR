@@ -1,13 +1,13 @@
 from utilities.geometry import Rectangle
 from operator import itemgetter
-from typing import List, Union
+from typing import List, Union, Dict
 import cv2
 import numpy as np
 import pathlib
 import utilities.debug as debug
 import utilities.color as clr
 
-def __load_font(font: str):
+def __load_font(font: str) -> Dict[str, cv2.Mat]:
     '''
     Loads a font's alphabet from the fonts directory into a dictionary.
     Args:
@@ -33,17 +33,16 @@ QUILL_8 = __load_font("Quill8") # Small quest text
 
 def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> str:
     '''
-    Extracts white text from an image.
+    Extracts text from a Rectangle.
     Args:
-        rect: The rectangle to search.
+        rect: The rectangle to search within.
         font: The font type to search for.
         color: The color(s) of the text to search for.
     Returns:
-        A single string containing the text found in order, no spaces.
+        A single string containing all text found in order, no spaces.
     '''
     # Screenshot and isolate colors
     image = clr.isolate_colors(rect.screenshot(), color)
-
     result = ''
     char_list = []
     for key in font:
@@ -62,10 +61,10 @@ def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.C
 
 def find_text(text: Union[str, List[str]], rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> List[Rectangle]:
     '''
-    Searches for exact text within an image. The text IS case sensitive.
+    Searches for exact text within a Rectangle. Input text is case sensitive.
     Args:
         text: The text to search for. Can be a phrase or a single word. You may also pass a list of strings to search for,
-              but you may not be able to distinguish between them in the function output.
+              but you cannot distinguish between them in the function output.
         rect: The rectangle to search within.
         font: The font type to search for.
         color: The color(s) of the text to search for.
