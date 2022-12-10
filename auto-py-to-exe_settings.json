@@ -75,10 +75,6 @@
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/env/Lib/site-packages/easyocr;easyocr"
-  },
-  {
-   "optionDest": "datas",
    "value": "C:/Users/Kell/Desktop/OSRS-Bot-COLOR/src/model;model"
   },
   {
