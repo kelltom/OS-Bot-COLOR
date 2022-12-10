@@ -96,7 +96,7 @@ class OSRSHomeView(customtkinter.CTkFrame):
                 return
 
         # save settings file to temp
-        shutil.copyfile(f"{PATH}\\runelite_settings\\settings.properties", f"{PATH}\\runelite_settings\\temp.properties")
+        shutil.copyfile(f"{PATH}\\runelite_settings\\osrs_settings.properties", f"{PATH}\\runelite_settings\\temp.properties")
 
         # executable args for runelite to direct the client to launch with bot settings
         EXECARG1 = "--clientargs"

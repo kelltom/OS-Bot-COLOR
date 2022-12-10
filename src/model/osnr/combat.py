@@ -3,6 +3,8 @@ Combat bot for OSNR. Attacks tagged monsters.
 '''
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
+from utilities.api.status_socket import StatusSocket
+from utilities.geometry import RuneLiteObject
 import time
 
 
@@ -40,17 +42,14 @@ class OSNRCombat(OSNRBot):
         # TODO: if options are invalid, set options_set flag to false
         self.log_msg("Options set successfully.")
 
-    def main_loop(self):
-        self.setup_osnr(zoom_percentage=40)
+    def main_loop(self):  # sourcery skip: low-code-quality
 
-        self.set_compass_north()
-        self.move_camera_up()
+        api = StatusSocket()
 
-        # Make sure auto retaliate is on
+        # Client setup
         self.toggle_auto_retaliate(toggle_on=True)
 
-        # Reselect inventory
-        self.mouse.move_to(self.cp_inventory, 0.2, destination_variance=3)
+        self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
 
         start_time = time.time()
@@ -59,19 +58,31 @@ class OSNRCombat(OSNRBot):
             if not self.status_check_passed():
                 return
 
+            # loot
+            if not api.get_is_inv_full() and self.pick_up_loot("Cowhide"):
+                inv_count = len(api.get_inv())
+                self.log_msg("Looting...")
+                loot_timeout = 5  # wait up to 5 seconds to finish picking it up
+                while len(api.get_inv()) == inv_count and loot_timeout > 0:
+                    if not self.status_check_passed():
+                        return
+                    time.sleep(1)
+                    loot_timeout -= 1
+                time.sleep(0.5)
+
             # Try to attack an NPC
             timeout = 60  # check for up to 60 seconds
-            while not self.has_hp_bar():
+            while not self.is_in_combat():
                 if not self.status_check_passed():
                     return
                 if timeout <= 0:
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
                     return
-                npc = self.get_nearest_tagged_NPC(self.rect_game_view)
+                npc: RuneLiteObject = self.get_nearest_tagged_NPC()
                 if npc is not None:
                     self.log_msg("Attacking NPC...")
-                    self.mouse.move_to(npc, duration=0)
+                    self.mouse.move_to(npc.random_point())
                     self.mouse.click()
                     time.sleep(3)
                     timeout -= 3
@@ -85,7 +96,7 @@ class OSNRCombat(OSNRBot):
 
             # If combat is over, assume we killed the NPC.
             timeout = 90  # give our character 90 seconds to kill the NPC
-            while self.has_hp_bar():
+            while self.is_in_combat():
                 if timeout <= 0:
                     self.log_msg("Timed out fighting NPC.")
                     self.set_status(BotStatus.STOPPED)

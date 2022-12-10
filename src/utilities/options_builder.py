@@ -1,3 +1,4 @@
+from typing import List, Dict
 import customtkinter
 
 
@@ -11,13 +12,45 @@ class OptionsBuilder():
         self.title = title
 
     def add_slider_option(self, key, title, min, max):
+        '''
+        Adds a slider option to the options menu.
+        Args:
+            key: The key to map the option to (use variable name in your script).
+            title: The title of the option.
+            min: The minimum value of the slider.
+            max: The maximum value of the slider.
+        '''
         self.options[key] = SliderInfo(title, min, max)
 
     def add_checkbox_option(self, key, title, values: list):
+        '''
+        Adds a checkbox option to the options menu.
+        Args:
+            key: The key to map the option to (use variable name in your script).
+            title: The title of the option.
+            values: A list of values to display for each checkbox.
+        '''
         self.options[key] = CheckboxInfo(title, values)
 
     def add_dropdown_option(self, key, title, values: list):
+        '''
+        Adds a dropdown option to the options menu.
+        Args:
+            key: The key to map the option to (use variable name in your script).
+            title: The title of the option.
+            values: A list of values to display for each entry in the dropdown.
+        '''
         self.options[key] = OptionMenuInfo(title, values)
+    
+    def add_text_edit_option(self, key, title, placeholder=None):
+        '''
+        Adds a text edit option to the options menu.
+        Args:
+            key: The key to map the option to (use variable name in your script).
+            title: The title of the option.
+            placeholder: The placeholder text to display in the text edit box (optional).
+        '''
+        self.options[key] = TextEditInfo(title, placeholder)
 
     def build_ui(self, parent, controller):
         '''
@@ -45,18 +78,24 @@ class CheckboxInfo():
         self.values = values
 
 
+class TextEditInfo():
+    def __init__(self, title, placeholder):
+        self.title = title
+        self.placeholder = placeholder
+
+
 class OptionsUI(customtkinter.CTkFrame):
     def __init__(self, parent, title: str, option_info: dict, controller):
         # sourcery skip: raise-specific-error
         super().__init__(parent)
         # Contains the widgets for option selection.
         # It will be queried to get the option values selected upon save btn clicked.
-        self.widgets = {}
+        self.widgets: Dict[str, customtkinter.CTkBaseClass] = {}
         # The following dicts exist to hold references to UI elements so they are not destroyed
         # by garbage collector.
-        self.labels = {}
-        self.frames = {}
-        self.slider_values = {}
+        self.labels: Dict[str, customtkinter.CTkLabel] = {}
+        self.frames: Dict[str, customtkinter.CTkFrame] = {}
+        self.slider_values: Dict[str, customtkinter.CTkLabel] = {}
 
         self.controller = controller
 
@@ -84,6 +123,8 @@ class OptionsUI(customtkinter.CTkFrame):
                 self.create_checkboxes(key, value, row)
             elif isinstance(value, OptionMenuInfo):
                 self.create_menu(key, value, row)
+            elif isinstance(value, TextEditInfo):
+                self.create_text_edit(key, value, row)
             else:
                 raise Exception("Unknown option type")
 
@@ -135,7 +176,7 @@ class OptionsUI(customtkinter.CTkFrame):
             self.frames[key].columnconfigure(i, weight=1)
         self.frames[key].grid(row=row, column=1, sticky='ew', padx=(0, 10))
         # Checkbox values
-        self.widgets[key] = []
+        self.widgets[key]: List[customtkinter.CTkCheckBox] = []
         for i, value in enumerate(value.values):
             self.widgets[key].append(customtkinter.CTkCheckBox(master=self.frames[key],
                                                                text=value))
@@ -148,6 +189,15 @@ class OptionsUI(customtkinter.CTkFrame):
         self.widgets[key] = customtkinter.CTkOptionMenu(master=self,
                                                         values=value.values,
                                                         fg_color=("gray75", "gray22"))
+        self.widgets[key].grid(row=row, column=1, sticky='ew', padx=(0, 10))
+    
+    def create_text_edit(self, key, value: TextEditInfo, row: int):
+        self.labels[key] = customtkinter.CTkLabel(master=self,
+                                                  text=value.title)
+        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=10, pady=20)
+        self.widgets[key] = customtkinter.CTkEntry(master=self,
+                                                   corner_radius=5,
+                                                   placeholder_text=value.placeholder)
         self.widgets[key].grid(row=row, column=1, sticky='ew', padx=(0, 10))
 
     def save(self, window):
@@ -162,6 +212,12 @@ class OptionsUI(customtkinter.CTkFrame):
                 self.options[key] = [checkbox.text for checkbox in value if checkbox.get()]
             elif isinstance(value, customtkinter.CTkOptionMenu):
                 self.options[key] = value.get()
+            elif isinstance(value, customtkinter.CTkEntry):
+                x = [x.strip() for x in value.get().split(',')]
+                if x == ['']:
+                    x = []
+                self.options[key] = x
+
         # Send to controller
         self.controller.save_options(self.options)
         window.destroy()

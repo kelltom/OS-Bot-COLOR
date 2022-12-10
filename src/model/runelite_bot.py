@@ -1,488 +1,212 @@
 '''
 The RuneLiteBot class contains properties and functions that are common across all RuneLite-based clients. This class
-should be inherited by additional abstract classes representing all bots for a specific game (E.g., Alora, OSRS, etc.).
+can be inherited by additional abstract classes representing all bots for a specific game (E.g., OSNRBot, AloraBot, etc.).
 
 To determine Thresholds for finding contours: https://pinetools.com/threshold-image
+
 For converting RGB to HSV:
     https://stackoverflow.com/questions/10948589/choosing-the-correct-upper-and-lower-hsv-boundaries-for-color-detection-withcv/48367205#48367205
+
+Item ID Database:
+    https://www.runelocus.com/tools/osrs-item-id-list/
 '''
 from abc import ABCMeta
 from deprecated import deprecated
 from model.bot import Bot, BotStatus
-from utilities.bot_cv import Rectangle, Point
-from utilities.runelite_cv import Color, isolate_colors
-import cv2
-import numpy as np
+from typing import List, Union
+from utilities.geometry import Rectangle, Point, RuneLiteObject
+from utilities.window import Window
 import pyautogui as pag
-import pygetwindow
 import time
-import utilities.bot_cv as bcv
+import utilities.color as clr
+import utilities.debug as debug
+import utilities.imagesearch as imsearch
+import utilities.ocr as ocr
 import utilities.runelite_cv as rcv
 
+class RuneLiteWindow(Window):
+
+    current_action: Rectangle = None  # https://i.imgur.com/fKXuIyO.png
+    hp_bar: Rectangle = None  # https://i.imgur.com/2lCovGV.png
+    prayer_bar: Rectangle = None
+
+    def __init__(self, window_title: str) -> None:
+        '''
+        RuneLiteWindow is an extensions of the Window class, which allows for locating and interacting with key
+        UI elements on screen.
+        '''
+        super().__init__(window_title, padding_top=26, padding_left=0)
+    
+    # Override
+    def initialize(self) -> bool:
+        '''
+        Overrirde of Window.initialize(). This function is called when the bot is started.
+        '''
+        if not super().initialize():
+            return False
+        self.__locate_hp_prayer_bars()
+        self.current_action = Rectangle(left=10 + self.game_view.left, top=25 + self.game_view.top, width=128, height=20)
+        return True
+    
+    def __locate_hp_prayer_bars(self) -> None:
+        '''
+        Creates Rectangles for the HP and Prayer bars on either side of the control panel, storing it in the 
+        class property.
+        '''
+        bar_w, bar_h = 18, 250  # dimensions of the bars
+        self.hp_bar = Rectangle(left=self.control_panel.left + 7, top=self.control_panel.top + 42, width=bar_w, height=bar_h)
+        self.prayer_bar = Rectangle(left=self.control_panel.left + 217, top=self.control_panel.top + 42, width=bar_w, height=bar_h)
+    
+    # Override
+    def resize(self, width: int = 773, height: int = 534) -> None:
+        '''
+        Resizes the client window. Default size is 773x534 (minsize of fixed layout).
+        Args:
+            width: The width to resize the window to.
+            height: The height to resize the window to.
+        '''
+        if client := self.window:
+            client.size = (width, height)
 
 class RuneLiteBot(Bot, metaclass=ABCMeta):
 
-    # --- Notable Colour Ranges (HSV lower, HSV upper) ---
-    TAG_BLUE = Color((90, 100, 255), (100, 255, 255))       # hex: FF00FFFF
-    TAG_PURPLE = Color((130, 100, 100), (150, 255, 255))     # hex: FFAA00FF
-    TAG_PINK = Color((145, 100, 200), (155, 255, 255))       # hex: FFFF00E7
-    TAG_GREEN = Color((40, 100, 255), (70, 255, 255))
-    TAG_RED = Color((0, 255, 255), (20, 255, 255))
+    win: RuneLiteWindow = None
 
-    # --- Desired client position ---
-    # Size and position of the smallest possible fixed OSRS client in top left corner of screen.
-    desired_width, desired_height = (773, 534)
-    client_window = None  # client region, determined at setup
+    def __init__(self, title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
+        super().__init__(title, description, window)
 
-    # ------- Main Client Rects -------
-    rect_current_action = Rectangle(Point(13, 51), Point(140, 73))  # combat/skilling plugin text
-    rect_game_view = Rectangle(Point(8, 50), Point(517, 362))  # gameplay area (prev start: x=9, y=31)
-    rect_hp = Rectangle(Point(528, 81), Point(549, 95))  # hp number on status bar
-    rect_prayer = Rectangle(Point(530, 117), Point(550, 130))  # prayer number on status bar
-    rect_inventory = Rectangle(Point(554, 230), Point(737, 491))  # inventory area
-    rect_minimap = Rectangle(Point(577, 39), Point(715, 188))  # minimap area
-
-    # ------- Points of Interest -------
-    # --- Orbs ---
-    orb_compass = Point(x=571, y=48)
-    orb_prayer = Point(x=565, y=119)
-    orb_spec = Point(x=597, y=178)
-
-    # --- Control Panel (CP) ---
-    h1 = 213  # y-axis pixels to top of cp
-    h2 = 510  # y-axis pixels to bottom of cp
-    cp_combat = Point(x=545, y=h1)
-    cp_inventory = Point(x=646, y=h1)
-    cp_equipment = Point(x=678, y=h1)
-    cp_prayer = Point(x=713, y=h1)
-    cp_spellbook = Point(x=744, y=h1)
-    cp_logout = Point(x=646, y=h2)
-    cp_settings = Point(x=680, y=h2)
-
-    def __get_inventory_slots() -> list:
-        '''
-        Returns a 2D list of the inventory slots represented as Points.
-        Inventory is 7x4.
-        '''
-        inv = []
-        curr_y = 253
-        for _ in range(7):
-            curr_x = 583  # reset x
-            row = []
-            for _ in range(4):
-                row.append(Point(curr_x, curr_y))
-                curr_x += 42  # x delta
-            inv.append(row)
-            curr_y += 36  # y delta
-        return inv
-
-    inventory_slots = __get_inventory_slots()
-
-    def drop_inventory(self, skip_rows: int = 0) -> None:
-        '''
-        Drops all items in the inventory.
-        Args:
-            skip_rows: The number of rows to skip before dropping.
-        '''
-        self.log_msg("Dropping inventory...")
-        pag.keyDown("shift")
-        for i, row in enumerate(self.inventory_slots):
-            if not self.status_check_passed():
-                pag.keyUp("shift")
-                return
-            if i in range(skip_rows):
-                continue
-            for slot in row:
-                pag.moveTo(slot[0], slot[1])
-                time.sleep(0.05)
-                pag.click()
-        pag.keyUp("shift")
-
-    def friends_nearby(self) -> bool:
-        '''
-        Checks the minimap for green dots to indicate friends nearby.
-        Returns:
-            True if friends are nearby, False otherwise.
-        '''
-        # screenshot minimap
-        minimap = bcv.capture_screen(self.rect_minimap)
-        # load it as a cv2 image
-        minimap = cv2.imread(minimap)
-        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap.png", minimap)
-        # change to hsv
-        hsv = cv2.cvtColor(minimap, cv2.COLOR_BGR2HSV)
-        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap_hsv.png", hsv)
-        # Threshold the HSV image to get only friend color
-        mask1 = cv2.inRange(hsv, self.TAG_GREEN[0], self.TAG_GREEN[1])
-        only_friends = cv2.bitwise_and(minimap, minimap, mask=mask1)
-        cv2.imwrite(f"{bcv.TEMP_IMAGES}/minimap_friends.png", only_friends)
-        mean = only_friends.mean(axis=(0, 1))
-        return str(mean) != "[0. 0. 0.]"
-
-    def get_hp(self) -> int:
-        """
-        Gets the HP value of the player.
-        Returns:
-            The HP of the player, or None if not found.
-        """
-        res = bcv.get_numbers_in_rect(self.rect_hp, True)
-        print(res)
-        return None if res is None else res[0]
-
-    def get_prayer(self) -> int:
-        """
-        Gets the prayer value of the player.
-        Returns:
-            The prayer value of the player, or None if not found.
-        """
-        res = bcv.get_numbers_in_rect(self.rect_prayer, True)
-        print(res)
-        return None if res is None else res[0]
-
-    def logout(self):
-        '''
-        Logs player out.
-        '''
-        self.log_msg("Logging out...")
-        self.mouse.move_to(self.cp_logout)
-        pag.click()
-        time.sleep(1)
-        self.mouse.move_to(Point(645, 451))  # Logout button
-        pag.click()
-    
-    def move_camera_up(self):
-        '''
-        Moves the camera up.
-        '''
-        # Position the mouse somewhere on the game view
-        self.mouse.move_to(Point(self.rect_game_view.start.x + 20, self.rect_game_view.start.y + 20))
-        pag.keyDown('up')
-        time.sleep(2)
-        pag.keyUp('up')
-        time.sleep(0.5)
-
+    # --- OCR Functions ---
+    @deprecated(reason="This is a slow way of checking if you are in combat. Consider using an API function instead.")
     def is_in_combat(self) -> bool:
         '''
         Returns whether the player is in combat. This is achieved by checking if text exists in the RuneLite opponent info
         section in the game view, and if that text indicates an NPC is out of HP.
         '''
-        result = bcv.get_text_in_rect(self.rect_current_action)
-        return result.strip() != ""
+        if ocr.extract_text(self.win.current_action, ocr.PLAIN_12, clr.WHITE):
+            return True
     
     def is_player_doing_action(self, action: str):
         '''
-        Returns whether the player is doing the given action.
+        Returns whether the player character is doing a given action. This works by checking the text in the current action
+        region of the game view.
         Args:
-            action: The action to check for.
+            action: The action to check for (E.g., "Woodcutting" - case sensitive).
         Returns:
             True if the player is doing the given action, False otherwise.
-        Example:
-            if self.is_player_doing_action("Woodcutting"):
-                print("Player is woodcutting!")
         '''
-        return bcv.search_text_in_rect(self.rect_current_action, [action], ["Not"])
+        return ocr.find_text(action, self.win.current_action, ocr.PLAIN_12, clr.GREEN)
 
-    def has_hp_bar(self) -> bool:
+    def pick_up_loot(self, items: Union[str, List[str]], supress_warning=True) -> bool:
         '''
-        Returns whether the player has an HP bar above their head.
-        This function only works when the game camera is all the way up.
+        Attempts to pick up a single purple loot item off the ground. It is your responsibility to ensure you have
+        enough inventory space to pick up the item.
+        Args:
+            item: The name(s) of the item(s) to pick up (E.g., "Coins", or ["Coins", "Dragon bones"]).
+        Returns:
+            True if the item was clicked, False otherwise.
         '''
-        # Position of character relative to the screen
-        char_pos = Point(self.rect_game_view.end.x / 2 + self.rect_game_view.start.x,
-                         self.rect_game_view.end.y / 2 + self.rect_game_view.start.y)
-        
-        # Make a rectangle around the character
-        offset = 30
-        char_rect = Rectangle(Point(char_pos.x - offset, char_pos.y - offset*2),
-                              Point(char_pos.x + offset, char_pos.y))
-        # Take a screenshot of rect
-        char_screenshot = bcv.capture_screen(char_rect)
-        # Isolate HP bars in that rectangle
-        hp_bars = isolate_colors(char_screenshot, [self.TAG_RED, self.TAG_GREEN], "player_hp_bar")
-        # If there are any HP bars, return True
-        img = cv2.imread(hp_bars)
-        return str(img.mean(axis=(0, 1))) != "[0. 0. 0.]"
-
-    def has_hp_bar(self) -> bool:
-        '''
-        Returns whether the player has an HP bar above their head.
-        This function only works when the game camera is all the way up.
-        '''
-        # Position of character relative to the screen
-        char_pos = Point(self.rect_game_view.end.x / 2 + self.rect_game_view.start.x,
-                         self.rect_game_view.end.y / 2 + self.rect_game_view.start.y)
-        
-        # Make a rectangle around the character
-        offset = 30
-        char_rect = Rectangle(Point(char_pos.x - offset, char_pos.y - offset*2),
-                              Point(char_pos.x + offset, char_pos.y))
-        # Take a screenshot of rect
-        char_screenshot = bcv.capture_screen(char_rect)
-        # Isolate HP bars in that rectangle
-        hp_bars = isolate_colors(char_screenshot, [self.TAG_RED, self.TAG_GREEN], "player_hp_bar")
-        # If there are any HP bars, return True
-        img = cv2.imread(hp_bars)
-        return str(img.mean(axis=(0, 1))) != "[0. 0. 0.]"
+        # Capitalize each item name
+        if isinstance(items, list):
+            for i, item in enumerate(items):
+                item = item.capitalize()
+                items[i] = item
+        else:
+            items = items.capitalize()
+        # Locate Ground Items text
+        if item_text := ocr.find_text(items, self.win.game_view, ocr.PLAIN_11, clr.PURPLE):
+            self.mouse.move_to(item_text[len(item_text) // 2].get_center())
+            for _ in range(5):
+                if self.mouseover_text(contains=["Take"] + items, color=[clr.OFF_WHITE, clr.OFF_ORANGE]):
+                    break
+                self.mouse.move_rel(0, 3, 1, mouseSpeed="fastest")
+                if not self.status_check_passed():
+                    return
+            self.mouse.right_click()
+            # search the right-click menu
+            if take_text := ocr.find_text(items, self.win.game_view, ocr.BOLD_12, [clr.WHITE, clr.PURPLE, clr.ORANGE]):
+                self.mouse.move_to(take_text[0].random_point(), mouseSpeed="medium")
+                self.mouse.click()
+                return True
+            else:
+                self.log_msg(f"Could not find 'Take {items}' in right-click menu.")
+                return False
+        elif not supress_warning:
+            self.log_msg(f"Could not find '{items}' on the ground.")
+            return False
 
     # --- NPC/Object Detection ---
-    def attack_first_tagged(self, game_view: Rectangle) -> bool:
+    def get_nearest_tagged_NPC(self, include_in_combat: bool = False) -> RuneLiteObject:
+        # sourcery skip: use-next
         '''
-        Attacks the first-seen tagged NPC that is not already in combat.
+        Locates the nearest tagged NPC, optionally including those in combat.
         Args:
-            game_view: The rectangle to search in.
+            include_in_combat: Whether to include NPCs that are already in combat.
         Returns:
-            True if an NPC attack was attempted, False otherwise.
+            A RuneLiteObject object or None if no tagged NPCs are found.
         '''
-        path_game_view = bcv.capture_screen(game_view)
+        game_view = self.win.game_view
+        img_game_view = game_view.screenshot()
         # Isolate colors in image
-        path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
-        path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
+        img_npcs = clr.isolate_colors(img_game_view, clr.CYAN)
+        img_fighting_entities = clr.isolate_colors(img_game_view, [clr.GREEN, clr.RED])
         # Locate potential NPCs in image by determining contours
-        contours = rcv.get_contours(path_npcs)
-        # Click center pixel of non-combatting NPCs
-        img_bgr = cv2.imread(path_hp_bars)
-        for cnt in contours:
-            try:
-                center, top = rcv.get_contour_positions(cnt)
-            except Exception:
-                print("Cannot find moments of contour. Disregarding...")
-                continue
-            if not rcv.is_point_obstructed(center, img_bgr):
-                self.mouse.move_to(Point(center.x + game_view.start.x, center.y + game_view.start.y), 0.2)
-                pag.click()
-                return True
-        self.log_msg("No tagged NPCs found that aren't in combat.")
-        return False
-
-    def get_nearest_tagged_NPC(self, game_view: Rectangle, include_in_combat: bool = False) -> Point:
-        '''
-        Returns the nearest tagged NPC.
-        Args:
-            game_view: The rectangle to search in.
-        Returns:
-            The center point of the nearest tagged NPC, or None if none found.
-        '''
-        path_game_view = bcv.capture_screen(game_view)
-        # Isolate colors in image
-        path_npcs = rcv.isolate_colors(path_game_view, [self.TAG_BLUE], "npcs")
-        path_hp_bars = rcv.isolate_colors(path_game_view, [self.TAG_GREEN, self.TAG_RED], "hp_bars")
-        # Locate potential NPCs in image by determining contours
-        contours = rcv.get_contours(path_npcs)
-        # Get center pixels of non-combatting NPCs
-        centers = []
-        img_bgr = cv2.imread(path_hp_bars)
-        for cnt in contours:
-            try:
-                center, top = rcv.get_contour_positions(cnt)
-            except Exception:
-                print("Cannot find moments of contour. Disregarding...")
-                continue
-            if not include_in_combat and not rcv.is_point_obstructed(center, img_bgr) or include_in_combat:
-                centers.append((center.x, center.y))
-        if not centers:
+        objs = rcv.extract_objects(img_npcs)
+        if not objs:
             print("No tagged NPCs found.")
             return None
-        dims = img_bgr.shape  # (height, width, channels)
-        nearest = self.__get_nearest_point(Point(int(dims[1] / 2), int(dims[0] / 2)), centers)
-        return Point(nearest.x + game_view.start.x, nearest.y + game_view.start.y)
+        for obj in objs:
+            obj.set_rectangle_reference(self.win.game_view)
+        # Sort shapes by distance from player
+        objs = sorted(objs, key=RuneLiteObject.distance_from_rect_center)
+        if include_in_combat:
+            return objs[0]
+        for obj in objs:
+            if not rcv.is_point_obstructed(obj._center, img_fighting_entities):
+                return obj
+        return None
 
-    def get_all_tagged_in_rect(self, rect: Rectangle, color: tuple) -> list:
+    def get_all_tagged_in_rect(self, rect: Rectangle, color: clr.Color) -> List[RuneLiteObject]:
         '''
-        Finds all contours on screen of a particular color and returns a list of center Points for each.
+        Finds all contours on screen of a particular color and returns a list of Shapes.
         Args:
-            rect: The rectangle to search in.
-            color: The color to search for. Must be a tuple of (HSV upper, HSV lower) values.
+            rect: A reference to the Rectangle that this shape belongs in (E.g., Bot.win.control_panel).
+            color: The clr.Color to search for.
         Returns:
-            A list of center Points.
+            A list of RuneLiteObjects or empty list if none found.
         '''
-        path_game_view = bcv.capture_screen(rect)
-        path_tagged = rcv.isolate_colors(path_game_view, [color], "get_all_tagged_in_rect")
-        contours = rcv.get_contours(path_tagged)
-        centers = []
-        for cnt in contours:
-            try:
-                center, _ = rcv.get_contour_positions(cnt)
-            except Exception:
-                print("Cannot find moments of contour. Disregarding...")
-                continue
-            centers.append(Point(center.x + rect.start.x, center.y + rect.start.y))
-        return centers
+        img_rect = rect.screenshot()
+        #debug.save_image("get_all_tagged_in_rect.png", img_rect)
+        isolated_colors = clr.isolate_colors(img_rect, color)
+        objs = rcv.extract_objects(isolated_colors)
+        for obj in objs:
+            obj.set_rectangle_reference(rect)
+        return objs
     
-    def get_nearest_tag(self, color: rcv.Color) -> Point:
+    def get_nearest_tag(self, color: clr.Color) -> RuneLiteObject:
         '''
-        Finds the nearest contour of a particular color within the game view to the character and returns its center Point.
+        Finds the nearest outlined object of a particular color within the game view and returns it as a RuneLiteObject.
         Args:
-            rect: The rectangle to search in.
-            color: The color to search for. Must be a tuple of (HSV upper, HSV lower) values.
+            color: The clr.Color to search for.
         Returns:
-            The center Point of the nearest contour, or None if none found.
+            The nearest outline to the character as a RuneLiteObject, or None if none found.
         '''
-        rect = self.rect_game_view
-        centers = self.get_all_tagged_in_rect(rect, color)
-        return self.__get_nearest_point(Point(int((rect.start.x + rect.end.x) / 2), int((rect.start.y + rect.end.y) / 2)), centers) if centers else None
-        
-
-    def __get_nearest_point(self, point: Point, points: list) -> Point:
-        '''
-        Returns the nearest point in a list of (x, y) coordinates.
-        Args:
-            point: The point to compare to.
-            points: The list of (x, y) coordinates to compare.
-        Returns:
-            The closest point in the list.
-        '''
-        point = (point.x, point.y)
-        nodes = np.asarray(points)
-        dist_2 = np.sum((nodes - point) ** 2, axis=1)
-        p = np.argmin(dist_2)
-        return Point(points[p][0], points[p][1])
+        if shapes := self.get_all_tagged_in_rect(self.win.game_view, color):
+            shapes_sorted = sorted(shapes, key=RuneLiteObject.distance_from_rect_center)
+            return shapes_sorted[0]
+        else:
+            return None
 
     # --- Client Settings ---
-    def __open_display_settings(self) -> bool:
-        '''
-        Opens the display settings for the game client.
-        Returns:
-            True if the settings were opened, False if an error occured.
-        '''
-        cp_settings_selected = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_selected.png",
-                                                      self.client_window,
-                                                      conf=0.95)
-        cp_settings = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings.png",
-                                             self.client_window,
-                                             conf=0.95)
-        if cp_settings_selected is None and cp_settings is None:
-            self.log_msg("Could not find settings button.")
-            return False
-        elif cp_settings is not None and cp_settings_selected is None:
-            self.mouse.move_to(cp_settings)
-            pag.click()
-        time.sleep(0.5)
-        display_tab = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_display_tab.png", self.client_window)
-        if display_tab is None:
-            self.log_msg("Could not find the display settings tab.")
-            return False
-        self.mouse.move_to(display_tab)
-        pag.click()
-        time.sleep(0.5)
-        return True
-
-    def collapse_runelite_settings_panel(self):
-        '''
-        Identifies the RuneLite settings panel and collapses it.
-        '''
-        self.log_msg("Closing RuneLite settings panel...")
-        settings_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_settings_collapse.png", self.client_window)
-        if settings_icon is not None:
-            self.mouse.move_to(settings_icon, 1)
-            pag.click()
-            time.sleep(1.5)
-
-    def did_set_layout_fixed(self) -> bool:
-        '''
-        Attempts to set the client's layout to "Fixed - Classic layout".
-        Returns:
-            True if the layout was set, False if an issue occured.
-        '''
-        self.log_msg("Setting layout to Fixed - Classic layout.")
-        time.sleep(0.3)
-        if not self.__open_display_settings():
-            return False
-        time.sleep(0.3)
-        layout_dropdown = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/cp_settings_dropdown.png", self.client_window)
-        if layout_dropdown is None:
-            self.log_msg("Could not find the layout dropdown.")
-            return False
-        self.mouse.move_to(layout_dropdown)
-        pag.click()
-        time.sleep(0.8)
-        self.mouse.move_rel(-77, 19, duration=0.2)
-        pag.click()
-        time.sleep(1.5)
-        return True
-
+    @deprecated(reason="This method is no longer needed for RuneLite games that can launch with arguments through the OSBC client.")
     def logout_runelite(self):
         '''
         Identifies the RuneLite logout button and clicks it.
         '''
         self.log_msg("Logging out of RuneLite...")
-        rl_login_icon = bcv.search_img_in_rect(f"{bcv.BOT_IMAGES}/runelite_logout.png", self.client_window, conf=0.9)
+        rl_login_icon = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath('runelite_logout.png'), self.win.rectangle(), confidence=0.9)
         if rl_login_icon is not None:
-            self.mouse.move_to(rl_login_icon, 0.2)
+            self.mouse.move_to(rl_login_icon.random_point())
             pag.click()
             time.sleep(0.2)
             pag.press('enter')
             time.sleep(1)
-
-    def set_camera_zoom(self, percentage: int) -> bool:
-        '''
-        Sets the camera zoom level.
-        Args:
-            percentage: The percentage of the camera zoom level to set.
-        Returns:
-            True if the zoom level was set, False if an issue occured.
-        '''
-        if percentage < 1:
-            percentage = 1
-        elif percentage > 100:
-            percentage = 100
-        self.log_msg(f"Setting camera zoom to {percentage}%...")
-        time.sleep(0.3)
-        if not self.__open_display_settings():
-            return False
-        time.sleep(0.3)
-        zoom_start = 611
-        zoom_end = 708
-        x = int((percentage / 100) * (zoom_end - zoom_start) + zoom_start)
-        self.mouse.move_to(Point(x, 345), duration=0.2)
-        pag.click()
-        return True
-
-    # --- Setup Functions ---
-    def setup_client(self, window_title: str, set_layout_fixed: bool, logout_runelite: bool, collapse_runelite_settings: bool) -> None:
-        # sourcery skip: merge-nested-ifs
-        '''
-        Configures a RuneLite client window. This function logs messages to the script output log.
-        Args:
-            window_title: The title of the window to be manipulated. Must match the actual window's title.
-            set_layout_fixed: Whether or not to set the layout to "Fixed - Classic layout".
-            logout_runelite: Whether to logout of RuneLite during window config.
-            collapse_runelite_settings: Whether to close the RuneLite settings panel if it is open.
-        '''
-        self.log_msg("Configuring client window...")
-        time.sleep(1)
-        # Get reference to the client window
-        try:
-            win = pygetwindow.getWindowsWithTitle(window_title)[0]
-            win.activate()
-        except Exception:
-            self.log_msg("Error: Could not find game window.")
-            self.set_status(BotStatus.STOPPED)
-            return
-
-        # Set window to large initially
-        win.moveTo(0, 0)
-        self.client_window = Rectangle(Point(0, 0), Point(900, 620))
-        win.size = (self.client_window.end.x, self.client_window.end.y)
-        time.sleep(1)
-
-        # Set layout to fixed
-        if set_layout_fixed:
-            if not self.did_set_layout_fixed():  # if layout setup failed
-                if pag.confirm("Could not set layout to fixed. Continue anyway?") == "Cancel":
-                    self.set_status(BotStatus.STOPPED)
-                    return
-
-        # Ensure user is logged out of RuneLite
-        if logout_runelite:
-            self.logout_runelite()
-
-        # Ensure RuneLite Settings pane is closed
-        if collapse_runelite_settings:
-            self.collapse_runelite_settings_panel()
-
-        # Move and resize to desired position
-        win.moveTo(0, 0)
-        self.client_window = Rectangle(Point(0, 0), Point(self.desired_width, self.desired_height))
-        win.size = (self.desired_width, self.desired_height)
-        time.sleep(1)
-        self.log_msg("Client window configured.")
