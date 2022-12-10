@@ -1,7 +1,7 @@
 ### ⚠️ This project is in Alpha stage ⚠️
 
 # ![](documentation/media/logo.png)
-OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts (bots) for Old School RuneScape and private server alternatives. This application is paired with a custom library of tools for streamlining the development of new bots. Unlike most botting frameworks that employ code injection into the game client, OSBC uses a combination of color manipulation, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to emulate human eyes and hands, and wrap that complex logic in a simple, easy-to-use framework.
+OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts (bots) for Old School RuneScape and private server alternatives. This application is paired with a custom library of tools for streamlining the development of new bots. Unlike most botting frameworks that employ code injection into the game client, OSBC uses a combination of color manipulation, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to emulate human eyes and hands, and wrap that complex logic in an easy-to-use framework.
 
 💬 [Join the Discord](https://discord.gg/Znks7Smya4) to discuss the project, ask questions, and follow development
 
@@ -44,7 +44,7 @@ See the [Wiki](https://github.com/kelltom/OSRS-Bot-COLOR/wiki) for tutorials, an
 
 # Features
 ## User Interface
-Gone are the days of manually running your bot scripts from an IDE. OSBC offers a clean interface for configuring, running, and monitoring your Python bots. For developers, this means that all you need to do is write a bot's logic loop, and *the UI is already built for you*.
+OSBC offers a clean interface for configuring, running, and monitoring your Python bots. For developers, this means that all you need to do is write a bot's logic loop, and *the UI is already built for you*.
 
 ![intro_demo](https://user-images.githubusercontent.com/44652363/197059102-27a9a942-25b6-4012-b83b-90ae8399b4e8.gif)
 
@@ -70,12 +70,12 @@ def create_options(self):
 ![options_menu](https://user-images.githubusercontent.com/44652363/206808756-aac29140-e41d-4b6c-9f26-dc08ce0662b9.png)
 
 ## RuneLite Launcher
-Color bots rely on very specific in-game settings. In one click, you can launch RuneLite with pre-configured, *legal* plugins that allow OSBC to work its magic. This works completely separate from your normal RuneLite installation, so your personal configuration is not affected.
+In one click, you can launch RuneLite with pre-configured, *legal* plugins that allow OSBC to work its magic. This works completely separate from your normal RuneLite installation, so your personal configuration is not affected.
 
 ![RL launcher](https://user-images.githubusercontent.com/44652363/206808821-dc3eb909-25e3-4aa0-9e3e-c9bcac19488e.gif)
 
 ## Any Client Size, Anywhere
-New in *v0.2.0*, your scripts will work no matter what size your client is, or where it is on your primary monitor. OSBC locates important UI elements and allows you to access them by name.
+Your scripts will work no matter the size or position of the game client. OSBC locates important UI elements and allows you to access them by name.
 
 ![resizable support](https://user-images.githubusercontent.com/44652363/206810755-21438e3a-588e-4bcb-9dd0-45ca907f13cb.gif)
 
@@ -86,25 +86,25 @@ OSBC uses Bezier curves to create smooth, human-like mouse movements.
 
 ## RuneLite Leverage
 ### Object Detection
-Official RuneLite plugins exist to add quality of life to players. Many plugins offer highlighting/outlining of in-game objects with solid colors, making them easier to see. This inadvertedly makes them easier to see for bots as well. Using color isolation, OSBC can quickly locate these outlined objects and extract their properties into a simple data structure.
+Official RuneLite plugins exist to add quality of life to players. Many plugins offer highlighting/outlining of in-game objects with solid colors, making them easier for players to see them. Using color isolation, OSBC can quickly locate these outlined objects and extract their properties into simple data structures.
 
 ![RL object](https://user-images.githubusercontent.com/44652363/206809467-8cdefa01-235d-441f-b563-69773a2badb8.png)
 
 ### API
-There are some RuneLite plugins that expose game data to a localhost API endpoint. OSBC can leverage this data to provide a more robust botting experience without the need to modify the game client. See the [API utility folder](src/utilities/api/) for more.
+There are some RuneLite plugins that expose game data to a localhost API endpoint. You can leverage this data to provide a more robust botting experience without the risks associated with modifying the game client's code. See the [API utility folder](src/utilities/api/) for more.
 
 ## Random Click Distribution
-With the help of the OSBC community, we've created a randomization algorithm that distributes clicks in a way that is more human-like. We followed the same principles used by individuals who've beat the system and achieved max levels without lifting a finger. This feature is a work in progress.
+With the help of the OSBC community, we've created a randomization algorithm that distributes clicks in a way that is more human-like. We followed the same principles used by individuals who've beat the system and achieved max levels without lifting a finger.
 
 ![click dist](https://user-images.githubusercontent.com/44652363/206808958-0cc35324-be40-4da9-92ab-c7898b72082e.gif)
 
 ## Efficient Image Searching
-Sometimes, your bot might need to find a specific image on screen. This can be done with the help of OpenCV's template matching algorithm. We've modified it to be more efficient and reliable with RuneScape UI elements and sprites - even supporting images with transparency.
+Sometimes, your bot might need to find a specific image on screen. We've modified OpenCV's template matching algorithm to be more efficient and reliable with RuneScape UI elements and sprites - even supporting images with transparency. That means you can search images directly from the OSRS Wiki.
 
 ![shark](https://user-images.githubusercontent.com/44652363/206808973-8bea1717-c227-43cf-b8af-6825316eb95d.png)
 
-## Lightning Fast OCR
-In *v0.2.0*, we've ditched machine learned OCR in favor of a much faster and more reliable custom implementation. OSBC can locate text on screen in as little as **2 milliseconds**. That's **0.002 seconds**.
+## Lightning Fast Optical Character Recognition
+We've ditched machine learned OCR in favor of a much faster and more reliable custom implementation. OSBC can locate text on screen in as little as **2 milliseconds**. That's **0.002 seconds**.
 
 ![ocr](https://user-images.githubusercontent.com/44652363/206808982-16f58a50-4709-4c27-9fc2-94b0c4edab21.png)
 
