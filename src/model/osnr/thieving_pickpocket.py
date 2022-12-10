@@ -100,7 +100,7 @@ class OSNRThievingPickpocket(OSNRBot):
             while self.get_hp() < 50:
                 if not self.status_check_passed():
                     return
-                food_indexes = api.get_inv_item_indices(item_ids.food_list)
+                food_indexes = api.get_inv_item_indices(item_ids.all_food)
                 if food_indexes:
                     self.log_msg("Eating...")
                     self.mouse.move_to(self.win.inventory_slots[food_indexes[0]].random_point())
@@ -118,7 +118,7 @@ class OSNRThievingPickpocket(OSNRBot):
 
             # Check if we should drop inventory
             if self.should_drop_inv and api.get_is_inv_full():
-                skip_slots = api.get_inv_item_indices(item_ids.food_list)
+                skip_slots = api.get_inv_item_indices(item_ids.all_food)
                 # Always drop the last row
                 remove = range(24, 28)
                 for index in remove:
