@@ -111,7 +111,7 @@ class OSRSCombat(RuneLiteBot):
     
     def __eat(self, api: StatusSocket):
         self.log_msg("HP is low.")
-        food_slots = api.get_inv_item_indices(item_ids.food_list)
+        food_slots = api.get_inv_item_indices(item_ids.all_food)
         if len(food_slots) == 0:
             self.log_msg("No food found. Pls tell me what to do...")
             self.set_status(BotStatus.STOPPED)
