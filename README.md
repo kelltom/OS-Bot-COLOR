@@ -72,17 +72,17 @@ def create_options(self):
 ## RuneLite Launcher
 In one click, you can launch RuneLite with pre-configured, *legal* plugins that allow OSBC to work its magic. This works completely separate from your normal RuneLite installation, so your personal configuration is not affected.
 
-![RL launcher](https://user-images.githubusercontent.com/44652363/206808821-dc3eb909-25e3-4aa0-9e3e-c9bcac19488e.gif)
+![rl launcher](https://user-images.githubusercontent.com/44652363/206948553-608d0337-862c-41ca-b2e1-7cd473838060.gif)
 
 ## Any Client Size, Anywhere
 Your scripts will work no matter the size or position of the game client. OSBC locates important UI elements and allows you to access them by name.
 
-![resizable support](https://user-images.githubusercontent.com/44652363/206810755-21438e3a-588e-4bcb-9dd0-45ca907f13cb.gif)
+![resize support](https://user-images.githubusercontent.com/44652363/206949051-16e1bf57-a189-4eda-bbb2-1864e2849c45.gif)
 
 ## Human-like Mouse Movement
 OSBC uses Bezier curves to create smooth, human-like mouse movements.
 
-![mouse movements](https://user-images.githubusercontent.com/44652363/206808912-47651342-5d28-46b1-b4fe-9d6299bc98b8.gif)
+![mouse movements](https://user-images.githubusercontent.com/44652363/206948347-88e6296c-a5bf-43d4-a491-4680467ada31.gif)
 
 ## RuneLite Leverage
 ### Object Detection
@@ -96,7 +96,7 @@ There are some RuneLite plugins that expose game data to a localhost API endpoin
 ## Random Click Distribution
 With the help of the OSBC community, we've created a randomization algorithm that distributes clicks in a way that is more human-like. We followed the same principles used by individuals who've beat the system and achieved max levels without lifting a finger.
 
-![click dist](https://user-images.githubusercontent.com/44652363/206808958-0cc35324-be40-4da9-92ab-c7898b72082e.gif)
+![click dist](https://user-images.githubusercontent.com/44652363/206948686-89cb0c30-8626-4aa2-9415-f2f985c80cbc.gif)
 
 ## Efficient Image Searching
 Sometimes, your bot might need to find a specific image on screen. We've modified OpenCV's template matching algorithm to be more efficient and reliable with RuneScape UI elements and sprites - even supporting images with transparency. That means you can search images directly from the OSRS Wiki.
