@@ -10,6 +10,8 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automat
 ⭐ If you like this project, please leave a Star :)
 
 # Table of Contents
+- [](#)
+- [Table of Contents](#table-of-contents)
 - [Developer Setup ](#developer-setup-)
 - [Documentation](#documentation)
 - [Features](#features)
@@ -24,9 +26,8 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automat
     - [API](#api)
   - [Random Click Distribution](#random-click-distribution)
   - [Efficient Image Searching](#efficient-image-searching)
-  - [Lightning Fast OCR](#lightning-fast-ocr)
-- [Packaging an Executable](#packaging-an-executable)
-- [Support](#support)
+  - [Lightning Fast Optical Character Recognition](#lightning-fast-optical-character-recognition)
+- [Support the Project](#support-the-project)
 
 # Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>
 1. Install [Python 3.10](https://www.python.org/downloads/release/python-3109/) *(newer versions are not compatible)*
@@ -108,3 +109,9 @@ We've ditched machine learned OCR in favor of a much faster and more reliable cu
 
 ![ocr](https://user-images.githubusercontent.com/44652363/206808982-16f58a50-4709-4c27-9fc2-94b0c4edab21.png)
 
+# Support the Project
+<p align="center">
+  <a href="https://www.buymeacoffee.com/kelltom" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px">
+  </a>  
+</p> 
