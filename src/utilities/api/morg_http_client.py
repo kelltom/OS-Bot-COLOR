@@ -417,9 +417,7 @@ class MorgHTTPSocket:
         elif isinstance(id, list):
             return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in id]
 
-    @deprecated(
-        reason="This function needs to be rewritten, as one item can't be stacked in multiple slots. Consider get_inv_item_indices instead."
-    )
+    @deprecated(reason="This function needs to be rewritten, as one item can't be stacked in multiple slots. Consider get_inv_item_indices instead.")
     def find_item_in_inv(self, item_id: int) -> Union[List[Tuple[int, int]], None]:
         """
         Finds an item in the inventory and returns a list of tuples containing the slot and quantity.
@@ -435,11 +433,7 @@ class MorgHTTPSocket:
             print(e)
             return None
 
-        return [
-            (index, inventory_slot["quantity"])
-            for index, inventory_slot in enumerate(data)
-            if inventory_slot["id"] == item_id
-        ]
+        return [(index, inventory_slot["quantity"]) for index, inventory_slot in enumerate(data) if inventory_slot["id"] == item_id]
 
     def get_player_equipment(self) -> Union[List[int], None]:
         """

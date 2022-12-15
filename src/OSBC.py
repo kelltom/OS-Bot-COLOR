@@ -50,15 +50,9 @@ class App(customtkinter.CTk):
 
         # configure grid layout
         self.frame_left.grid_rowconfigure(0, minsize=10)  # empty row with minsize as spacing (top padding above title)
-        self.frame_left.grid_rowconfigure(
-            18, weight=1
-        )  # empty row as spacing (resizable spacing between buttons and theme switch)
-        self.frame_left.grid_rowconfigure(
-            19, minsize=20
-        )  # empty row with minsize as spacing (adds a top padding to theme switch)
-        self.frame_left.grid_rowconfigure(
-            21, minsize=10
-        )  # empty row with minsize as spacing (bottom padding below theme switch)
+        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and theme switch)
+        self.frame_left.grid_rowconfigure(19, minsize=20)  # empty row with minsize as spacing (adds a top padding to theme switch)
+        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below theme switch)
 
         self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", text_font=("Roboto Medium", 14))
         self.label_1.grid(row=1, column=0, pady=10, padx=10)

@@ -12,8 +12,7 @@ class TestBot(RuneLiteBot):
     def __init__(self):
         title = "Test Bot"
         description = (
-            "This bot is for testing the new Window feature. Open an instance of RuneLite to see how the "
-            + "mouse travels to the UI elements."
+            "This bot is for testing the new Window feature. Open an instance of RuneLite to see how the " + "mouse travels to the UI elements."
         )
         super().__init__(
             title=title,

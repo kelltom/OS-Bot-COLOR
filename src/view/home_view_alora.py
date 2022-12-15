@@ -79,9 +79,7 @@ class AloraHomeView(customtkinter.CTkFrame):
         self.label_file_loc.grid(row=4, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
         # Replace Btn
-        self.btn_replace = customtkinter.CTkButton(
-            master=self, text="Replace Settings", command=self.__replace_settings
-        )
+        self.btn_replace = customtkinter.CTkButton(master=self, text="Replace Settings", command=self.__replace_settings)
         self.btn_replace.grid(row=5, column=0, sticky="nwes", padx=40, pady=(0, 15))
 
         # Skip Btn

@@ -221,9 +221,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             return None
 
     # --- Client Settings ---
-    @deprecated(
-        reason="This method is no longer needed for RuneLite games that can launch with arguments through the OSBC client."
-    )
+    @deprecated(reason="This method is no longer needed for RuneLite games that can launch with arguments through the OSBC client.")
     def logout_runelite(self):
         """
         Identifies the RuneLite logout button and clicks it.

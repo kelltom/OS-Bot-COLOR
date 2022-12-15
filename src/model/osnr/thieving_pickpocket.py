@@ -40,9 +40,7 @@ class OSNRThievingPickpocket(OSNRBot):
             "Where is the pickpocket option?",
             ["Left-click", "2nd option", "3rd option"],
         )
-        self.options_builder.add_dropdown_option(
-            "should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"]
-        )
+        self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
         self.options_builder.add_slider_option("protect_rows", "If dropping, protect rows?", 0, 6)
 
@@ -163,9 +161,7 @@ class OSNRThievingPickpocket(OSNRBot):
                 npc_search_fail_count += 1
                 time.sleep(1)
                 if npc_search_fail_count > 39:
-                    self.__logout(
-                        f"No NPC found for {npc_search_fail_count} seconds. Bot ran for {(time.time() - start_time) / 60} minutes."
-                    )
+                    self.__logout(f"No NPC found for {npc_search_fail_count} seconds. Bot ran for {(time.time() - start_time) / 60} minutes.")
                     return
 
             # Click coin pouch

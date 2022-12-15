@@ -9,9 +9,7 @@ from utilities.api.status_socket import StatusSocket
 class OSRSWoodcutter(RuneLiteBot):
     def __init__(self):
         title = "Woodcutter"
-        description = (
-            "This bot power-chops wood. Position your character near some trees, tag them, and press the play button."
-        )
+        description = "This bot power-chops wood. Position your character near some trees, tag them, and press the play button."
         super().__init__(title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0

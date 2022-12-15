@@ -21,9 +21,7 @@ class OSRSCombat(RuneLiteBot):
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
-        self.options_builder.add_text_edit_option(
-            "loot_items", "Loot items (comma separated):", "E.g., Coins, Dragon bones"
-        )
+        self.options_builder.add_text_edit_option("loot_items", "Loot items (comma separated):", "E.g., Coins, Dragon bones")
         self.options_builder.add_slider_option("hp_threshold", "Low HP threshold (0-100)?", 0, 100)
 
     def save_options(self, options: dict):

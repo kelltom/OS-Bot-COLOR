@@ -12,10 +12,7 @@ from utilities.geometry import Point, RuneLiteObject
 class OSNRFishing(OSNRBot):
     def __init__(self):
         title = "Fishing"
-        description = (
-            "This bot fishes... fish. Take out a rod and bait, position your character "
-            + "near a tagged fishing spot, and press play."
-        )
+        description = "This bot fishes... fish. Take out a rod and bait, position your character " + "near a tagged fishing spot, and press play."
         super().__init__(title=title, description=description)
         self.running_time = 2
         self.protect_slots = 2

@@ -36,9 +36,7 @@ def on_click(x, y, button, pressed, terminate: bool = False):
         try:
             df = pd.read_csv(f"{PATH}/click_log.csv", index_col=0)
         except FileNotFoundError:
-            df = pd.DataFrame(
-                columns=["x", "y", "button", "time"], index=[0]
-            )  # time is the relative number of seconds from last click
+            df = pd.DataFrame(columns=["x", "y", "button", "time"], index=[0])  # time is the relative number of seconds from last click
         # Create bounding box in 100px radius around mouse click
         frame_diff = 100
         box = (

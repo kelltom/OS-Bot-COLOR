@@ -112,9 +112,7 @@ class OptionsUI(customtkinter.CTkFrame):
         self.columnconfigure(1, weight=1)
 
         # Title
-        self.lbl_example_bot_options = customtkinter.CTkLabel(
-            master=self, text=f"{title} Options", text_font=("Roboto Medium", 14)
-        )
+        self.lbl_example_bot_options = customtkinter.CTkLabel(master=self, text=f"{title} Options", text_font=("Roboto Medium", 14))
         self.lbl_example_bot_options.grid(row=0, column=0, padx=10, pady=20)
 
         # Dynamically place widgets

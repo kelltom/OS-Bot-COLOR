@@ -513,9 +513,7 @@ class Bot(ABC):
         self.mouse.move_to(self.win.cp_tabs[11].random_point())
         self.mouse.click()
         time.sleep(0.5)
-        display_tab = imsearch.search_img_in_rect(
-            imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel
-        )
+        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel)
         if display_tab is None:
             self.log_msg("Could not find the display settings tab.")
             return False
