@@ -12,7 +12,6 @@ customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "gre
 
 
 class App(customtkinter.CTk):
-
     WIDTH = 650
     HEIGHT = 520
     DEFAULT_GRAY = ("gray50", "gray30")

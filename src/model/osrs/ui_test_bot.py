@@ -11,9 +11,7 @@ from utilities.geometry import Rectangle
 class TestBot(RuneLiteBot):
     def __init__(self):
         title = "Test Bot"
-        description = (
-            "This bot is for testing the new Window feature. Open an instance of RuneLite to see how the " + "mouse travels to the UI elements."
-        )
+        description = "This bot is for testing the new Window feature. Open an instance of RuneLite to see how the " + "mouse travels to the UI elements."
         super().__init__(
             title=title,
             description=description,
@@ -30,7 +28,6 @@ class TestBot(RuneLiteBot):
     def main_loop(
         self,
     ):  # sourcery skip: merge-list-append, merge-list-appends-into-extend, merge-list-extend, unwrap-iterable-construction
-
         """The first thing that happens when the Play button is pressed is the client window
         is scanned and initialized. Then, all of the window properties are available.
         The program will let you know if the initialization failed.

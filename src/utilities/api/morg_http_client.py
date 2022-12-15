@@ -22,7 +22,6 @@ class SocketError(Exception):
 
 
 class MorgHTTPSocket:
-
     # TODO: ID/NPC ID/Object ID conversion function/dict to get the readable name of an object
 
     def __init__(self):
@@ -241,7 +240,6 @@ class MorgHTTPSocket:
 
         stop_time = time.time() + timeout
         while time.time() < stop_time:
-
             try:
                 data = self.__do_get(endpoint=self.stats_endpoint)
             except SocketError as e:
@@ -468,7 +466,6 @@ if __name__ == "__main__":
 
     # Note: Making API calls in succession too quickly can result in issues
     while True:
-
         # Player Data
         if False:
             # Example of safely getting player data

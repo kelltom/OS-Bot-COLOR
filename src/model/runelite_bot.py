@@ -28,7 +28,6 @@ from utilities.window import Window
 
 
 class RuneLiteWindow(Window):
-
     current_action: Rectangle = None  # https://i.imgur.com/fKXuIyO.png
     hp_bar: Rectangle = None  # https://i.imgur.com/2lCovGV.png
     prayer_bar: Rectangle = None
@@ -88,7 +87,6 @@ class RuneLiteWindow(Window):
 
 
 class RuneLiteBot(Bot, metaclass=ABCMeta):
-
     win: RuneLiteWindow = None
 
     def __init__(self, title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:

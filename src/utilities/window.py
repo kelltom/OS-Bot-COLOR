@@ -33,7 +33,6 @@ class WindowInitializationError(Exception):
 
 
 class Window:
-
     client_fixed: bool = None
 
     # CP Area

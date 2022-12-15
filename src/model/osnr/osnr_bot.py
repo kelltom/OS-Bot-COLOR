@@ -12,7 +12,6 @@ from utilities.geometry import Point
 
 
 class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
-
     win: RuneLiteWindow = None
 
     def __init__(self, title, description) -> None:

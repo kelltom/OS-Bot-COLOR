@@ -112,14 +112,12 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-
             # Character is at point A
             self.log_msg("Character is at point A")
 
             # Move character until it reachers point B
             steps_remaining = 4  # Lets pretend it takes 4 steps to move from A to B
             while player_position != "B":
-
                 # When you enter a nested loop like this, it's wise to add a status check call.
                 # You want to do this so that the bot is listening for user commands to pause/stop
                 # while in the loop. Otherwise, it'll ignore the user's requests to pause/stop.

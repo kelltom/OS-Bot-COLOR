@@ -46,7 +46,6 @@ class OSNRCombat(OSNRBot):
         self.log_msg("Options set successfully.")
 
     def main_loop(self):  # sourcery skip: low-code-quality
-
         api = StatusSocket()
 
         # Client setup

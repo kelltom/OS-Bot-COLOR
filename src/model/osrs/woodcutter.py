@@ -87,8 +87,7 @@ class OSRSWoodcutter(RuneLiteBot):
                     continue
                 if api_morg.wait_til_gained_xp(skill="woodcutting", timeout=15) is None:
                     self.log_msg(
-                        "Timed out waiting for player to gain xp. If this keeps "
-                        + "happening, either increase the wait timeout - or there may be a bug."
+                        "Timed out waiting for player to gain xp. If this keeps " + "happening, either increase the wait timeout - or there may be a bug."
                     )
                     continue
             else:

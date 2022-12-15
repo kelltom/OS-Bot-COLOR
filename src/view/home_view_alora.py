@@ -50,9 +50,8 @@ class AloraHomeView(customtkinter.CTkFrame):
 
         # Warning label
         self.warning = (
-            "WARNING: This will overwrite your current settings. If you'd like to save your settings, make "
-            + "a backup or log in to RuneLite and sync your settings to the cloud. If you are already logged in, "
-            + "you are safe to ignore this warning."
+            "WARNING: This will overwrite your current settings. If you'd like to save your settings, make a backup or log in to RuneLite and sync your"
+            " settings to the cloud. If you are already logged in, you are safe to ignore this warning."
         )
         self.label_warning = customtkinter.CTkLabel(
             master=self,
