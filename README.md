@@ -10,8 +10,6 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automat
 ⭐ If you like this project, please leave a Star :)
 
 # Table of Contents
-- [](#)
-- [Table of Contents](#table-of-contents)
 - [Developer Setup ](#developer-setup-)
 - [Documentation](#documentation)
 - [Features](#features)
