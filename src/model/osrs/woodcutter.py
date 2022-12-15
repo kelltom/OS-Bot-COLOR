@@ -1,14 +1,17 @@
+import time
 
-from model.runelite_bot import RuneLiteBot, BotStatus
+import utilities.color as clr
+from model.runelite_bot import BotStatus, RuneLiteBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
-import time
-import utilities.color as clr
+
 
 class OSRSWoodcutter(RuneLiteBot):
     def __init__(self):
         title = "Woodcutter"
-        description = ("This bot power-chops wood. Position your character near some trees, tag them, and press the play button.")
+        description = (
+            "This bot power-chops wood. Position your character near some trees, tag them, and press the play button."
+        )
         super().__init__(title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0
@@ -85,8 +88,10 @@ class OSRSWoodcutter(RuneLiteBot):
                     # This will click the tree again if that happens.
                     continue
                 if api_morg.wait_til_gained_xp(skill="woodcutting", timeout=15) is None:
-                    self.log_msg("Timed out waiting for player to gain xp. If this keeps " +
-                                 "happening, either increase the wait timeout - or there may be a bug.")
+                    self.log_msg(
+                        "Timed out waiting for player to gain xp. If this keeps "
+                        + "happening, either increase the wait timeout - or there may be a bug."
+                    )
                     continue
             else:
                 self.log_msg("Misclicked tree.")

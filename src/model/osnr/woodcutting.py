@@ -1,16 +1,20 @@
-'''
+"""
 Trains Runecrafting via Astral Runes.
-'''
+"""
+import time
+
+import utilities.color as clr
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 from utilities.api.status_socket import StatusSocket
-import time
-import utilities.color as clr
+
 
 class OSNRWoodcutting(OSNRBot):
     def __init__(self):
         title = "Woodcutting"
-        description = ("This bot chops wood. Position your character near some trees, tag them, and press the play button.")
+        description = (
+            "This bot chops wood. Position your character near some trees, tag them, and press the play button."
+        )
         super().__init__(title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0

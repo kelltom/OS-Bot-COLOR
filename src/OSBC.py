@@ -1,10 +1,11 @@
+import tkinter
+from typing import List
+
+import customtkinter
+
 from controller.bot_controller import BotController, MockBotController
 from model import *
-from typing import List
 from view import *
-import customtkinter
-import tkinter
-
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -20,7 +21,7 @@ class App(customtkinter.CTk):
         super().__init__()
         if not test:
             self.build_ui()
-    
+
     def build_ui(self):  # sourcery skip: merge-list-append, move-assign-in-block
         self.title("OSRS Bot COLOR")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
@@ -35,9 +36,11 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self.frame_left = customtkinter.CTkFrame(master=self,
-                                                 width=180,  # static min-width on left-hand sidebar
-                                                 corner_radius=0)
+        self.frame_left = customtkinter.CTkFrame(
+            master=self,
+            width=180,  # static min-width on left-hand sidebar
+            corner_radius=0,
+        )
         self.frame_left.grid(row=0, column=0, sticky="nswe")
 
         self.frame_right = customtkinter.CTkFrame(master=self)
@@ -46,35 +49,39 @@ class App(customtkinter.CTk):
         # ============ Left-Side Menu (frame_left) ============
 
         # configure grid layout
-        self.frame_left.grid_rowconfigure(0, minsize=10)   # empty row with minsize as spacing (top padding above title)
-        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and theme switch)
-        self.frame_left.grid_rowconfigure(19, minsize=20)    # empty row with minsize as spacing (adds a top padding to theme switch)
-        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below theme switch)
+        self.frame_left.grid_rowconfigure(0, minsize=10)  # empty row with minsize as spacing (top padding above title)
+        self.frame_left.grid_rowconfigure(
+            18, weight=1
+        )  # empty row as spacing (resizable spacing between buttons and theme switch)
+        self.frame_left.grid_rowconfigure(
+            19, minsize=20
+        )  # empty row with minsize as spacing (adds a top padding to theme switch)
+        self.frame_left.grid_rowconfigure(
+            21, minsize=10
+        )  # empty row with minsize as spacing (bottom padding below theme switch)
 
-        self.label_1 = customtkinter.CTkLabel(master=self.frame_left,
-                                              text="Scripts",
-                                              text_font=("Roboto Medium", 14))
+        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", text_font=("Roboto Medium", 14))
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         # Button map
         # There should be a key for each game title, and the value should be a list of buttons for that game
         self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
             "Select a game": [],
-            #"Alora": [],
+            # "Alora": [],
             "Near-Reality": [],  # AKA: OSNR
-            "OSRS": []
+            "OSRS": [],
         }
 
         # Dropdown menu for selecting a game
-        self.menu_game_selector = customtkinter.CTkOptionMenu(master=self.frame_left,
-                                                              values=list(self.btn_map.keys()),
-                                                              command=self.__on_game_selector_change)
+        self.menu_game_selector = customtkinter.CTkOptionMenu(
+            master=self.frame_left,
+            values=list(self.btn_map.keys()),
+            command=self.__on_game_selector_change,
+        )
         self.menu_game_selector.grid(row=2, column=0, sticky="we", padx=10, pady=10)
 
         # Theme Switch
-        self.switch = customtkinter.CTkSwitch(master=self.frame_left,
-                                              text="Dark Mode",
-                                              command=self.change_mode)
+        self.switch = customtkinter.CTkSwitch(master=self.frame_left, text="Dark Mode", command=self.change_mode)
         self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
         self.switch.select()
 
@@ -84,10 +91,17 @@ class App(customtkinter.CTk):
 
         # Home Views
         self.home_view = HomeView(parent=self.frame_right, main=self)
-        self.home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+        self.home_view.pack(
+            in_=self.frame_right,
+            side=tkinter.TOP,
+            fill=tkinter.BOTH,
+            expand=True,
+            padx=0,
+            pady=0,
+        )
         self.views["Select a game"] = self.home_view
         self.views["OSRS"] = OSRSHomeView(parent=self, main=self)
-        #self.views["Alora"] = AloraHomeView(parent=self, main=self)
+        # self.views["Alora"] = AloraHomeView(parent=self, main=self)
         self.views["Near-Reality"] = OSNRHomeView(parent=self, main=self)
 
         # Script view and controller [DO NOT EDIT]
@@ -100,7 +114,7 @@ class App(customtkinter.CTk):
 
         # TEMPLATE FOR ADDING BOTS
         # 1. Create an instance of your Bot and append it to the bot map (self.models) with a unique, descriptive key.
-        #    1.1. If your bot class is undefined, make sure it is referenced in the __init__.py file of the folder it exists in. 
+        #    1.1. If your bot class is undefined, make sure it is referenced in the __init__.py file of the folder it exists in.
         # 2. Set the controller of the bot to self.controller.
         # 3. Call the "__create_button" function to create a pre-configured button for the bot. Append the button to
         #    the button map (self.btn_map) for the game it belongs to.
@@ -150,25 +164,27 @@ class App(customtkinter.CTk):
 
     # ============ UI Creation Helpers ============
     def __create_button(self, bot_key):
-        '''
+        """
         Creates a preconfigured button for the bot.
         Args:
             bot_key: str - the key of the bot as it exists in it's dictionary.
         Returns:
             Tkinter.Button - the button created.
-        '''
-        btn = customtkinter.CTkButton(master=self.frame_left,
-                                      text=self.models[bot_key].title,
-                                      fg_color=self.DEFAULT_GRAY,
-                                      command=lambda: self.__toggle_bot_by_key(bot_key, btn))
+        """
+        btn = customtkinter.CTkButton(
+            master=self.frame_left,
+            text=self.models[bot_key].title,
+            fg_color=self.DEFAULT_GRAY,
+            command=lambda: self.__toggle_bot_by_key(bot_key, btn),
+        )
         return btn
 
     def toggle_btn_state(self, enabled: bool):
-        '''
+        """
         Toggles the state of the buttons in the current button list.
         Args:
             enabled: bool - True to enable buttons, False to disable buttons.
-        '''
+        """
         if self.current_btn_list is not None:
             for btn in self.current_btn_list:
                 if enabled:
@@ -178,11 +194,11 @@ class App(customtkinter.CTk):
 
     # ============ Button Handlers ============
     def __on_game_selector_change(self, choice):
-        '''
+        """
         Handles the event that occurs when the user selects a game title from the dropdown menu.
         Args:
             choice: The key of the game that the user selected.
-        '''
+        """
         if choice not in list(self.btn_map.keys()):
             return
         # Un-highlight current button
@@ -205,17 +221,24 @@ class App(customtkinter.CTk):
         # Repack new home view
         self.current_home_view.pack_forget()
         self.current_home_view = self.views[choice]
-        self.current_home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+        self.current_home_view.pack(
+            in_=self.frame_right,
+            side=tkinter.TOP,
+            fill=tkinter.BOTH,
+            expand=True,
+            padx=0,
+            pady=0,
+        )
         self.toggle_btn_state(enabled=False)
 
     def __toggle_bot_by_key(self, bot_key, btn: customtkinter.CTkButton):
-        '''
+        """
         Handles the event of the user selecting a bot from the dropdown menu. This function manages the state of frame_left buttons,
         the contents that appears in frame_right, and re-assigns the model to the controller.
         Args:
             bot_key: The name/key of the bot that the user selected.
             btn: The button that the user clicked.
-        '''
+        """
         if self.models[bot_key] is not None:
             # If the script's frame is already visible, hide it
             if self.controller.model == self.models[bot_key]:
@@ -225,12 +248,26 @@ class App(customtkinter.CTk):
                 self.views["Script"].pack_forget()
                 self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
                 self.current_btn = None
-                self.current_home_view.pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+                self.current_home_view.pack(
+                    in_=self.frame_right,
+                    side=tkinter.TOP,
+                    fill=tkinter.BOTH,
+                    expand=True,
+                    padx=0,
+                    pady=0,
+                )
             # If there is no script selected
             elif self.controller.model is None:
                 self.current_home_view.pack_forget()
                 self.controller.change_model(self.models[bot_key])
-                self.views["Script"].pack(in_=self.frame_right, side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=0, pady=0)
+                self.views["Script"].pack(
+                    in_=self.frame_right,
+                    side=tkinter.TOP,
+                    fill=tkinter.BOTH,
+                    expand=True,
+                    padx=0,
+                    pady=0,
+                )
                 self.current_btn = btn
                 self.current_btn.configure(fg_color=btn.hover_color)
             # If we are switching to a new script
@@ -254,7 +291,7 @@ class App(customtkinter.CTk):
 
     def start(self):
         self.mainloop()
-    
+
     def test(self, bot: Bot):
         bot.set_controller(MockBotController(bot))
         bot.set_status(BotStatus.RUNNING)
@@ -266,7 +303,7 @@ if __name__ == "__main__":
     # To test a bot without the GUI, address the comments for each line below.
     app = App()  # Add the "test=True" argument to the App constructor call.
     app.start()  # Comment out this line.
-    #app.test(Bot()) # Uncomment this line and replace argument with your bot's instance.
+    # app.test(Bot()) # Uncomment this line and replace argument with your bot's instance.
 
     # Note: when testing a bot, ensure all of its options have set default values
     # in its init() function.

@@ -1,16 +1,20 @@
+import time
+from typing import List
+
+import utilities.color as clr
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
-from typing import List
 from utilities.api.status_socket import StatusSocket
-from utilities.geometry import RuneLiteObject, Rectangle
-import utilities.color as clr
-import time
+from utilities.geometry import Rectangle, RuneLiteObject
+
 
 class OSNRMining(OSNRBot):
     def __init__(self):
         title = "Mining"
-        description = ("This bot power-mines rocks. Equip a pickaxe, place your character between some rocks and mark " +
-                       "(Shift + Right-Click) the ones you want to mine.")
+        description = (
+            "This bot power-mines rocks. Equip a pickaxe, place your character between some rocks and mark "
+            + "(Shift + Right-Click) the ones you want to mine."
+        )
         super().__init__(title=title, description=description)
         self.running_time = 2
         self.logout_on_friends = False
@@ -41,7 +45,7 @@ class OSNRMining(OSNRBot):
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup
         api = StatusSocket()
-        
+
         # Client setup
         self.set_camera_zoom(50)
 
@@ -69,7 +73,7 @@ class OSNRMining(OSNRBot):
         while time.time() - start_time < end_time:
             if not self.status_check_passed():
                 return
-            
+
             # Check to drop inventory
             if api.get_is_inv_full():
                 self.drop_inventory()

@@ -1,31 +1,34 @@
-'''
+"""
 The OSNRBot class contains properties and functions that are specific to the OSNR client. This class should
 be inherited by OSNR script classes.
-'''
+"""
+import time
 from abc import ABCMeta
+
+import pyautogui as pag
+
 from model.runelite_bot import RuneLiteBot, RuneLiteWindow
 from utilities.geometry import Point
-import pyautogui as pag
-import time
+
 
 class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
-    
+
     win: RuneLiteWindow = None
 
     def __init__(self, title, description) -> None:
         super().__init__(title, description, RuneLiteWindow("Near-Reality"))
 
     def disable_private_chat(self):
-        '''
+        """
         Disables private chat in game.
-        '''
+        """
         self.log_msg("Disabling private chat...")
         self.mouse.move_to(self.win.chat_tabs[3].random_point())
         pag.rightClick()
         time.sleep(0.05)
         self.mouse.move_rel(0, -28, 5, 2)
         pag.click()
-    
+
     # # -- Banking --
     # def close_bank(self):
     #     '''
@@ -48,7 +51,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
     #     pag.click()
     #     time.sleep(1)
     #     return True
-    
+
     # def load_preset(self):
     #     '''
     #     Loads the default preset from the bank interface.

@@ -1,84 +1,86 @@
-from typing import List, Dict
+from typing import Dict, List
+
 import customtkinter
 
 
-class OptionsBuilder():
-    '''
-    The options map is going to hold the option name, and the UI deatils that will map to it. An instance of this class will go to the options UI class to
-    be interpreted and built.
-    '''
+class OptionsBuilder:
+    """
+    The options map is going to hold the option name, and the UI details that will map to it. An instance of this class
+    will go to the options UI class to be interpreted and built.
+    """
+
     def __init__(self, title) -> None:
         self.options = {}
         self.title = title
 
     def add_slider_option(self, key, title, min, max):
-        '''
+        """
         Adds a slider option to the options menu.
         Args:
             key: The key to map the option to (use variable name in your script).
             title: The title of the option.
             min: The minimum value of the slider.
             max: The maximum value of the slider.
-        '''
+        """
         self.options[key] = SliderInfo(title, min, max)
 
     def add_checkbox_option(self, key, title, values: list):
-        '''
+        """
         Adds a checkbox option to the options menu.
         Args:
             key: The key to map the option to (use variable name in your script).
             title: The title of the option.
             values: A list of values to display for each checkbox.
-        '''
+        """
         self.options[key] = CheckboxInfo(title, values)
 
     def add_dropdown_option(self, key, title, values: list):
-        '''
+        """
         Adds a dropdown option to the options menu.
         Args:
             key: The key to map the option to (use variable name in your script).
             title: The title of the option.
             values: A list of values to display for each entry in the dropdown.
-        '''
+        """
         self.options[key] = OptionMenuInfo(title, values)
-    
+
     def add_text_edit_option(self, key, title, placeholder=None):
-        '''
+        """
         Adds a text edit option to the options menu.
         Args:
             key: The key to map the option to (use variable name in your script).
             title: The title of the option.
             placeholder: The placeholder text to display in the text edit box (optional).
-        '''
+        """
         self.options[key] = TextEditInfo(title, placeholder)
 
     def build_ui(self, parent, controller):
-        '''
+        """
         Returns a UI object that can be added to the parent window.
-        '''
+        """
         return OptionsUI(parent, self.title, self.options, controller)
 
 
-class SliderInfo():
+class SliderInfo:
     def __init__(self, title, min, max):
         self.title = title
         self.min = min
         self.max = max
 
 
-class OptionMenuInfo():
+class OptionMenuInfo:
     def __init__(self, title, values: list):
         self.title = title
         self.values = values
 
 
-class CheckboxInfo():
+class CheckboxInfo:
     def __init__(self, title, values: list):
         self.title = title
         self.values = values
 
 
-class TextEditInfo():
+class TextEditInfo:
     def __init__(self, title, placeholder):
         self.title = title
         self.placeholder = placeholder
@@ -110,9 +112,9 @@ class OptionsUI(customtkinter.CTkFrame):
         self.columnconfigure(1, weight=1)
 
         # Title
-        self.lbl_example_bot_options = customtkinter.CTkLabel(master=self,
-                                                              text=f"{title} Options",
-                                                              text_font=("Roboto Medium", 14))
+        self.lbl_example_bot_options = customtkinter.CTkLabel(
+            master=self, text=f"{title} Options", text_font=("Roboto Medium", 14)
+        )
         self.lbl_example_bot_options.grid(row=0, column=0, padx=10, pady=20)
 
         # Dynamically place widgets
@@ -129,81 +131,71 @@ class OptionsUI(customtkinter.CTkFrame):
                 raise Exception("Unknown option type")
 
         # Save button
-        self.btn_save = customtkinter.CTkButton(master=self,
-                                                text="Save",
-                                                command=lambda: self.save(window=parent))
+        self.btn_save = customtkinter.CTkButton(master=self, text="Save", command=lambda: self.save(window=parent))
         self.btn_save.grid(row=self.num_of_options + 2, column=0, columnspan=2, pady=20, padx=20)
 
     def change_slider_val(self, key, value):
         self.slider_values[key].configure(text=str(int(value * 100)))
 
     def create_slider(self, key, value: SliderInfo, row: int):
-        '''
+        """
         Creates a slider widget and adds it to the view.
-        '''
+        """
         # Slider label
-        self.labels[key] = customtkinter.CTkLabel(master=self,
-                                                  text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=10, pady=20)
+        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
+        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
         # Slider frame
         self.frames[key] = customtkinter.CTkFrame(master=self)
         self.frames[key].columnconfigure(0, weight=1)
         self.frames[key].columnconfigure(1, weight=0)
         self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
         # Slider value indicator
-        self.slider_values[key] = customtkinter.CTkLabel(master=self.frames[key],
-                                                         text=str(value.min))
+        self.slider_values[key] = customtkinter.CTkLabel(master=self.frames[key], text=str(value.min))
         self.slider_values[key].grid(row=0, column=1)
         # Slider widget
-        self.widgets[key] = customtkinter.CTkSlider(master=self.frames[key],
-                                                    from_=value.min / 100,
-                                                    to=value.max / 100,
-                                                    command=lambda x: self.change_slider_val(key, x))
+        self.widgets[key] = customtkinter.CTkSlider(
+            master=self.frames[key],
+            from_=value.min / 100,
+            to=value.max / 100,
+            command=lambda x: self.change_slider_val(key, x),
+        )
         self.widgets[key].grid(row=0, column=0, sticky="ew")
         self.widgets[key].set(value.min / 100)
 
     def create_checkboxes(self, key, value: CheckboxInfo, row: int):
-        '''
+        """
         Creates checkbox widgets and adds them to the view.
-        '''
+        """
         # Checkbox label
-        self.labels[key] = customtkinter.CTkLabel(master=self,
-                                                  text=value.title)
+        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
         self.labels[key].grid(row=row, column=0, padx=10, pady=20)
         # Checkbox frame
         self.frames[key] = customtkinter.CTkFrame(master=self)
         for i in range(len(value.values)):
             self.frames[key].columnconfigure(i, weight=1)
-        self.frames[key].grid(row=row, column=1, sticky='ew', padx=(0, 10))
+        self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
         # Checkbox values
         self.widgets[key]: List[customtkinter.CTkCheckBox] = []
         for i, value in enumerate(value.values):
-            self.widgets[key].append(customtkinter.CTkCheckBox(master=self.frames[key],
-                                                               text=value))
-            self.widgets[key][i].grid(row=0, column=i, sticky='ew', padx=5, pady=5)
+            self.widgets[key].append(customtkinter.CTkCheckBox(master=self.frames[key], text=value))
+            self.widgets[key][i].grid(row=0, column=i, sticky="ew", padx=5, pady=5)
 
     def create_menu(self, key, value: OptionMenuInfo, row: int):
-        self.labels[key] = customtkinter.CTkLabel(master=self,
-                                                  text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=10, pady=20)
-        self.widgets[key] = customtkinter.CTkOptionMenu(master=self,
-                                                        values=value.values,
-                                                        fg_color=("gray75", "gray22"))
-        self.widgets[key].grid(row=row, column=1, sticky='ew', padx=(0, 10))
-    
+        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
+        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
+        self.widgets[key] = customtkinter.CTkOptionMenu(master=self, values=value.values, fg_color=("gray75", "gray22"))
+        self.widgets[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
+
     def create_text_edit(self, key, value: TextEditInfo, row: int):
-        self.labels[key] = customtkinter.CTkLabel(master=self,
-                                                  text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky='nsew', padx=10, pady=20)
-        self.widgets[key] = customtkinter.CTkEntry(master=self,
-                                                   corner_radius=5,
-                                                   placeholder_text=value.placeholder)
-        self.widgets[key].grid(row=row, column=1, sticky='ew', padx=(0, 10))
+        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
+        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
+        self.widgets[key] = customtkinter.CTkEntry(master=self, corner_radius=5, placeholder_text=value.placeholder)
+        self.widgets[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
 
     def save(self, window):
-        '''
+        """
         Gives controller a dictionary of options to save to the model. Destroys the window.
-        '''
+        """
         self.options = {}
         for key, value in self.widgets.items():
             if isinstance(value, customtkinter.CTkSlider):
@@ -213,8 +205,8 @@ class OptionsUI(customtkinter.CTkFrame):
             elif isinstance(value, customtkinter.CTkOptionMenu):
                 self.options[key] = value.get()
             elif isinstance(value, customtkinter.CTkEntry):
-                x = [x.strip() for x in value.get().split(',')]
-                if x == ['']:
+                x = [x.strip() for x in value.get().split(",")]
+                if x == [""]:
                     x = []
                 self.options[key] = x
 

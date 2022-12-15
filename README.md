@@ -60,7 +60,7 @@ OSBC allows developers to create option menus and parse user selections with eas
 ```python
 def create_options(self):
   ''' Declare what should appear when the user opens the Options menu '''
-  self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 180) 
+  self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 180)
   self.options_builder.add_text_edit_option("text_edit_example", "Text Edit Example", "Placeholder text here")
   self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
   self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
@@ -111,5 +111,5 @@ We've ditched machine learned OCR in favor of a much faster and more reliable cu
 <p align="center">
   <a href="https://www.buymeacoffee.com/kelltom" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px">
-  </a>  
-</p> 
+  </a>
+</p>

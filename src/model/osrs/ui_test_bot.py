@@ -1,18 +1,25 @@
-'''
+"""
 This script is used to ensure that the Window properties are being set correctly.
-'''
-from model.runelite_bot import RuneLiteBot, BotStatus
-from model.runelite_bot import RuneLiteWindow
-from typing import List
-from utilities.geometry import Rectangle
+"""
 import time
+from typing import List
+
+from model.runelite_bot import BotStatus, RuneLiteBot, RuneLiteWindow
+from utilities.geometry import Rectangle
+
 
 class TestBot(RuneLiteBot):
     def __init__(self):
         title = "Test Bot"
-        description = ("This bot is for testing the new Window feature. Open an instance of RuneLite to see how the " +
-                       "mouse travels to the UI elements.")
-        super().__init__(title=title, description=description, window=RuneLiteWindow(window_title="RuneLite"))
+        description = (
+            "This bot is for testing the new Window feature. Open an instance of RuneLite to see how the "
+            + "mouse travels to the UI elements."
+        )
+        super().__init__(
+            title=title,
+            description=description,
+            window=RuneLiteWindow(window_title="RuneLite"),
+        )
 
     def create_options(self):
         pass
@@ -21,16 +28,18 @@ class TestBot(RuneLiteBot):
         self.options_set = True
         self.log_msg("Options set successfully.")
 
-    def main_loop(self):  # sourcery skip: merge-list-append, merge-list-appends-into-extend, merge-list-extend, unwrap-iterable-construction
+    def main_loop(
+        self,
+    ):  # sourcery skip: merge-list-append, merge-list-appends-into-extend, merge-list-extend, unwrap-iterable-construction
 
-        '''The first thing that happens when the Play button is pressed is the client window
+        """The first thing that happens when the Play button is pressed is the client window
         is scanned and initialized. Then, all of the window properties are available.
         The program will let you know if the initialization failed.
-        
+
         If you need to move the client for any reason, pause the bot first, then it will re-initialize
         once your resume. That won't work in this script though, since we are hardcoding the positions
         into the list before the loop. It is best practice to only use the window properties within
-        your bot loop.'''
+        your bot loop."""
 
         # Here, we'll define some points on screen that we'll move the mouse to.
         spots: List[tuple] = []

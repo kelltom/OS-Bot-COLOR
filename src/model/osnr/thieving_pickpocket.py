@@ -1,23 +1,28 @@
-'''
+"""
 Thieving bot for OSNR. Pickpockets from NPCs.
-'''
-from model.bot import BotStatus
-from model.osnr.osnr_bot import OSNRBot
+"""
+import time
 from typing import List
-from utilities.api.status_socket import StatusSocket
-from utilities.geometry import Point, RuneLiteObject
+
 import pyautogui as pag
 import pytweening
-import time
+
 import utilities.api.item_ids as item_ids
 import utilities.color as clr
 import utilities.imagesearch as imsearch
+from model.bot import BotStatus
+from model.osnr.osnr_bot import OSNRBot
+from utilities.api.status_socket import StatusSocket
+from utilities.geometry import Point, RuneLiteObject
+
 
 class OSNRThievingPickpocket(OSNRBot):
     def __init__(self):
         title = "Thieving: Pickpocket"
-        description = ("This bot steals from NPCs in OSNR. Position your character near a tagged NPC you wish to steal from. " +
-                       "Start bot with > 50% HP. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'.")
+        description = (
+            "This bot steals from NPCs in OSNR. Position your character near a tagged NPC you wish to steal from. "
+            + "Start bot with > 50% HP. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'."
+        )
         super().__init__(title=title, description=description)
         self.running_time = 5
         self.logout_on_friends = False
@@ -25,13 +30,19 @@ class OSNRThievingPickpocket(OSNRBot):
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
         self.protect_rows = 5
-        self.coin_pouch_path = imsearch.BOT_IMAGES.joinpath('coin_pouch.png')
+        self.coin_pouch_path = imsearch.BOT_IMAGES.joinpath("coin_pouch.png")
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
-        self.options_builder.add_dropdown_option("pickpocket_option", "Where is the pickpocket option?", ["Left-click", "2nd option", "3rd option"])
-        self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
+        self.options_builder.add_dropdown_option(
+            "pickpocket_option",
+            "Where is the pickpocket option?",
+            ["Left-click", "2nd option", "3rd option"],
+        )
+        self.options_builder.add_dropdown_option(
+            "should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"]
+        )
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
         self.options_builder.add_slider_option("protect_rows", "If dropping, protect rows?", 0, 6)
 
@@ -82,7 +93,7 @@ class OSNRThievingPickpocket(OSNRBot):
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
         api = StatusSocket()
-        
+
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
@@ -132,7 +143,7 @@ class OSNRThievingPickpocket(OSNRBot):
             # Steal from NPC
             npc_pos: RuneLiteObject = self.get_nearest_tag(clr.CYAN)
             if npc_pos is not None:
-                self.mouse.move_to(npc_pos.random_point(), mouseSpeed='fastest')
+                self.mouse.move_to(npc_pos.random_point(), mouseSpeed="fastest")
                 if self.pickpocket_option != 0:
                     pag.rightClick()
                     if self.pickpocket_option == 1:
@@ -152,7 +163,9 @@ class OSNRThievingPickpocket(OSNRBot):
                 npc_search_fail_count += 1
                 time.sleep(1)
                 if npc_search_fail_count > 39:
-                    self.__logout(f"No NPC found for {npc_search_fail_count} seconds. Bot ran for {(time.time() - start_time) / 60} minutes.")
+                    self.__logout(
+                        f"No NPC found for {npc_search_fail_count} seconds. Bot ran for {(time.time() - start_time) / 60} minutes."
+                    )
                     return
 
             # Click coin pouch
@@ -160,7 +173,11 @@ class OSNRThievingPickpocket(OSNRBot):
                 self.log_msg("Clicking coin pouch...")
                 pouch = imsearch.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.control_panel)
                 if pouch:
-                    self.mouse.move_to(pouch.random_point(), mouseSpeed='fast', tween=pytweening.easeInOutQuad)
+                    self.mouse.move_to(
+                        pouch.random_point(),
+                        mouseSpeed="fast",
+                        tween=pytweening.easeInOutQuad,
+                    )
                     pag.click()
                     time.sleep(0.2)
                     no_pouch_count = 0
