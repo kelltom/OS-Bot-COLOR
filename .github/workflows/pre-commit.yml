@@ -2,6 +2,7 @@ name: CI Checks
 
 on:
   pull_request:
+  push:
 
 jobs:
   main:
