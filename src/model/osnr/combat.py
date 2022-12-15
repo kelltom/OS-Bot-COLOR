@@ -1,18 +1,21 @@
-'''
+"""
 Combat bot for OSNR. Attacks tagged monsters.
-'''
+"""
+import time
+
 from model.bot import BotStatus
 from model.osnr.osnr_bot import OSNRBot
 from utilities.api.status_socket import StatusSocket
 from utilities.geometry import RuneLiteObject
-import time
 
 
 class OSNRCombat(OSNRBot):
     def __init__(self):
         title = "Combat Bot"
-        description = ("This bot attacks NPCs tagged using RuneLite. Position your character in the viscinity of the tagged NPCs. " +
-                       "In the 'Entity Hider' plugin, make sure 'Hide Local Player 2D' is OFF.")
+        description = (
+            "This bot attacks NPCs tagged using RuneLite. Position your character in the viscinity of the tagged NPCs. "
+            + "In the 'Entity Hider' plugin, make sure 'Hide Local Player 2D' is OFF."
+        )
         super().__init__(title=title, description=description)
         self.running_time = 15
         self.should_loot = False
@@ -43,7 +46,6 @@ class OSNRCombat(OSNRBot):
         self.log_msg("Options set successfully.")
 
     def main_loop(self):  # sourcery skip: low-code-quality
-
         api = StatusSocket()
 
         # Client setup

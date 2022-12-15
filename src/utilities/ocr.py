@@ -1,22 +1,25 @@
-from utilities.geometry import Rectangle
+import pathlib
 from operator import itemgetter
-from typing import List, Union, Dict
+from typing import Dict, List, Union
+
 import cv2
 import numpy as np
-import pathlib
-import utilities.debug as debug
+
 import utilities.color as clr
+import utilities.debug as debug
+from utilities.geometry import Rectangle
+
 
 def __load_font(font: str) -> Dict[str, cv2.Mat]:
-    '''
+    """
     Loads a font's alphabet from the fonts directory into a dictionary.
     Args:
         font: The name of the font to load.
     Returns:
         A dictionary of {"char": image} pairs.
-    '''
-    PATH = pathlib.Path(__file__).parent.joinpath('fonts', font)
-    pathlist = PATH.glob('**\*.bmp')
+    """
+    PATH = pathlib.Path(__file__).parent.joinpath("fonts", font)
+    pathlist = PATH.glob("**\*.bmp")
     alphabet = {}
     for path in pathlist:
         name = int(path.stem)
@@ -25,14 +28,16 @@ def __load_font(font: str) -> Dict[str, cv2.Mat]:
         alphabet[key] = value
     return alphabet
 
-PLAIN_11 = __load_font("Plain11") # Used by RuneLite plugins, small interface text (orbs)
-PLAIN_12 = __load_font("Plain12") # Chatbox text, medium interface text
-BOLD_12 = __load_font("Bold12") # Main text, top-left mouseover text, overhead chat
-QUILL = __load_font("Quill") # Large bold quest text
-QUILL_8 = __load_font("Quill8") # Small quest text
+
+PLAIN_11 = __load_font("Plain11")  # Used by RuneLite plugins, small interface text (orbs)
+PLAIN_12 = __load_font("Plain12")  # Chatbox text, medium interface text
+BOLD_12 = __load_font("Bold12")  # Main text, top-left mouseover text, overhead chat
+QUILL = __load_font("Quill")  # Large bold quest text
+QUILL_8 = __load_font("Quill8")  # Small quest text
+
 
 def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> str:
-    '''
+    """
     Extracts text from a Rectangle.
     Args:
         rect: The rectangle to search within.
@@ -40,13 +45,13 @@ def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.C
         color: The color(s) of the text to search for.
     Returns:
         A single string containing all text found in order, no spaces.
-    '''
+    """
     # Screenshot and isolate colors
     image = clr.isolate_colors(rect.screenshot(), color)
-    result = ''
+    result = ""
     char_list = []
     for key in font:
-        if key == ' ':
+        if key == " ":
             continue
         # Template match the character in the image
         correlation = cv2.matchTemplate(image, font[key], cv2.TM_CCOEFF_NORMED)
@@ -59,8 +64,14 @@ def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.C
     # Join the charachers into a string
     return result.join(letter for letter, _, _ in char_list)
 
-def find_text(text: Union[str, List[str]], rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> List[Rectangle]:
-    '''
+
+def find_text(
+    text: Union[str, List[str]],
+    rect: Rectangle,
+    font: dict,
+    color: Union[clr.Color, List[clr.Color]],
+) -> List[Rectangle]:
+    """
     Searches for exact text within a Rectangle. Input text is case sensitive.
     Args:
         text: The text to search for. Can be a phrase or a single word. You may also pass a list of strings to search for,
@@ -70,18 +81,18 @@ def find_text(text: Union[str, List[str]], rect: Rectangle, font: dict, color: U
         color: The color(s) of the text to search for.
     Returns:
         A list of Rectangles containing the coordinates of the text found.
-    '''
+    """
     # Screenshot and isolate colors
     image = clr.isolate_colors(rect.screenshot(), color)
 
     # Extract unique characters from input text
-    chars = ''.join(set(''.join(text))).replace(' ', '')
+    chars = "".join(set("".join(text))).replace(" ", "")
     char_list = []
     for char in chars:
         try:
             template = font[char]
         except KeyError:
-            text = text.replace(char, '') # Remove characters that aren't in the font
+            text = text.replace(char, "")  # Remove characters that aren't in the font
             print(f"Font does not contain character '{char}'. Omitting from search.")
             continue
         correlation = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
@@ -99,15 +110,15 @@ def find_text(text: Union[str, List[str]], rect: Rectangle, font: dict, color: U
         text = [text]
 
     for word in text:
-        word = word.replace(' ', '')
+        word = word.replace(" ", "")
         for index, _ in enumerate(haystack):
-            if haystack[index:index+len(word)] == word:
+            if haystack[index : index + len(word)] == word:
                 # get the position of the first letter
                 left, top = char_list[index][1], char_list[index][2]
                 # get shape of last letter
                 h, w = font[word[-1]].shape[:2]
                 # get the width (height is the same for all letters)
-                width = char_list[index+len(word)-1][1] - left + w
+                width = char_list[index + len(word) - 1][1] - left + w
                 words_found.append(Rectangle(left + rect.left, top + rect.top, width, h))
                 index += len(word)
     return words_found

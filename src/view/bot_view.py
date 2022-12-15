@@ -1,17 +1,18 @@
 import customtkinter
+
 from view.info_frame import InfoFrame
 from view.output_log_frame import OutputLogFrame
 
 
 class BotView(customtkinter.CTkFrame):
     def __init__(self, parent):
-        '''
+        """
         A base frame for all bot views. This frame contains the following:
             - Info frame (frame_info)
             - Output log frame (frame_output_log)
         This view needs to be configured using setup() to populate fields based
         on the bot's title and description, as well as setting controllers for the child views.
-        '''
+        """
         super().__init__(parent)
 
         # configure grid layout (3x1)
@@ -30,11 +31,11 @@ class BotView(customtkinter.CTkFrame):
         self.controller = None
 
     def set_controller(self, controller):
-        '''
+        """
         Sets up the view and its child views to use the given controller.
         Args:
             controller: The controller to use.
-        '''
+        """
         self.controller = controller
         self.frame_info.set_controller(controller=controller)
         self.frame_output_log.set_controller(controller=controller)

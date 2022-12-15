@@ -1,20 +1,23 @@
-'''
+"""
 A set of computer vision utilities for use with RuneLite-based bots.
-'''
+"""
 from typing import List
-from utilities.geometry import Point, RuneLiteObject
+
 import cv2
 import numpy as np
 
+from utilities.geometry import Point, RuneLiteObject
+
+
 def extract_objects(image: cv2.Mat) -> List[RuneLiteObject]:
-    '''
+    """
     Given an image of enclosed outlines, this function will extract information
     from each outlined object into a data structure.
     Args:
         image: The image to process.
     Returns:
         A list of RuneLiteObjects, or an empty list if no objects are found.
-    '''
+    """
     # Dilate the outlines
     kernel = np.ones((4, 4), np.uint8)
     mask = cv2.dilate(image, kernel, iterations=1)
@@ -45,8 +48,9 @@ def extract_objects(image: cv2.Mat) -> List[RuneLiteObject]:
                     objs.append(RuneLiteObject(x_min, x_max, y_min, y_max, width, height, center, axis))
     return objs or []
 
+
 def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 30) -> bool:
-    '''
+    """
     This function determines if there are non-black pixels in an image around a given point.
     This is useful for determining if an NPC is in combat (E.g., given the mid point of an NPC contour
     and a masked image only showing HP bars, determine if the NPC has an HP bar around the contour).
@@ -56,9 +60,9 @@ def is_point_obstructed(point: Point, im: cv2.Mat, span: int = 30) -> bool:
         span: The number of pixels to search around the given point.
     Returns:
         True if the point is obstructed, False otherwise.
-    '''
+    """
     try:
-        crop = im[point[1]-span:point[1]+span, point[0]-span:point[0]+span]
+        crop = im[point[1] - span : point[1] + span, point[0] - span : point[0] + span]
         mean = crop.mean(axis=(0, 1))
         return mean != 0.0
     except Exception as e:

@@ -1,16 +1,19 @@
+import time
 
-from model.runelite_bot import RuneLiteBot, BotStatus
+import utilities.api.item_ids as item_ids
+import utilities.color as clr
+from model.runelite_bot import BotStatus, RuneLiteBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
-import time
-import utilities.color as clr
-import utilities.api.item_ids as item_ids
+
 
 class OSRSCombat(RuneLiteBot):
     def __init__(self):
         title = "Combat"
-        description = ("This bot kills NPCs. Position your character near some NPCs and tag them. If you want the bot to pick up loot, " +
-                       "add the item name to the highlight list in the Ground Items plugin (one day this will be done automatically).")
+        description = (
+            "This bot kills NPCs. Position your character near some NPCs and tag them. If you want the bot to pick up "
+            + "loot, add the item name to the highlight list in the Ground Items plugin (one day this will be done automatically)."
+        )
         super().__init__(title=title, description=description)
         self.running_time = 1
         self.loot_items = []
@@ -90,7 +93,7 @@ class OSRSCombat(RuneLiteBot):
                     continue
                 self.mouse.click()
                 time.sleep(1)
-            
+
             # While in combat
             while api_morg.get_is_in_combat():
                 # Check to eat food
@@ -99,7 +102,7 @@ class OSRSCombat(RuneLiteBot):
                 if not self.status_check_passed():
                     return
                 time.sleep(1)
-            
+
             # Loot all highlighted items on the ground
             if self.loot_items:
                 self.__loot(api_status)
@@ -108,7 +111,7 @@ class OSRSCombat(RuneLiteBot):
 
         self.update_progress(1)
         self.__logout("Finished.")
-    
+
     def __eat(self, api: StatusSocket):
         self.log_msg("HP is low.")
         food_slots = api.get_inv_item_indices(item_ids.all_food)
@@ -119,16 +122,16 @@ class OSRSCombat(RuneLiteBot):
         self.log_msg("Eating food...")
         self.mouse.move_to(self.win.inventory_slots[food_slots[0]].random_point())
         self.mouse.click()
-    
+
     def __loot(self, api: StatusSocket):
-        '''Picks up loot while there is loot on the ground'''
+        """Picks up loot while there is loot on the ground"""
         while self.pick_up_loot(self.loot_items):
             if api.get_is_inv_full():
                 self.__logout("Inventory full. Cannot loot.")
                 return
             curr_inv = len(api.get_inv())
             self.log_msg("Picking up loot...")
-            for _ in range(5): # give the bot 5 seconds to pick up the loot
+            for _ in range(5):  # give the bot 5 seconds to pick up the loot
                 if len(api.get_inv()) != curr_inv:
                     self.log_msg("Loot picked up.")
                     time.sleep(1)
