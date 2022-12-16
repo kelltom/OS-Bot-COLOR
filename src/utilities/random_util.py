@@ -64,7 +64,6 @@ class RandomUtil:
     @staticmethod
     def __random_from(x_min, y_min, width, height, center: bool = False) -> List[int]:
         if not center:
-            # Recalculate the mins
             x_min = x_min + math.ceil(width / 2)
             y_min = y_min + math.ceil(height / 2)
 
@@ -76,18 +75,31 @@ class RandomUtil:
 
         sigma_x = (width / 2) * 0.33
         sigma_y = (height / 2) * 0.33
-        end_x = RandomUtil.__pseudo_random(x_min, sigma_x, width_min, width_max)
-        end_y = RandomUtil.__pseudo_random(y_min, sigma_y, height_min, height_max)
+        end_x = int(RandomUtil.truncated_normal_sample(width_min, width_max, x_min, sigma_x))
+        end_y = int(RandomUtil.truncated_normal_sample(height_min, height_max, y_min, sigma_y))
         return [end_x, end_y]
 
     @staticmethod
-    def __pseudo_random(mu, sigma, min, max) -> int:
+    def truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation) -> float:
+        """
+        Generate a random sample from the normal distribution using the Box-Muller method.
+        Args:
+            lower_bound: The lower bound of the truncated normal distribution.
+            upper_bound: The upper bound of the truncated normal distribution.
+            mean: The mean of the normal distribution.
+            standard_deviation: The standard deviation of the normal distribution.
+        Returns:
+            A random float from the truncated normal distribution.
+        """
         sg = secrets.SystemRandom()
-        t = 2 * math.pi * sg.uniform(0.000, 1.000)
-        g = mu + (sigma * math.sqrt(-1.955 * math.log(sg.uniform(0.000, 1.000)))) * math.cos(t)
+        u1 = sg.uniform(0, 1)
+        u2 = sg.uniform(0, 1)
+        z1 = math.sqrt(-2 * math.log(u1)) * math.cos(2 * math.pi * u2)
+        sample = mean + standard_deviation * z1
 
-        if g < min:
-            g = min
-        if g > max:
-            g = max
-        return int(g)
+        if sample < lower_bound:
+            return lower_bound
+        elif sample > upper_bound:
+            return upper_bound
+        else:
+            return sample
