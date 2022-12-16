@@ -366,6 +366,17 @@ class Bot(ABC):
         """
         res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
         return int(res) if (res := re.findall(r"\d+", res)) else None
+    
+    def get_total_xp(self) -> int:
+        """
+        Gets the total XP of the player using OCR.
+        """
+        fonts = [ocr.PLAIN_11, ocr.PLAIN_12, ocr.BOLD_12]
+        for font in fonts:
+            res = ocr.extract_text(self.win.total_xp, font, [clr.WHITE])
+            if res := re.findall(r"\d+", res):
+                return int(res[0])
+        return None
 
     # --- OCR Functions ---
     def mouseover_text(
