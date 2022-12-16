@@ -1,17 +1,28 @@
-import os
-import shutil
 from pathlib import Path
 from subprocess import DETACHED_PROCESS, Popen
+from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
-
 import customtkinter
-from PIL import Image, ImageTk
+import json
+import os
+import platform
+import shutil
+import tkinter as tk
 
 
-class OSNRHomeView(customtkinter.CTkFrame):
-    def __init__(self, parent, main):
+class RuneLiteHomeView(customtkinter.CTkFrame):
+    def __init__(self, parent, main, game_title: str, game_abbreviation: str):
+        """
+        Creates a new RuneLiteHomeView object.
+        Args:
+            parent: The parent window.
+            main: The main window.
+            game_title: The title of the game (E.g., "Old School RuneScape").
+            game_abbreviation: The abbreviation of the game (E.g., "OSRS").
+        """
         super().__init__(parent)
         self.main = main
+        self.__game_abbreviation = game_abbreviation
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)  # Spacing
@@ -23,20 +34,20 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.grid_rowconfigure(7, weight=0)  # - Status
         self.grid_rowconfigure(8, weight=1)  # Spacing
 
-        # # Logo
+        # Logo
         # self.logo_path = Path(__file__).parent.parent.parent.resolve()
-        # self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/osnr_logo.png").resize((218, 120), Image.LANCZOS))
+        # self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/osrs_logo.png").resize((268, 120), Image.LANCZOS))
         # self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
         # self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Title
-        self.label_title = customtkinter.CTkLabel(self, text="Old School Near-Reality", text_font=("Roboto", 24))
+        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}", text_font=("Roboto", 24))
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
         self.note = (
             "For these scripts to work, RuneLite must be configured in a specific way. "
-            + "Use the button below to launch Near-Reality with pre-configured settings, or skip this "
+            + "Use the button below to launch RuneLite with pre-configured settings, or skip this "
             + "step if you know your client is already configured."
         )
         self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 12))
@@ -47,7 +58,11 @@ class OSNRHomeView(customtkinter.CTkFrame):
         self.label_note.grid(row=2, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
         # Warning label
-        self.warning = "Please only have one instance of Near-Reality running at a time."
+        self.warning = (
+            "Please only have one instance of RuneLite running at a time. \nIn your game settings, ensure that "
+            + "UI elements are NOT trasparent, orbs are enabled, shift-drop is enabled, and XP display is "
+            + "set to 'permanent'."
+        )
         self.label_warning = customtkinter.CTkLabel(
             master=self,
             text=self.warning,
@@ -63,7 +78,7 @@ class OSNRHomeView(customtkinter.CTkFrame):
         # Launch Btn
         self.btn_replace = customtkinter.CTkButton(
             master=self,
-            text="Launch Near-Reality",
+            text=f"Launch {game_title}",
             command=self.__launch_game_with_settings,
         )
         self.btn_replace.grid(row=5, column=0, sticky="nwes", padx=40, pady=(0, 15))
@@ -88,47 +103,71 @@ class OSNRHomeView(customtkinter.CTkFrame):
 
     def __launch_game_with_settings(self):
         """
-        Launches the game with the specified Near-Reality/RuneLite settings file. If it fails to
+        Launches the game with the specified RuneLite settings file. If it fails to
         find the executable, it will prompt the user to locate the executable.
         """
-        # src path for our runelite bot settings
-        PATH = Path(__file__).parent.parent.resolve()
+        # Load the JSON file
+        executable_paths = str(Path(__file__).parent.joinpath("executable_paths.json"))
+        data = {}
+        with open(executable_paths, 'r') as f:
+            data = json.load(f)
 
-        # currently logged in user <windows>
-        currentUser = os.getlogin()
+        # Check if exec path exists in the JSON file
+        key = self.__game_abbreviation.lower()
+        if key in data:
+            print('Key exists in data')
+            EXECPATH = data[key]
+        else:
+            print('Key does not exist in data')
+            EXECPATH = ""
 
-        # executable path for OSNR
-        EXECPATH = f"C:\\Users\\{currentUser}\\AppData\\Local\\Near-Reality\\Near-Reality.exe"
-
+        # Check if path exists
         if not os.path.exists(EXECPATH):
-            # if the executable is not found, prompt the user to locate it
             self.label_status.configure(
-                text="Near-Reality not found. Please locate the executable.",
+                text="RuneLite not found. Please locate the executable.",
                 text_color="orange",
             )
-            EXECPATH = askopenfilename(
-                initialdir=os.environ["USERPROFILE"],
-                title="Near-Reality not found. Please locate the executable",
-                filetypes=[("exe files", "*.exe")],
-            )
+            EXECPATH = self.__locate_executable()
             if not EXECPATH:
-                self.label_status.configure(text="Error: Could not launch Near-Reality.", text_color="red")
+                self.label_status.configure(text="File not selected.", text_color="orange")
                 return
+            print(f"EXECPATH: {EXECPATH}")
+            data[key] = EXECPATH
+            with open(executable_paths, 'w') as f:
+                json.dump(data, f)
 
-        # save settings file to temp
-        shutil.copyfile(
-            f"{PATH}\\runelite_settings\\osnr_settings.properties",
-            f"{PATH}\\runelite_settings\\temp.properties",
-        )
+        # Save settings file to temp
+        PATH = Path(__file__).parent.parent.resolve()
+        src_path = os.path.join(PATH, "runelite_settings", f"{key}_settings.properties")
+        dst_path = os.path.join(PATH, "runelite_settings", "temp.properties")
+        shutil.copyfile(src_path, dst_path)
 
-        # executable args for runelite to direct the client to launch with bot settings
+        # Executable args for runelite to direct the client to launch with bot settings
         EXECARG1 = "--clientargs"
-        EXECARG2 = f"--config={PATH}\\runelite_settings\\temp.properties --sessionfile=bot_session"
+        EXECARG2 = f"--config={dst_path} --sessionfile=bot_session"
 
-        self.main.toggle_btn_state(enabled=True)
-        # TODO: Try to verify this launched successfully, can't seem to get a return code
-        Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=DETACHED_PROCESS)
+        # Launch the game
+        if platform.system() == "Windows":
+            Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=DETACHED_PROCESS)
+        else:
+            Popen([EXECPATH, EXECARG1, EXECARG2], close_fds=True, detach=True)
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
+        self.main.toggle_btn_state(enabled=True)
+
+    def __locate_executable(self):
+        """
+        Opens a file dialog to allow the user to locate the game executable.
+        """
+        root = tk.Tk()
+        root.withdraw()
+        file_path = filedialog.askopenfilename(title="Select game executable file", filetypes=[("exe files", "*.exe")])
+        file_path = Path(file_path)
+        if not file_path.is_file() or file_path.suffix != '.exe':
+            root.destroy()
+            return None
+        path_str = str(file_path)
+        root.destroy()
+        return path_str
 
     def __skip(self):
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")

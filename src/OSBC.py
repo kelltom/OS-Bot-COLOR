@@ -93,9 +93,8 @@ class App(customtkinter.CTk):
             pady=0,
         )
         self.views["Select a game"] = self.home_view
-        self.views["OSRS"] = OSRSHomeView(parent=self, main=self)
-        # self.views["Alora"] = AloraHomeView(parent=self, main=self)
-        self.views["Near-Reality"] = OSNRHomeView(parent=self, main=self)
+        self.views["OSRS"] = RuneLiteHomeView(parent=self, main=self, game_title="Old School RuneScape", game_abbreviation="OSRS")
+        self.views["Near-Reality"] = RuneLiteHomeView(parent=self, main=self, game_title="Near-Reality", game_abbreviation="OSNR")
 
         # Script view and controller [DO NOT EDIT]
         # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model assigned to the controller
