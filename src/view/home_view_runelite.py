@@ -1,13 +1,14 @@
-from pathlib import Path
-from subprocess import DETACHED_PROCESS, Popen
-from tkinter import filedialog
-from tkinter.filedialog import askopenfilename
-import customtkinter
 import json
 import os
 import platform
 import shutil
 import tkinter as tk
+from pathlib import Path
+from subprocess import DETACHED_PROCESS, Popen
+from tkinter import filedialog
+from tkinter.filedialog import askopenfilename
+
+import customtkinter
 
 
 class RuneLiteHomeView(customtkinter.CTkFrame):
@@ -109,16 +110,16 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         # Load the JSON file
         executable_paths = str(Path(__file__).parent.joinpath("executable_paths.json"))
         data = {}
-        with open(executable_paths, 'r') as f:
+        with open(executable_paths, "r") as f:
             data = json.load(f)
 
         # Check if exec path exists in the JSON file
         key = self.__game_abbreviation.lower()
         if key in data:
-            print('Key exists in data')
+            print("Key exists in data")
             EXECPATH = data[key]
         else:
-            print('Key does not exist in data')
+            print("Key does not exist in data")
             EXECPATH = ""
 
         # Check if path exists
@@ -133,7 +134,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
                 return
             print(f"EXECPATH: {EXECPATH}")
             data[key] = EXECPATH
-            with open(executable_paths, 'w') as f:
+            with open(executable_paths, "w") as f:
                 json.dump(data, f)
 
         # Save settings file to temp
@@ -162,7 +163,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         root.withdraw()
         file_path = filedialog.askopenfilename(title="Select game executable file", filetypes=[("exe files", "*.exe")])
         file_path = Path(file_path)
-        if not file_path.is_file() or file_path.suffix != '.exe':
+        if not file_path.is_file() or file_path.suffix != ".exe":
             root.destroy()
             return None
         path_str = str(file_path)
