@@ -3,17 +3,18 @@ import time
 import pyautogui as pag
 
 import utilities.color as clr
-from model.runelite_bot import BotStatus, RuneLiteBot, RuneLiteWindow
+from model.bot import BotStatus
+from model.zaros.zaros_bot import ZarosBot
 
 
-class ZarosWoodcutter(RuneLiteBot):
+class ZarosWoodcutter(ZarosBot):
     def __init__(self):
         title = "Woodcutter"
         description = (
             "This bot power-chops wood. Position your character near some trees, tag them. Make sure you have an empty last inventory slot. Press the play"
             " button."
         )
-        super().__init__(title=title, description=description, window=RuneLiteWindow("Zaros"))
+        super().__init__(title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0
         self.logout_on_friends = True
