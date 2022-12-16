@@ -366,7 +366,7 @@ class Bot(ABC):
         """
         res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
         return int(res) if (res := re.findall(r"\d+", res)) else None
-    
+
     def get_total_xp(self) -> int:
         """
         Gets the total XP of the player using OCR.
