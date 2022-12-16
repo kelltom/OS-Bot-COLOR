@@ -25,12 +25,12 @@ class RandomUtil:
         return [[random.uniform(0.000, 1.000), random.uniform(0.000, 1.000)] for _ in range(sg.randrange(start, stop))]
 
     @staticmethod
-    def random_point_in(x, y, width, height, seeds: List[List[int]]) -> List[int]:
+    def random_point_in(x_min, y_min, width, height, seeds: List[List[int]]) -> List[int]:
         """
         Returns a random pixel within some bounding box based on a list of seeds.
         Args:
-            x: The left-most coordinate of the bounding box.
-            y: The top-most coordinate of the bounding box.
+            x_min: The left-most coordinate of the bounding box.
+            y_min: The top-most coordinate of the bounding box.
             width: The width of the bounding box.
             height: The height of the bounding box.
             seeds: A list of seeds to use for the randomization.
@@ -38,46 +38,56 @@ class RandomUtil:
             A random [x, y] coordinate within the bounding box.
         """
         sg = secrets.SystemRandom()
+
+        # Generate a random pixel within the full bounding box with a 25% probability.
         if sg.randrange(0, 101) > 75:
-            return RandomUtil.__random_from(x, y, width, height)
+            return RandomUtil.__random_from(x_min, y_min, width, height)
+
+        # Calculate the dimensions and position of an inner bounding box within the full bounding box.
         offset_percentage = sg.uniform(0.150, 0.350)
-        start_inner_x = round(width * offset_percentage + x)
-        start_inner_y = round(height * offset_percentage + y)
-        start_x_percent = round(width * (1.000 - (offset_percentage * 2)))
-        start_y_percent = round(height * (1.000 - (offset_percentage * 2)))
+        inner_x_min = round(width * offset_percentage + x_min)
+        inner_y_min = round(height * offset_percentage + y_min)
+        inner_width = round(width * (1.000 - (offset_percentage * 2)))
+        inner_height = round(height * (1.000 - (offset_percentage * 2)))
+
+        # Select a random seed from the list of seeds.
         random_index = sg.randrange(0, len(seeds))
-        init_ratio_x = round(start_x_percent * seeds[random_index][0])
-        init_ratio_y = round(start_y_percent * seeds[random_index][1])
-        real_start_x, real_start_y = (
-            start_inner_x + init_ratio_x,
-            start_inner_y + init_ratio_y,
-        )
-        start_fix_width, end_fix_width = real_start_x - x, width - init_ratio_x
-        start_fix_height, end_fix_height = real_start_y - y, height - init_ratio_y
-        real_width = start_fix_width if start_fix_width <= end_fix_width else end_fix_width
-        if start_fix_height <= end_fix_height:
-            real_height = start_fix_height
-        else:
-            real_height = end_fix_width
-        return RandomUtil.__random_from(real_start_x, real_start_y, real_width, real_height, center=True)
+        ratio_x = round(inner_width * seeds[random_index][0])
+        ratio_y = round(inner_height * seeds[random_index][1])
+
+        # Calculate the dimensions and position of a bounding box within the inner bounding box.
+        start_x, start_y = inner_x_min + ratio_x, inner_y_min + ratio_y
+        start_fix_width, end_fix_width = start_x - x_min, width - ratio_x
+        start_fix_height, end_fix_height = start_y - y_min, height - ratio_y
+
+        # Determine the dimensions of the bounding box within the inner bounding box.
+        inner_inner_width = start_fix_width if start_fix_width <= end_fix_width else end_fix_width
+        inner_inner_height = start_fix_height if start_fix_height <= end_fix_height else end_fix_width
+
+        # Generate a random pixel within the bounding box within the inner bounding box.
+        return RandomUtil.__random_from(start_x, start_y, inner_inner_width, inner_inner_height, center=True)
 
     @staticmethod
     def __random_from(x_min, y_min, width, height, center: bool = False) -> List[int]:
+        # If center is not set to True, shift x_min and y_min to the center of the region
         if not center:
             x_min = x_min + math.ceil(width / 2)
             y_min = y_min + math.ceil(height / 2)
 
-        width_min = x_min - math.ceil(width / 2)
-        width_max = x_min + math.ceil(width / 2)
+        # Calculate the minimum and maximum values for x and y within the region
+        x_min_bound = x_min - math.ceil(width / 2)
+        x_max_bound = x_min + math.ceil(width / 2)
+        y_min_bound = y_min - math.ceil(height / 2)
+        y_max_bound = y_min + math.ceil(height / 2)
 
-        height_min = y_min - math.ceil(height / 2)
-        height_max = y_min + math.ceil(height / 2)
-
+        # Calculate the standard deviation for x and y based on the region's dimensions
         sigma_x = (width / 2) * 0.33
         sigma_y = (height / 2) * 0.33
-        end_x = int(RandomUtil.truncated_normal_sample(width_min, width_max, x_min, sigma_x))
-        end_y = int(RandomUtil.truncated_normal_sample(height_min, height_max, y_min, sigma_y))
-        return [end_x, end_y]
+
+        # Generate a random x and y value within the region using truncated normal sampling
+        x = int(RandomUtil.truncated_normal_sample(x_min_bound, x_max_bound, x_min, sigma_x))
+        y = int(RandomUtil.truncated_normal_sample(y_min_bound, y_max_bound, y_min, sigma_y))
+        return [x, y]
 
     @staticmethod
     def truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation) -> float:
