@@ -60,9 +60,9 @@ class App(customtkinter.CTk):
         # There should be a key for each game title, and the value should be a list of buttons for that game
         self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
             "Select a game": [],
-            # "Alora": [],
             "Near-Reality": [],  # AKA: OSNR
             "OSRS": [],
+            "Zaros": [],
         }
 
         # Dropdown menu for selecting a game
@@ -93,9 +93,9 @@ class App(customtkinter.CTk):
             pady=0,
         )
         self.views["Select a game"] = self.home_view
-        self.views["OSRS"] = OSRSHomeView(parent=self, main=self)
-        # self.views["Alora"] = AloraHomeView(parent=self, main=self)
-        self.views["Near-Reality"] = OSNRHomeView(parent=self, main=self)
+        self.views["OSRS"] = RuneLiteHomeView(parent=self, main=self, game_title="Old School RuneScape", game_abbreviation="OSRS")
+        self.views["Near-Reality"] = RuneLiteHomeView(parent=self, main=self, game_title="Near-Reality", game_abbreviation="OSNR")
+        self.views["Zaros"] = RuneLiteHomeView(parent=self, main=self, game_title="Zaros RSPS", game_abbreviation="Zaros")
 
         # Script view and controller [DO NOT EDIT]
         # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model assigned to the controller
@@ -149,6 +149,11 @@ class App(customtkinter.CTk):
         self.models["OSNRWoodcutting"] = OSNRWoodcutting()
         self.models["OSNRWoodcutting"].set_controller(self.controller)
         self.btn_map["Near-Reality"].append(self.__create_button("OSNRWoodcutting"))
+
+        # ----- Zaros Bots -----
+        self.models["ZarosWoodcutter"] = ZarosWoodcutter()
+        self.models["ZarosWoodcutter"].set_controller(self.controller)
+        self.btn_map["Zaros"].append(self.__create_button("ZarosWoodcutter"))
 
         # Status variables to track state of views and buttons
         self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]
