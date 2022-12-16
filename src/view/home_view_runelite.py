@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 import platform
@@ -32,8 +33,9 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.grid_rowconfigure(3, weight=0)  # - Warning
         self.grid_rowconfigure(5, weight=0)  # - Replace Btn
         self.grid_rowconfigure(6, weight=0)  # - Skip Btn
-        self.grid_rowconfigure(7, weight=0)  # - Status
-        self.grid_rowconfigure(8, weight=1)  # Spacing
+        self.grid_rowconfigure(7, weight=0)  # - Reset Btn
+        self.grid_rowconfigure(8, weight=0)  # - Status
+        self.grid_rowconfigure(9, weight=1)  # Spacing
 
         # Logo
         # self.logo_path = Path(__file__).parent.parent.parent.resolve()
@@ -94,9 +96,19 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         )
         self.btn_skip.grid(row=6, column=0, sticky="nwes", padx=40, pady=(0, 15))
 
+        # Reset Btn
+        self.btn_skip = customtkinter.CTkButton(
+            master=self,
+            text="Reset Saved Paths",
+            fg_color="DarkRed",
+            hover_color="red",
+            command=self.__reset_saved_paths,
+        )
+        self.btn_skip.grid(row=7, column=0, sticky="ns", padx=10, pady=(0, 15))
+
         # Status label
         self.label_status = customtkinter.CTkLabel(master=self, text="")
-        self.label_status.grid(row=7, column=0, sticky="nwes")
+        self.label_status.grid(row=8, column=0, sticky="nwes")
         self.label_status.bind(
             "<Configure>",
             lambda e: self.label_status.configure(wraplength=self.label_status.winfo_width() - 20),
@@ -109,20 +121,22 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         """
         # Load the JSON file
         executable_paths = str(Path(__file__).parent.joinpath("executable_paths.json"))
-        data = {}
-        with open(executable_paths, "r") as f:
-            data = json.load(f)
+        # Try to read the file and parse the JSON data
+        try:
+            with open(executable_paths, "r") as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            data = {}
 
-        # Check if exec path exists in the JSON file
+        # If the file doesn't exist, create it
+        if not os.path.exists(executable_paths):
+            Path(executable_paths).touch()
+
+        # Check if the game's executable path exists in the JSON file
         key = self.__game_abbreviation.lower()
-        if key in data:
-            print("Key exists in data")
-            EXECPATH = data[key]
-        else:
-            print("Key does not exist in data")
-            EXECPATH = ""
+        EXECPATH = data.get(key, "")
 
-        # Check if path exists
+        # Check if executable file exists
         if not os.path.exists(EXECPATH):
             self.label_status.configure(
                 text="RuneLite not found. Please locate the executable.",
@@ -132,7 +146,6 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
             if not EXECPATH:
                 self.label_status.configure(text="File not selected.", text_color="orange")
                 return
-            print(f"EXECPATH: {EXECPATH}")
             data[key] = EXECPATH
             with open(executable_paths, "w") as f:
                 json.dump(data, f)
@@ -173,3 +186,9 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
     def __skip(self):
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
+
+    def __reset_saved_paths(self):
+        executable_paths = str(Path(__file__).parent.joinpath("executable_paths.json"))
+        with contextlib.suppress(FileNotFoundError):
+            Path(executable_paths).unlink()
+        self.label_status.configure(text="Saved game executable paths have been reset.", text_color="green")
