@@ -5,7 +5,7 @@ import platform
 import shutil
 import tkinter as tk
 from pathlib import Path
-from subprocess import DETACHED_PROCESS, Popen
+import subprocess
 from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
 
@@ -162,9 +162,9 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
 
         # Launch the game
         if platform.system() == "Windows":
-            Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=DETACHED_PROCESS)
+            subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=subprocess.DETACHED_PROCESS)
         else:
-            Popen([EXECPATH, EXECARG1, EXECARG2], close_fds=True, detach=True)
+            subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], close_fds=True, detach=True)
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
 
@@ -175,8 +175,12 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         root = tk.Tk()
         root.withdraw()
         file_path = filedialog.askopenfilename(title="Select game executable file", filetypes=[("exe files", "*.exe")])
-        file_path = Path(file_path)
-        if not file_path.is_file() or file_path.suffix != ".exe":
+        try:
+            file_path = Path(file_path)
+        except TypeError:
+            root.destroy()
+            return None
+        if not file_path or file_path.suffix != ".exe":
             root.destroy()
             return None
         path_str = str(file_path)
