@@ -3,7 +3,7 @@ import random
 import secrets
 from datetime import datetime
 from typing import List
-
+from time import sleep
 
 class RandomUtil:
     @staticmethod
@@ -113,3 +113,8 @@ class RandomUtil:
             return upper_bound
         else:
             return sample
+    def sleep_random(lower_bound, upper_bound):  # sleeps within the specified range.
+        mean = (lower_bound + upper_bound) / 2
+        standard_deviation = (upper_bound / 2) * 0.33
+        sleeptime = RandomUtil.truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation)
+        sleep(sleeptime)
