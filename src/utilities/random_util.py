@@ -2,8 +2,9 @@ import math
 import random
 import secrets
 from datetime import datetime
-from typing import List
 from time import sleep
+from typing import List
+
 
 class RandomUtil:
     @staticmethod
@@ -89,6 +90,12 @@ class RandomUtil:
         y = int(RandomUtil.truncated_normal_sample(y_min_bound, y_max_bound, y_min, sigma_y))
         return [x, y]
 
+    def sleep_random(lower_bound, upper_bound):  # sleeps within the specified range.
+        mean = (lower_bound + upper_bound) / 2
+        standard_deviation = (upper_bound / 2) * 0.33
+        sleeptime = RandomUtil.truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation)
+        sleep(sleeptime)
+
     @staticmethod
     def truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation) -> float:
         """
@@ -113,8 +120,3 @@ class RandomUtil:
             return upper_bound
         else:
             return sample
-    def sleep_random(lower_bound, upper_bound):  # sleeps within the specified range.
-        mean = (lower_bound + upper_bound) / 2
-        standard_deviation = (upper_bound / 2) * 0.33
-        sleeptime = RandomUtil.truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation)
-        sleep(sleeptime)
