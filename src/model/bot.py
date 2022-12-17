@@ -14,7 +14,6 @@ import customtkinter
 import keyboard
 import numpy as np
 import pyautogui as pag
-import pygetwindow
 import pytweening
 from deprecated import deprecated
 
@@ -128,7 +127,7 @@ class Bot(ABC):
         try:
             self.win.focus()
             time.sleep(0.5)
-        except pygetwindow.PyGetWindowException as e:
+        except WindowInitializationError as e:
             return self.__halt_with_msg(str(e))
         try:
             self.win.initialize()

@@ -10,7 +10,7 @@ styles, this class should be abstracted, then extended for each interface style.
 import time
 from typing import List
 
-import pygetwindow
+import pywinctl
 from deprecated import deprecated
 
 import utilities.debug as debug
@@ -74,11 +74,11 @@ class Window:
         self.padding_left = padding_left
 
     def _get_window(self):
-        self._client = pygetwindow.getWindowsWithTitle(self.window_title)
+        self._client = pywinctl.getWindowsWithTitle(self.window_title)
         if self._client:
             return self._client[0]
         else:
-            raise pygetwindow.PyGetWindowException("No client window found.")
+            raise WindowInitializationError("No client window found.")
 
     window = property(
         fget=_get_window,
