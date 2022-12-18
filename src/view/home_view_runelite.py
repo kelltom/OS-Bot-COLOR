@@ -3,9 +3,9 @@ import json
 import os
 import platform
 import shutil
+import subprocess
 import tkinter as tk
 from pathlib import Path
-import subprocess
 from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
 
