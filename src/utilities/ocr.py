@@ -19,7 +19,7 @@ def __load_font(font: str) -> Dict[str, cv2.Mat]:
         A dictionary of {"char": image} pairs.
     """
     PATH = pathlib.Path(__file__).parent.joinpath("fonts", font)
-    pathlist = PATH.glob("**\*.bmp")
+    pathlist = PATH.rglob("*.bmp")
     alphabet = {}
     for path in pathlist:
         name = int(path.stem)
