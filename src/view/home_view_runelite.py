@@ -162,6 +162,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
 
         # Launch the game
         if platform.system() == "Windows":
+            print(f"Executing: {EXECPATH} {EXECARG1} {EXECARG2}")
             subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=subprocess.DETACHED_PROCESS)
         else:
             subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
@@ -176,11 +177,11 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         root.withdraw()
         file_path = filedialog.askopenfilename(title="Select game executable file", filetypes=[("exe files", "*.exe"), ("AppImage files", "*.AppImage")])
         try:
+            if not file_path:
+                root.destroy()
+                return None
             file_path = Path(file_path)
         except TypeError:
-            root.destroy()
-            return None
-        if not file_path:
             root.destroy()
             return None
         path_str = str(file_path)
