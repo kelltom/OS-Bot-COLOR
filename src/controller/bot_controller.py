@@ -86,11 +86,13 @@ class BotController(object):
             model: The new model to use.
         """
         if self.model is not None:
+            self.view.frame_info.stop_keyboard_listener()
             self.model.stop()
             self.model.options_set = False
         self.model = model
         if self.model is not None:
             self.view.frame_info.setup(title=model.title, description=model.description)
+            self.view.frame_info.start_keyboard_listener()
         else:
             self.view.frame_info.setup(title="", description="")
         self.clear_log()

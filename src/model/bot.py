@@ -11,7 +11,6 @@ from threading import Thread
 from typing import List, Union
 
 import customtkinter
-import keyboard
 import numpy as np
 import pyautogui as pag
 import pytweening
@@ -145,30 +144,9 @@ class Bot(ABC):
         else:
             self.log_msg("Bot is already stopped.")
 
-    def __check_interrupt(self):
-        """
-        Checks for keyboard interrupts.
-        """
-        if keyboard.is_pressed("-"):
-            if self.status == BotStatus.RUNNING:
-                self.log_msg("Pausing bot...")
-                self.set_status(BotStatus.PAUSED)
-        elif keyboard.is_pressed("="):
-            if self.status == BotStatus.PAUSED:
-                self.log_msg("Resuming bot...")
-                if not self.__initialize_window():
-                    self.set_status(BotStatus.STOPPED)
-                    print("Bot.__check_interrupt(): Failed to initialize window.")
-                    return
-                self.set_status(BotStatus.RUNNING)
-        elif keyboard.is_pressed("ESC"):
-            self.stop()
-
     def status_check_passed(self, timeout: int = 120) -> bool:
         """
-        Does routine check for:
-            - Bot status (stops/pauses)
-            - Keyboard interrupts
+        Does routine check for Bot Status (stops/pauses).
         Best used in main_loop() inner loops while bot is waiting for a
         condition to be met. If the Bot Status is PAUSED, this function
         will enter a loop waiting for the status to change to RUNNING/STOPPED.
@@ -180,8 +158,6 @@ class Bot(ABC):
             if not self.status_check_passed():
                 return
         """
-        # Check for keypress interrupts
-        self.__check_interrupt()
         # Check status
         if self.status == BotStatus.STOPPED:
             self.log_msg("Bot has been stopped.")
@@ -189,7 +165,6 @@ class Bot(ABC):
         elif self.status == BotStatus.PAUSED:
             self.log_msg("Bot is paused.\n")
             while self.status == BotStatus.PAUSED:
-                self.__check_interrupt()
                 time.sleep(1)
                 if self.status == BotStatus.STOPPED:
                     self.log_msg("Bot has been stopped.")
