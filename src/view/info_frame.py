@@ -210,6 +210,13 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_launch.configure(state=tkinter.DISABLED)
         self.lbl_status.configure(text="Status: Configuring")
 
+    def update_status_configured(self, launchable: bool = False):
+        self.__toggle_buttons(True)
+        if launchable:
+            print("Status set to 'CONFIGURED' with launchable arg. Warning: Launching RuneLite from the script is not officially supported yet.")
+            self.btn_launch.configure(state=tkinter.NORMAL)
+        self.lbl_status.configure(text="Status: Configured")
+
     def __toggle_buttons(self, enabled: bool):
         if enabled:
             self.btn_play.configure(state=tkinter.NORMAL)
