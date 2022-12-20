@@ -9,6 +9,9 @@ from utilities.random_util import RandomUtil
 
 Point = NamedTuple("Point", x=int, y=int)
 
+# TODO: Remove this global variable. This is a temporary fix for a bug in mss.
+sct = mss.mss()
+
 
 class Rectangle:
 
@@ -61,16 +64,17 @@ class Rectangle:
         Returns:
             A BGR Numpy array representing the captured image.
         """
-        with mss.mss() as sct:
-            monitor = self.to_dict()
-            res = np.array(sct.grab(monitor))[:, :, :3]
-            if self.subtract_list:
-                for area in self.subtract_list:
-                    res[
-                        area["top"] : area["top"] + area["height"],
-                        area["left"] : area["left"] + area["width"],
-                    ] = 0
-            return res
+        # with mss.mss() as sct:  # TODO: When MSS bug is fixed, reinstate this.
+        global sct  # TODO: When MSS bug is fixed, remove this.
+        monitor = self.to_dict()
+        res = np.array(sct.grab(monitor))[:, :, :3]
+        if self.subtract_list:
+            for area in self.subtract_list:
+                res[
+                    area["top"] : area["top"] + area["height"],
+                    area["left"] : area["left"] + area["width"],
+                ] = 0
+        return res
 
     def random_point(self, custom_seeds: List[List[int]] = None) -> Point:
         """

@@ -3,9 +3,14 @@ import tkinter
 
 import customtkinter
 from PIL import Image, ImageTk
+from pynput import keyboard
+
+pressed = False
 
 
 class InfoFrame(customtkinter.CTkFrame):
+    listener = None
+
     def __init__(self, parent, title, info):  # sourcery skip: merge-nested-ifs
         """
         Creates a 5x2 frame with the following widgets:
@@ -85,7 +90,7 @@ class InfoFrame(customtkinter.CTkFrame):
 
         self.btn_play = customtkinter.CTkButton(
             master=self.btn_frame,
-            text="Play",
+            text="Play [Ctrl]",
             text_color="white",
             image=self.img_play,
             command=self.play_btn_clicked,
@@ -135,6 +140,31 @@ class InfoFrame(customtkinter.CTkFrame):
     def stop_btn_clicked(self):
         self.controller.stop()
 
+    # ---- Keyboard Interrupt Handlers ----
+    def start_keyboard_listener(self):
+        self.listener = keyboard.Listener(
+            on_press=self.__on_press,
+            on_release=self.__on_release,
+        )
+        self.listener.start()
+
+    def stop_keyboard_listener(self):
+        self.listener.stop()
+
+    def __on_press(self, key):
+        global pressed
+        if pressed:
+            return
+        if key == keyboard.Key.esc:
+            self.controller.stop()
+        elif key == keyboard.Key.ctrl_l:
+            self.controller.play_pause()
+        pressed = True
+
+    def __on_release(self, key):
+        global pressed
+        pressed = False
+
     # ---- Options Handlers ----
     def on_options_closing(self, window):
         self.controller.abort_options()
@@ -156,20 +186,20 @@ class InfoFrame(customtkinter.CTkFrame):
         self.__toggle_buttons(True)
         self.btn_options.configure(state=tkinter.DISABLED)
         self.btn_play.configure(image=self.img_pause)
-        self.btn_play.configure(text="Pause [ - ]")
+        self.btn_play.configure(text="Pause (Ctrl)")
         self.lbl_status.configure(text="Status: Running")
 
     def update_status_paused(self):
         self.__toggle_buttons(True)
         self.btn_options.configure(state=tkinter.DISABLED)
         self.btn_play.configure(image=self.img_play)
-        self.btn_play.configure(text="Resume [ = ]")
+        self.btn_play.configure(text="Resume (Ctrl)")
         self.lbl_status.configure(text="Status: Paused")
 
     def update_status_stopped(self):
         self.__toggle_buttons(True)
         self.btn_play.configure(image=self.img_play)
-        self.btn_play.configure(text="Play")
+        self.btn_play.configure(text="Play (Ctrl)")
         self.lbl_status.configure(text="Status: Stopped")
 
     def update_status_configuring(self):
