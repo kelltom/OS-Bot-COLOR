@@ -8,6 +8,7 @@ the README/Wiki.
 """
 import time
 
+import utilities.debug as debug
 from model.bot import Bot, BotStatus
 from utilities.window import MockWindow
 
@@ -20,7 +21,8 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
             + "and any important information the user needs to know before starting it."
         )
         # If you're writing a bot for a RuneLite-based game, change "MockWindow()" to "RuneLiteWindow("<name of your game>")" below
-        super().__init__(title=title, description=description, window=MockWindow())
+        # If your game uses a custom interface, you can also pass in a custom window class that inherits from Window or RuneLiteWindow
+        super().__init__(title=title, description=description, window=MockWindow(), launchable=False)
         # This is where you should initialize any options/properties you want to use in the bot
         self.running_time = 1
         self.text_edit_example = None
@@ -43,53 +45,57 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         """
         For each option in the dictionary, if it is an expected option, save the value as a property of the bot.
         If any unexpected options are found, log a warning. If an option is missing, set the options_set flag to
-        False. No need to set bot status.
+        False.
         """
-        self.options_set = True
         # Unpack the options dictionary received from the Options Menu UI
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
+            elif option == "text_edit_example":
+                self.text_edit_example = options[option]
             elif option == "multi_select_example":
                 self.multi_select_example = options[option]
             elif option == "menu_example":
                 self.menu_example = options[option]
             else:
+                # Code will only ever reach this point if there is an issue with how the developer is dealing with options
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
-        if not self.options_set:
-            self.log_msg("Failed to set options.")
-            print("Developer: ensure option keys are correct, and that the option values are being accessed correctly.")
-            return
+
         # Let the user know what options were set
         self.log_msg(f"Bot will run for {self.running_time} minutes.")
-        self.log_msg(f"Multi-select example set to: {self.multi_select_example}")
+        self.log_msg(f"Text edit example set to: {self.text_edit_example or 'None'}")
+        self.log_msg(f"Multi-select example set to: {self.multi_select_example or 'None'}")
         self.log_msg(f"Menu example set to: {self.menu_example}")
+
+        # --- OPTIONAL: LAUNCH GAME CLIENT ---
+        # If your bot requires the game client to be launched with further-customized settings, let the user know here.
+        # if self.launchable:
+        #     self.log_msg("Please launch the game client using the button on the right.")
+
+        # Set the `options_set` flag to True to allow underlying code to continue, and set the status to
+        # CONFIGURED to indicate to the user that the bot is ready to run.
+        self.options_set = True
+        self.set_status(BotStatus.CONFIGURED)
         return
 
     def main_loop(self):
         """
         When implementing this function, you have the following responsibilities:
-        1. Frequently check the status of the bot throughout the loop using self.status_check_passed(). Call it
-           before your bot makes any major moves to prevent unwanted side affects.
-            1.1. If the status check fails, simply return. Log messages are already handled.
-        2. The controller is not listening for changes, it must be told. If you need to halt the bot from
-           within the main_loop() without the user having manually requested it, be sure to set the status
-           to STOPPED by using 'self.set_status(BotStatus.STOPPED)' before returning. You'll want to do this
+        1. If you need to halt the bot from within this function, call `self.stop()`. You'll want to do this
            when the bot has made a mistake, gets stuck, or a condition is met that requires the bot to stop.
-        3. Frequently call self.update_progress() and self.log_msg() to send information to the UI.
-        5. At the end of the main loop, make sure to set the status to STOPPED.
+        2. Frequently call self.update_progress() and self.log_msg() to send information to the UI.
+        3. At the end of the main loop, make sure to set the status to STOPPED.
 
         Additional notes:
-        1. Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions.
-           Visit the Wiki for more.
-        2. A bot's main_loop() is called on a daemon thread, so it will terminate when the program is closed.
-           If things ever get weird, closing the program will terminate the bot.
+        Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions.
+        Visit the Wiki for more.
         """
 
         # --- SCENARIO EXPLANATION ---
         """
-        This ExampleBot script simulates a character moving between Location A and B. Time.sleep() is used to
+        This ExampleBot script simulates a character moving between Location A and B. `time.sleep()` is used to
         simulate the bot waiting for conditions. Depending on your bot, it might be wise to add variables that
         keep track of progress, failed-attempts, etc.
         """
@@ -103,28 +109,25 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         can be useful.
         """
         # self.set_camera_zoom(50) # <-- zooms the camera to 50%
+        # self.set_auto_retaliate(True) # <-- turns on auto-retaliate
+        # self.mouse.move_to(self.win.inventory_tabs[3].random_point()) # <-- moves the mouse to the inventory tab
 
         # --- MAIN LOOP ---
         """
-        This program runs until the time elapsed exceeds the user-defined time limit.
-        You may change this however you like (E.g., you may want to run the bot for a fixed number of iterations/kills).
+        All bots should have a continous loop that runs until the some condition is met. In this case, we want to
+        run the bot for a certain amount of time the user specified when they selected the bot's options.
+        You may change this however you like (E.g., you may want to run the bot for a fixed number of iterations/kills instead).
         """
-        start_time = time.time()
-        end_time = self.running_time * 60
-        while time.time() - start_time < end_time:
+        start_time = time.time()  # get the current time in seconds
+        end_time = self.running_time * 60  #  convert the running time to seconds
+        while time.time() - start_time < end_time:  # check if the elapsed time is less than the final running time
             # Character is at point A
             self.log_msg("Character is at point A")
 
             # Move character until it reachers point B
             steps_remaining = 4  # Lets pretend it takes 4 steps to move from A to B
             while player_position != "B":
-                # When you enter a nested loop like this, it's wise to add a status check call.
-                # You want to do this so that the bot is listening for user commands to pause/stop
-                # while in the loop. Otherwise, it'll ignore the user's requests to pause/stop.
-                if not self.status_check_passed():
-                    return
-
-                # We have traversed one step, so we will decrement the steps remaining by 1.
+                # We'll simulate the player getting one step closer by decrementing the `steps_remaining` by 1.
                 steps_remaining -= 1
                 time.sleep(2)
 
@@ -143,20 +146,16 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
             # Since the loop has terminated, we know the character is at point B.
             # We'll inform the user how many times the character has walked from A to B so far.
             times_walked += 1
-            self.log_msg(f"Player has walked from A to B  {times_walked}  time(s).")  # UI log section
+            self.log_msg(f"Player has walked from A to B  {times_walked}  time(s).")
 
             # We'll also update the progress bar on the UI.
-            self.update_progress((time.time() - start_time) / end_time)  # value betwee 0 and 1
+            self.update_progress((time.time() - start_time) / end_time)  # value between 0 and 1
 
-            # Teleport back to A
+            # Now, the player teleports back to point `A`
             time.sleep(2)
             self.log_msg("Character is teleporting back to point A...")
             time.sleep(2)
             player_position = "A"
-
-            # Check once more for status and keyboard interrupts
-            if not self.status_check_passed():
-                return
 
         # If the bot reaches here it has completed its running time.
         self.update_progress(1)
