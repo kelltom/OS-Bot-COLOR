@@ -174,7 +174,9 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         """
         root = tk.Tk()
         root.withdraw()
-        file_path = filedialog.askopenfilename(title="Select game executable file", filetypes=[("exe files", "*.exe"), ("AppImage files", "*.AppImage")])
+        file_path = filedialog.askopenfilename(
+            title="Select game executable file", filetypes=[("exe files", "*.exe"), ("AppImage files", "*.AppImage"), ("Java files", "*.jar")]
+        )
         try:
             if not file_path:
                 root.destroy()
