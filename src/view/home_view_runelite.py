@@ -162,7 +162,6 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
 
         # Launch the game
         if platform.system() == "Windows":
-            print(f"Executing: {EXECPATH} {EXECARG1} {EXECARG2}")
             subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=subprocess.DETACHED_PROCESS)
         else:
             subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
