@@ -5,11 +5,11 @@ import customtkinter
 from PIL import Image, ImageTk
 from pynput import keyboard
 
-pressed = False
-
 
 class InfoFrame(customtkinter.CTkFrame):
     listener = None
+    pressed = False
+    status = "stopped"
 
     def __init__(self, parent, title, info):  # sourcery skip: merge-nested-ifs
         """
@@ -99,7 +99,7 @@ class InfoFrame(customtkinter.CTkFrame):
 
         self.btn_stop = customtkinter.CTkButton(
             master=self.btn_frame,
-            text="Stop [ESC]",
+            text="Stop [Ctrl]",
             text_color="white",
             fg_color="#910101",
             hover_color="#690101",
@@ -127,6 +127,7 @@ class InfoFrame(customtkinter.CTkFrame):
             command=self.options_btn_clicked,
         )
         self.btn_launch.grid(row=3, column=0, pady=15, sticky="nsew")
+        self.btn_launch.configure(state=tkinter.DISABLED)
 
         self.lbl_status = customtkinter.CTkLabel(master=self, text="Status: Idle", justify=tkinter.CENTER)
         self.lbl_status.grid(row=5, column=1, pady=(0, 15), sticky="we")
@@ -144,7 +145,7 @@ class InfoFrame(customtkinter.CTkFrame):
 
     # ---- Button Listeners ----
     def play_btn_clicked(self):
-        self.controller.play_pause()
+        self.controller.play()
 
     def stop_btn_clicked(self):
         self.controller.stop()
@@ -176,18 +177,17 @@ class InfoFrame(customtkinter.CTkFrame):
         self.listener.stop()
 
     def __on_press(self, key):
-        global pressed
-        if pressed:
+        if self.pressed:
             return
-        if key == keyboard.Key.esc:
-            self.controller.stop()
-        elif key == keyboard.Key.ctrl_l:
-            self.controller.play_pause()
-        pressed = True
+        if key == keyboard.Key.ctrl_l:
+            if self.status == "running":
+                self.controller.stop()
+            elif self.status == "stopped":
+                self.controller.play()
+        self.pressed = True
 
     def __on_release(self, key):
-        global pressed
-        pressed = False
+        self.pressed = False
 
     # ---- Status Handlers ----
     def update_status_running(self):
@@ -196,23 +196,28 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_play.grid_forget()
         self.btn_stop.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
         self.lbl_status.configure(text="Status: Running")
+        self.status = "running"
 
     def update_status_stopped(self):
         self.__toggle_buttons(True)
         self.btn_stop.grid_forget()
         self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
         self.lbl_status.configure(text="Status: Stopped")
+        self.status = "stopped"
 
     def update_status_configuring(self):
         self.__toggle_buttons(False)
+        self.btn_launch.configure(state=tkinter.DISABLED)
         self.lbl_status.configure(text="Status: Configuring")
 
     def __toggle_buttons(self, enabled: bool):
         if enabled:
             self.btn_play.configure(state=tkinter.NORMAL)
+            self.btn_stop.configure(state=tkinter.NORMAL)
             self.btn_options.configure(state=tkinter.NORMAL)
         else:
             self.btn_play.configure(state=tkinter.DISABLED)
+            self.btn_stop.configure(state=tkinter.DISABLED)
             self.btn_options.configure(state=tkinter.DISABLED)
 
     # ---- Progress Bar Handlers ----
