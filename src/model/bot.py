@@ -76,14 +76,22 @@ class Bot(ABC):
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
-    win: Window = None
 
     @abstractmethod
-    def __init__(self, title, description, window: Window):
+    def __init__(self, title, description, window: Window, launchable: bool = False):
+        """
+        Instantiates a Bot object. This must be called by subclasses.
+        Args:
+            title: title of the bot to display in the UI
+            description: description of the bot to display in the UI
+            window: window object the bot will use to interact with the game client
+            launchable: whether the game client can be launched with custom arguments from the bot's UI
+        """
         self.title = title
         self.description = description
         self.options_builder = OptionsBuilder(title)
         self.win = window
+        self.launchable = launchable
 
     @abstractmethod
     def main_loop(self):
