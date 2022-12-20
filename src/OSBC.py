@@ -2,6 +2,7 @@ import tkinter
 from typing import List
 
 import customtkinter
+from pynput import keyboard
 
 from controller.bot_controller import BotController, MockBotController
 from model import *
@@ -290,11 +291,21 @@ class App(customtkinter.CTk):
     def start(self):
         self.mainloop()
 
+    # ============ UI-less Test Functions ============
     def test(self, bot: Bot):
         bot.set_controller(MockBotController(bot))
-        bot.set_status(BotStatus.RUNNING)
-        time.sleep(1)
-        bot.main_loop()
+        bot.options_set = True
+        self.listener = keyboard.Listener(
+            on_press=self.__on_press,
+            on_release=None,
+        )
+        self.listener.start()
+        bot.play()
+
+    def __on_press(self, key):
+        if key == keyboard.Key.ctrl_l:
+            print("Stopping bot.")
+            exit()
 
 
 if __name__ == "__main__":
@@ -303,7 +314,7 @@ if __name__ == "__main__":
     app.start()  # Comment out this line.
     # app.test(Bot()) # Uncomment this line and replace argument with your bot's instance.
 
-    # Note: when testing a bot, ensure all of its options have set default values
+    # IMPORTANT: when testing a bot, ensure all of its options have set default values
     # in its init() function.
     #   E.g., self.running_time = 5
-    # Stop your bot by holding 'ESC'.
+    # Stop your bot by pressing Left CTRL.
