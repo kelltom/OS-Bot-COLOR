@@ -61,16 +61,16 @@ class InfoFrame(customtkinter.CTkFrame):
             Image.open(f"{PATH}/images/ui/play.png").resize((img_size, img_size)),
             Image.ANTIALIAS,
         )
-        self.img_pause = ImageTk.PhotoImage(
-            Image.open(f"{PATH}/images/ui/pause.png").resize((img_size, img_size)),
-            Image.ANTIALIAS,
-        )
         self.img_stop = ImageTk.PhotoImage(
             Image.open(f"{PATH}/images/ui/stop2.png").resize((img_size, img_size)),
             Image.ANTIALIAS,
         )
         self.img_options = ImageTk.PhotoImage(
             Image.open(f"{PATH}/images/ui/options2.png").resize((img_size, img_size)),
+            Image.ANTIALIAS,
+        )
+        self.img_start = ImageTk.PhotoImage(
+            Image.open(f"{PATH}/images/ui/start.png").resize((img_size, img_size)),
             Image.ANTIALIAS,
         )
 
@@ -97,7 +97,7 @@ class InfoFrame(customtkinter.CTkFrame):
         )
         self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
 
-        self.btn_abort = customtkinter.CTkButton(
+        self.btn_stop = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Stop [ESC]",
             text_color="white",
@@ -106,7 +106,6 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_stop,
             command=self.stop_btn_clicked,
         )
-        self.btn_abort.grid(row=2, column=0, pady=0, sticky="nsew")
 
         self.btn_options = customtkinter.CTkButton(
             master=self.btn_frame,
@@ -117,7 +116,17 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_options,
             command=self.options_btn_clicked,
         )
-        self.btn_options.grid(row=3, column=0, pady=15, sticky="nsew")
+        self.btn_options.grid(row=2, column=0, pady=0, sticky="nsew")
+
+        self.btn_launch = customtkinter.CTkButton(
+            master=self.btn_frame,
+            text="Launch Game",
+            text_color="white",
+            fg_color="#616161",
+            image=self.img_start,
+            command=self.options_btn_clicked,
+        )
+        self.btn_launch.grid(row=3, column=0, pady=15, sticky="nsew")
 
         self.lbl_status = customtkinter.CTkLabel(master=self, text="Status: Idle", justify=tkinter.CENTER)
         self.lbl_status.grid(row=5, column=1, pady=(0, 15), sticky="we")
@@ -133,12 +142,27 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_script_title.configure(text=title)
         self.lbl_script_desc.configure(text=description)
 
-    # ---- Control Button Handlers ----
+    # ---- Button Listeners ----
     def play_btn_clicked(self):
         self.controller.play_pause()
 
     def stop_btn_clicked(self):
         self.controller.stop()
+
+    def options_btn_clicked(self):
+        """
+        Creates a new TopLevel view to display bot options.
+        """
+        window = customtkinter.CTkToplevel(master=self)
+        window.title("Options")
+        window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
+
+        view = self.controller.get_options_view(parent=window)
+        view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
+
+    def on_options_closing(self, window):
+        self.controller.abort_options()
+        window.destroy()
 
     # ---- Keyboard Interrupt Handlers ----
     def start_keyboard_listener(self):
@@ -165,41 +189,18 @@ class InfoFrame(customtkinter.CTkFrame):
         global pressed
         pressed = False
 
-    # ---- Options Handlers ----
-    def on_options_closing(self, window):
-        self.controller.abort_options()
-        window.destroy()
-
-    def options_btn_clicked(self):
-        """
-        Creates a new TopLevel view to display bot options.
-        """
-        window = customtkinter.CTkToplevel(master=self)
-        window.title("Options")
-        window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
-
-        view = self.controller.get_options_view(parent=window)
-        view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
-
     # ---- Status Handlers ----
     def update_status_running(self):
         self.__toggle_buttons(True)
         self.btn_options.configure(state=tkinter.DISABLED)
-        self.btn_play.configure(image=self.img_pause)
-        self.btn_play.configure(text="Pause (Ctrl)")
+        self.btn_play.grid_forget()
+        self.btn_stop.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
         self.lbl_status.configure(text="Status: Running")
-
-    def update_status_paused(self):
-        self.__toggle_buttons(True)
-        self.btn_options.configure(state=tkinter.DISABLED)
-        self.btn_play.configure(image=self.img_play)
-        self.btn_play.configure(text="Resume (Ctrl)")
-        self.lbl_status.configure(text="Status: Paused")
 
     def update_status_stopped(self):
         self.__toggle_buttons(True)
-        self.btn_play.configure(image=self.img_play)
-        self.btn_play.configure(text="Play (Ctrl)")
+        self.btn_stop.grid_forget()
+        self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
         self.lbl_status.configure(text="Status: Stopped")
 
     def update_status_configuring(self):
@@ -209,11 +210,9 @@ class InfoFrame(customtkinter.CTkFrame):
     def __toggle_buttons(self, enabled: bool):
         if enabled:
             self.btn_play.configure(state=tkinter.NORMAL)
-            self.btn_abort.configure(state=tkinter.NORMAL)
             self.btn_options.configure(state=tkinter.NORMAL)
         else:
             self.btn_play.configure(state=tkinter.DISABLED)
-            self.btn_abort.configure(state=tkinter.DISABLED)
             self.btn_options.configure(state=tkinter.DISABLED)
 
     # ---- Progress Bar Handlers ----
