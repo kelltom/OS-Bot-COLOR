@@ -14,11 +14,11 @@ class BotController(object):
         self.model: Bot = model
         self.view: BotView = view
 
-    def play_pause(self):
+    def play(self):
         """
         Play/pause btn clicked on view.
         """
-        self.model.play_pause()
+        self.model.play()
 
     def stop(self):
         """
@@ -54,12 +54,12 @@ class BotController(object):
         status = self.model.status
         if status == BotStatus.RUNNING:
             self.view.frame_info.update_status_running()
-        elif status == BotStatus.PAUSED:
-            self.view.frame_info.update_status_paused()
         elif status == BotStatus.STOPPED:
             self.view.frame_info.update_status_stopped()
         elif status == BotStatus.CONFIGURING:
             self.view.frame_info.update_status_configuring()
+        elif status == BotStatus.CONFIGURED:
+            self.view.frame_info.update_status_configured()
 
     def update_progress(self):
         """

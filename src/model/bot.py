@@ -37,6 +37,7 @@ class BotStatus(Enum):
     PAUSED = 2
     STOPPED = 3
     CONFIGURING = 4
+    CONFIGURED = 5
 
 
 class Bot(ABC):
@@ -90,9 +91,10 @@ class Bot(ABC):
         self.options_builder.options = {}
         return view
 
-    def play_pause(self):
+    def play(self):
         """
-        Depending on the bot status, this function either starts a bot's main_loop() on a new thread, or pauses it.
+        Fired when the user starts the bot manually. This function performs necessary set up on the UI
+        and locates/initializes the game client window. Then, it launches the bot's main loop in a separate thread.
         """
         if self.status == BotStatus.STOPPED:
             self.clear_log()
@@ -108,14 +110,7 @@ class Bot(ABC):
             self.thread.setDaemon(True)
             self.thread.start()
         elif self.status == BotStatus.RUNNING:
-            self.log_msg("Pausing bot...")
-            self.set_status(BotStatus.PAUSED)
-        elif self.status == BotStatus.PAUSED:
-            self.log_msg("Resuming bot...")
-            if not self.__initialize_window():
-                self.set_status(BotStatus.STOPPED)
-                print("Bot.play_pause(): Failed to initialize window.")
-            self.set_status(BotStatus.RUNNING)
+            self.log_msg("Bot is already running.")
 
     def __initialize_window(self) -> bool:
         """
