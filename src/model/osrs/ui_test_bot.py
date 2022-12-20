@@ -61,12 +61,7 @@ class TestBot(RuneLiteBot):
             else:
                 for rect in spot[1]:
                     self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
-                    if not self.status_check_passed():
-                        return
             time.sleep(0.2)
-
-            if not self.status_check_passed():
-                return
 
             self.update_progress(spot_count / len(spots))
 
