@@ -296,25 +296,25 @@ class App(customtkinter.CTk):
         bot.set_controller(MockBotController(bot))
         bot.options_set = True
         self.listener = keyboard.Listener(
-            on_press=self.__on_press,
+            on_press=lambda event: self.__on_press(event, bot),
             on_release=None,
         )
         self.listener.start()
         bot.play()
+        self.listener.join()
 
-    def __on_press(self, key):
+    def __on_press(self, key, bot: Bot):
         if key == keyboard.Key.ctrl_l:
-            print("Stopping bot.")
-            exit()
+            bot.thread.stop()
+            self.listener.stop()
 
 
 if __name__ == "__main__":
     # To test a bot without the GUI, address the comments for each line below.
     app = App()  # Add the "test=True" argument to the App constructor call.
     app.start()  # Comment out this line.
-    # app.test(Bot()) # Uncomment this line and replace argument with your bot's instance.
+    # app.test(Bot())  # Uncomment this line and replace argument with your bot's instance.
 
-    # IMPORTANT: when testing a bot, ensure all of its options have set default values
-    # in its init() function.
-    #   E.g., self.running_time = 5
-    # Stop your bot by pressing Left CTRL.
+    # IMPORTANT
+    # - Make sure your bot's options are pre-defined in its __init__ method.
+    # - You can stop the bot by pressing `Left Ctrl`

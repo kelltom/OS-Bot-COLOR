@@ -119,7 +119,7 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         You may change this however you like (E.g., you may want to run the bot for a fixed number of iterations/kills instead).
         """
         start_time = time.time()  # get the current time in seconds
-        end_time = self.running_time * 60  #  convert the running time to seconds
+        end_time = self.running_time * 60  # convert the running time to seconds
         while time.time() - start_time < end_time:  # check if the elapsed time is less than the final running time
             # Character is at point A
             self.log_msg("Character is at point A")
