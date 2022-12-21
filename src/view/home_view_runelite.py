@@ -63,8 +63,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         # Warning label
         self.warning = (
             "Please only have one instance of RuneLite running at a time. \nIn your game settings, ensure that "
-            + "UI elements are NOT trasparent, orbs are enabled, shift-drop is enabled, and XP display is "
-            + "set to 'permanent'."
+            + "status orbs are enabled, shift-drop is enabled, and XP display is set to 'permanent'."
         )
         self.label_warning = customtkinter.CTkLabel(
             master=self,

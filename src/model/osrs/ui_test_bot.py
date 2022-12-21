@@ -27,33 +27,28 @@ class TestBot(RuneLiteBot):
 
     def main_loop(
         self,
-    ):  # sourcery skip: merge-list-append, merge-list-appends-into-extend, merge-list-extend, unwrap-iterable-construction
+    ):
         """The first thing that happens when the Play button is pressed is the client window
         is scanned and initialized. Then, all of the window properties are available.
-        The program will let you know if the initialization failed.
-
-        If you need to move the client for any reason, pause the bot first, then it will re-initialize
-        once your resume. That won't work in this script though, since we are hardcoding the positions
-        into the list before the loop. It is best practice to only use the window properties within
-        your bot loop."""
+        The program will let you know if the initialization failed."""
 
         # Here, we'll define some points on screen that we'll move the mouse to.
-        spots: List[tuple] = []
-        spots.append(("Moving to chatbox...", self.win.chat))
-        spots.append(("Moving to control panel...", self.win.control_panel))
-        spots.append(("Moving to minimaparea...", self.win.minimap_area))
-        spots.append(("Moving to game view...", self.win.game_view))
-        spots.append(("Moving to minimap...", self.win.minimap))
-        spots.append(("Moving to hp orb text...", self.win.hp_orb_text))
-        spots.append(("Moving to prayer orb text...", self.win.prayer_orb_text))
-        spots.append(("Moving to quick pray orb...", self.win.prayer_orb))
-        spots.append(("Moving to run orb...", self.win.run_orb))
-        spots.append(("Moving to spec orb...", self.win.spec_orb))
-        spots.append(("Moving to compass...", self.win.compass_orb))
-        spots.append(("Moving to control panel tabs...", self.win.cp_tabs))
-        spots.append(("Moving to inv slots...", self.win.inventory_slots))
-        spots.append(("Moving to chat tabs...", self.win.chat_tabs))
-
+        spots: List[tuple] = [
+            ("Moving to chatbox...", self.win.chat),
+            ("Moving to control panel...", self.win.control_panel),
+            ("Moving to minimaparea...", self.win.minimap_area),
+            ("Moving to game view...", self.win.game_view),
+            ("Moving to minimap...", self.win.minimap),
+            ("Moving to hp orb text...", self.win.hp_orb_text),
+            ("Moving to prayer orb text...", self.win.prayer_orb_text),
+            ("Moving to quick pray orb...", self.win.prayer_orb),
+            ("Moving to run orb...", self.win.run_orb),
+            ("Moving to spec orb...", self.win.spec_orb),
+            ("Moving to compass...", self.win.compass_orb),
+            ("Moving to control panel tabs...", self.win.cp_tabs),
+            ("Moving to inv slots...", self.win.inventory_slots),
+            ("Moving to chat tabs...", self.win.chat_tabs),
+        ]
         for spot_count, spot in enumerate(spots, start=1):
             self.log_msg(spot[0])
             if isinstance(spot[1], Rectangle):
@@ -61,12 +56,7 @@ class TestBot(RuneLiteBot):
             else:
                 for rect in spot[1]:
                     self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
-                    if not self.status_check_passed():
-                        return
             time.sleep(0.2)
-
-            if not self.status_check_passed():
-                return
 
             self.update_progress(spot_count / len(spots))
 

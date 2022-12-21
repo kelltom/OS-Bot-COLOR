@@ -2,12 +2,14 @@
 A Bot is a base class for bot script models. It is abstract and cannot be instantiated. Many of the methods in this base class are
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
+import ctypes
+import platform
 import re
+import threading
 import time
 import warnings
 from abc import ABC, abstractmethod
 from enum import Enum
-from threading import Thread
 from typing import List, Union
 
 import customtkinter
@@ -28,6 +30,41 @@ from utilities.window import Window, WindowInitializationError
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
+class BotThread(threading.Thread):
+    def __init__(self, target: callable):
+        threading.Thread.__init__(self)
+        self.target = target
+
+    def run(self):
+        try:
+            print("Thread started.")
+            self.target()
+        finally:
+            print("Thread stopped successfully.")
+
+    def __get_id(self):
+        """Returns id of the respective thread"""
+        if hasattr(self, "_thread_id"):
+            return self._thread_id
+        for id, thread in threading._active.items():
+            if thread is self:
+                return id
+
+    def stop(self):
+        """Raises SystemExit exception in the thread. This can be called from the main thread followed by join()."""
+        thread_id = self.__get_id()
+        if platform.system() == "Windows":
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+                print("Exception raise failure")
+        elif platform.system() == "Linux":
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), 0)
+                print("Exception raise failure")
+
+
 class BotStatus(Enum):
     """
     BotStatus enum.
@@ -37,24 +74,31 @@ class BotStatus(Enum):
     PAUSED = 2
     STOPPED = 3
     CONFIGURING = 4
+    CONFIGURED = 5
 
 
 class Bot(ABC):
-    # --- Properties ---
     mouse = MouseUtils()
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED
-    thread: Thread = None
-    win: Window = None
+    thread: BotThread = None
 
-    # ---- Abstract Functions ----
     @abstractmethod
-    def __init__(self, title, description, window: Window):
+    def __init__(self, title, description, window: Window, launchable: bool = False):
+        """
+        Instantiates a Bot object. This must be called by subclasses.
+        Args:
+            title: title of the bot to display in the UI
+            description: description of the bot to display in the UI
+            window: window object the bot will use to interact with the game client
+            launchable: whether the game client can be launched with custom arguments from the bot's UI
+        """
         self.title = title
         self.description = description
         self.options_builder = OptionsBuilder(title)
         self.win = window
+        self.launchable = launchable
 
     @abstractmethod
     def main_loop(self):
@@ -90,9 +134,10 @@ class Bot(ABC):
         self.options_builder.options = {}
         return view
 
-    def play_pause(self):
+    def play(self):
         """
-        Depending on the bot status, this function either starts a bot's main_loop() on a new thread, or pauses it.
+        Fired when the user starts the bot manually. This function performs necessary set up on the UI
+        and locates/initializes the game client window. Then, it launches the bot's main loop in a separate thread.
         """
         if self.status == BotStatus.STOPPED:
             self.clear_log()
@@ -100,87 +145,38 @@ class Bot(ABC):
             if not self.options_set:
                 self.log_msg("Options not set. Please set options before starting.")
                 return
-            if not self.__initialize_window():
+            try:
+                self.__initialize_window()
+            except WindowInitializationError as e:
+                self.log_msg(str(e))
                 return
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
-            self.thread = Thread(target=self.main_loop)
+            self.thread = BotThread(target=self.main_loop)
             self.thread.setDaemon(True)
             self.thread.start()
         elif self.status == BotStatus.RUNNING:
-            self.log_msg("Pausing bot...")
-            self.set_status(BotStatus.PAUSED)
-        elif self.status == BotStatus.PAUSED:
-            self.log_msg("Resuming bot...")
-            if not self.__initialize_window():
-                self.set_status(BotStatus.STOPPED)
-                print("Bot.play_pause(): Failed to initialize window.")
-            self.set_status(BotStatus.RUNNING)
+            self.log_msg("Bot is already running.")
 
-    def __initialize_window(self) -> bool:
+    def __initialize_window(self):
         """
         Attempts to focus and initialize the game window by identifying core UI elements.
-        Returns:
-            bool - True if the window was successfully initialized, False otherwise.
         """
-        try:
-            self.win.focus()
-            time.sleep(0.5)
-        except WindowInitializationError as e:
-            return self.__halt_with_msg(str(e))
-        try:
-            self.win.initialize()
-            return True
-        except WindowInitializationError as e:
-            return self.__halt_with_msg(str(e))
+        self.win.focus()
+        time.sleep(0.5)
+        self.win.initialize()
 
     def stop(self):
         """
         Fired when the user stops the bot manually.
         """
-        self.log_msg("Manual stop requested. Attempting to stop...")
+        self.log_msg("Stopping script.")
         if self.status != BotStatus.STOPPED:
+            self.thread.stop()
+            self.thread.join()
             self.set_status(BotStatus.STOPPED)
         else:
             self.log_msg("Bot is already stopped.")
-
-    def status_check_passed(self, timeout: int = 120) -> bool:
-        """
-        Does routine check for Bot Status (stops/pauses).
-        Best used in main_loop() inner loops while bot is waiting for a
-        condition to be met. If the Bot Status is PAUSED, this function
-        will enter a loop waiting for the status to change to RUNNING/STOPPED.
-        Args:
-            timeout: int - number of seconds to pause for if bot is paused.
-        Returns:
-            True if the bot is safe to continue, False if the bot should terminate.
-        Example:
-            if not self.status_check_passed():
-                return
-        """
-        # Check status
-        if self.status == BotStatus.STOPPED:
-            self.log_msg("Bot has been stopped.")
-            return False
-        elif self.status == BotStatus.PAUSED:
-            self.log_msg("Bot is paused.\n")
-            while self.status == BotStatus.PAUSED:
-                time.sleep(1)
-                if self.status == BotStatus.STOPPED:
-                    self.log_msg("Bot has been stopped.")
-                    return False
-                timeout -= 1
-                if timeout == 0:
-                    return self.__halt_with_msg("Timeout reached, stopping...")
-                if self.status == BotStatus.PAUSED:
-                    self.log_msg(msg=f"Terminating in {timeout}.", overwrite=True)
-                    continue
-        return True
-
-    def __halt_with_msg(self, msg):
-        self.log_msg(msg)
-        self.set_status(BotStatus.STOPPED)
-        return False
 
     # ---- Controller Setter ----
     def set_controller(self, controller):
@@ -249,9 +245,6 @@ class Bot(ABC):
         # Start dropping
         pag.keyDown("shift")
         for i, slot in enumerate(self.win.inventory_slots):
-            if not self.status_check_passed():
-                pag.keyUp("shift")
-                return
             if i in skip_slots:
                 continue
             p = slot.random_point()
@@ -309,7 +302,7 @@ class Bot(ABC):
         char_screenshot = char_rect.screenshot()
         # Isolate HP bars in that rectangle
         hp_bars = clr.isolate_colors(char_screenshot, [clr.RED, clr.GREEN])
-        debug.save_image("hp_bars.png", hp_bars)
+        # debug.save_image("hp_bars.png", hp_bars)
         # If there are any HP bars, return True
         return hp_bars.mean(axis=(0, 1)) != 0.0
 
