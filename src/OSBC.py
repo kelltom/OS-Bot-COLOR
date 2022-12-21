@@ -8,7 +8,7 @@ from controller.bot_controller import BotController, MockBotController
 from model import *
 from view import *
 
-customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
+customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
@@ -76,8 +76,8 @@ class App(customtkinter.CTk):
 
         # Theme Switch
         self.switch = customtkinter.CTkSwitch(master=self.frame_left, text="Dark Mode", command=self.change_mode)
-        self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
-        self.switch.select()
+        # self.switch.select()
+        # self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
 
         # ============ View/Controller Configuration ============
         self.views: dict[str, customtkinter.CTkFrame] = {}  # A map of all views, keyed by game title
