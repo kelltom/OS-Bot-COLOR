@@ -3,6 +3,7 @@ A Bot is a base class for bot script models. It is abstract and cannot be instan
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
 import ctypes
+import platform
 import re
 import threading
 import time
@@ -52,10 +53,16 @@ class BotThread(threading.Thread):
     def stop(self):
         """Raises SystemExit exception in the thread. This can be called from the main thread followed by join()."""
         thread_id = self.__get_id()
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
-        if res > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
-            print("Exception raise failure")
+        if platform.system() == "Windows":
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+                print("Exception raise failure")
+        elif platform.system() == "Linux":
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), 0)
+                print("Exception raise failure")
 
 
 class BotStatus(Enum):
