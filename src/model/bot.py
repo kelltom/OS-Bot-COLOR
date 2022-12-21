@@ -83,22 +83,31 @@ class Bot(ABC):
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
+    launchable: bool = False
 
     @abstractmethod
-    def __init__(self, title, description, window: Window, launchable: bool = False):
+    def __init__(self, game_title, bot_title, description, window: Window):
         """
         Instantiates a Bot object. This must be called by subclasses.
         Args:
-            title: title of the bot to display in the UI
+            game_title: title of the game the bot will interact with
+            bot_title: title of the bot to display in the UI
             description: description of the bot to display in the UI
             window: window object the bot will use to interact with the game client
             launchable: whether the game client can be launched with custom arguments from the bot's UI
         """
-        self.title = title
+        self.game_title = game_title
+        self.bot_title = bot_title
         self.description = description
-        self.options_builder = OptionsBuilder(title)
+        self.options_builder = OptionsBuilder(bot_title)
         self.win = window
-        self.launchable = launchable
+
+    @abstractmethod
+    def launch_game(self):
+        """
+        Launches the game client with custom arguments.
+        """
+        pass
 
     @abstractmethod
     def main_loop(self):
@@ -139,7 +148,7 @@ class Bot(ABC):
         Fired when the user starts the bot manually. This function performs necessary set up on the UI
         and locates/initializes the game client window. Then, it launches the bot's main loop in a separate thread.
         """
-        if self.status == BotStatus.STOPPED:
+        if self.status in [BotStatus.STOPPED, BotStatus.CONFIGURED]:
             self.clear_log()
             self.log_msg("Starting bot...")
             if not self.options_set:
@@ -157,6 +166,8 @@ class Bot(ABC):
             self.thread.start()
         elif self.status == BotStatus.RUNNING:
             self.log_msg("Bot is already running.")
+        elif self.status == BotStatus.CONFIGURING:
+            self.log_msg("Please finish configuring the bot before starting.")
 
     def __initialize_window(self):
         """

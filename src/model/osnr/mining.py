@@ -15,7 +15,7 @@ class OSNRMining(OSNRBot):
             "This bot power-mines rocks. Equip a pickaxe, place your character between some rocks and mark "
             + "(Shift + Right-Click) the ones you want to mine."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 2
         self.logout_on_friends = False
 
@@ -37,7 +37,6 @@ class OSNRMining(OSNRBot):
         self.log_msg(f"Running time: {self.running_time} minutes.")
         self.log_msg(f'Bot will {"" if self.logout_on_friends else "not"} logout when friends are nearby.')
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup

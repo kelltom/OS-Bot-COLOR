@@ -14,8 +14,11 @@ from utilities.geometry import Point
 class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
     win: RuneLiteWindow = None
 
-    def __init__(self, title, description) -> None:
-        super().__init__(title, description, RuneLiteWindow("Near-Reality"))
+    def __init__(self, bot_title, description) -> None:
+        super().__init__("OSNR", bot_title, description, RuneLiteWindow("Near-Reality"))
+
+    def launch_game(self):
+        return super().launch_game()
 
     def disable_private_chat(self):
         """

@@ -132,11 +132,7 @@ class Window:
         if all([a, b, c, d]):  # if all templates found
             print(f"Window.initialize() took {time.time() - start_time} seconds.")
             return True
-        msg = (
-            "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' "
-            "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
-        )
-        raise WindowInitializationError(msg)
+        raise WindowInitializationError()
 
     def __locate_chat(self, client_rect: Rectangle) -> bool:
         """

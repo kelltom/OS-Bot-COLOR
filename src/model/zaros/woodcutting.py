@@ -15,7 +15,7 @@ class ZarosWoodcutter(ZarosBot):
             "This bot power-chops wood. Position your character near some trees, tag them. Make sure you have an empty last inventory slot. Press the play"
             " button."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0
         self.logout_on_friends = True
@@ -42,7 +42,6 @@ class ZarosWoodcutter(ZarosBot):
         self.log_msg(f"Protect slots: {self.protect_slots}.")
         self.log_msg(f"Logout on friends: {self.logout_on_friends}.")
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):
         self.log_msg("Selecting inventory...")

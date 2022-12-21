@@ -4,16 +4,19 @@ This script is used to ensure that the Window properties are being set correctly
 import time
 from typing import List
 
-from model.runelite_bot import BotStatus, RuneLiteBot, RuneLiteWindow
+from model.bot import BotStatus
+from model.runelite_bot import RuneLiteBot, RuneLiteWindow
 from utilities.geometry import Rectangle
 
 
 class TestBot(RuneLiteBot):
     def __init__(self):
-        title = "Test Bot"
+        game_title = "OSRS"
+        bot_title = "Test Bot"
         description = "This bot is for testing the new Window feature. Open an instance of RuneLite to see how the " + "mouse travels to the UI elements."
         super().__init__(
-            title=title,
+            game_title=game_title,
+            bot_title=bot_title,
             description=description,
             window=RuneLiteWindow(window_title="RuneLite"),
         )

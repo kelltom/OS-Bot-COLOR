@@ -172,7 +172,7 @@ class App(customtkinter.CTk):
         """
         btn = customtkinter.CTkButton(
             master=self.frame_left,
-            text=self.models[bot_key].title,
+            text=self.models[bot_key].bot_title,
             fg_color=self.DEFAULT_GRAY,
             command=lambda: self.__toggle_bot_by_key(bot_key, btn),
         )

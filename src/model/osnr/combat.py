@@ -16,7 +16,7 @@ class OSNRCombat(OSNRBot):
             "This bot attacks NPCs tagged using RuneLite. Position your character in the viscinity of the tagged NPCs. "
             + "In the 'Entity Hider' plugin, make sure 'Hide Local Player 2D' is OFF."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 15
         self.should_loot = False
         self.should_bank = False
@@ -44,7 +44,6 @@ class OSNRCombat(OSNRBot):
                 return
         self.log_msg(f"Bot will run for {self.running_time} minutes.")
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):  # sourcery skip: low-code-quality
         api = StatusSocket()

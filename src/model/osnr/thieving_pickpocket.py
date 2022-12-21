@@ -23,7 +23,7 @@ class OSNRThievingPickpocket(OSNRBot):
             "This bot steals from NPCs in OSNR. Position your character near a tagged NPC you wish to steal from. "
             + "Start bot with > 50% HP. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 5
         self.logout_on_friends = False
         self.pickpocket_option = 1
@@ -89,7 +89,6 @@ class OSNRThievingPickpocket(OSNRBot):
                 self.options_set = False
                 return
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup

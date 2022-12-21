@@ -13,21 +13,25 @@ from model.bot import Bot, BotStatus
 from utilities.window import MockWindow
 
 
-class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game, change "Bot" to "RuneLiteBot"
+class ExampleBot(Bot):  # <-- Next to the bot name, define the parent class so your bot can inherit its functionality
     def __init__(self):
-        title = "Example Bot"
+        game_title = "OSRS"
+        bot_title = "Example Bot"
         description = (
             "This is where the description of the bot goes. Briefly describe how the bot works "
             + "and any important information the user needs to know before starting it."
         )
         # If you're writing a bot for a RuneLite-based game, change "MockWindow()" to "RuneLiteWindow("<name of your game>")" below
         # If your game uses a custom interface, you can also pass in a custom window class that inherits from Window or RuneLiteWindow
-        super().__init__(title=title, description=description, window=MockWindow(), launchable=False)
+        super().__init__(game_title=game_title, bot_title=bot_title, description=description, window=MockWindow())
         # This is where you should initialize any options/properties you want to use in the bot
         self.running_time = 1
         self.text_edit_example = None
         self.multi_select_example = None
         self.menu_example = None
+
+    def launch_game(self):
+        pass
 
     def create_options(self):
         """
@@ -75,10 +79,8 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         # if self.launchable:
         #     self.log_msg("Please launch the game client using the button on the right.")
 
-        # Set the `options_set` flag to True to allow underlying code to continue, and set the status to
-        # CONFIGURED to indicate to the user that the bot is ready to run.
+        # Set the `options_set` flag to True to allow underlying code to continue
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):
         """
