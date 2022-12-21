@@ -23,27 +23,28 @@ class OSNRCombat(OSNRBot):
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
-        self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
+        # self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
 
     def save_options(self, options: dict):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
                 self.log_msg(f"Running time: {self.running_time} minutes.")
-            elif option == "prefs":
-                if "Loot" in options[option]:
-                    self.should_loot = True
-                    # self.log_msg("Looting enabled.")
-                    self.log_msg("Note: Looting is not yet implemented.")
-                if "Bank" in options[option]:
-                    self.should_bank = True
-                    # self.log_msg("Banking enabled.")
-                    self.log_msg("Note: Banking is not yet implemented.")
+            # elif option == "prefs":
+            #     if "Loot" in options[option]:
+            #         self.should_loot = True
+            #         self.log_msg("Note: Looting is not yet implemented.")
+            #     if "Bank" in options[option]:
+            #         self.should_bank = True
+            #         self.log_msg("Note: Banking is not yet implemented.")
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
+                self.options_set = False
+                return
+        self.log_msg(f"Bot will run for {self.running_time} minutes.")
         self.options_set = True
-        # TODO: if options are invalid, set options_set flag to false
-        self.log_msg("Options set successfully.")
+        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):  # sourcery skip: low-code-quality
         api = StatusSocket()
@@ -57,17 +58,12 @@ class OSNRCombat(OSNRBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            if not self.status_check_passed():
-                return
-
             # loot
             if not api.get_is_inv_full() and self.pick_up_loot("Cowhide"):
                 inv_count = len(api.get_inv())
                 self.log_msg("Looting...")
                 loot_timeout = 5  # wait up to 5 seconds to finish picking it up
                 while len(api.get_inv()) == inv_count and loot_timeout > 0:
-                    if not self.status_check_passed():
-                        return
                     time.sleep(1)
                     loot_timeout -= 1
                 time.sleep(0.5)
@@ -75,8 +71,6 @@ class OSNRCombat(OSNRBot):
             # Try to attack an NPC
             timeout = 60  # check for up to 60 seconds
             while not self.is_in_combat():
-                if not self.status_check_passed():
-                    return
                 if timeout <= 0:
                     self.log_msg("Timed out looking for NPC.")
                     self.set_status(BotStatus.STOPPED)
@@ -93,9 +87,6 @@ class OSNRCombat(OSNRBot):
                     time.sleep(2)
                     timeout -= 2
 
-            if not self.status_check_passed():
-                return
-
             # If combat is over, assume we killed the NPC.
             timeout = 90  # give our character 90 seconds to kill the NPC
             while self.is_in_combat():
@@ -105,8 +96,6 @@ class OSNRCombat(OSNRBot):
                     return
                 time.sleep(2)
                 timeout -= 2
-                if not self.status_check_passed():
-                    return
 
             # Update progress
             self.log_msg("NPC killed.")
