@@ -62,6 +62,7 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
+                return
 
         # Let the user know what options were set
         self.log_msg(f"Bot will run for {self.running_time} minutes.")
@@ -78,7 +79,6 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         # CONFIGURED to indicate to the user that the bot is ready to run.
         self.options_set = True
         self.set_status(BotStatus.CONFIGURED)
-        return
 
     def main_loop(self):
         """
