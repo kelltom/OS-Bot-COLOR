@@ -8,7 +8,7 @@ from pathlib import Path
 from tkinter import filedialog
 
 runelite_settings_folder: Path = Path(__file__).parent.parent.joinpath("runelite_settings")
-game_executables: str = str(Path(__file__).parent.joinpath("executable_paths.json"))
+executable_paths: str = str(runelite_settings_folder.joinpath("executable_paths.json"))
 
 # TODO: add function for building a settings file
 
@@ -35,14 +35,14 @@ def launch_runelite_with_settings(bot, settings_file: Path):
     """
     # Try to read the file and parse the JSON data
     try:
-        with open(game_executables, "r") as f:
+        with open(executable_paths, "r") as f:
             data = json.load(f)
     except (FileNotFoundError, json.decoder.JSONDecodeError):
         data = {}
 
     # If the file doesn't exist, create it
-    if not os.path.exists(game_executables):
-        Path(game_executables).touch()
+    if not os.path.exists(executable_paths):
+        Path(executable_paths).touch()
 
     # Check if the game's executable path exists in the JSON file
     key = bot.game_title.lower()
@@ -56,7 +56,7 @@ def launch_runelite_with_settings(bot, settings_file: Path):
             bot.log_msg("File not selected.")
             return
         data[key] = EXECPATH
-        with open(game_executables, "w") as f:
+        with open(executable_paths, "w") as f:
             json.dump(data, f)
             bot.log_msg("Executable path saved.")
 
