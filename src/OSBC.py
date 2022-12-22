@@ -63,7 +63,7 @@ class App(customtkinter.CTk):
         self.models: dict[str, Bot] = {}  # A map of all models (bots), keyed by bot title
 
         # Home Views
-        self.home_view = HomeView(parent=self.frame_right, main=self)
+        self.home_view = TitleView(parent=self.frame_right, main=self)
         self.home_view.pack(
             in_=self.frame_right,
             side=tkinter.TOP,
@@ -99,7 +99,8 @@ class App(customtkinter.CTk):
                 # Make a home view if one doesn't exist
                 if isinstance(instance, RuneLiteBot) and instance.game_title not in self.views:
                     self.views[instance.game_title] = RuneLiteHomeView(parent=self, main=self, game_title=instance.game_title)
-                    # TODO: add home view for non-RuneLite bots in else statement
+                elif isinstance(instance, Bot) and instance.game_title not in self.views:
+                    self.views[instance.game_title] = HomeView(parent=self, main=self, game_title=instance.game_title)
                 # Make a button section if one doesn't exist
                 if instance.game_title not in self.btn_map:
                     self.btn_map[instance.game_title] = []
