@@ -20,10 +20,10 @@ from deprecated import deprecated
 
 import utilities.color as clr
 import utilities.debug as debug
+import utilities.game_launcher as launcher
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
 import utilities.runelite_cv as rcv
-import utilities.runelite_launcher as rlauncher
 from model.bot import Bot, BotStatus
 from utilities.geometry import Point, Rectangle, RuneLiteObject
 from utilities.window import Window
@@ -88,9 +88,8 @@ class RuneLiteWindow(Window):
             client.size = (width, height)
 
 
-class RuneLiteBot(Bot, metaclass=ABCMeta):
+class RuneLiteBot(Bot, launcher.Launchable, metaclass=ABCMeta):
     win: RuneLiteWindow = None
-    launchable = True
 
     def __init__(self, game_title, bot_title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
         super().__init__(game_title, bot_title, description, window)
@@ -100,7 +99,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         """
         Launches the game client.
         """
-        rlauncher.launch_runelite_with_settings(self, settings_file)
+        launcher.launch_runelite_with_settings(self, settings_file)
 
     # --- OCR Functions ---
     @deprecated(reason="This is a slow way of checking if you are in combat. Consider using an API function instead.")

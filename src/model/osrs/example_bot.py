@@ -30,9 +30,6 @@ class ExampleBot(Bot):  # <-- Next to the bot name, define the parent class so y
         self.multi_select_example = None
         self.menu_example = None
 
-    def launch_game(self):
-        pass
-
     def create_options(self):
         """
         Use the OptionsBuilder to define the options for the bot. For each function call below,
@@ -73,11 +70,6 @@ class ExampleBot(Bot):  # <-- Next to the bot name, define the parent class so y
         self.log_msg(f"Text edit example set to: {self.text_edit_example or 'None'}")
         self.log_msg(f"Multi-select example set to: {self.multi_select_example or 'None'}")
         self.log_msg(f"Menu example set to: {self.menu_example}")
-
-        # --- OPTIONAL: LAUNCH GAME CLIENT ---
-        # If your bot requires the game client to be launched with further-customized settings, let the user know here.
-        # if self.launchable:
-        #     self.log_msg("Please launch the game client using the button on the right.")
 
         # Set the `options_set` flag to True to allow underlying code to continue
         self.options_set = True

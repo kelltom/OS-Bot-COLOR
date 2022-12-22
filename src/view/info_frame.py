@@ -5,6 +5,8 @@ import customtkinter
 from PIL import Image, ImageTk
 from pynput import keyboard
 
+from utilities.game_launcher import Launchable
+
 
 class InfoFrame(customtkinter.CTkFrame):
     listener = None
@@ -143,7 +145,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_script_desc.configure(text=description)
         self.lbl_status.configure(text="Status: Idle")
         if self.controller.model:
-            if self.controller.model.launchable:
+            if isinstance(self.controller.model, Launchable):
                 self.btn_launch.grid(row=3, column=0, pady=15, sticky="nsew")
                 self.btn_launch.configure(state=tkinter.DISABLED)
             else:
@@ -222,7 +224,7 @@ class InfoFrame(customtkinter.CTkFrame):
 
     def update_status_configured(self):
         self.__toggle_buttons(True)
-        if self.controller.model.launchable:
+        if isinstance(self.controller.model, Launchable):
             self.btn_launch.configure(state=tkinter.NORMAL)
         self.lbl_status.configure(text="Status: Configured")
 

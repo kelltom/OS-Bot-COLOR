@@ -83,7 +83,6 @@ class Bot(ABC):
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
-    launchable: bool = False
 
     @abstractmethod
     def __init__(self, game_title, bot_title, description, window: Window):
@@ -101,13 +100,6 @@ class Bot(ABC):
         self.description = description
         self.options_builder = OptionsBuilder(bot_title)
         self.win = window
-
-    @abstractmethod
-    def launch_game(self):
-        """
-        Launches the game client with custom arguments.
-        """
-        pass
 
     @abstractmethod
     def main_loop(self):

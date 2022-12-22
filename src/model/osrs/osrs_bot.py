@@ -16,6 +16,3 @@ class OSRSBot(RuneLiteBot, metaclass=ABCMeta):
 
     def __init__(self, bot_title, description) -> None:
         super().__init__("OSRS", bot_title, description)
-
-    def launch_game(self):
-        return super().launch_game()
