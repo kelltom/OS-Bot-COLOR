@@ -15,7 +15,7 @@ class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
     win: RuneLiteWindow = None
 
     def __init__(self, bot_title, description) -> None:
-        super().__init__("OSNR", bot_title, description, RuneLiteWindow("Near-Reality"))
+        super().__init__("Near-Reality", bot_title, description, RuneLiteWindow("Near-Reality"))
 
     def disable_private_chat(self):
         """
