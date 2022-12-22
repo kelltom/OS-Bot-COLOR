@@ -12,6 +12,7 @@ import utilities.debug as debug
 from model.bot import Bot, BotStatus
 from utilities.window import MockWindow
 
+
 # Next to the bot name, define the parent class so your bot can inherit its functionality
 class ExampleBot(Bot):
     def __init__(self):
@@ -72,6 +73,9 @@ class ExampleBot(Bot):
         self.log_msg(f"Text edit example set to: {self.text_edit_example or 'None'}")
         self.log_msg(f"Multi-select example set to: {self.multi_select_example or 'None'}")
         self.log_msg(f"Menu example set to: {self.menu_example}")
+
+        # If your bot must launch with custom RL settings (I.e. inherits from `utilities.game_launcher.Launchable`), please notify the user
+        # here that they should launch the game via the `Launch Game` button above.
 
         # Set the `options_set` flag to True to allow underlying code to continue
         self.options_set = True

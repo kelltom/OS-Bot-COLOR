@@ -4,11 +4,10 @@ This script is used to ensure that the Window properties are being set correctly
 import time
 from typing import List
 
+import utilities.game_launcher as launcher
 from model.bot import Bot, BotStatus
 from model.runelite_bot import RuneLiteWindow
 from utilities.geometry import Rectangle
-
-import utilities.game_launcher as launcher
 
 
 class TestBot(Bot, launcher.Launchable):
@@ -31,9 +30,9 @@ class TestBot(Bot, launcher.Launchable):
         self.options_set = True
         self.log_msg("Options set successfully.")
         self.log_msg("Please launch the game via the control panel button above. If RuneLite is already running with the correct settings, ignore this.")
-    
+
     def launch_game(self):
-        self.game_title = "OSRS" # This is a hack to allow the correct RL settings to be loaded despite this bot belonging to the "Example" game.
+        self.game_title = "OSRS"  # This is a hack to allow the correct RL settings to be loaded despite this bot belonging to the "Example" game.
         launcher.launch_runelite_with_settings(bot=self, settings_file=None)
 
     def main_loop(

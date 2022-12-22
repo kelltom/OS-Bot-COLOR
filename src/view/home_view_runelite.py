@@ -52,7 +52,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.note = (
             "For these scripts to work, RuneLite must be configured in a specific way. "
             + "Use the button below to launch RuneLite with pre-configured settings, or skip this "
-            + "step if you know your client is already configured."
+            + "step if you know your client is already configured. If a script has a `Launch Game` button, use that instead."
         )
         self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 12))
         self.label_note.bind(
