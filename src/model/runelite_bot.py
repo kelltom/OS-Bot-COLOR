@@ -12,7 +12,6 @@ Item ID Database:
 """
 import time
 from abc import ABCMeta
-from pathlib import Path
 from typing import List, Union
 
 import pyautogui as pag
@@ -20,7 +19,6 @@ from deprecated import deprecated
 
 import utilities.color as clr
 import utilities.debug as debug
-import utilities.game_launcher as launcher
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
 import utilities.runelite_cv as rcv
@@ -88,18 +86,11 @@ class RuneLiteWindow(Window):
             client.size = (width, height)
 
 
-class RuneLiteBot(Bot, launcher.Launchable, metaclass=ABCMeta):
+class RuneLiteBot(Bot, metaclass=ABCMeta):
     win: RuneLiteWindow = None
 
     def __init__(self, game_title, bot_title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
         super().__init__(game_title, bot_title, description, window)
-
-    # --- Game Launcher ---
-    def launch_game(self, settings_file: Path = None):
-        """
-        Launches the game client.
-        """
-        launcher.launch_runelite_with_settings(self, settings_file)
 
     # --- OCR Functions ---
     @deprecated(reason="This is a slow way of checking if you are in combat. Consider using an API function instead.")
