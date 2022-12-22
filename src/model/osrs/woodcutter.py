@@ -20,7 +20,6 @@ class OSRSWoodcutter(RuneLiteBot):
         self.options_builder.add_slider_option("protect_slots", "When dropping, protect first x slots:", 0, 4)
 
     def save_options(self, options: dict):
-        self.options_set = True
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
@@ -28,12 +27,14 @@ class OSRSWoodcutter(RuneLiteBot):
                 self.protect_slots = options[option]
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
-                self.log_msg("Failed to set options.")
                 return
         self.log_msg(f"Running time: {self.running_time} minutes.")
         self.log_msg(f"Protect slots: {self.protect_slots}.")
         self.log_msg("Options set successfully.")
+        self.options_set = True
+        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):
         # Setup API
@@ -51,18 +52,12 @@ class OSRSWoodcutter(RuneLiteBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            if not self.status_check_passed():
-                return
-
             # If inventory is full
             if api_status.get_is_inv_full():
                 self.drop_inventory(skip_slots=list(range(self.protect_slots)))
                 logs += 28 - self.protect_slots
                 self.log_msg(f"Logs cut: ~{logs}")
                 time.sleep(1)
-
-            if not self.status_check_passed():
-                return
 
             # Find a tree
             tree = self.get_nearest_tag(clr.PINK)
@@ -96,9 +91,6 @@ class OSRSWoodcutter(RuneLiteBot):
                     self.log_msg("Waiting for player to stop moving...")
                     time.sleep(1)
                 continue
-
-            if not self.status_check_passed():
-                return
 
             self.update_progress((time.time() - start_time) / end_time)
 

@@ -22,7 +22,6 @@ class OSNRFishing(OSNRBot):
         self.options_builder.add_slider_option("protect_slots", "When dropping, protect first x slots:", 0, 4)
 
     def save_options(self, options: dict):
-        self.options_set = True
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
@@ -30,13 +29,14 @@ class OSNRFishing(OSNRBot):
                 self.protect_slots = options[option]
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
-        if not self.options_set:
-            self.log_msg("Failed to set options.")
-            return
+                return
         self.log_msg(f"Bot will run for {self.running_time} minutes.")
         self.log_msg(f"Protecting first {self.protect_slots} slots when dropping inventory.")
         self.log_msg("Options set successfully.")
+        self.options_set = True
+        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # API setup
@@ -64,18 +64,12 @@ class OSNRFishing(OSNRBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            if not self.status_check_passed():
-                return
-
             # Check to drop inventory
             if api.get_is_inv_full():
                 self.drop_inventory(skip_slots=list(range(self.protect_slots)))
                 fished += 28 - self.protect_slots
                 self.log_msg(f"Fishes fished: ~{fished}")
                 time.sleep(2)
-
-            if not self.status_check_passed():
-                return
 
             # If not fishing, click fishing spot
             while not self.is_player_doing_action("Fishing"):
@@ -94,8 +88,6 @@ class OSNRFishing(OSNRBot):
                     time.sleep(1)
                     break
             time.sleep(3)
-            if not self.status_check_passed():
-                return
 
             # Update progress
             self.update_progress((time.time() - start_time) / end_time)

@@ -3,9 +3,9 @@ import json
 import os
 import platform
 import shutil
+import subprocess
 import tkinter as tk
 from pathlib import Path
-from subprocess import DETACHED_PROCESS, Popen
 from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
 
@@ -63,8 +63,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         # Warning label
         self.warning = (
             "Please only have one instance of RuneLite running at a time. \nIn your game settings, ensure that "
-            + "UI elements are NOT trasparent, orbs are enabled, shift-drop is enabled, and XP display is "
-            + "set to 'permanent'."
+            + "status orbs are enabled, shift-drop is enabled, and XP display is set to 'permanent'."
         )
         self.label_warning = customtkinter.CTkLabel(
             master=self,
@@ -162,9 +161,9 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
 
         # Launch the game
         if platform.system() == "Windows":
-            Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=DETACHED_PROCESS)
+            subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=subprocess.DETACHED_PROCESS)
         else:
-            Popen([EXECPATH, EXECARG1, EXECARG2], close_fds=True, detach=True)
+            subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
 
@@ -174,9 +173,15 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         """
         root = tk.Tk()
         root.withdraw()
-        file_path = filedialog.askopenfilename(title="Select game executable file", filetypes=[("exe files", "*.exe")])
-        file_path = Path(file_path)
-        if not file_path.is_file() or file_path.suffix != ".exe":
+        file_path = filedialog.askopenfilename(
+            title="Select game executable file", filetypes=[("exe files", "*.exe"), ("AppImage files", "*.AppImage"), ("Java files", "*.jar")]
+        )
+        try:
+            if not file_path:
+                root.destroy()
+                return None
+            file_path = Path(file_path)
+        except TypeError:
             root.destroy()
             return None
         path_str = str(file_path)

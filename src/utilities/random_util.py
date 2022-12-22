@@ -63,7 +63,7 @@ class RandomUtil:
 
         # Determine the dimensions of the bounding box within the inner bounding box.
         inner_inner_width = start_fix_width if start_fix_width <= end_fix_width else end_fix_width
-        inner_inner_height = start_fix_height if start_fix_height <= end_fix_height else end_fix_width
+        inner_inner_height = start_fix_height if start_fix_height <= end_fix_height else end_fix_height
 
         # Generate a random pixel within the bounding box within the inner bounding box.
         return RandomUtil.__random_from(start_x, start_y, inner_inner_width, inner_inner_height, center=True)
