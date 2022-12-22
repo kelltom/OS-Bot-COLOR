@@ -15,19 +15,17 @@ from utilities.game_launcher import executable_paths
 
 
 class RuneLiteHomeView(customtkinter.CTkFrame):
-    def __init__(self, parent, main, game_title: str, game_abbreviation: str):
+    def __init__(self, parent, main, game_title: str):
         """
         Creates a new RuneLiteHomeView object.
         Args:
             parent: The parent window.
             main: The main window.
-            game_title: The title of the game (E.g., "Old School RuneScape").
-            game_abbreviation: The abbreviation of the game (E.g., "OSRS").
+            game_title: The title of the game (E.g., "OSRS").
         """
         super().__init__(parent)
         self.main = main
         self.__game_title = game_title
-        self.__game_abbreviation = game_abbreviation
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)  # Spacing
@@ -133,7 +131,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
             Path(executable_paths).touch()
 
         # Check if the game's executable path exists in the JSON file
-        key = self.__game_abbreviation.lower()
+        key = self.__game_title.lower()
         EXECPATH = data.get(key, "")
 
         # Check if executable file exists
@@ -198,7 +196,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         try:
             with open(executable_paths, "r") as f:
                 data = json.load(f)
-                key = self.__game_abbreviation.lower()
+                key = self.__game_title.lower()
                 del data[key]
                 self.label_status.configure(text=f"{self.__game_title} executable path has been reset.", text_color="green")
         except (FileNotFoundError, KeyError, json.decoder.JSONDecodeError):

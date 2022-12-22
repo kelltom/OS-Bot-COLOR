@@ -1,3 +1,4 @@
+import importlib
 import tkinter
 from typing import List
 
@@ -5,7 +6,7 @@ import customtkinter
 from pynput import keyboard
 
 from controller.bot_controller import BotController, MockBotController
-from model import *
+from model import Bot, RuneLiteBot
 from view import *
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -57,28 +58,6 @@ class App(customtkinter.CTk):
         self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", text_font=("Roboto Medium", 14))
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
-        # Button map
-        # There should be a key for each game title, and the value should be a list of buttons for that game
-        self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
-            "Select a game": [],
-            "Near-Reality": [],  # AKA: OSNR
-            "OSRS": [],
-            "Zaros": [],
-        }
-
-        # Dropdown menu for selecting a game
-        self.menu_game_selector = customtkinter.CTkOptionMenu(
-            master=self.frame_left,
-            values=list(self.btn_map.keys()),
-            command=self.__on_game_selector_change,
-        )
-        self.menu_game_selector.grid(row=2, column=0, sticky="we", padx=10, pady=10)
-
-        # Theme Switch
-        self.switch = customtkinter.CTkSwitch(master=self.frame_left, text="Dark Mode", command=self.change_mode)
-        # self.switch.select()
-        # self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
-
         # ============ View/Controller Configuration ============
         self.views: dict[str, customtkinter.CTkFrame] = {}  # A map of all views, keyed by game title
         self.models: dict[str, Bot] = {}  # A map of all models (bots), keyed by bot title
@@ -94,9 +73,6 @@ class App(customtkinter.CTk):
             pady=0,
         )
         self.views["Select a game"] = self.home_view
-        self.views["OSRS"] = RuneLiteHomeView(parent=self, main=self, game_title="Old School RuneScape", game_abbreviation="OSRS")
-        self.views["Near-Reality"] = RuneLiteHomeView(parent=self, main=self, game_title="Near-Reality", game_abbreviation="OSNR")
-        self.views["Zaros"] = RuneLiteHomeView(parent=self, main=self, game_title="Zaros RSPS", game_abbreviation="Zaros")
 
         # Script view and controller [DO NOT EDIT]
         # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model assigned to the controller
@@ -105,56 +81,44 @@ class App(customtkinter.CTk):
         self.views["Script"].set_controller(self.controller)
 
         # ============ Bot/Button Configuration ============
+        # Dynamically import all bots from the model folder and add them to the UI
+        # If your bot is not appearing, make sure it is referenced in the __init__.py file of the folder it exists in.
 
-        # TEMPLATE FOR ADDING BOTS
-        # 1. Create an instance of your Bot and append it to the bot map (self.models) with a unique, descriptive key.
-        #    1.1. If your bot class is undefined, make sure it is referenced in the __init__.py file of the folder it exists in.
-        # 2. Set the controller of the bot to self.controller.
-        # 3. Call the "__create_button" function to create a pre-configured button for the bot. Append the button to
-        #    the button map (self.btn_map) for the game it belongs to.
+        # Button map
+        # Key value pairs of game titles and a list of buttons for that game.
+        # This is populated below.
+        self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
+            "Select a game": [],
+        }
+        module = importlib.import_module("model")
+        names = dir(module)
+        for name in names:
+            obj = getattr(module, name)
+            if obj is not Bot and obj is not RuneLiteBot and isinstance(obj, type) and issubclass(obj, Bot):
+                instance = obj()
+                # Make a home view if one doesn't exist
+                if isinstance(instance, RuneLiteBot) and instance.game_title not in self.views:
+                    self.views[instance.game_title] = RuneLiteHomeView(parent=self, main=self, game_title=instance.game_title)
+                    # TODO: add home view for non-RuneLite bots in else statement
+                # Make a button section if one doesn't exist
+                if instance.game_title not in self.btn_map:
+                    self.btn_map[instance.game_title] = []
+                instance.set_controller(self.controller)
+                self.models[name] = instance
+                self.btn_map[instance.game_title].append(self.__create_button(name))
 
-        # ----- Old School RuneScape (OSRS) Bots -----
-        self.models["ExampleBot"] = ExampleBot()
-        self.models["ExampleBot"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("ExampleBot"))
+        # Dropdown menu for selecting a game
+        self.menu_game_selector = customtkinter.CTkOptionMenu(
+            master=self.frame_left,
+            values=list(self.btn_map.keys()),
+            command=self.__on_game_selector_change,
+        )
+        self.menu_game_selector.grid(row=2, column=0, sticky="we", padx=10, pady=10)
 
-        self.models["TestBot"] = TestBot()
-        self.models["TestBot"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("TestBot"))
-
-        self.models["OSRSCombat"] = OSRSCombat()
-        self.models["OSRSCombat"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("OSRSCombat"))
-
-        self.models["OSRSWoodcutter"] = OSRSWoodcutter()
-        self.models["OSRSWoodcutter"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("OSRSWoodcutter"))
-
-        # ----- Old School Near-Reality (OSNR) Bots -----
-        self.models["OSNRCombat"] = OSNRCombat()
-        self.models["OSNRCombat"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRCombat"))
-
-        self.models["OSNRFishing"] = OSNRFishing()
-        self.models["OSNRFishing"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRFishing"))
-
-        self.models["OSNRMining"] = OSNRMining()
-        self.models["OSNRMining"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRMining"))
-
-        self.models["OSNRThievingNPC"] = OSNRThievingPickpocket()
-        self.models["OSNRThievingNPC"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingNPC"))
-
-        self.models["OSNRWoodcutting"] = OSNRWoodcutting()
-        self.models["OSNRWoodcutting"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRWoodcutting"))
-
-        # ----- Zaros Bots -----
-        self.models["ZarosWoodcutter"] = ZarosWoodcutter()
-        self.models["ZarosWoodcutter"].set_controller(self.controller)
-        self.btn_map["Zaros"].append(self.__create_button("ZarosWoodcutter"))
+        # Theme Switch
+        self.switch = customtkinter.CTkSwitch(master=self.frame_left, text="Dark Mode", command=self.change_mode)
+        # self.switch.select()
+        # self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
 
         # Status variables to track state of views and buttons
         self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]
@@ -311,6 +275,7 @@ class App(customtkinter.CTk):
 
 if __name__ == "__main__":
     # To test a bot without the GUI, address the comments for each line below.
+    # from model.<game_name> import <bot_name>  # Uncomment this line and replace <game_name> and <bot_name> accordingly to import your bot
     app = App()  # Add the "test=True" argument to the App constructor call.
     app.start()  # Comment out this line.
     # app.test(Bot())  # Uncomment this line and replace argument with your bot's instance.
