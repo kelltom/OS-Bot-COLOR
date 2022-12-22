@@ -12,10 +12,12 @@ game_executables: str = str(Path(__file__).parent.joinpath("executable_paths.jso
 
 # TODO: add function for building a settings file
 
-class Launchable():
+
+class Launchable:
     """
     Classes that inherit from this class must implement the launch_game() method.
     """
+
     def launch_game():
         raise NotImplementedError()
 
