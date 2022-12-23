@@ -2,13 +2,13 @@
 This script is used to ensure that the Window properties are being set correctly.
 """
 import time
+from pathlib import Path
 from typing import List
 
 import utilities.game_launcher as launcher
 from model.bot import Bot, BotStatus
 from model.runelite_bot import RuneLiteWindow
 from utilities.geometry import Rectangle
-from pathlib import Path
 
 
 class WindowTestBot(Bot, launcher.Launchable):
@@ -16,7 +16,10 @@ class WindowTestBot(Bot, launcher.Launchable):
         self.win: RuneLiteWindow = None
         game_title = "Example"
         bot_title = "Window Test"
-        description = "This bot is for testing the new Window feature. Log in to RuneLite and run this script to see how the mouse travels around the UI. This bot also gives an example of how to launch the game with custom settings."
+        description = (
+            "This bot is for testing the new Window feature. Log in to RuneLite and run this script to see how the mouse travels around the UI. This bot also"
+            " gives an example of how to launch the game with custom settings."
+        )
         super().__init__(
             game_title=game_title,
             bot_title=bot_title,
