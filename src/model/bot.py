@@ -348,7 +348,6 @@ class Bot(ABC):
                 return int(res[0])
         return None
 
-    # --- OCR Functions ---
     def mouseover_text(
         self,
         contains: Union[str, List[str]] = None,
