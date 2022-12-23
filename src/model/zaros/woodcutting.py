@@ -5,6 +5,7 @@ import pyautogui as pag
 import utilities.color as clr
 from model.bot import BotStatus
 from model.zaros.zaros_bot import ZarosBot
+from utilities.random_util import RandomUtil as rd
 
 
 class ZarosWoodcutter(ZarosBot):
@@ -14,7 +15,7 @@ class ZarosWoodcutter(ZarosBot):
             "This bot power-chops wood. Position your character near some trees, tag them. Make sure you have an empty last inventory slot. Press the play"
             " button."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0
         self.logout_on_friends = True
@@ -25,7 +26,6 @@ class ZarosWoodcutter(ZarosBot):
         self.options_builder.add_checkbox_option("logout_on_friends", "Logout on friends list?", ["Enable"])
 
     def save_options(self, options: dict):
-        self.options_set = True
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
@@ -35,13 +35,13 @@ class ZarosWoodcutter(ZarosBot):
                 self.logout_on_friends = options[option] == "Enable"
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
-                self.log_msg("Failed to set options.")
                 return
         self.log_msg(f"Running time: {self.running_time} minutes.")
         self.log_msg(f"Protect slots: {self.protect_slots}.")
         self.log_msg(f"Logout on friends: {self.logout_on_friends}.")
-        self.log_msg("Options set successfully.")
+        self.options_set = True
 
     def main_loop(self):
         self.log_msg("Selecting inventory...")
@@ -60,18 +60,12 @@ class ZarosWoodcutter(ZarosBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            if not self.status_check_passed():
-                return
-
             # If inventory is full
             if self.__inv_is_full():
                 self.drop_inventory(skip_slots=list(range(self.protect_slots)))
                 logs += 28 - self.protect_slots
                 self.log_msg(f"Logs cut: ~{logs}")
                 time.sleep(1)
-
-            if not self.status_check_passed():
-                return
 
             # Find a tree
             tree = self.get_nearest_tag(clr.PINK)
@@ -98,13 +92,10 @@ class ZarosWoodcutter(ZarosBot):
                 time.sleep(5)
                 first_loop = False
 
-            # TODO: Make this random
-            time.sleep(2)
+            time.sleep(rd.truncated_normal_sample(1, 10, 2, 2))
 
             # Wait until we're done chopping
             while self.is_player_doing_action("Woodcutting"):
-                if not self.status_check_passed():
-                    return
                 time.sleep(1)
 
             self.update_progress((time.time() - start_time) / end_time)

@@ -3,9 +3,16 @@ import tkinter
 
 import customtkinter
 from PIL import Image, ImageTk
+from pynput import keyboard
+
+from utilities.game_launcher import Launchable
 
 
 class InfoFrame(customtkinter.CTkFrame):
+    listener = None
+    pressed = False
+    status = "stopped"
+
     def __init__(self, parent, title, info):  # sourcery skip: merge-nested-ifs
         """
         Creates a 5x2 frame with the following widgets:
@@ -56,16 +63,16 @@ class InfoFrame(customtkinter.CTkFrame):
             Image.open(f"{PATH}/images/ui/play.png").resize((img_size, img_size)),
             Image.ANTIALIAS,
         )
-        self.img_pause = ImageTk.PhotoImage(
-            Image.open(f"{PATH}/images/ui/pause.png").resize((img_size, img_size)),
-            Image.ANTIALIAS,
-        )
         self.img_stop = ImageTk.PhotoImage(
             Image.open(f"{PATH}/images/ui/stop2.png").resize((img_size, img_size)),
             Image.ANTIALIAS,
         )
         self.img_options = ImageTk.PhotoImage(
             Image.open(f"{PATH}/images/ui/options2.png").resize((img_size, img_size)),
+            Image.ANTIALIAS,
+        )
+        self.img_start = ImageTk.PhotoImage(
+            Image.open(f"{PATH}/images/ui/start.png").resize((img_size, img_size)),
             Image.ANTIALIAS,
         )
 
@@ -85,23 +92,22 @@ class InfoFrame(customtkinter.CTkFrame):
 
         self.btn_play = customtkinter.CTkButton(
             master=self.btn_frame,
-            text="Play",
+            text="Play [Ctrl]",
             text_color="white",
             image=self.img_play,
             command=self.play_btn_clicked,
         )
         self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
 
-        self.btn_abort = customtkinter.CTkButton(
+        self.btn_stop = customtkinter.CTkButton(
             master=self.btn_frame,
-            text="Stop [ESC]",
+            text="Stop [Ctrl]",
             text_color="white",
             fg_color="#910101",
             hover_color="#690101",
             image=self.img_stop,
             command=self.stop_btn_clicked,
         )
-        self.btn_abort.grid(row=2, column=0, pady=0, sticky="nsew")
 
         self.btn_options = customtkinter.CTkButton(
             master=self.btn_frame,
@@ -112,7 +118,17 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_options,
             command=self.options_btn_clicked,
         )
-        self.btn_options.grid(row=3, column=0, pady=15, sticky="nsew")
+        self.btn_options.grid(row=2, column=0, pady=0, sticky="nsew")
+
+        self.btn_launch = customtkinter.CTkButton(
+            master=self.btn_frame,
+            text="Launch Game",
+            text_color="white",
+            fg_color="#616161",
+            image=self.img_start,
+            command=self.launch_btn_clicked,
+        )
+        self.btn_launch.configure(state=tkinter.DISABLED)
 
         self.lbl_status = customtkinter.CTkLabel(master=self, text="Status: Idle", justify=tkinter.CENTER)
         self.lbl_status.grid(row=5, column=1, pady=(0, 15), sticky="we")
@@ -127,23 +143,26 @@ class InfoFrame(customtkinter.CTkFrame):
     def setup(self, title, description):
         self.lbl_script_title.configure(text=title)
         self.lbl_script_desc.configure(text=description)
+        self.lbl_status.configure(text="Status: Idle")
+        if self.controller.model:
+            if isinstance(self.controller.model, Launchable):
+                self.btn_launch.grid(row=3, column=0, pady=15, sticky="nsew")
+                self.btn_launch.configure(state=tkinter.DISABLED)
+            else:
+                self.btn_launch.grid_forget()
 
-    # ---- Control Button Handlers ----
+    # ---- Button Listeners ----
     def play_btn_clicked(self):
-        self.controller.play_pause()
+        self.controller.play()
 
     def stop_btn_clicked(self):
         self.controller.stop()
-
-    # ---- Options Handlers ----
-    def on_options_closing(self, window):
-        self.controller.abort_options()
-        window.destroy()
 
     def options_btn_clicked(self):
         """
         Creates a new TopLevel view to display bot options.
         """
+        self.btn_launch.configure(state=tkinter.DISABLED)
         window = customtkinter.CTkToplevel(master=self)
         window.title("Options")
         window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
@@ -151,39 +170,72 @@ class InfoFrame(customtkinter.CTkFrame):
         view = self.controller.get_options_view(parent=window)
         view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
 
+    def on_options_closing(self, window):
+        self.controller.abort_options()
+        window.destroy()
+
+    def launch_btn_clicked(self):
+        self.controller.launch_game()
+
+    # ---- Keyboard Interrupt Handlers ----
+    def start_keyboard_listener(self):
+        self.listener = keyboard.Listener(
+            on_press=self.__on_press,
+            on_release=self.__on_release,
+        )
+        self.listener.start()
+
+    def stop_keyboard_listener(self):
+        self.listener.stop()
+
+    def __on_press(self, key):
+        if self.pressed:
+            return
+        if key == keyboard.Key.ctrl_l:
+            if self.status == "running":
+                self.controller.stop()
+            elif self.status == "stopped":
+                self.controller.play()
+        self.pressed = True
+
+    def __on_release(self, key):
+        self.pressed = False
+
     # ---- Status Handlers ----
     def update_status_running(self):
         self.__toggle_buttons(True)
         self.btn_options.configure(state=tkinter.DISABLED)
-        self.btn_play.configure(image=self.img_pause)
-        self.btn_play.configure(text="Pause [ - ]")
+        self.btn_play.grid_forget()
+        self.btn_stop.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
         self.lbl_status.configure(text="Status: Running")
-
-    def update_status_paused(self):
-        self.__toggle_buttons(True)
-        self.btn_options.configure(state=tkinter.DISABLED)
-        self.btn_play.configure(image=self.img_play)
-        self.btn_play.configure(text="Resume [ = ]")
-        self.lbl_status.configure(text="Status: Paused")
+        self.status = "running"
 
     def update_status_stopped(self):
         self.__toggle_buttons(True)
-        self.btn_play.configure(image=self.img_play)
-        self.btn_play.configure(text="Play")
+        self.btn_stop.grid_forget()
+        self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
         self.lbl_status.configure(text="Status: Stopped")
+        self.status = "stopped"
 
     def update_status_configuring(self):
         self.__toggle_buttons(False)
+        self.btn_launch.configure(state=tkinter.DISABLED)
         self.lbl_status.configure(text="Status: Configuring")
+
+    def update_status_configured(self):
+        self.__toggle_buttons(True)
+        if isinstance(self.controller.model, Launchable):
+            self.btn_launch.configure(state=tkinter.NORMAL)
+        self.lbl_status.configure(text="Status: Configured")
 
     def __toggle_buttons(self, enabled: bool):
         if enabled:
             self.btn_play.configure(state=tkinter.NORMAL)
-            self.btn_abort.configure(state=tkinter.NORMAL)
+            self.btn_stop.configure(state=tkinter.NORMAL)
             self.btn_options.configure(state=tkinter.NORMAL)
         else:
             self.btn_play.configure(state=tkinter.DISABLED)
-            self.btn_abort.configure(state=tkinter.DISABLED)
+            self.btn_stop.configure(state=tkinter.DISABLED)
             self.btn_options.configure(state=tkinter.DISABLED)
 
     # ---- Progress Bar Handlers ----

@@ -23,7 +23,7 @@ class OSNRThievingPickpocket(OSNRBot):
             "This bot steals from NPCs in OSNR. Position your character near a tagged NPC you wish to steal from. "
             + "Start bot with > 50% HP. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 5
         self.logout_on_friends = False
         self.pickpocket_option = 1
@@ -85,8 +85,10 @@ class OSNRThievingPickpocket(OSNRBot):
                 self.log_msg(f"Protecting first {self.protect_rows} row(s) when dropping inventory.")
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
+                self.options_set = False
+                return
         self.options_set = True
-        self.log_msg("Options set successfully.")
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
@@ -107,8 +109,6 @@ class OSNRThievingPickpocket(OSNRBot):
         while time.time() - start_time < end_time:
             # Check if we should eat
             while self.get_hp() < 50:
-                if not self.status_check_passed():
-                    return
                 food_indexes = api.get_inv_item_indices(item_ids.all_food)
                 if food_indexes:
                     self.log_msg("Eating...")
@@ -122,9 +122,6 @@ class OSNRThievingPickpocket(OSNRBot):
                     self.__logout(f"Out of food. Bot ran for {(time.time() - start_time) / 60} minutes.")
                     return
 
-            if not self.status_check_passed():
-                return
-
             # Check if we should drop inventory
             if self.should_drop_inv and api.get_is_inv_full():
                 skip_slots = api.get_inv_item_indices(item_ids.all_food)
@@ -134,9 +131,6 @@ class OSNRThievingPickpocket(OSNRBot):
                     if index in skip_slots:
                         skip_slots.remove(index)
                 self.drop_inventory(skip_rows=self.protect_rows, skip_slots=skip_slots)
-
-            if not self.status_check_passed():
-                return
 
             # Steal from NPC
             npc_pos: RuneLiteObject = self.get_nearest_tag(clr.CYAN)
@@ -187,9 +181,6 @@ class OSNRThievingPickpocket(OSNRBot):
             # Check for mods
             if self.logout_on_friends and self.friends_nearby():
                 self.__logout(f"Friends detected nearby. Bot ran for {(time.time() - start_time) / 60} minutes.")
-                return
-
-            if not self.status_check_passed():
                 return
 
             # Update progress

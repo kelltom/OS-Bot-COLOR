@@ -48,8 +48,11 @@ class StatusSocket:
         print("thread alive:", t_server.is_alive())
 
     def __RSERVER(self, port=5000):
-        httpd = HTTPServer(("127.0.0.1", port), RLSTATUS)
-        httpd.serve_forever()
+        try:
+            httpd = HTTPServer(("127.0.0.1", port), RLSTATUS)
+            httpd.serve_forever()
+        except OSError:
+            print("Status socket already running.")
 
     def get_player_data(self):
         """
