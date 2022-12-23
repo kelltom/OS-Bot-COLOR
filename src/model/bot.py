@@ -26,6 +26,9 @@ from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
 from utilities.window import Window, WindowInitializationError
+from utilities.random_util import RandomUtil as rm
+from utilities.api import item_ids as ids
+from utilities.api.status_socket import StatusSocket
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -292,6 +295,52 @@ class Bot(ABC):
             pag.click()
         pag.keyUp("shift")
 
+    def drop_selected_items(self, ids, api: StatusSocket):
+        """
+        drops all selected items in inventory
+
+        id number can be found at items_ids.py
+
+        example: self.drop_selected_items(ids.526,api_status) will select & drop bones
+
+        you will need to create a list inside items_ids.py to select multiple items
+
+        """
+
+        self.log_msg("dropping item...")
+        items = api.get_inv_item_indices(ids)
+
+        for item in items:
+            pag.keyDown("shift")
+            self.mouse.move_to(self.win.inventory_slots[item].random_point())
+            self.mouse.click()
+            rm.sleep_random(0.35, 0.5)
+            pass
+        else:
+            pag.keyUp("shift")
+            pass
+
+    def leftclick_items(self, ids, api: StatusSocket):
+        """
+        left clicks all selected items in inventory
+
+        ids number can be found at items_ids.py
+
+        example: self.__leftclick_items(ids.526,api_status) will select & bury bones
+
+        you will need to create a list inside items_ids.py to select multiple items
+
+        """
+
+        self.log_msg("left clicking item...")
+        items = api.get_inv_item_indices(ids)
+
+        for item in items:
+            self.mouse.move_to(self.win.inventory_slots[item].random_point())
+            self.mouse.click()
+            rm.sleep_random(0.7, 1.2)
+
+
     def friends_nearby(self) -> bool:
         """
         Checks the minimap for green dots to indicate friends nearby.
@@ -513,6 +562,174 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Auto retaliate is already off.")
+
+    def toggle_melee_attack(self, toggle_on: bool):
+        """
+        Toggles attack option. Assumes client window is configured.
+
+        weapon support: 2h swords, godswords, axes, battleaxes, mauls, warhammers, bulwark,
+                        claws, pickaxes, long swords, machetes, scimitars, sickles, maces,
+                        daggers, harpoons, swords, whips
+
+            toggle_on: Whether to turn on or off.
+        """
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling attack option {state}...")
+        # click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point())
+        pag.click()
+        time.sleep(0.5)
+
+        if toggle_on:
+            if (
+                attack_toggle := imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "long_sword_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "axe_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "pickaxe_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "bulwark_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "claw_off.png"), self.win.control_panel, 0.05 
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "dagger_off.png"), self.win.control_panel, 0.05 
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "mace_off.png"), self.win.control_panel, 0.05 
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "maul_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "whip_off.png"), self.win.control_panel, 0.05  
+                )
+            ):
+                self.mouse.move_to(attack_toggle.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+            else:
+                self.log_msg("attack option is already on.")
+
+    def toggle_melee_strength(self, toggle_on: bool):
+        """
+        Toggles strength option. Assumes client window is configured.
+
+        weapon support: axe, battleaxe, banners, claws, dagger, harpoon, swords, halberds,
+                        longswords, machetes, scimitars, maces, blackjacks, maces,
+                        fun weapons, mauls, warhammers, pickaxes, 2h swords, godswords
+
+            toggle_on: Whether to turn on or off.
+        """
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling strength option {state}...")
+        # click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point())
+        pag.click()
+        time.sleep(0.5)
+
+        if toggle_on:
+            if (
+                strength_toggle := imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "long_sword_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "axe_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "banner_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "claw_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "dagger_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "hally_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "mace_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "maul_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "pickaxe_off.png"), self.win.control_panel, 0.05  
+                )
+            ):
+                self.mouse.move_to(strength_toggle.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+            else:
+                self.log_msg("strength option is already on.")
+
+    def toggle_melee_controlled(self, toggle_on: bool):
+        """
+        Toggles controlled option. Assumes client window is configured.
+
+        weapon support: banners, spears, claws, halberds, long swords, machetes, scimitars,
+                        sickles, maces, whips
+
+            toggle_on: Whether to turn on or off.
+        """
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling controlled option {state}...")
+        # click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point())
+        pag.click()
+        time.sleep(0.5)
+
+        if toggle_on:
+            if (
+                strength_toggle := imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "claw_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "hally_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "spear_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "long_sword_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "mace_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "whip_off.png"), self.win.control_panel, 0.05)  
+            ):
+                self.mouse.move_to(strength_toggle.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+            else:
+                self.log_msg("controlled option is already on.")
+
+    def toggle_melee_defense(self, toggle_on: bool):
+        """
+        Toggles defense option. Assumes client window is configured.
+
+        weapon support: axe, battleaxe, banners, claws, dagger, harpoon, swords, halberds,
+                        longswords, machetes, scimitars, maces, blackjacks, fun weapons, mauls, warhammers,
+                        pickaxes, 2h swords, godswords, whips
+
+            toggle_on: Whether to turn on or off.
+        """
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling defense option {state}...")
+        # click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point())
+        pag.click()
+        time.sleep(0.5)
+
+        if toggle_on:
+            if (
+                strength_toggle := imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "axe_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "claw_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "hally_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "long_sword_off.png"), self.win.control_panel, 0.05  
+                )
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "dagger_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "mace_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "maul_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "pickaxe_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "spear_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "whip_off.png"), self.win.control_panel, 0.05)  
+            ):
+                self.mouse.move_to(strength_toggle.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+            else:
+                self.log_msg("defense option is already on.")
+
 
     def __open_display_settings(self) -> bool:
         """
