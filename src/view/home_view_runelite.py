@@ -11,20 +11,21 @@ from tkinter.filedialog import askopenfilename
 
 import customtkinter
 
+from utilities.game_launcher import executable_paths
+
 
 class RuneLiteHomeView(customtkinter.CTkFrame):
-    def __init__(self, parent, main, game_title: str, game_abbreviation: str):
+    def __init__(self, parent, main, game_title: str):
         """
         Creates a new RuneLiteHomeView object.
         Args:
             parent: The parent window.
             main: The main window.
-            game_title: The title of the game (E.g., "Old School RuneScape").
-            game_abbreviation: The abbreviation of the game (E.g., "OSRS").
+            game_title: The title of the game (E.g., "OSRS").
         """
         super().__init__(parent)
         self.main = main
-        self.__game_abbreviation = game_abbreviation
+        self.__game_title = game_title
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)  # Spacing
@@ -51,7 +52,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.note = (
             "For these scripts to work, RuneLite must be configured in a specific way. "
             + "Use the button below to launch RuneLite with pre-configured settings, or skip this "
-            + "step if you know your client is already configured."
+            + "step if you know your client is already configured. If a script has a `Launch Game` button, use that instead."
         )
         self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 12))
         self.label_note.bind(
@@ -98,10 +99,10 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         # Reset Btn
         self.btn_skip = customtkinter.CTkButton(
             master=self,
-            text="Reset Saved Paths",
+            text="Reset Saved Path",
             fg_color="DarkRed",
             hover_color="red",
-            command=self.__reset_saved_paths,
+            command=self.__reset_saved_path,
         )
         self.btn_skip.grid(row=7, column=0, sticky="ns", padx=10, pady=(0, 15))
 
@@ -118,8 +119,6 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         Launches the game with the specified RuneLite settings file. If it fails to
         find the executable, it will prompt the user to locate the executable.
         """
-        # Load the JSON file
-        executable_paths = str(Path(__file__).parent.joinpath("executable_paths.json"))
         # Try to read the file and parse the JSON data
         try:
             with open(executable_paths, "r") as f:
@@ -132,7 +131,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
             Path(executable_paths).touch()
 
         # Check if the game's executable path exists in the JSON file
-        key = self.__game_abbreviation.lower()
+        key = self.__game_title.lower()
         EXECPATH = data.get(key, "")
 
         # Check if executable file exists
@@ -192,8 +191,17 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
 
-    def __reset_saved_paths(self):
-        executable_paths = str(Path(__file__).parent.joinpath("executable_paths.json"))
-        with contextlib.suppress(FileNotFoundError):
-            Path(executable_paths).unlink()
-        self.label_status.configure(text="Saved game executable paths have been reset.", text_color="green")
+    def __reset_saved_path(self):
+        # Load the JSON file
+        try:
+            with open(executable_paths, "r") as f:
+                data = json.load(f)
+                key = self.__game_title.lower()
+                del data[key]
+                self.label_status.configure(text=f"{self.__game_title} executable path has been reset.", text_color="green")
+        except (FileNotFoundError, KeyError, json.decoder.JSONDecodeError):
+            self.label_status.configure(text="No executable path on file.", text_color="orange")
+            return
+
+        with open(executable_paths, "w") as f:
+            json.dump(data, f)

@@ -1,109 +1,84 @@
-import pathlib
-import webbrowser as wb
+from tkinter.filedialog import askopenfilename
 
 import customtkinter
-from PIL import Image, ImageTk
 
 
 class HomeView(customtkinter.CTkFrame):
-    def __init__(self, parent, main):
+    def __init__(self, parent, main, game_title: str):
+        """
+        Creates a new HomeView object.
+        Args:
+            parent: The parent window.
+            main: The main window.
+            game_title: The title of the game.
+        """
         super().__init__(parent)
         self.main = main
+        self.__game_title = game_title
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)  # Spacing
-        self.grid_rowconfigure(1, weight=0)  # - Logo
+        self.grid_rowconfigure(1, weight=0)  # - Title
         self.grid_rowconfigure(2, weight=0)  # - Note
-        self.grid_rowconfigure(3, weight=0)  # - Buttons
-        self.grid_rowconfigure(4, weight=0)  # - Buttons
-        self.grid_rowconfigure(5, weight=1)  # Spacing
-
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=0)
-        self.grid_columnconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=0)  # - Warning
+        self.grid_rowconfigure(5, weight=0)  # - Skip Btn
+        self.grid_rowconfigure(6, weight=0)  # - Status
+        self.grid_rowconfigure(9, weight=1)  # Spacing
 
         # Logo
-        self.logo_path = pathlib.Path(__file__).parent.parent.resolve()
-        self.logo = ImageTk.PhotoImage(
-            Image.open(f"{self.logo_path}/images/ui/logo.png").resize((411, 64)),
-            Image.ANTIALIAS,
-        )
-        self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
-        self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
+        # self.logo_path = Path(__file__).parent.parent.parent.resolve()
+        # self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/osrs_logo.png").resize((268, 120), Image.LANCZOS))
+        # self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
+        # self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
+
+        # Title
+        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}", text_font=("Roboto", 24))
+        self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
-        self.note = "The universal OSRS color bot.\n Select a game in the left-side menu to begin."
-        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 14))
+        self.note = (
+            "Basic HomeViews are not fully implemented yet. Once support for non-RuneLite games is added to OSBC, this will be updated. <Game description and"
+            " user instructions here>. Click the button below to unlock the scripts."
+        )
+        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 12))
         self.label_note.bind(
             "<Configure>",
             lambda e: self.label_note.configure(wraplength=self.label_note.winfo_width() - 20),
         )
-        self.label_note.grid(row=2, column=0, columnspan=3, sticky="nwes", padx=15, pady=(0, 30))
+        self.label_note.grid(row=2, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
-        # Buttons
-        IMG_SIZE = 24
-        BTN_WIDTH, BTN_HEIGHT = (96, 64)
-        DEFAULT_GRAY = ("gray50", "gray30")
-        # -- Github
-        self.github_logo = ImageTk.PhotoImage(
-            Image.open(f"{self.logo_path}/images/ui/github32_w.png").resize((IMG_SIZE, IMG_SIZE)),
-            Image.LANCZOS,
-        )
-        self.btn_github = customtkinter.CTkButton(
+        # Warning label
+        self.warning = "Warning message here for extra important instructions."
+        self.label_warning = customtkinter.CTkLabel(
             master=self,
-            text="GitHub",
-            image=self.github_logo,
-            width=BTN_WIDTH,
-            height=BTN_HEIGHT,
-            corner_radius=15,
-            fg_color=DEFAULT_GRAY,
-            compound="top",
-            command=self.btn_github_clicked,
+            text=self.warning,
+            text_font=("Roboto", 10),
+            text_color="orange",
         )
-        self.btn_github.grid(row=3, column=0, padx=15, pady=(15, 0), sticky="e")
+        self.label_warning.bind(
+            "<Configure>",
+            lambda e: self.label_warning.configure(wraplength=self.label_warning.winfo_width() - 20),
+        )
+        self.label_warning.grid(row=3, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
-        # -- Feedback
-        self.feedback_logo = ImageTk.PhotoImage(
-            Image.open(f"{self.logo_path}/images/ui/feedback_w.png").resize((IMG_SIZE, IMG_SIZE)),
-            Image.LANCZOS,
-        )
-        self.btn_feedback = customtkinter.CTkButton(
+        # Skip Btn
+        self.btn_skip = customtkinter.CTkButton(
             master=self,
-            text="Feedback",
-            image=self.feedback_logo,
-            width=BTN_WIDTH,
-            height=BTN_HEIGHT,
-            corner_radius=15,
-            fg_color=DEFAULT_GRAY,
-            compound="top",
-            command=self.btn_feedback_clicked,
+            text="I Understand",
+            fg_color="gray40",
+            hover_color="gray25",
+            command=self.__skip,
         )
-        self.btn_feedback.grid(row=3, column=1, padx=15, pady=(15, 0))
+        self.btn_skip.grid(row=5, column=0, sticky="nwes", padx=40, pady=(0, 15))
 
-        # -- Bug Report
-        self.bug_logo = ImageTk.PhotoImage(
-            Image.open(f"{self.logo_path}/images/ui/bug-report_w.png").resize((IMG_SIZE, IMG_SIZE)),
-            Image.LANCZOS,
+        # Status label
+        self.label_status = customtkinter.CTkLabel(master=self, text="")
+        self.label_status.grid(row=6, column=0, sticky="nwes")
+        self.label_status.bind(
+            "<Configure>",
+            lambda e: self.label_status.configure(wraplength=self.label_status.winfo_width() - 20),
         )
-        self.btn_feedback = customtkinter.CTkButton(
-            master=self,
-            text="Report Bug",
-            image=self.bug_logo,
-            width=BTN_WIDTH,
-            height=BTN_HEIGHT,
-            corner_radius=15,
-            fg_color=DEFAULT_GRAY,
-            hover_color="#b36602",
-            compound="top",
-            command=self.btn_bug_report_clicked,
-        )
-        self.btn_feedback.grid(row=3, column=2, padx=15, pady=(15, 0), sticky="w")
 
-    def btn_github_clicked(self):
-        wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR")
-
-    def btn_feedback_clicked(self):
-        wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/discussions")
-
-    def btn_bug_report_clicked(self):
-        wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/issues/new/choose")
+    def __skip(self):
+        self.label_status.configure(text="You may select a script from the menu.", text_color="green")
+        self.main.toggle_btn_state(enabled=True)

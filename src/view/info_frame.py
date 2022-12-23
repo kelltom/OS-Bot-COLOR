@@ -5,6 +5,8 @@ import customtkinter
 from PIL import Image, ImageTk
 from pynput import keyboard
 
+from utilities.game_launcher import Launchable
+
 
 class InfoFrame(customtkinter.CTkFrame):
     listener = None
@@ -124,9 +126,8 @@ class InfoFrame(customtkinter.CTkFrame):
             text_color="white",
             fg_color="#616161",
             image=self.img_start,
-            command=self.options_btn_clicked,
+            command=self.launch_btn_clicked,
         )
-        self.btn_launch.grid(row=3, column=0, pady=15, sticky="nsew")
         self.btn_launch.configure(state=tkinter.DISABLED)
 
         self.lbl_status = customtkinter.CTkLabel(master=self, text="Status: Idle", justify=tkinter.CENTER)
@@ -142,6 +143,13 @@ class InfoFrame(customtkinter.CTkFrame):
     def setup(self, title, description):
         self.lbl_script_title.configure(text=title)
         self.lbl_script_desc.configure(text=description)
+        self.lbl_status.configure(text="Status: Idle")
+        if self.controller.model:
+            if isinstance(self.controller.model, Launchable):
+                self.btn_launch.grid(row=3, column=0, pady=15, sticky="nsew")
+                self.btn_launch.configure(state=tkinter.DISABLED)
+            else:
+                self.btn_launch.grid_forget()
 
     # ---- Button Listeners ----
     def play_btn_clicked(self):
@@ -154,6 +162,7 @@ class InfoFrame(customtkinter.CTkFrame):
         """
         Creates a new TopLevel view to display bot options.
         """
+        self.btn_launch.configure(state=tkinter.DISABLED)
         window = customtkinter.CTkToplevel(master=self)
         window.title("Options")
         window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.on_options_closing(arg))
@@ -164,6 +173,9 @@ class InfoFrame(customtkinter.CTkFrame):
     def on_options_closing(self, window):
         self.controller.abort_options()
         window.destroy()
+
+    def launch_btn_clicked(self):
+        self.controller.launch_game()
 
     # ---- Keyboard Interrupt Handlers ----
     def start_keyboard_listener(self):
@@ -212,8 +224,7 @@ class InfoFrame(customtkinter.CTkFrame):
 
     def update_status_configured(self):
         self.__toggle_buttons(True)
-        if self.controller.model.launchable:
-            print("Warning: Launching RuneLite from the script is not officially supported yet.")
+        if isinstance(self.controller.model, Launchable):
             self.btn_launch.configure(state=tkinter.NORMAL)
         self.lbl_status.configure(text="Status: Configured")
 

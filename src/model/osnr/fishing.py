@@ -13,7 +13,7 @@ class OSNRFishing(OSNRBot):
     def __init__(self):
         title = "Fishing"
         description = "This bot fishes... fish. Take out a rod and bait, position your character " + "near a tagged fishing spot, and press play."
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 2
         self.protect_slots = 2
 
@@ -36,7 +36,6 @@ class OSNRFishing(OSNRBot):
         self.log_msg(f"Protecting first {self.protect_slots} slots when dropping inventory.")
         self.log_msg("Options set successfully.")
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # API setup

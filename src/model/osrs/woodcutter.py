@@ -1,16 +1,17 @@
 import time
 
 import utilities.color as clr
-from model.runelite_bot import BotStatus, RuneLiteBot
+from model.osrs.osrs_bot import OSRSBot
+from model.runelite_bot import BotStatus
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
 
 
-class OSRSWoodcutter(RuneLiteBot):
+class OSRSWoodcutter(OSRSBot):
     def __init__(self):
-        title = "Woodcutter"
+        bot_title = "Woodcutter"
         description = "This bot power-chops wood. Position your character near some trees, tag them, and press the play button."
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=bot_title, description=description)
         self.running_time = 1
         self.protect_slots = 0
         self.logout_on_friends = True
@@ -34,7 +35,6 @@ class OSRSWoodcutter(RuneLiteBot):
         self.log_msg(f"Protect slots: {self.protect_slots}.")
         self.log_msg("Options set successfully.")
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):
         # Setup API

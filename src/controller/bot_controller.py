@@ -38,7 +38,10 @@ class BotController(object):
         Called from view. Tells model to save options.
         """
         self.model.save_options(options)
-        self.model.set_status(BotStatus.STOPPED)
+        if self.model.options_set:
+            self.model.set_status(BotStatus.CONFIGURED)
+        else:
+            self.model.set_status(BotStatus.STOPPED)
 
     def abort_options(self):
         """
@@ -46,6 +49,12 @@ class BotController(object):
         """
         self.update_log("Bot configuration aborted.")
         self.model.set_status(BotStatus.STOPPED)
+
+    def launch_game(self):
+        """
+        Called from view. Tells model to launch game.
+        """
+        self.model.launch_game()
 
     def update_status(self):
         """
@@ -87,11 +96,14 @@ class BotController(object):
         """
         if self.model is not None:
             self.view.frame_info.stop_keyboard_listener()
-            self.model.stop()
+            try:
+                self.model.stop()
+            except AttributeError:
+                print("Could not stop bot thread when changing views as it was not running. This is normal.")
             self.model.options_set = False
         self.model = model
         if self.model is not None:
-            self.view.frame_info.setup(title=model.title, description=model.description)
+            self.view.frame_info.setup(title=model.bot_title, description=model.description)
             self.view.frame_info.start_keyboard_listener()
         else:
             self.view.frame_info.setup(title="", description="")

@@ -13,7 +13,7 @@ class OSNRWoodcutting(OSNRBot):
     def __init__(self):
         title = "Woodcutting"
         description = "This bot chops wood. Position your character near some trees, tag them, and press the play button."
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0
         self.logout_on_friends = True
@@ -40,7 +40,6 @@ class OSNRWoodcutting(OSNRBot):
         self.log_msg(f"Protect slots: {self.protect_slots}.")
         self.log_msg("Bot will not logout when friends are nearby.")
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup API

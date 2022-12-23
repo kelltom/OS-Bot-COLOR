@@ -13,17 +13,21 @@ from model.bot import Bot, BotStatus
 from utilities.window import MockWindow
 
 
-class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game, change "Bot" to "RuneLiteBot"
+# Next to the bot name, define the parent class so your bot can inherit its functionality
+class ExampleBot(Bot):
     def __init__(self):
-        title = "Example Bot"
+        game_title = "Example"  # This will determine the category the bot is listed under in the UI
+        bot_title = "Example Bot"  # This is the name of the bot that will be displayed in the UI
         description = (
             "This is where the description of the bot goes. Briefly describe how the bot works "
             + "and any important information the user needs to know before starting it."
         )
         # If you're writing a bot for a RuneLite-based game, change "MockWindow()" to "RuneLiteWindow("<name of your game>")" below
-        # If your game uses a custom interface, you can also pass in a custom window class that inherits from Window or RuneLiteWindow
-        super().__init__(title=title, description=description, window=MockWindow(), launchable=False)
-        # This is where you should initialize any options/properties you want to use in the bot
+        # If your game uses a custom interface, you can also pass in a custom window class that inherits from RuneLiteWindow
+        super().__init__(game_title=game_title, bot_title=bot_title, description=description, window=MockWindow())
+        # This is where you should initialize any options/properties you want to use in the bot.
+        # These values should get replaced when the user selects options in the UI, but initial values will be used
+        # if you want to test the bot without the UI (see bottom of OSBC.py for how to do that).
         self.running_time = 1
         self.text_edit_example = None
         self.multi_select_example = None
@@ -70,15 +74,11 @@ class ExampleBot(Bot):  # <-- if you're writing a bot for a RuneLite-based game,
         self.log_msg(f"Multi-select example set to: {self.multi_select_example or 'None'}")
         self.log_msg(f"Menu example set to: {self.menu_example}")
 
-        # --- OPTIONAL: LAUNCH GAME CLIENT ---
-        # If your bot requires the game client to be launched with further-customized settings, let the user know here.
-        # if self.launchable:
-        #     self.log_msg("Please launch the game client using the button on the right.")
+        # If your bot must launch with custom RL settings (I.e. inherits from `utilities.game_launcher.Launchable`), please notify the user
+        # here that they should launch the game via the `Launch Game` button above.
 
-        # Set the `options_set` flag to True to allow underlying code to continue, and set the status to
-        # CONFIGURED to indicate to the user that the bot is ready to run.
+        # Set the `options_set` flag to True to allow underlying code to continue
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):
         """

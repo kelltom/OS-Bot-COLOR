@@ -2,19 +2,20 @@ import time
 
 import utilities.api.item_ids as item_ids
 import utilities.color as clr
-from model.runelite_bot import BotStatus, RuneLiteBot
+from model.bot import BotStatus
+from model.osrs.osrs_bot import OSRSBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
 
 
-class OSRSCombat(RuneLiteBot):
+class OSRSCombat(OSRSBot):
     def __init__(self):
-        title = "Combat"
+        bot_title = "Combat"
         description = (
             "This bot kills NPCs. Position your character near some NPCs and tag them. If you want the bot to pick up "
             + "loot, add the item name to the highlight list in the Ground Items plugin (one day this will be done automatically)."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=bot_title, description=description)
         self.running_time = 1
         self.loot_items = []
         self.hp_threshold = 0
@@ -44,7 +45,6 @@ class OSRSCombat(RuneLiteBot):
         self.log_msg("Options set successfully.")
 
         self.options_set = True
-        self.set_status(BotStatus.CONFIGURED)
 
     def main_loop(self):
         # Setup API
