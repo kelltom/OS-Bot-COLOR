@@ -22,13 +22,13 @@ import utilities.color as clr
 import utilities.debug as debug
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
+from utilities.api import item_ids as ids
+from utilities.api.status_socket import StatusSocket
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
-from utilities.window import Window, WindowInitializationError
 from utilities.random_util import RandomUtil as rm
-from utilities.api import item_ids as ids
-from utilities.api.status_socket import StatusSocket
+from utilities.window import Window, WindowInitializationError
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -340,7 +340,6 @@ class Bot(ABC):
             self.mouse.click()
             rm.sleep_random(0.7, 1.2)
 
-
     def friends_nearby(self) -> bool:
         """
         Checks the minimap for green dots to indicate friends nearby.
@@ -583,32 +582,16 @@ class Bot(ABC):
         if toggle_on:
             if (
                 attack_toggle := imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "long_sword_off.png"), self.win.control_panel, 0.05  
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "long_sword_off.png"), self.win.control_panel, 0.05
                 )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "axe_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "pickaxe_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "bulwark_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "claw_off.png"), self.win.control_panel, 0.05 
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "dagger_off.png"), self.win.control_panel, 0.05 
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "mace_off.png"), self.win.control_panel, 0.05 
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "maul_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "whip_off.png"), self.win.control_panel, 0.05  
-                )
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "axe_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "pickaxe_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "bulwark_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "claw_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "dagger_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "mace_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "maul_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "attack", "off", "whip_off.png"), self.win.control_panel, 0.05)
             ):
                 self.mouse.move_to(attack_toggle.random_point(), mouseSpeed="medium")
                 self.mouse.click()
@@ -635,18 +618,16 @@ class Bot(ABC):
         if toggle_on:
             if (
                 strength_toggle := imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "long_sword_off.png"), self.win.control_panel, 0.05  
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "long_sword_off.png"), self.win.control_panel, 0.05
                 )
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "axe_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "banner_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "claw_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "dagger_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "hally_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "mace_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "maul_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "pickaxe_off.png"), self.win.control_panel, 0.05  
-                )
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "axe_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "banner_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "claw_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "dagger_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "hally_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "mace_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "maul_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "strength", "pickaxe_off.png"), self.win.control_panel, 0.05)
             ):
                 self.mouse.move_to(strength_toggle.random_point(), mouseSpeed="medium")
                 self.mouse.click()
@@ -672,19 +653,13 @@ class Bot(ABC):
         if toggle_on:
             if (
                 strength_toggle := imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "claw_off.png"), self.win.control_panel, 0.05  
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "claw_off.png"), self.win.control_panel, 0.05
                 )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "hally_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "spear_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "long_sword_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "mace_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "whip_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "hally_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "spear_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "long_sword_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "mace_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "controlled", "whip_off.png"), self.win.control_panel, 0.05)
             ):
                 self.mouse.move_to(strength_toggle.random_point(), mouseSpeed="medium")
                 self.mouse.click()
@@ -711,25 +686,22 @@ class Bot(ABC):
         if toggle_on:
             if (
                 strength_toggle := imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "axe_off.png"), self.win.control_panel, 0.05  
+                    imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "axe_off.png"), self.win.control_panel, 0.05
                 )
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "claw_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "hally_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(
-                    imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "long_sword_off.png"), self.win.control_panel, 0.05  
-                )
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "dagger_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "mace_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "maul_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "pickaxe_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "spear_off.png"), self.win.control_panel, 0.05)  
-                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "whip_off.png"), self.win.control_panel, 0.05)  
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "claw_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "hally_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "long_sword_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "dagger_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "mace_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "maul_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "pickaxe_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "spear_off.png"), self.win.control_panel, 0.05)
+                or imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee_combat", "defense", "whip_off.png"), self.win.control_panel, 0.05)
             ):
                 self.mouse.move_to(strength_toggle.random_point(), mouseSpeed="medium")
                 self.mouse.click()
             else:
                 self.log_msg("defense option is already on.")
-
 
     def __open_display_settings(self) -> bool:
         """
