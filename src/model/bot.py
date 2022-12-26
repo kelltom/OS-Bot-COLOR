@@ -3,12 +3,12 @@ A Bot is a base class for bot script models. It is abstract and cannot be instan
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
 import ctypes
+import os.path
 import platform
 import re
 import threading
 import time
 import warnings
-import os.path
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, Union
@@ -266,7 +266,6 @@ class Bot(ABC):
             pag.click()
         pag.keyUp("shift")
 
-
     def friends_nearby(self) -> bool:
         """
         Checks the minimap for green dots to indicate friends nearby.
@@ -491,11 +490,11 @@ class Bot(ABC):
 
     def select_combat_style(self, combat_style: str, xp_type: str):
         """
-            Args:
-            combat_style: the combat style ("melee", "ranged" or "mage")
-            xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate" or "longrange").
+        Args:
+        combat_style: the combat style ("melee", "ranged" or "mage)
+        xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate" or "longrange").
         """
-            #Ensuring that combat_style is valid
+        # Ensuring that combat_style is valid
         if combat_style not in ["melee", "ranged", "mage"]:
             raise ValueError(f"Invalid combat style '{combat_style}'.")
 
@@ -509,19 +508,38 @@ class Bot(ABC):
         time.sleep(0.5)
 
         # Define a list of all possible weapons
-        weapons = ['longsword', 'axe', 'bulwark', 'claw', 'dagger', 'mace', 'maul', 'whip', 'banner', 'hally', 'spear', 'pickaxe', 'chins', 'crossbow', 'darts', 'bow', 'powered_staff']
+        weapons = [
+            "longsword",
+            "axe",
+            "bulwark",
+            "claw",
+            "dagger",
+            "mace",
+            "maul",
+            "whip",
+            "banner",
+            "hally",
+            "spear",
+            "pickaxe",
+            "chins",
+            "crossbow",
+            "darts",
+            "bow",
+            "powered_staff",
+        ]
 
         # Try to find the attack style in question, click it if it is not selected
-        for weapon in weapons:                    
+        for weapon in weapons:
             img_location = imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png")
-            if os.path.exists(img_location):          
-                if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05): 
-                    self.mouse.move_to(result.random_point(), mouseSpeed='medium')
-                    self.mouse.click()
-                    self.log_msg(f"'{combat_style}' style '{xp_type}' selected.")
-                    return
-        self.log_msg(f"'{combat_style}' style '{xp_type}' is already selected.") 
-    
+            if not os.path.exists(img_location):
+                continue
+            if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05):
+                self.mouse.move_to(result.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+                self.log_msg(f"'{combat_style}' style '{xp_type}' selected.")
+                return
+        self.log_msg(f"'{combat_style}' style '{xp_type}' is already selected.")
+
     def __open_display_settings(self) -> bool:
         """
         Opens the display settings for the game client.
