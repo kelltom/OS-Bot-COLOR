@@ -321,21 +321,21 @@ class Bot(ABC):
         Gets the Prayer points of the player.
         """
         res = ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_run_energy(self) -> int:
         """
         Gets the run energy of the player.
         """
         res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_special_energy(self) -> int:
         """
         Gets the special attack energy of the player.
         """
         res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_total_xp(self) -> int:
         """
