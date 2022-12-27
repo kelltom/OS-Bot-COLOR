@@ -543,6 +543,37 @@ class Bot(ABC):
                 return
         self.log_msg(f"'{combat_style}' style '{xp_type}' is already selected.")
 
+    def autocast_normal_spellbook(self, spell):
+        """
+        Args:
+        spell: select a number from 0 to 19
+        with (0) being air strike and (19) being fire surge
+
+        """
+        # Click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point())
+        pag.click()
+        time.sleep(0.5)
+
+        # clicks on autocast and selects spell
+        if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("mage", "autocast", "staff.png"), self.win.control_panel, 0.05):
+            self.mouse.move_to(result.random_point(), mouseSpeed="medium")
+            self.mouse.click()
+            rm.sleep_random(1, 1.3)
+            self.mouse.move_to(self.win.autocast_normal_spells[spell].random_point())
+            rm.sleep_random(0.5, 1)
+            self.mouse.click()
+
+        # clicks on melee attack style to de-select previously selected autocast
+        if result2 := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee", "attack", "staff.png"), self.win.control_panel, 0.05):
+            self.mouse.move_to(result2.random_point(), mouseSpeed="medium")
+            self.mouse.click()
+            self.select_combat_style(combat_style="mage", xp_type="autocast")
+            rm.sleep_random(1, 1.3)
+            self.mouse.move_to(self.win.autocast_normal_spells[spell].random_point())
+            rm.sleep_random(0.5, 1)
+            self.mouse.click()
+
     def __open_display_settings(self) -> bool:
         """
         Opens the display settings for the game client.

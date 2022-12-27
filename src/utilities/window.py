@@ -39,6 +39,7 @@ class Window:
     control_panel: Rectangle = None  # https://i.imgur.com/BeMFCIe.png
     cp_tabs: List[Rectangle] = []  # https://i.imgur.com/huwNOWa.png
     inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
+    normal_spellbook_autocast: List[Rectangle] = []  # [0] airstrike to [19] fire surge
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
@@ -164,6 +165,7 @@ class Window:
         """
         if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("inv.png"), client_rect):
             self.__locate_inv_slots(cp)
+            self.__locate_normal_spellbook_autocast(cp)
             self.__locate_cp_tabs(cp)
             self.control_panel = cp
             return True
@@ -182,6 +184,21 @@ class Window:
             x = 40 + cp.left  # start x relative to cp template
             for _ in range(4):
                 self.inventory_slots.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+
+    def __locate_normal_spellbook_autocast(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each magic spell in the autocast menu relative to the control panel, storing it in the class property
+        """
+        self.autocast_normal_spells = []
+        slot_w, slot_h = 16, 10  # dimensions of the spell
+        gap_x, gap_y = 23, 23  # pixel gap between spells
+        y = 55 + cp.top  # start y relative to cp template
+        for _ in range(5):
+            x = 54 + cp.left  # start x relative to cp template
+            for _ in range(4):
+                self.autocast_normal_spells.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap_x
             y += slot_h + gap_y
 
