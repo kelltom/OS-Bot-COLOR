@@ -492,14 +492,14 @@ class Bot(ABC):
         """
         Args:
         combat_style: the combat style ("melee", "ranged" or "mage")
-        xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate" or "longrange").
+        xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate", "longrange" or "autocast").
         """
         # Ensuring that combat_style is valid
         if combat_style not in ["melee", "ranged", "mage"]:
             raise ValueError(f"Invalid combat style '{combat_style}'.")
 
             # Ensuring that the xp_type is valid
-        if xp_type not in ["attack", "strength", "defence", "shared", "rapid", "accurate", "longrange","autocast"]:
+        if xp_type not in ["attack", "strength", "defence", "shared", "rapid", "accurate", "longrange", "autocast"]:
             raise ValueError(f"Invalid xp style '{xp_type}'.")
 
         # Click the combat tab
