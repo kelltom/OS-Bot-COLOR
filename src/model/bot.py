@@ -491,7 +491,7 @@ class Bot(ABC):
     def select_combat_style(self, combat_style: str, xp_type: str):
         """
         Args:
-        combat_style: the combat style ("melee", "ranged" or "mage)
+        combat_style: the combat style ("melee", "ranged" or "mage")
         xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate" or "longrange").
         """
         # Ensuring that combat_style is valid
@@ -499,7 +499,7 @@ class Bot(ABC):
             raise ValueError(f"Invalid combat style '{combat_style}'.")
 
             # Ensuring that the xp_type is valid
-        if xp_type not in ["attack", "strength", "defence", "shared", "rapid", "accurate", "longrange"]:
+        if xp_type not in ["attack", "strength", "defence", "shared", "rapid", "accurate", "longrange","autocast"]:
             raise ValueError(f"Invalid xp style '{xp_type}'.")
 
         # Click the combat tab
@@ -526,6 +526,9 @@ class Bot(ABC):
             "darts",
             "bow",
             "powered_staff",
+            "scythe",
+            "bladedstaff",
+            "staff",
         ]
 
         # Try to find the attack style in question, click it if it is not selected
