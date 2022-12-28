@@ -15,7 +15,7 @@ class OSNRMining(OSNRBot):
             "This bot power-mines rocks. Equip a pickaxe, place your character between some rocks and mark "
             + "(Shift + Right-Click) the ones you want to mine."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 2
         self.logout_on_friends = False
 
@@ -27,20 +27,16 @@ class OSNRMining(OSNRBot):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
-                self.log_msg(f"Running time: {self.running_time} minutes.")
             elif option == "logout_on_friends":
-                if options[option] == "Yes":
-                    self.logout_on_friends = True
-                    self.log_msg("Bot will not logout when friends are nearby.")
-                else:
-                    self.logout_on_friends = False
+                self.logout_on_friends = options[option] == "Yes"
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
-                self.log_msg("Failed to set options.")
                 return
+        self.log_msg(f"Running time: {self.running_time} minutes.")
+        self.log_msg(f'Bot will {"" if self.logout_on_friends else "not"} logout when friends are nearby.')
         self.options_set = True
-        self.log_msg("Options set successfully.")
 
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup
@@ -61,9 +57,6 @@ class OSNRMining(OSNRBot):
         self.set_compass_north()
         self.move_camera_up()
 
-        if not self.status_check_passed():
-            return
-
         mined = 0
         failed_searches = 0
 
@@ -71,17 +64,11 @@ class OSNRMining(OSNRBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            if not self.status_check_passed():
-                return
-
             # Check to drop inventory
             if api.get_is_inv_full():
-                self.drop_inventory()
+                self.drop_all()
                 time.sleep(1)
                 continue
-
-            if not self.status_check_passed():
-                return
 
             # Check to logout
             if self.logout_on_friends and self.friends_nearby():
@@ -105,14 +92,10 @@ class OSNRMining(OSNRBot):
             self.mouse.click()
 
             while not api.get_is_player_idle():
-                if not self.status_check_passed():
-                    return
+                pass
 
             mined += 1
             self.log_msg(f"Rocks mined: {mined}")
-
-            if not self.status_check_passed():
-                return
 
             # Update progress
             self.update_progress((time.time() - start_time) / end_time)

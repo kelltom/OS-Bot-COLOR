@@ -10,7 +10,7 @@ styles, this class should be abstracted, then extended for each interface style.
 import time
 from typing import List
 
-import pygetwindow
+import pywinctl
 from deprecated import deprecated
 
 import utilities.debug as debug
@@ -74,23 +74,26 @@ class Window:
         self.padding_left = padding_left
 
     def _get_window(self):
-        self._client = pygetwindow.getWindowsWithTitle(self.window_title)
+        self._client = pywinctl.getWindowsWithTitle(self.window_title)
         if self._client:
             return self._client[0]
         else:
-            raise pygetwindow.PyGetWindowException("No client window found.")
+            raise WindowInitializationError("No client window found.")
 
     window = property(
         fget=_get_window,
         doc="A Win32Window reference to the game client and its properties.",
     )
 
-    def focus(self) -> None:
+    def focus(self) -> None:  # sourcery skip: raise-from-previous-error
         """
         Focuses the client window.
         """
         if client := self.window:
-            client.activate()
+            try:
+                client.activate()
+            except Exception:
+                raise WindowInitializationError("Failed to focus client window. Try bringing it to the foreground.")
 
     def position(self) -> Point:
         """
@@ -132,11 +135,7 @@ class Window:
         if all([a, b, c, d]):  # if all templates found
             print(f"Window.initialize() took {time.time() - start_time} seconds.")
             return True
-        msg = (
-            "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' "
-            "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
-        )
-        raise WindowInitializationError(msg)
+        raise WindowInitializationError()
 
     def __locate_chat(self, client_rect: Rectangle) -> bool:
         """

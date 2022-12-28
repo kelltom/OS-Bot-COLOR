@@ -2,19 +2,20 @@ import time
 
 import utilities.api.item_ids as item_ids
 import utilities.color as clr
-from model.runelite_bot import BotStatus, RuneLiteBot
+from model.bot import BotStatus
+from model.osrs.osrs_bot import OSRSBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
 
 
-class OSRSCombat(RuneLiteBot):
+class OSRSCombat(OSRSBot):
     def __init__(self):
-        title = "Combat"
+        bot_title = "Combat"
         description = (
             "This bot kills NPCs. Position your character near some NPCs and tag them. If you want the bot to pick up "
             + "loot, add the item name to the highlight list in the Ground Items plugin (one day this will be done automatically)."
         )
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=bot_title, description=description)
         self.running_time = 1
         self.loot_items = []
         self.hp_threshold = 0
@@ -25,7 +26,6 @@ class OSRSCombat(RuneLiteBot):
         self.options_builder.add_slider_option("hp_threshold", "Low HP threshold (0-100)?", 0, 100)
 
     def save_options(self, options: dict):
-        self.options_set = True
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
@@ -35,13 +35,16 @@ class OSRSCombat(RuneLiteBot):
                 self.hp_threshold = options[option]
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
-                self.log_msg("Failed to set options.")
                 return
+
         self.log_msg(f"Running time: {self.running_time} minutes.")
         self.log_msg(f"Loot items: {self.loot_items}.")
         self.log_msg(f"Bot will eat when HP is below: {self.hp_threshold}.")
         self.log_msg("Options set successfully.")
+
+        self.options_set = True
 
     def main_loop(self):
         # Setup API
@@ -60,9 +63,6 @@ class OSRSCombat(RuneLiteBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            if not self.status_check_passed():
-                return
-
             # If inventory is full...
             if api_status.get_is_inv_full():
                 self.__logout("Inventory full. Logging out...")
@@ -70,9 +70,6 @@ class OSRSCombat(RuneLiteBot):
 
             # While not in combat
             while not api_morg.get_is_in_combat():
-                if not self.status_check_passed():
-                    return
-
                 # Find a target
                 target = self.get_nearest_tagged_NPC()
                 if target is None:
@@ -99,8 +96,6 @@ class OSRSCombat(RuneLiteBot):
                 # Check to eat food
                 if self.get_hp() < self.hp_threshold:
                     self.__eat(api_status)
-                if not self.status_check_passed():
-                    return
                 time.sleep(1)
 
             # Loot all highlighted items on the ground
@@ -136,8 +131,6 @@ class OSRSCombat(RuneLiteBot):
                     self.log_msg("Loot picked up.")
                     time.sleep(1)
                     break
-                if not self.status_check_passed():
-                    return
                 time.sleep(1)
 
     def __logout(self, msg):

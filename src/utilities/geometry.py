@@ -5,9 +5,12 @@ import cv2
 import mss
 import numpy as np
 
-from utilities.random_util import RandomUtil
+import utilities.random_util as rd
 
 Point = NamedTuple("Point", x=int, y=int)
+
+# TODO: Remove this global variable. This is a temporary fix for a bug in mss.
+sct = mss.mss()
 
 
 class Rectangle:
@@ -61,16 +64,17 @@ class Rectangle:
         Returns:
             A BGR Numpy array representing the captured image.
         """
-        with mss.mss() as sct:
-            monitor = self.to_dict()
-            res = np.array(sct.grab(monitor))[:, :, :3]
-            if self.subtract_list:
-                for area in self.subtract_list:
-                    res[
-                        area["top"] : area["top"] + area["height"],
-                        area["left"] : area["left"] + area["width"],
-                    ] = 0
-            return res
+        # with mss.mss() as sct:  # TODO: When MSS bug is fixed, reinstate this.
+        global sct  # TODO: When MSS bug is fixed, remove this.
+        monitor = self.to_dict()
+        res = np.array(sct.grab(monitor))[:, :, :3]
+        if self.subtract_list:
+            for area in self.subtract_list:
+                res[
+                    area["top"] : area["top"] + area["height"],
+                    area["left"] : area["left"] + area["width"],
+                ] = 0
+        return res
 
     def random_point(self, custom_seeds: List[List[int]] = None) -> Point:
         """
@@ -84,8 +88,8 @@ class Rectangle:
         """
         if custom_seeds is None:
             center = self.get_center()
-            custom_seeds = RandomUtil.random_seeds(mod=(center[0] + center[1]))
-        x, y = RandomUtil.random_point_in(self.left, self.top, self.width, self.height, custom_seeds)
+            custom_seeds = rd.random_seeds(mod=(center[0] + center[1]))
+        x, y = rd.random_point_in(self.left, self.top, self.width, self.height, custom_seeds)
         return Point(x, y)
 
     def get_center(self) -> Point:
@@ -207,8 +211,8 @@ class RuneLiteObject:
             A random Point within the object.
         """
         if custom_seeds is None:
-            custom_seeds = RandomUtil.random_seeds(mod=(self._center[0] + self._center[1]))
-        x, y = RandomUtil.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
+            custom_seeds = rd.random_seeds(mod=(self._center[0] + self._center[1]))
+        x, y = rd.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
         return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.center()
 
     def __relative_point(self, point: List[int]) -> Point:

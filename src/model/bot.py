@@ -2,19 +2,20 @@
 A Bot is a base class for bot script models. It is abstract and cannot be instantiated. Many of the methods in this base class are
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
+import ctypes
+import os.path
+import platform
 import re
+import threading
 import time
 import warnings
 from abc import ABC, abstractmethod
 from enum import Enum
-from threading import Thread
 from typing import List, Union
 
 import customtkinter
-import keyboard
 import numpy as np
 import pyautogui as pag
-import pygetwindow
 import pytweening
 from deprecated import deprecated
 
@@ -22,12 +23,48 @@ import utilities.color as clr
 import utilities.debug as debug
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
+import utilities.random_util as rd
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
 from utilities.window import Window, WindowInitializationError
 
 warnings.filterwarnings("ignore", category=UserWarning)
+
+
+class BotThread(threading.Thread):
+    def __init__(self, target: callable):
+        threading.Thread.__init__(self)
+        self.target = target
+
+    def run(self):
+        try:
+            print("Thread started.")
+            self.target()
+        finally:
+            print("Thread stopped successfully.")
+
+    def __get_id(self):
+        """Returns id of the respective thread"""
+        if hasattr(self, "_thread_id"):
+            return self._thread_id
+        for id, thread in threading._active.items():
+            if thread is self:
+                return id
+
+    def stop(self):
+        """Raises SystemExit exception in the thread. This can be called from the main thread followed by join()."""
+        thread_id = self.__get_id()
+        if platform.system() == "Windows":
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+                print("Exception raise failure")
+        elif platform.system() == "Linux":
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), 0)
+                print("Exception raise failure")
 
 
 class BotStatus(Enum):
@@ -39,23 +76,31 @@ class BotStatus(Enum):
     PAUSED = 2
     STOPPED = 3
     CONFIGURING = 4
+    CONFIGURED = 5
 
 
 class Bot(ABC):
-    # --- Properties ---
     mouse = MouseUtils()
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED
-    thread: Thread = None
-    win: Window = None
+    thread: BotThread = None
 
-    # ---- Abstract Functions ----
     @abstractmethod
-    def __init__(self, title, description, window: Window):
-        self.title = title
+    def __init__(self, game_title, bot_title, description, window: Window):
+        """
+        Instantiates a Bot object. This must be called by subclasses.
+        Args:
+            game_title: title of the game the bot will interact with
+            bot_title: title of the bot to display in the UI
+            description: description of the bot to display in the UI
+            window: window object the bot will use to interact with the game client
+            launchable: whether the game client can be launched with custom arguments from the bot's UI
+        """
+        self.game_title = game_title
+        self.bot_title = bot_title
         self.description = description
-        self.options_builder = OptionsBuilder(title)
+        self.options_builder = OptionsBuilder(bot_title)
         self.win = window
 
     @abstractmethod
@@ -92,121 +137,51 @@ class Bot(ABC):
         self.options_builder.options = {}
         return view
 
-    def play_pause(self):
+    def play(self):
         """
-        Depending on the bot status, this function either starts a bot's main_loop() on a new thread, or pauses it.
+        Fired when the user starts the bot manually. This function performs necessary set up on the UI
+        and locates/initializes the game client window. Then, it launches the bot's main loop in a separate thread.
         """
-        if self.status == BotStatus.STOPPED:
+        if self.status in [BotStatus.STOPPED, BotStatus.CONFIGURED]:
             self.clear_log()
             self.log_msg("Starting bot...")
             if not self.options_set:
                 self.log_msg("Options not set. Please set options before starting.")
                 return
-            if not self.__initialize_window():
+            try:
+                self.__initialize_window()
+            except WindowInitializationError as e:
+                self.log_msg(str(e))
                 return
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
-            self.thread = Thread(target=self.main_loop)
+            self.thread = BotThread(target=self.main_loop)
             self.thread.setDaemon(True)
             self.thread.start()
         elif self.status == BotStatus.RUNNING:
-            self.log_msg("Pausing bot...")
-            self.set_status(BotStatus.PAUSED)
-        elif self.status == BotStatus.PAUSED:
-            self.log_msg("Resuming bot...")
-            if not self.__initialize_window():
-                self.set_status(BotStatus.STOPPED)
-                print("Bot.play_pause(): Failed to initialize window.")
-            self.set_status(BotStatus.RUNNING)
+            self.log_msg("Bot is already running.")
+        elif self.status == BotStatus.CONFIGURING:
+            self.log_msg("Please finish configuring the bot before starting.")
 
-    def __initialize_window(self) -> bool:
+    def __initialize_window(self):
         """
         Attempts to focus and initialize the game window by identifying core UI elements.
-        Returns:
-            bool - True if the window was successfully initialized, False otherwise.
         """
-        try:
-            self.win.focus()
-            time.sleep(0.5)
-        except pygetwindow.PyGetWindowException as e:
-            return self.__halt_with_msg(str(e))
-        try:
-            self.win.initialize()
-            return True
-        except WindowInitializationError as e:
-            return self.__halt_with_msg(str(e))
+        self.win.focus()
+        time.sleep(0.5)
+        self.win.initialize()
 
     def stop(self):
         """
         Fired when the user stops the bot manually.
         """
-        self.log_msg("Manual stop requested. Attempting to stop...")
+        self.log_msg("Stopping script.")
         if self.status != BotStatus.STOPPED:
+            self.thread.stop()
+            self.thread.join()
             self.set_status(BotStatus.STOPPED)
         else:
             self.log_msg("Bot is already stopped.")
-
-    def __check_interrupt(self):
-        """
-        Checks for keyboard interrupts.
-        """
-        if keyboard.is_pressed("-"):
-            if self.status == BotStatus.RUNNING:
-                self.log_msg("Pausing bot...")
-                self.set_status(BotStatus.PAUSED)
-        elif keyboard.is_pressed("="):
-            if self.status == BotStatus.PAUSED:
-                self.log_msg("Resuming bot...")
-                if not self.__initialize_window():
-                    self.set_status(BotStatus.STOPPED)
-                    print("Bot.__check_interrupt(): Failed to initialize window.")
-                    return
-                self.set_status(BotStatus.RUNNING)
-        elif keyboard.is_pressed("ESC"):
-            self.stop()
-
-    def status_check_passed(self, timeout: int = 120) -> bool:
-        """
-        Does routine check for:
-            - Bot status (stops/pauses)
-            - Keyboard interrupts
-        Best used in main_loop() inner loops while bot is waiting for a
-        condition to be met. If the Bot Status is PAUSED, this function
-        will enter a loop waiting for the status to change to RUNNING/STOPPED.
-        Args:
-            timeout: int - number of seconds to pause for if bot is paused.
-        Returns:
-            True if the bot is safe to continue, False if the bot should terminate.
-        Example:
-            if not self.status_check_passed():
-                return
-        """
-        # Check for keypress interrupts
-        self.__check_interrupt()
-        # Check status
-        if self.status == BotStatus.STOPPED:
-            self.log_msg("Bot has been stopped.")
-            return False
-        elif self.status == BotStatus.PAUSED:
-            self.log_msg("Bot is paused.\n")
-            while self.status == BotStatus.PAUSED:
-                self.__check_interrupt()
-                time.sleep(1)
-                if self.status == BotStatus.STOPPED:
-                    self.log_msg("Bot has been stopped.")
-                    return False
-                timeout -= 1
-                if timeout == 0:
-                    return self.__halt_with_msg("Timeout reached, stopping...")
-                if self.status == BotStatus.PAUSED:
-                    self.log_msg(msg=f"Terminating in {timeout}.", overwrite=True)
-                    continue
-        return True
-
-    def __halt_with_msg(self, msg):
-        self.log_msg(msg)
-        self.set_status(BotStatus.STOPPED)
-        return False
 
     # ---- Controller Setter ----
     def set_controller(self, controller):
@@ -249,6 +224,7 @@ class Bot(ABC):
             msg: str - message to log
             overwrite: bool - if True, overwrites the current log message. If False, appends to the log.
         """
+        msg = f"{debug.current_time()}: {msg}"
         self.controller.update_log(msg, overwrite)
 
     def clear_log(self):
@@ -258,9 +234,9 @@ class Bot(ABC):
         self.controller.clear_log()
 
     # --- Misc Utility Functions
-    def drop_inventory(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
+    def drop_all(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
         """
-        Drops all items in the inventory.
+        Shift-clicks all items in the inventory to drop them.
         Args:
             skip_rows: The number of rows to skip before dropping.
             skip_slots: The indices of slots to avoid dropping.
@@ -275,10 +251,30 @@ class Bot(ABC):
         # Start dropping
         pag.keyDown("shift")
         for i, slot in enumerate(self.win.inventory_slots):
-            if not self.status_check_passed():
-                pag.keyUp("shift")
-                return
             if i in skip_slots:
+                continue
+            p = slot.random_point()
+            self.mouse.move_to(
+                (p[0], p[1]),
+                mouseSpeed="fastest",
+                knotsCount=1,
+                offsetBoundaryY=40,
+                offsetBoundaryX=40,
+                tween=pytweening.easeInOutQuad,
+            )
+            pag.click()
+        pag.keyUp("shift")
+
+    def drop(self, slots: list[int]) -> None:
+        """
+        Shift-clicks inventory slots to drop items.
+        Args:
+            slots: The indices of slots to drop.
+        """
+        self.log_msg("Dropping items...")
+        pag.keyDown("shift")
+        for i, slot in enumerate(self.win.inventory_slots):
+            if i not in slots:
                 continue
             p = slot.random_point()
             self.mouse.move_to(
@@ -316,6 +312,26 @@ class Bot(ABC):
         self.mouse.move_rel(0, -53, 5, 5)
         pag.click()
 
+    def take_break(self, min_seconds: int = 1, max_seconds: int = 30, mean: int = None, std: int = None):
+        """
+        Takes a break for a random amount of time.
+        Args:
+            min_seconds: minimum amount of time the bot could rest
+            max_seconds: maximum amount of time the bot could rest
+            mean: mean of the random time interval (optional)
+            std: standard deviation of the random time interval (optional)
+        """
+        self.log_msg("Taking a break...")
+        if mean is None:
+            mean = round((min_seconds + max_seconds) / 2)
+        if std is None:
+            std = round((max_seconds - min_seconds) / 6)
+        length = rd.truncated_normal_sample(min_seconds, max_seconds, mean, std)
+        for i in range(int(length)):
+            self.log_msg(f"Taking a break... {int(length) - i} seconds left.", overwrite=True)
+            time.sleep(1)
+        self.log_msg("Done taking break.", overwrite=True)
+
     # --- Player Status Functions ---
     def has_hp_bar(self) -> bool:
         """
@@ -335,50 +351,51 @@ class Bot(ABC):
         char_screenshot = char_rect.screenshot()
         # Isolate HP bars in that rectangle
         hp_bars = clr.isolate_colors(char_screenshot, [clr.RED, clr.GREEN])
-        debug.save_image("hp_bars.png", hp_bars)
         # If there are any HP bars, return True
         return hp_bars.mean(axis=(0, 1)) != 0.0
 
     def get_hp(self) -> int:
         """
-        Gets the HP value of the player.
+        Gets the HP value of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_prayer(self) -> int:
         """
-        Gets the Prayer points of the player.
+        Gets the Prayer points of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_run_energy(self) -> int:
         """
-        Gets the run energy of the player.
+        Gets the run energy of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_special_energy(self) -> int:
         """
-        Gets the special attack energy of the player.
+        Gets the special attack energy of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_total_xp(self) -> int:
         """
-        Gets the total XP of the player using OCR.
+        Gets the total XP of the player using OCR. Returns -1 if the value couldn't be read.
         """
         fonts = [ocr.PLAIN_11, ocr.PLAIN_12, ocr.BOLD_12]
         for font in fonts:
-            res = ocr.extract_text(self.win.total_xp, font, [clr.WHITE])
-            if res := re.findall(r"\d+", res):
-                return int(res[0])
-        return None
+            if res := ocr.extract_text(self.win.total_xp, font, [clr.WHITE]):
+                return int("".join(re.findall(r"\d", res)))
+        return -1
 
-    # --- OCR Functions ---
     def mouseover_text(
         self,
         contains: Union[str, List[str]] = None,
@@ -513,6 +530,80 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Auto retaliate is already off.")
+
+    def select_combat_style(self, combat_style: str, xp_type: str):
+        """
+        Args:
+            combat_style: the combat style ("melee" or "ranged")
+            xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate", or "longrange").
+        """
+        # Ensuring that args are valid
+        if combat_style not in ["melee", "ranged"]:
+            raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
+        if (combat_style == "melee" and xp_type not in ["attack", "strength", "defence", "shared"]) or (
+            combat_style == "ranged" and xp_type not in ["rapid", "accurate", "longrange"]
+        ):
+            raise ValueError(f"Invalid xp style '{xp_type}' for combat style '{combat_style}'. See function docstring for valid options.")
+
+        # Click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point(), mouseSpeed="fastest")
+        self.mouse.click()
+
+        # Define a list of all possible weapons
+        weapons = [
+            "longsword",
+            "axe",
+            "bulwark",
+            "claw",
+            "dagger",
+            "mace",
+            "maul",
+            "whip",
+            "banner",
+            "hally",
+            "spear",
+            "pickaxe",
+            "chins",
+            "crossbow",
+            "darts",
+            "bow",
+            "powered_staff",
+            "scythe",
+            "bladedstaff",
+            "staff",
+        ]
+        # Try to find the attack style in question, click it if it is not selected
+        for weapon in weapons:
+            img_location = imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png")
+            if not os.path.exists(img_location):
+                continue
+            if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05):
+                self.mouse.move_to(result.random_point())
+                self.mouse.click()
+                self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' selected.")
+                return
+        self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' is already selected.")
+
+    def toggle_run(self, toggle_on: bool):
+        """
+        Toggles run. Assumes client window is configured.
+        Args:
+            toggle_on: True to turn on, False to turn off.
+        """
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling run {state}...")
+
+        if toggle_on:
+            if run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_off.png"), self.win.run_orb, 0.323):
+                self.mouse.move_to(run_status.random_point())
+                self.mouse.click()
+            else:
+                self.log_msg("Run is already on.")
+        elif run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_on.png"), self.win.run_orb, 0.323):
+            self.mouse.move_to(run_status.random_point())
+            self.mouse.click()
+        else:
+            self.log_msg("Run is already off.")
 
     def __open_display_settings(self) -> bool:
         """

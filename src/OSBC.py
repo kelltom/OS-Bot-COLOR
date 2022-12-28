@@ -1,13 +1,15 @@
+import importlib
 import tkinter
 from typing import List
 
 import customtkinter
+from pynput import keyboard
 
 from controller.bot_controller import BotController, MockBotController
-from model import *
+from model import Bot, RuneLiteBot
 from view import *
 
-customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
+customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
@@ -56,14 +58,55 @@ class App(customtkinter.CTk):
         self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", text_font=("Roboto Medium", 14))
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
+        # ============ View/Controller Configuration ============
+        self.views: dict[str, customtkinter.CTkFrame] = {}  # A map of all views, keyed by game title
+        self.models: dict[str, Bot] = {}  # A map of all models (bots), keyed by bot title
+
+        # Home Views
+        self.home_view = TitleView(parent=self.frame_right, main=self)
+        self.home_view.pack(
+            in_=self.frame_right,
+            side=tkinter.TOP,
+            fill=tkinter.BOTH,
+            expand=True,
+            padx=0,
+            pady=0,
+        )
+        self.views["Select a game"] = self.home_view
+
+        # Script view and controller [DO NOT EDIT]
+        # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model assigned to the controller
+        self.views["Script"] = BotView(parent=self.frame_right)
+        self.controller = BotController(model=None, view=self.views["Script"])
+        self.views["Script"].set_controller(self.controller)
+
+        # ============ Bot/Button Configuration ============
+        # Dynamically import all bots from the model folder and add them to the UI
+        # If your bot is not appearing, make sure it is referenced in the __init__.py file of the folder it exists in.
+
         # Button map
-        # There should be a key for each game title, and the value should be a list of buttons for that game
+        # Key value pairs of game titles and a list of buttons for that game.
+        # This is populated below.
         self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
             "Select a game": [],
-            "Near-Reality": [],  # AKA: OSNR
-            "OSRS": [],
-            "Zaros": [],
         }
+        module = importlib.import_module("model")
+        names = dir(module)
+        for name in names:
+            obj = getattr(module, name)
+            if obj is not Bot and obj is not RuneLiteBot and isinstance(obj, type) and issubclass(obj, Bot):
+                instance = obj()
+                # Make a home view if one doesn't exist
+                if isinstance(instance, RuneLiteBot) and instance.game_title not in self.views:
+                    self.views[instance.game_title] = RuneLiteHomeView(parent=self, main=self, game_title=instance.game_title)
+                elif isinstance(instance, Bot) and instance.game_title not in self.views:
+                    self.views[instance.game_title] = HomeView(parent=self, main=self, game_title=instance.game_title)
+                # Make a button section if one doesn't exist
+                if instance.game_title not in self.btn_map:
+                    self.btn_map[instance.game_title] = []
+                instance.set_controller(self.controller)
+                self.models[name] = instance
+                self.btn_map[instance.game_title].append(self.__create_button(name))
 
         # Dropdown menu for selecting a game
         self.menu_game_selector = customtkinter.CTkOptionMenu(
@@ -75,85 +118,8 @@ class App(customtkinter.CTk):
 
         # Theme Switch
         self.switch = customtkinter.CTkSwitch(master=self.frame_left, text="Dark Mode", command=self.change_mode)
-        self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
-        self.switch.select()
-
-        # ============ View/Controller Configuration ============
-        self.views: dict[str, customtkinter.CTkFrame] = {}  # A map of all views, keyed by game title
-        self.models: dict[str, Bot] = {}  # A map of all models (bots), keyed by bot title
-
-        # Home Views
-        self.home_view = HomeView(parent=self.frame_right, main=self)
-        self.home_view.pack(
-            in_=self.frame_right,
-            side=tkinter.TOP,
-            fill=tkinter.BOTH,
-            expand=True,
-            padx=0,
-            pady=0,
-        )
-        self.views["Select a game"] = self.home_view
-        self.views["OSRS"] = RuneLiteHomeView(parent=self, main=self, game_title="Old School RuneScape", game_abbreviation="OSRS")
-        self.views["Near-Reality"] = RuneLiteHomeView(parent=self, main=self, game_title="Near-Reality", game_abbreviation="OSNR")
-        self.views["Zaros"] = RuneLiteHomeView(parent=self, main=self, game_title="Zaros RSPS", game_abbreviation="Zaros")
-
-        # Script view and controller [DO NOT EDIT]
-        # self.views["Script"] is a dynamically changing view on frame_right that changes based on the model assigned to the controller
-        self.views["Script"] = BotView(parent=self.frame_right)
-        self.controller = BotController(model=None, view=self.views["Script"])
-        self.views["Script"].set_controller(self.controller)
-
-        # ============ Bot/Button Configuration ============
-
-        # TEMPLATE FOR ADDING BOTS
-        # 1. Create an instance of your Bot and append it to the bot map (self.models) with a unique, descriptive key.
-        #    1.1. If your bot class is undefined, make sure it is referenced in the __init__.py file of the folder it exists in.
-        # 2. Set the controller of the bot to self.controller.
-        # 3. Call the "__create_button" function to create a pre-configured button for the bot. Append the button to
-        #    the button map (self.btn_map) for the game it belongs to.
-
-        # ----- Old School RuneScape (OSRS) Bots -----
-        self.models["ExampleBot"] = ExampleBot()
-        self.models["ExampleBot"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("ExampleBot"))
-
-        self.models["TestBot"] = TestBot()
-        self.models["TestBot"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("TestBot"))
-
-        self.models["OSRSCombat"] = OSRSCombat()
-        self.models["OSRSCombat"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("OSRSCombat"))
-
-        self.models["OSRSWoodcutter"] = OSRSWoodcutter()
-        self.models["OSRSWoodcutter"].set_controller(self.controller)
-        self.btn_map["OSRS"].append(self.__create_button("OSRSWoodcutter"))
-
-        # ----- Old School Near-Reality (OSNR) Bots -----
-        self.models["OSNRCombat"] = OSNRCombat()
-        self.models["OSNRCombat"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRCombat"))
-
-        self.models["OSNRFishing"] = OSNRFishing()
-        self.models["OSNRFishing"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRFishing"))
-
-        self.models["OSNRMining"] = OSNRMining()
-        self.models["OSNRMining"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRMining"))
-
-        self.models["OSNRThievingNPC"] = OSNRThievingPickpocket()
-        self.models["OSNRThievingNPC"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRThievingNPC"))
-
-        self.models["OSNRWoodcutting"] = OSNRWoodcutting()
-        self.models["OSNRWoodcutting"].set_controller(self.controller)
-        self.btn_map["Near-Reality"].append(self.__create_button("OSNRWoodcutting"))
-
-        # ----- Zaros Bots -----
-        self.models["ZarosWoodcutter"] = ZarosWoodcutter()
-        self.models["ZarosWoodcutter"].set_controller(self.controller)
-        self.btn_map["Zaros"].append(self.__create_button("ZarosWoodcutter"))
+        # self.switch.select()
+        # self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
 
         # Status variables to track state of views and buttons
         self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]
@@ -171,7 +137,7 @@ class App(customtkinter.CTk):
         """
         btn = customtkinter.CTkButton(
             master=self.frame_left,
-            text=self.models[bot_key].title,
+            text=self.models[bot_key].bot_title,
             fg_color=self.DEFAULT_GRAY,
             command=lambda: self.__toggle_bot_by_key(bot_key, btn),
         )
@@ -230,6 +196,7 @@ class App(customtkinter.CTk):
         self.toggle_btn_state(enabled=False)
 
     def __toggle_bot_by_key(self, bot_key, btn: customtkinter.CTkButton):
+        # sourcery skip: extract-method
         """
         Handles the event of the user selecting a bot from the dropdown menu. This function manages the state of frame_left buttons,
         the contents that appears in frame_right, and re-assigns the model to the controller.
@@ -237,45 +204,46 @@ class App(customtkinter.CTk):
             bot_key: The name/key of the bot that the user selected.
             btn: The button that the user clicked.
         """
-        if self.models[bot_key] is not None:
-            # If the script's frame is already visible, hide it
-            if self.controller.model == self.models[bot_key]:
-                self.controller.model.progress = 0
-                self.controller.update_progress()
-                self.controller.change_model(None)
-                self.views["Script"].pack_forget()
-                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
-                self.current_btn = None
-                self.current_home_view.pack(
-                    in_=self.frame_right,
-                    side=tkinter.TOP,
-                    fill=tkinter.BOTH,
-                    expand=True,
-                    padx=0,
-                    pady=0,
-                )
-            # If there is no script selected
-            elif self.controller.model is None:
-                self.current_home_view.pack_forget()
-                self.controller.change_model(self.models[bot_key])
-                self.views["Script"].pack(
-                    in_=self.frame_right,
-                    side=tkinter.TOP,
-                    fill=tkinter.BOTH,
-                    expand=True,
-                    padx=0,
-                    pady=0,
-                )
-                self.current_btn = btn
-                self.current_btn.configure(fg_color=btn.hover_color)
-            # If we are switching to a new script
-            else:
-                self.controller.model.progress = 0
-                self.controller.update_progress()
-                self.controller.change_model(self.models[bot_key])
-                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
-                self.current_btn = btn
-                self.current_btn.configure(fg_color=btn.hover_color)
+        if self.models[bot_key] is None:
+            return
+        # If the script's frame is already visible, hide it
+        if self.controller.model == self.models[bot_key]:
+            self.controller.model.progress = 0
+            self.controller.update_progress()
+            self.controller.change_model(None)
+            self.views["Script"].pack_forget()
+            self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
+            self.current_btn = None
+            self.current_home_view.pack(
+                in_=self.frame_right,
+                side=tkinter.TOP,
+                fill=tkinter.BOTH,
+                expand=True,
+                padx=0,
+                pady=0,
+            )
+        # If there is no script selected
+        elif self.controller.model is None:
+            self.current_home_view.pack_forget()
+            self.controller.change_model(self.models[bot_key])
+            self.views["Script"].pack(
+                in_=self.frame_right,
+                side=tkinter.TOP,
+                fill=tkinter.BOTH,
+                expand=True,
+                padx=0,
+                pady=0,
+            )
+            self.current_btn = btn
+            self.current_btn.configure(fg_color=btn.hover_color)
+        # If we are switching to a new script
+        else:
+            self.controller.model.progress = 0
+            self.controller.update_progress()
+            self.controller.change_model(self.models[bot_key])
+            self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
+            self.current_btn = btn
+            self.current_btn.configure(fg_color=btn.hover_color)
 
     # ============ Misc Handlers ============
     def change_mode(self):
@@ -290,20 +258,31 @@ class App(customtkinter.CTk):
     def start(self):
         self.mainloop()
 
+    # ============ UI-less Test Functions ============
     def test(self, bot: Bot):
         bot.set_controller(MockBotController(bot))
-        bot.set_status(BotStatus.RUNNING)
-        time.sleep(1)
-        bot.main_loop()
+        bot.options_set = True
+        self.listener = keyboard.Listener(
+            on_press=lambda event: self.__on_press(event, bot),
+            on_release=None,
+        )
+        self.listener.start()
+        bot.play()
+        self.listener.join()
+
+    def __on_press(self, key, bot: Bot):
+        if key == keyboard.Key.ctrl_l:
+            bot.thread.stop()
+            self.listener.stop()
 
 
 if __name__ == "__main__":
     # To test a bot without the GUI, address the comments for each line below.
+    # from model.<folder_bot_is_in> import <bot_class_name>  # Uncomment this line and replace <folder_bot_is_in> and <bot_class_name> accordingly to import your bot
     app = App()  # Add the "test=True" argument to the App constructor call.
     app.start()  # Comment out this line.
-    # app.test(Bot()) # Uncomment this line and replace argument with your bot's instance.
+    # app.test(Bot())  # Uncomment this line and replace argument with your bot's instance.
 
-    # Note: when testing a bot, ensure all of its options have set default values
-    # in its init() function.
-    #   E.g., self.running_time = 5
-    # Stop your bot by holding 'ESC'.
+    # IMPORTANT
+    # - Make sure your bot's options are pre-defined in its __init__ method.
+    # - You can stop the bot by pressing `Left Ctrl`

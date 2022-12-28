@@ -13,7 +13,7 @@ class OSNRWoodcutting(OSNRBot):
     def __init__(self):
         title = "Woodcutting"
         description = "This bot chops wood. Position your character near some trees, tag them, and press the play button."
-        super().__init__(title=title, description=description)
+        super().__init__(bot_title=title, description=description)
         self.running_time = 1
         self.protect_slots = 0
         self.logout_on_friends = True
@@ -24,24 +24,22 @@ class OSNRWoodcutting(OSNRBot):
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
 
     def save_options(self, options: dict):
-        self.options_set = True
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
             elif option == "protect_slots":
                 self.protect_slots = options[option]
-
             elif option == "logout_on_friends":
                 self.logout_on_friends = options[option] == "Yes"
             else:
                 self.log_msg(f"Unknown option: {option}")
+                print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
-                self.log_msg("Failed to set options.")
                 return
         self.log_msg(f"Running time: {self.running_time} minutes.")
         self.log_msg(f"Protect slots: {self.protect_slots}.")
         self.log_msg("Bot will not logout when friends are nearby.")
-        self.log_msg("Options set successfully.")
+        self.options_set = True
 
     def main_loop(self):  # sourcery skip: low-code-quality
         # Setup API
@@ -58,9 +56,6 @@ class OSNRWoodcutting(OSNRBot):
         self.disable_private_chat()
         time.sleep(0.5)
 
-        if not self.status_check_passed():
-            return
-
         logs = 0
         failed_searches = 0
 
@@ -68,19 +63,13 @@ class OSNRWoodcutting(OSNRBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            if not self.status_check_passed():
-                return
-
             # If inventory is full
             if api.get_is_inv_full():
-                self.drop_inventory(skip_slots=list(range(self.protect_slots)))
+                self.drop_all(skip_slots=list(range(self.protect_slots)))
                 logs += 28 - self.protect_slots
                 self.log_msg(f"Logs cut: ~{logs}")
                 time.sleep(1)
                 continue
-
-            if not self.status_check_passed():
-                return
 
             # Check to logout
             if self.logout_on_friends and self.friends_nearby():
@@ -107,16 +96,11 @@ class OSNRWoodcutting(OSNRBot):
             timer = 0
             while self.is_player_doing_action("Woodcutting"):
                 self.update_progress((time.time() - start_time) / end_time)
-                if not self.status_check_passed():
-                    return
                 if timer % 6 == 0:
                     self.log_msg("Chopping tree...")
                 time.sleep(2)
                 timer += 2
             self.log_msg("Idle...")
-
-            if not self.status_check_passed():
-                return
 
             self.update_progress((time.time() - start_time) / end_time)
 

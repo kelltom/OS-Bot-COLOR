@@ -89,8 +89,8 @@ class RuneLiteWindow(Window):
 class RuneLiteBot(Bot, metaclass=ABCMeta):
     win: RuneLiteWindow = None
 
-    def __init__(self, title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
-        super().__init__(title, description, window)
+    def __init__(self, game_title, bot_title, description, window: Window = RuneLiteWindow("RuneLite")) -> None:
+        super().__init__(game_title, bot_title, description, window)
 
     # --- OCR Functions ---
     @deprecated(reason="This is a slow way of checking if you are in combat. Consider using an API function instead.")
@@ -128,7 +128,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 item = item.capitalize()
                 items[i] = item
         else:
-            items = items.capitalize()
+            items = [items.capitalize()]
         # Locate Ground Items text
         if item_text := ocr.find_text(items, self.win.game_view, ocr.PLAIN_11, clr.PURPLE):
             self.mouse.move_to(item_text[len(item_text) // 2].get_center())
@@ -136,8 +136,6 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 if self.mouseover_text(contains=["Take"] + items, color=[clr.OFF_WHITE, clr.OFF_ORANGE]):
                     break
                 self.mouse.move_rel(0, 3, 1, mouseSpeed="fastest")
-                if not self.status_check_passed():
-                    return
             self.mouse.right_click()
             # search the right-click menu
             if take_text := ocr.find_text(

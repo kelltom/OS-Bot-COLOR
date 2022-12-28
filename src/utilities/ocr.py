@@ -19,7 +19,7 @@ def __load_font(font: str) -> Dict[str, cv2.Mat]:
         A dictionary of {"char": image} pairs.
     """
     PATH = pathlib.Path(__file__).parent.joinpath("fonts", font)
-    pathlist = PATH.glob("**\*.bmp")
+    pathlist = PATH.rglob("*.bmp")
     alphabet = {}
     for path in pathlist:
         name = int(path.stem)
@@ -36,13 +36,14 @@ QUILL = __load_font("Quill")  # Large bold quest text
 QUILL_8 = __load_font("Quill8")  # Small quest text
 
 
-def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]]) -> str:
+def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]], exclude_chars: Union[List[str], str] = "") -> str:
     """
     Extracts text from a Rectangle.
     Args:
         rect: The rectangle to search within.
         font: The font type to search for.
         color: The color(s) of the text to search for.
+        exclude_chars: A list of characters to exclude from the search.
     Returns:
         A single string containing all text found in order, no spaces.
     """
@@ -51,7 +52,7 @@ def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.C
     result = ""
     char_list = []
     for key in font:
-        if key == " ":
+        if key == " " or key in exclude_chars:
             continue
         # Template match the character in the image
         correlation = cv2.matchTemplate(image, font[key], cv2.TM_CCOEFF_NORMED)
