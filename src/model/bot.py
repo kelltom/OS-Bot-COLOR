@@ -534,16 +534,16 @@ class Bot(ABC):
     def select_combat_style(self, combat_style: str, xp_type: str):
         """
         Args:
-        combat_style: the combat style ("melee", "ranged" or "mage")
-        xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate", "longrange" or "autocast").
+            combat_style: the combat style ("melee" or "ranged")
+            xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate", or "longrange").
         """
-        # Ensuring that combat_style is valid
-        if combat_style not in ["melee", "ranged", "mage"]:
-            raise ValueError(f"Invalid combat style '{combat_style}'.")
-
-        # Ensuring that the xp_type is valid
-        if xp_type not in ["attack", "strength", "defence", "shared", "rapid", "accurate", "longrange", "autocast"]:
-            raise ValueError(f"Invalid xp style '{xp_type}'.")
+        # Ensuring that args are valid
+        if combat_style not in ["melee", "ranged"]:
+            raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
+        if (combat_style == "melee" and xp_type not in ["attack", "strength", "defence", "shared"]) or (
+            combat_style == "ranged" and xp_type not in ["rapid", "accurate", "longrange"]
+        ):
+            raise ValueError(f"Invalid xp style '{xp_type}' for combat style '{combat_style}'. See function docstring for valid options.")
 
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point())
@@ -573,7 +573,6 @@ class Bot(ABC):
             "bladedstaff",
             "staff",
         ]
-
         # Try to find the attack style in question, click it if it is not selected
         for weapon in weapons:
             img_location = imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png")
@@ -582,57 +581,9 @@ class Bot(ABC):
             if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05):
                 self.mouse.move_to(result.random_point(), mouseSpeed="medium")
                 self.mouse.click()
-                self.log_msg(f"'{combat_style}' style '{xp_type}' selected.")
+                self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' selected.")
                 return
-        self.log_msg(f"'{combat_style}' style '{xp_type}' is already selected.")
-
-    def autocast_normal_spellbook(self, spell):
-        """
-        Opens the autocast menu and selects a spell. Must have a staff equipped.
-        Args:
-            spell: select a number from 0 to 19, where 0 is air strike and 19 is fire surge
-        """
-        # Click the combat tab
-        self.mouse.move_to(self.win.cp_tabs[0].random_point())
-        pag.click()
-        time.sleep(0.5)
-
-        # Clicks on autocast and selects spell
-        if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("mage", "autocast", "staff.png"), self.win.control_panel, 0.05):
-            self.mouse.move_to(result.random_point(), mouseSpeed="medium")
-            self.mouse.click()
-            time.sleep(0.5)
-            self.mouse.move_to(self.win.normal_spellbook_autocast[spell].random_point())
-            time.sleep(0.5)
-            self.mouse.click()
-
-        # Clicks on melee attack style to de-select previously selected autocast
-        if result2 := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee", "attack", "staff.png"), self.win.control_panel, 0.05):
-            self.mouse.move_to(result2.random_point(), mouseSpeed="medium")
-            self.mouse.click()
-            self.select_combat_style(combat_style="mage", xp_type="autocast")
-            time.sleep(0.5)
-            self.mouse.move_to(self.win.normal_spellbook_autocast[spell].random_point())
-            time.sleep(0.5)
-            self.mouse.click()
-
-    def select_prayers(self, prayer):
-        """
-        Args:
-        prayer: select a number from 0 to 28
-        with (0) being Thick skin and (28) being Augury
-
-        """
-        self.mouse.move_to(self.win.prayer_book[prayer].random_point())
-        time.sleep(0.5)
-        self.mouse.click()
-
-    def toggle_quick_prayers(self):
-        """
-        toggles quick prayers
-        """
-        self.mouse.move_to(self.win.prayer_orb.random_point())
-        self.mouse.click()
+        self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' is already selected.")
 
     def toggle_run(self, toggle_on: bool):
         """
@@ -645,12 +596,12 @@ class Bot(ABC):
 
         if toggle_on:
             if run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_off.png"), self.win.run_orb, 0.323):
-                self.mouse.move_to(run_status.random_point(), mouseSpeed="medium")
+                self.mouse.move_to(run_status.random_point())
                 self.mouse.click()
             else:
                 self.log_msg("Run is already on.")
         elif run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_on.png"), self.win.run_orb, 0.323):
-            self.mouse.move_to(run_status.random_point(), mouseSpeed="medium")
+            self.mouse.move_to(run_status.random_point())
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
