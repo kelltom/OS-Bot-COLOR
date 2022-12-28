@@ -546,9 +546,8 @@ class Bot(ABC):
             raise ValueError(f"Invalid xp style '{xp_type}' for combat style '{combat_style}'. See function docstring for valid options.")
 
         # Click the combat tab
-        self.mouse.move_to(self.win.cp_tabs[0].random_point())
+        self.mouse.move_to(self.win.cp_tabs[0].random_point(), mouseSpeed="fastest")
         self.mouse.click()
-        time.sleep(0.5)
 
         # Define a list of all possible weapons
         weapons = [
@@ -579,7 +578,7 @@ class Bot(ABC):
             if not os.path.exists(img_location):
                 continue
             if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05):
-                self.mouse.move_to(result.random_point(), mouseSpeed="medium")
+                self.mouse.move_to(result.random_point())
                 self.mouse.click()
                 self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' selected.")
                 return
