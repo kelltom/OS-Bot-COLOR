@@ -27,7 +27,6 @@ import utilities.random_util as rd
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
-from utilities.random_util import RandomUtil as rm
 from utilities.window import Window, WindowInitializationError
 
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -589,35 +588,32 @@ class Bot(ABC):
 
     def autocast_normal_spellbook(self, spell):
         """
+        Opens the autocast menu and selects a spell. Must have a staff equipped.
         Args:
-        spell: select a number from 0 to 19
-        with (0) being air strike and (19) being fire surge
-
-        make sure to have a staff weilded
-
+            spell: select a number from 0 to 19, where 0 is air strike and 19 is fire surge
         """
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point())
         pag.click()
         time.sleep(0.5)
 
-        # clicks on autocast and selects spell
+        # Clicks on autocast and selects spell
         if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("mage", "autocast", "staff.png"), self.win.control_panel, 0.05):
             self.mouse.move_to(result.random_point(), mouseSpeed="medium")
             self.mouse.click()
-            rm.sleep_random(1, 1.3)
-            self.mouse.move_to(self.win.autocast_normal_spells[spell].random_point())
-            rm.sleep_random(0.5, 1)
+            time.sleep(0.5)
+            self.mouse.move_to(self.win.normal_spellbook_autocast[spell].random_point())
+            time.sleep(0.5)
             self.mouse.click()
 
-        # clicks on melee attack style to de-select previously selected autocast
+        # Clicks on melee attack style to de-select previously selected autocast
         if result2 := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("melee", "attack", "staff.png"), self.win.control_panel, 0.05):
             self.mouse.move_to(result2.random_point(), mouseSpeed="medium")
             self.mouse.click()
             self.select_combat_style(combat_style="mage", xp_type="autocast")
-            rm.sleep_random(1, 1.3)
-            self.mouse.move_to(self.win.autocast_normal_spells[spell].random_point())
-            rm.sleep_random(0.5, 1)
+            time.sleep(0.5)
+            self.mouse.move_to(self.win.normal_spellbook_autocast[spell].random_point())
+            time.sleep(0.5)
             self.mouse.click()
 
     def select_prayers(self, prayer):
@@ -628,7 +624,7 @@ class Bot(ABC):
 
         """
         self.mouse.move_to(self.win.prayer_book[prayer].random_point())
-        rm.sleep_random(0.5, 0.7)
+        time.sleep(0.5)
         self.mouse.click()
 
     def toggle_quick_prayers(self):
