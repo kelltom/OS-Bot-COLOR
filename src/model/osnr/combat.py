@@ -23,20 +23,12 @@ class OSNRCombat(OSNRBot):
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
-        # self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
 
     def save_options(self, options: dict):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
                 self.log_msg(f"Running time: {self.running_time} minutes.")
-            # elif option == "prefs":
-            #     if "Loot" in options[option]:
-            #         self.should_loot = True
-            #         self.log_msg("Note: Looting is not yet implemented.")
-            #     if "Bank" in options[option]:
-            #         self.should_bank = True
-            #         self.log_msg("Note: Banking is not yet implemented.")
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
