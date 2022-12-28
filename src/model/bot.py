@@ -350,7 +350,6 @@ class Bot(ABC):
         char_screenshot = char_rect.screenshot()
         # Isolate HP bars in that rectangle
         hp_bars = clr.isolate_colors(char_screenshot, [clr.RED, clr.GREEN])
-        # debug.save_image("hp_bars.png", hp_bars)
         # If there are any HP bars, return True
         return hp_bars.mean(axis=(0, 1)) != 0.0
 
@@ -358,28 +357,28 @@ class Bot(ABC):
         """
         Gets the HP value of the player.
         """
-        res = ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
         return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_prayer(self) -> int:
         """
         Gets the Prayer points of the player.
         """
-        res = ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
         return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_run_energy(self) -> int:
         """
         Gets the run energy of the player.
         """
-        res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
         return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_special_energy(self) -> int:
         """
         Gets the special attack energy of the player.
         """
-        res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
+        res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
         return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_total_xp(self) -> int:
@@ -388,7 +387,7 @@ class Bot(ABC):
         """
         fonts = [ocr.PLAIN_11, ocr.PLAIN_12, ocr.BOLD_12]
         for font in fonts:
-            res = ocr.extract_text(self.win.total_xp, font, [clr.WHITE])
+            res = ocr.extract_text(self.win.total_xp, font, [clr.WHITE], "O")
             if res := re.findall(r"\d+", res):
                 return int(res[0])
         return None
