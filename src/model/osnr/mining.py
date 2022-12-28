@@ -66,7 +66,7 @@ class OSNRMining(OSNRBot):
         while time.time() - start_time < end_time:
             # Check to drop inventory
             if api.get_is_inv_full():
-                self.drop_inventory()
+                self.drop_all()
                 time.sleep(1)
                 continue
 
