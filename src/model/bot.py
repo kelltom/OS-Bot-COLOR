@@ -22,6 +22,7 @@ import utilities.color as clr
 import utilities.debug as debug
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
+import utilities.random_util as rd
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
@@ -222,6 +223,7 @@ class Bot(ABC):
             msg: str - message to log
             overwrite: bool - if True, overwrites the current log message. If False, appends to the log.
         """
+        msg = f"{debug.current_time()}: {msg}"
         self.controller.update_log(msg, overwrite)
 
     def clear_log(self):
@@ -231,9 +233,9 @@ class Bot(ABC):
         self.controller.clear_log()
 
     # --- Misc Utility Functions
-    def drop_inventory(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
+    def drop_all(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
         """
-        Drops all items in the inventory.
+        Shift-clicks all items in the inventory to drop them.
         Args:
             skip_rows: The number of rows to skip before dropping.
             skip_slots: The indices of slots to avoid dropping.
@@ -249,6 +251,29 @@ class Bot(ABC):
         pag.keyDown("shift")
         for i, slot in enumerate(self.win.inventory_slots):
             if i in skip_slots:
+                continue
+            p = slot.random_point()
+            self.mouse.move_to(
+                (p[0], p[1]),
+                mouseSpeed="fastest",
+                knotsCount=1,
+                offsetBoundaryY=40,
+                offsetBoundaryX=40,
+                tween=pytweening.easeInOutQuad,
+            )
+            pag.click()
+        pag.keyUp("shift")
+
+    def drop(self, slots: list[int]) -> None:
+        """
+        Shift-clicks inventory slots to drop items.
+        Args:
+            slots: The indices of slots to drop.
+        """
+        self.log_msg("Dropping items...")
+        pag.keyDown("shift")
+        for i, slot in enumerate(self.win.inventory_slots):
+            if i not in slots:
                 continue
             p = slot.random_point()
             self.mouse.move_to(
@@ -285,6 +310,26 @@ class Bot(ABC):
         time.sleep(1)
         self.mouse.move_rel(0, -53, 5, 5)
         pag.click()
+
+    def take_break(self, min_seconds: int = 1, max_seconds: int = 30, mean: int = None, std: int = None):
+        """
+        Takes a break for a random amount of time.
+        Args:
+            min_seconds: minimum amount of time the bot could rest
+            max_seconds: maximum amount of time the bot could rest
+            mean: mean of the random time interval (optional)
+            std: standard deviation of the random time interval (optional)
+        """
+        self.log_msg("Taking a break...")
+        if mean is None:
+            mean = round((min_seconds + max_seconds) / 2)
+        if std is None:
+            std = round((max_seconds - min_seconds) / 6)
+        length = rd.truncated_normal_sample(min_seconds, max_seconds, mean, std)
+        for i in range(int(length)):
+            self.log_msg(f"Taking a break... {int(length) - i} seconds left.", overwrite=True)
+            time.sleep(1)
+        self.log_msg("Done taking break.", overwrite=True)
 
     # --- Player Status Functions ---
     def has_hp_bar(self) -> bool:

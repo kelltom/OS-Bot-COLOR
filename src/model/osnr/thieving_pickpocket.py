@@ -130,7 +130,7 @@ class OSNRThievingPickpocket(OSNRBot):
                 for index in remove:
                     if index in skip_slots:
                         skip_slots.remove(index)
-                self.drop_inventory(skip_rows=self.protect_rows, skip_slots=skip_slots)
+                self.drop_all(skip_rows=self.protect_rows, skip_slots=skip_slots)
 
             # Steal from NPC
             npc_pos: RuneLiteObject = self.get_nearest_tag(clr.CYAN)
@@ -175,7 +175,7 @@ class OSNRThievingPickpocket(OSNRBot):
                     no_pouch_count += 1
                     if no_pouch_count > 5:
                         self.log_msg("Could not find coin pouch...")
-                        self.drop_inventory(skip_rows=self.protect_rows)
+                        self.drop_all(skip_rows=self.protect_rows)
                         no_pouch_count = 0
 
             # Check for mods

@@ -3,9 +3,9 @@ import time
 import pyautogui as pag
 
 import utilities.color as clr
+import utilities.random_util as rd
 from model.bot import BotStatus
 from model.zaros.zaros_bot import ZarosBot
-from utilities.random_util import RandomUtil as rd
 
 
 class ZarosWoodcutter(ZarosBot):
@@ -62,7 +62,7 @@ class ZarosWoodcutter(ZarosBot):
         while time.time() - start_time < end_time:
             # If inventory is full
             if self.__inv_is_full():
-                self.drop_inventory(skip_slots=list(range(self.protect_slots)))
+                self.drop_all(skip_slots=list(range(self.protect_slots)))
                 logs += 28 - self.protect_slots
                 self.log_msg(f"Logs cut: ~{logs}")
                 time.sleep(1)

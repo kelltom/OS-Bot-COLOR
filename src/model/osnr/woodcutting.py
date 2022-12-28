@@ -65,7 +65,7 @@ class OSNRWoodcutting(OSNRBot):
         while time.time() - start_time < end_time:
             # If inventory is full
             if api.get_is_inv_full():
-                self.drop_inventory(skip_slots=list(range(self.protect_slots)))
+                self.drop_all(skip_slots=list(range(self.protect_slots)))
                 logs += 28 - self.protect_slots
                 self.log_msg(f"Logs cut: ~{logs}")
                 time.sleep(1)
