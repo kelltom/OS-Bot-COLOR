@@ -3,6 +3,7 @@ A Bot is a base class for bot script models. It is abstract and cannot be instan
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
 import ctypes
+import os.path
 import platform
 import re
 import threading
@@ -529,6 +530,80 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Auto retaliate is already off.")
+
+    def select_combat_style(self, combat_style: str, xp_type: str):
+        """
+        Args:
+            combat_style: the combat style ("melee" or "ranged")
+            xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate", or "longrange").
+        """
+        # Ensuring that args are valid
+        if combat_style not in ["melee", "ranged"]:
+            raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
+        if (combat_style == "melee" and xp_type not in ["attack", "strength", "defence", "shared"]) or (
+            combat_style == "ranged" and xp_type not in ["rapid", "accurate", "longrange"]
+        ):
+            raise ValueError(f"Invalid xp style '{xp_type}' for combat style '{combat_style}'. See function docstring for valid options.")
+
+        # Click the combat tab
+        self.mouse.move_to(self.win.cp_tabs[0].random_point(), mouseSpeed="fastest")
+        self.mouse.click()
+
+        # Define a list of all possible weapons
+        weapons = [
+            "longsword",
+            "axe",
+            "bulwark",
+            "claw",
+            "dagger",
+            "mace",
+            "maul",
+            "whip",
+            "banner",
+            "hally",
+            "spear",
+            "pickaxe",
+            "chins",
+            "crossbow",
+            "darts",
+            "bow",
+            "powered_staff",
+            "scythe",
+            "bladedstaff",
+            "staff",
+        ]
+        # Try to find the attack style in question, click it if it is not selected
+        for weapon in weapons:
+            img_location = imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png")
+            if not os.path.exists(img_location):
+                continue
+            if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05):
+                self.mouse.move_to(result.random_point())
+                self.mouse.click()
+                self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' selected.")
+                return
+        self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' is already selected.")
+
+    def toggle_run(self, toggle_on: bool):
+        """
+        Toggles run. Assumes client window is configured.
+        Args:
+            toggle_on: True to turn on, False to turn off.
+        """
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling run {state}...")
+
+        if toggle_on:
+            if run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_off.png"), self.win.run_orb, 0.323):
+                self.mouse.move_to(run_status.random_point())
+                self.mouse.click()
+            else:
+                self.log_msg("Run is already on.")
+        elif run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_on.png"), self.win.run_orb, 0.323):
+            self.mouse.move_to(run_status.random_point())
+            self.mouse.click()
+        else:
+            self.log_msg("Run is already off.")
 
     def __open_display_settings(self) -> bool:
         """
