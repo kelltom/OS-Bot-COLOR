@@ -23,8 +23,7 @@ import utilities.color as clr
 import utilities.debug as debug
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
-from utilities.api import item_ids as ids
-from utilities.api.status_socket import StatusSocket
+import utilities.random_util as rd
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
@@ -226,6 +225,7 @@ class Bot(ABC):
             msg: str - message to log
             overwrite: bool - if True, overwrites the current log message. If False, appends to the log.
         """
+        msg = f"{debug.current_time()}: {msg}"
         self.controller.update_log(msg, overwrite)
 
     def clear_log(self):
@@ -235,9 +235,9 @@ class Bot(ABC):
         self.controller.clear_log()
 
     # --- Misc Utility Functions
-    def drop_inventory(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
+    def drop_all(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
         """
-        Drops all items in the inventory.
+        Shift-clicks all items in the inventory to drop them.
         Args:
             skip_rows: The number of rows to skip before dropping.
             skip_slots: The indices of slots to avoid dropping.
@@ -253,6 +253,29 @@ class Bot(ABC):
         pag.keyDown("shift")
         for i, slot in enumerate(self.win.inventory_slots):
             if i in skip_slots:
+                continue
+            p = slot.random_point()
+            self.mouse.move_to(
+                (p[0], p[1]),
+                mouseSpeed="fastest",
+                knotsCount=1,
+                offsetBoundaryY=40,
+                offsetBoundaryX=40,
+                tween=pytweening.easeInOutQuad,
+            )
+            pag.click()
+        pag.keyUp("shift")
+
+    def drop(self, slots: list[int]) -> None:
+        """
+        Shift-clicks inventory slots to drop items.
+        Args:
+            slots: The indices of slots to drop.
+        """
+        self.log_msg("Dropping items...")
+        pag.keyDown("shift")
+        for i, slot in enumerate(self.win.inventory_slots):
+            if i not in slots:
                 continue
             p = slot.random_point()
             self.mouse.move_to(
@@ -290,6 +313,26 @@ class Bot(ABC):
         self.mouse.move_rel(0, -53, 5, 5)
         pag.click()
 
+    def take_break(self, min_seconds: int = 1, max_seconds: int = 30, mean: int = None, std: int = None):
+        """
+        Takes a break for a random amount of time.
+        Args:
+            min_seconds: minimum amount of time the bot could rest
+            max_seconds: maximum amount of time the bot could rest
+            mean: mean of the random time interval (optional)
+            std: standard deviation of the random time interval (optional)
+        """
+        self.log_msg("Taking a break...")
+        if mean is None:
+            mean = round((min_seconds + max_seconds) / 2)
+        if std is None:
+            std = round((max_seconds - min_seconds) / 6)
+        length = rd.truncated_normal_sample(min_seconds, max_seconds, mean, std)
+        for i in range(int(length)):
+            self.log_msg(f"Taking a break... {int(length) - i} seconds left.", overwrite=True)
+            time.sleep(1)
+        self.log_msg("Done taking break.", overwrite=True)
+
     # --- Player Status Functions ---
     def has_hp_bar(self) -> bool:
         """
@@ -309,50 +352,51 @@ class Bot(ABC):
         char_screenshot = char_rect.screenshot()
         # Isolate HP bars in that rectangle
         hp_bars = clr.isolate_colors(char_screenshot, [clr.RED, clr.GREEN])
-        # debug.save_image("hp_bars.png", hp_bars)
         # If there are any HP bars, return True
         return hp_bars.mean(axis=(0, 1)) != 0.0
 
     def get_hp(self) -> int:
         """
-        Gets the HP value of the player.
+        Gets the HP value of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_prayer(self) -> int:
         """
-        Gets the Prayer points of the player.
+        Gets the Prayer points of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_run_energy(self) -> int:
         """
-        Gets the run energy of the player.
+        Gets the run energy of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_special_energy(self) -> int:
         """
-        Gets the special attack energy of the player.
+        Gets the special attack energy of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_total_xp(self) -> int:
         """
-        Gets the total XP of the player using OCR.
+        Gets the total XP of the player using OCR. Returns -1 if the value couldn't be read.
         """
         fonts = [ocr.PLAIN_11, ocr.PLAIN_12, ocr.BOLD_12]
         for font in fonts:
-            res = ocr.extract_text(self.win.total_xp, font, [clr.WHITE])
-            if res := re.findall(r"\d+", res):
-                return int(res[0])
-        return None
+            if res := ocr.extract_text(self.win.total_xp, font, [clr.WHITE]):
+                return int("".join(re.findall(r"\d", res)))
+        return -1
 
-    # --- OCR Functions ---
     def mouseover_text(
         self,
         contains: Union[str, List[str]] = None,
@@ -498,13 +542,13 @@ class Bot(ABC):
         if combat_style not in ["melee", "ranged", "mage"]:
             raise ValueError(f"Invalid combat style '{combat_style}'.")
 
-            # Ensuring that the xp_type is valid
+        # Ensuring that the xp_type is valid
         if xp_type not in ["attack", "strength", "defence", "shared", "rapid", "accurate", "longrange", "autocast"]:
             raise ValueError(f"Invalid xp style '{xp_type}'.")
 
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point())
-        pag.click()
+        self.mouse.click()
         time.sleep(0.5)
 
         # Define a list of all possible weapons

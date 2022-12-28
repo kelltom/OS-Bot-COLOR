@@ -87,12 +87,15 @@ class Window:
         doc="A Win32Window reference to the game client and its properties.",
     )
 
-    def focus(self) -> None:
+    def focus(self) -> None:  # sourcery skip: raise-from-previous-error
         """
         Focuses the client window.
         """
         if client := self.window:
-            client.activate()
+            try:
+                client.activate()
+            except Exception:
+                raise WindowInitializationError("Failed to focus client window. Try bringing it to the foreground.")
 
     def position(self) -> Point:
         """

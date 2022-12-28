@@ -10,8 +10,6 @@ from tkinter import filedialog
 runelite_settings_folder: Path = Path(__file__).parent.parent.joinpath("runelite_settings")
 executable_paths: str = str(runelite_settings_folder.joinpath("executable_paths.json"))
 
-# TODO: add function for building a settings file
-
 
 class Launchable:
     """

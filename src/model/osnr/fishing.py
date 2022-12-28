@@ -65,7 +65,7 @@ class OSNRFishing(OSNRBot):
         while time.time() - start_time < end_time:
             # Check to drop inventory
             if api.get_is_inv_full():
-                self.drop_inventory(skip_slots=list(range(self.protect_slots)))
+                self.drop_all(skip_slots=list(range(self.protect_slots)))
                 fished += 28 - self.protect_slots
                 self.log_msg(f"Fishes fished: ~{fished}")
                 time.sleep(2)
