@@ -332,7 +332,7 @@ class Bot(ABC):
         Gets the run energy of the player.
         """
         res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED])
-        return int(res) if (res := re.findall(r"\d+", res)) else None
+        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
 
     def get_special_energy(self) -> int:
         """
@@ -549,6 +549,8 @@ class Bot(ABC):
         spell: select a number from 0 to 19
         with (0) being air strike and (19) being fire surge
 
+        make sure to have a staff weilded
+
         """
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point())
@@ -573,6 +575,62 @@ class Bot(ABC):
             self.mouse.move_to(self.win.autocast_normal_spells[spell].random_point())
             rm.sleep_random(0.5, 1)
             self.mouse.click()
+
+    def select_prayers(self, prayer):
+        """
+        Args:
+        prayer: select a number from 0 to 28 
+        with (0) being Thick skin and (28) being Augury
+
+        """
+        self.mouse.move_to(self.win.prayer_book[prayer].random_point())
+        rm.sleep_random(0.5, 0.7)
+        self.mouse.click()
+
+    def toggle_quick_prayers(self):
+        """
+        toggles quick prayers
+        """
+        self.mouse.move_to(self.win.prayer_orb.random_point())
+        self.mouse.click()
+
+    def toggle_run(self,activation_threshold:int):
+        """
+        [note: NOT FULLY FUNCTIONAL YET]
+        toggles run once run % hits user specified threshold
+        activation_threshold : threshold on which the run will activate
+
+        """
+        if self.get_run_energy() < activation_threshold:
+            self.toggle_run_energy(True)
+            return
+
+    def toggle_run_energy(self, toggle_on: bool):
+        """
+        Toggles run. Assumes client window is configured.
+        Args:
+            toggle_on: True to turn on, False to turn off.
+        """
+        state = "on" if toggle_on else "off"
+        self.log_msg(f"Toggling run {state}...")
+
+        if toggle_on:
+            if run_status := imsearch.search_img_in_rect(
+                imsearch.BOT_IMAGES.joinpath("run_off.png"),
+                self.win.run_orb, 0.323
+            ):
+                self.mouse.move_to(run_status.random_point(), mouseSpeed="medium")
+                self.mouse.click()
+            else:
+                self.log_msg("Run is already on.")
+        elif run_status := imsearch.search_img_in_rect(
+            imsearch.BOT_IMAGES.joinpath("run_on.png"),
+            self.win.run_orb, 0.323
+        ):
+            self.mouse.move_to(run_status.random_point(), mouseSpeed="medium")
+            self.mouse.click()
+        else:
+            self.log_msg("Run is already off.")
 
     def __open_display_settings(self) -> bool:
         """
