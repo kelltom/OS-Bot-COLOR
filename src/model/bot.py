@@ -223,6 +223,7 @@ class Bot(ABC):
             msg: str - message to log
             overwrite: bool - if True, overwrites the current log message. If False, appends to the log.
         """
+        msg = f"{debug.current_time()}: {msg}"
         self.controller.update_log(msg, overwrite)
 
     def clear_log(self):
