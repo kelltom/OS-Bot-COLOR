@@ -634,18 +634,7 @@ class Bot(ABC):
         self.mouse.move_to(self.win.prayer_orb.random_point())
         self.mouse.click()
 
-    def toggle_run(self, activation_threshold: int):
-        """
-        [note: NOT FULLY FUNCTIONAL YET]
-        toggles run once run % hits user specified threshold
-        activation_threshold : threshold on which the run will activate
-
-        """
-        if self.get_run_energy() < activation_threshold:
-            self.toggle_run_energy(True)
-            return
-
-    def toggle_run_energy(self, toggle_on: bool):
+    def toggle_run(self, toggle_on: bool):
         """
         Toggles run. Assumes client window is configured.
         Args:
