@@ -579,7 +579,7 @@ class Bot(ABC):
     def select_prayers(self, prayer):
         """
         Args:
-        prayer: select a number from 0 to 28 
+        prayer: select a number from 0 to 28
         with (0) being Thick skin and (28) being Augury
 
         """
@@ -594,7 +594,7 @@ class Bot(ABC):
         self.mouse.move_to(self.win.prayer_orb.random_point())
         self.mouse.click()
 
-    def toggle_run(self,activation_threshold:int):
+    def toggle_run(self, activation_threshold: int):
         """
         [note: NOT FULLY FUNCTIONAL YET]
         toggles run once run % hits user specified threshold
@@ -615,18 +615,12 @@ class Bot(ABC):
         self.log_msg(f"Toggling run {state}...")
 
         if toggle_on:
-            if run_status := imsearch.search_img_in_rect(
-                imsearch.BOT_IMAGES.joinpath("run_off.png"),
-                self.win.run_orb, 0.323
-            ):
+            if run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_off.png"), self.win.run_orb, 0.323):
                 self.mouse.move_to(run_status.random_point(), mouseSpeed="medium")
                 self.mouse.click()
             else:
                 self.log_msg("Run is already on.")
-        elif run_status := imsearch.search_img_in_rect(
-            imsearch.BOT_IMAGES.joinpath("run_on.png"),
-            self.win.run_orb, 0.323
-        ):
+        elif run_status := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("run_on.png"), self.win.run_orb, 0.323):
             self.mouse.move_to(run_status.random_point(), mouseSpeed="medium")
             self.mouse.click()
         else:

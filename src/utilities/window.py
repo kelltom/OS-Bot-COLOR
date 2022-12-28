@@ -40,7 +40,7 @@ class Window:
     cp_tabs: List[Rectangle] = []  # https://i.imgur.com/huwNOWa.png
     inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
     normal_spellbook_autocast: List[Rectangle] = []  # [0] airstrike to [19] fire surge
-    prayer_book: List[Rectangle] = [] 
+    prayer_book: List[Rectangle] = []
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
