@@ -196,6 +196,7 @@ class App(customtkinter.CTk):
         self.toggle_btn_state(enabled=False)
 
     def __toggle_bot_by_key(self, bot_key, btn: customtkinter.CTkButton):
+        # sourcery skip: extract-method
         """
         Handles the event of the user selecting a bot from the dropdown menu. This function manages the state of frame_left buttons,
         the contents that appears in frame_right, and re-assigns the model to the controller.
@@ -203,45 +204,46 @@ class App(customtkinter.CTk):
             bot_key: The name/key of the bot that the user selected.
             btn: The button that the user clicked.
         """
-        if self.models[bot_key] is not None:
-            # If the script's frame is already visible, hide it
-            if self.controller.model == self.models[bot_key]:
-                self.controller.model.progress = 0
-                self.controller.update_progress()
-                self.controller.change_model(None)
-                self.views["Script"].pack_forget()
-                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
-                self.current_btn = None
-                self.current_home_view.pack(
-                    in_=self.frame_right,
-                    side=tkinter.TOP,
-                    fill=tkinter.BOTH,
-                    expand=True,
-                    padx=0,
-                    pady=0,
-                )
-            # If there is no script selected
-            elif self.controller.model is None:
-                self.current_home_view.pack_forget()
-                self.controller.change_model(self.models[bot_key])
-                self.views["Script"].pack(
-                    in_=self.frame_right,
-                    side=tkinter.TOP,
-                    fill=tkinter.BOTH,
-                    expand=True,
-                    padx=0,
-                    pady=0,
-                )
-                self.current_btn = btn
-                self.current_btn.configure(fg_color=btn.hover_color)
-            # If we are switching to a new script
-            else:
-                self.controller.model.progress = 0
-                self.controller.update_progress()
-                self.controller.change_model(self.models[bot_key])
-                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
-                self.current_btn = btn
-                self.current_btn.configure(fg_color=btn.hover_color)
+        if self.models[bot_key] is None:
+            return
+        # If the script's frame is already visible, hide it
+        if self.controller.model == self.models[bot_key]:
+            self.controller.model.progress = 0
+            self.controller.update_progress()
+            self.controller.change_model(None)
+            self.views["Script"].pack_forget()
+            self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
+            self.current_btn = None
+            self.current_home_view.pack(
+                in_=self.frame_right,
+                side=tkinter.TOP,
+                fill=tkinter.BOTH,
+                expand=True,
+                padx=0,
+                pady=0,
+            )
+        # If there is no script selected
+        elif self.controller.model is None:
+            self.current_home_view.pack_forget()
+            self.controller.change_model(self.models[bot_key])
+            self.views["Script"].pack(
+                in_=self.frame_right,
+                side=tkinter.TOP,
+                fill=tkinter.BOTH,
+                expand=True,
+                padx=0,
+                pady=0,
+            )
+            self.current_btn = btn
+            self.current_btn.configure(fg_color=btn.hover_color)
+        # If we are switching to a new script
+        else:
+            self.controller.model.progress = 0
+            self.controller.update_progress()
+            self.controller.change_model(self.models[bot_key])
+            self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
+            self.current_btn = btn
+            self.current_btn.configure(fg_color=btn.hover_color)
 
     # ============ Misc Handlers ============
     def change_mode(self):
