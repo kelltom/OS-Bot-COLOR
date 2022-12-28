@@ -355,42 +355,45 @@ class Bot(ABC):
 
     def get_hp(self) -> int:
         """
-        Gets the HP value of the player.
+        Gets the HP value of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
-        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.hp_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_prayer(self) -> int:
         """
-        Gets the Prayer points of the player.
+        Gets the Prayer points of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
-        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.prayer_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_run_energy(self) -> int:
         """
-        Gets the run energy of the player.
+        Gets the run energy of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
-        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.run_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_special_energy(self) -> int:
         """
-        Gets the special attack energy of the player.
+        Gets the special attack energy of the player. Returns -1 if the value couldn't be read.
         """
-        res = ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED], "O")
-        return int(res[0]) if (res := re.findall(r"\d+", res)) else None
+        if res := ocr.extract_text(self.win.spec_orb_text, ocr.PLAIN_11, [clr.ORB_GREEN, clr.ORB_RED]):
+            return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def get_total_xp(self) -> int:
         """
-        Gets the total XP of the player using OCR.
+        Gets the total XP of the player using OCR. Returns -1 if the value couldn't be read.
         """
         fonts = [ocr.PLAIN_11, ocr.PLAIN_12, ocr.BOLD_12]
         for font in fonts:
-            res = ocr.extract_text(self.win.total_xp, font, [clr.WHITE], "O")
-            if res := re.findall(r"\d+", res):
-                return int(res[0])
-        return None
+            if res := ocr.extract_text(self.win.total_xp, font, [clr.WHITE]):
+                return int("".join(re.findall(r"\d", res)))
+        return -1
 
     def mouseover_text(
         self,
