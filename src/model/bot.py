@@ -22,6 +22,7 @@ import utilities.color as clr
 import utilities.debug as debug
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
+import utilities.random_util as rd
 from utilities.geometry import Point, Rectangle
 from utilities.mouse_utils import MouseUtils
 from utilities.options_builder import OptionsBuilder
@@ -231,9 +232,9 @@ class Bot(ABC):
         self.controller.clear_log()
 
     # --- Misc Utility Functions
-    def drop_inventory(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
+    def drop_all(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
         """
-        Drops all items in the inventory.
+        Shift-clicks all items in the inventory to drop them.
         Args:
             skip_rows: The number of rows to skip before dropping.
             skip_slots: The indices of slots to avoid dropping.
@@ -249,6 +250,29 @@ class Bot(ABC):
         pag.keyDown("shift")
         for i, slot in enumerate(self.win.inventory_slots):
             if i in skip_slots:
+                continue
+            p = slot.random_point()
+            self.mouse.move_to(
+                (p[0], p[1]),
+                mouseSpeed="fastest",
+                knotsCount=1,
+                offsetBoundaryY=40,
+                offsetBoundaryX=40,
+                tween=pytweening.easeInOutQuad,
+            )
+            pag.click()
+        pag.keyUp("shift")
+
+    def drop(self, slots: list[int]) -> None:
+        """
+        Shift-clicks inventory slots to drop items.
+        Args:
+            slots: The indices of slots to drop.
+        """
+        self.log_msg("Dropping items...")
+        pag.keyDown("shift")
+        for i, slot in enumerate(self.win.inventory_slots):
+            if i not in slots:
                 continue
             p = slot.random_point()
             self.mouse.move_to(
