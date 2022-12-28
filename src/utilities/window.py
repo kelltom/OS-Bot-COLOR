@@ -39,7 +39,7 @@ class Window:
     control_panel: Rectangle = None  # https://i.imgur.com/BeMFCIe.png
     cp_tabs: List[Rectangle] = []  # https://i.imgur.com/huwNOWa.png
     inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
-    magic_spells: List[Rectangle] = [] # same as with inventory slots
+    magic_spells: List[Rectangle] = []  # same as with inventory slots
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
