@@ -194,22 +194,22 @@ class Window:
 
     def __locate_normal_spellbook_autocast(self, cp: Rectangle) -> None:
         """
-        Creates Rectangles for each magic spell in the autocast menu relative to the control panel, storing it in the class property
+        Creates Rectangles for each magic spell in the autocast menu relative to the control panel, storing it in the class property.
         """
-        self.autocast_normal_spells = []
+        self.normal_spellbook_autocast = []
         slot_w, slot_h = 16, 10  # dimensions of the spell
         gap_x, gap_y = 23, 23  # pixel gap between spells
         y = 55 + cp.top  # start y relative to cp template
         for _ in range(5):
             x = 54 + cp.left  # start x relative to cp template
             for _ in range(4):
-                self.autocast_normal_spells.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                self.normal_spellbook_autocast.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap_x
             y += slot_h + gap_y
 
     def __locate_prayer_book(self, cp: Rectangle) -> None:
         """
-        Creates Rectangles for each prayer in the prayerbook menu relative to the control panel, storing it in the class property
+        Creates Rectangles for each prayer in the prayerbook menu relative to the control panel, storing it in the class property.
         """
         self.prayer_book = []
         slot_w, slot_h = 26, 23  # dimensions of the prayers
