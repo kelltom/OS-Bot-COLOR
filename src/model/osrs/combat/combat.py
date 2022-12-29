@@ -1,24 +1,26 @@
 import time
 
+import shutil
+from pathlib import Path
 import utilities.api.item_ids as item_ids
 import utilities.color as clr
 from model.bot import BotStatus
 from model.osrs.osrs_bot import OSRSBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
+import utilities.game_launcher as launcher
 
 
-class OSRSCombat(OSRSBot):
+class OSRSCombat(OSRSBot, launcher.Launchable):
     def __init__(self):
         bot_title = "Combat"
         description = (
-            "This bot kills NPCs. Position your character near some NPCs and tag them. If you want the bot to pick up "
-            + "loot, add the item name to the highlight list in the Ground Items plugin (one day this will be done automatically)."
+            "This bot kills NPCs. Position your character near some NPCs and highlight them. After setting this bot's options, please launch RuneLite with the button on the right."
         )
         super().__init__(bot_title=bot_title, description=description)
-        self.running_time = 1
-        self.loot_items = []
-        self.hp_threshold = 0
+        self.running_time: int = 1
+        self.loot_items: str = ""
+        self.hp_threshold: int = 0
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
@@ -40,17 +42,37 @@ class OSRSCombat(OSRSBot):
                 return
 
         self.log_msg(f"Running time: {self.running_time} minutes.")
-        self.log_msg(f"Loot items: {self.loot_items}.")
+        self.log_msg(f'Loot items: {self.loot_items or "None"}.')
         self.log_msg(f"Bot will eat when HP is below: {self.hp_threshold}.")
         self.log_msg("Options set successfully.")
 
         self.options_set = True
+    
+    def launch_game(self):
+        if launcher.is_program_running("RuneLite"):
+            self.log_msg("RuneLite is already running. Please close it and try again.")
+            return
+        # Make a copy of the default settings and save locally
+        src = launcher.runelite_settings_folder.joinpath("osrs_settings.properties")
+        dst = Path(__file__).parent.joinpath("custom_settings.properties")
+        shutil.copy(str(src), str(dst))
+        # Modify the highlight list
+        loot_items = self.capitalize_loot_list(self.loot_items, to_list=False)
+        with dst.open() as f:
+            lines = f.readlines()
+        for i, line in enumerate(lines):
+            if line.startswith("grounditems.highlightedItems="):
+                lines[i] = f"grounditems.highlightedItems={loot_items}\n"
+        with dst.open("w") as f:
+            f.writelines(lines)
+        # Launch the game
+        launcher.launch_runelite_with_settings(self, dst)
 
     def main_loop(self):
         # Setup API
         api_morg = MorgHTTPSocket()
         api_status = StatusSocket()
-
+        
         self.toggle_auto_retaliate(True)
 
         self.log_msg("Selecting inventory...")
