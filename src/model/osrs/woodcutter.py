@@ -89,7 +89,7 @@ class OSRSWoodcutter(OSRSBot):
             while not self.api_m.get_is_player_idle():
                 # Every second there is a 10% chance to move the mouse to the next tree
                 if rd.random_chance(probability=0.10):
-                    self.__move_mouse_to_nearest_tree(next_nearest=True, mouseSpeed="slow")
+                    self.__move_mouse_to_nearest_tree(next_nearest=True)
                 time.sleep(1)
 
             self.update_progress((time.time() - start_time) / end_time)
@@ -102,7 +102,7 @@ class OSRSWoodcutter(OSRSBot):
         self.logout()
         self.set_status(BotStatus.STOPPED)
 
-    def __move_mouse_to_nearest_tree(self, next_nearest=False, mouseSpeed="medium"):
+    def __move_mouse_to_nearest_tree(self, next_nearest=False):
         """
         Locates the nearest tree and moves the mouse to it. This code is used multiple times in this script,
         so it's been abstracted into a function.
@@ -122,7 +122,10 @@ class OSRSWoodcutter(OSRSBot):
             return False
         trees = sorted(trees, key=RuneLiteObject.distance_from_rect_center)
         tree = trees[1] if next_nearest else trees[0]
-        self.mouse.move_to(tree.random_point(), mouseSpeed=mouseSpeed)
+        if next_nearest:
+            self.mouse.move_to(tree.random_point(), mouseSpeed="slow", knotsCount=2)
+        else:
+            self.mouse.move_to(tree.random_point())
         return True
 
     def __drop_logs(self):
