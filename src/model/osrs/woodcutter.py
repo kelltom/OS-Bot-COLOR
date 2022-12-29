@@ -40,8 +40,8 @@ class OSRSWoodcutter(OSRSBot):
 
     def main_loop(self):
         # Setup API
-        self.api_m = MorgHTTPSocket()
-        self.api_s = StatusSocket()
+        api_m = MorgHTTPSocket()
+        api_s = StatusSocket()
 
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
@@ -60,11 +60,11 @@ class OSRSWoodcutter(OSRSBot):
 
             # 2% chance to drop logs early
             if rd.random_chance(probability=0.02):
-                self.__drop_logs()
+                self.__drop_logs(api_s)
 
             # If inventory is full, drop logs
-            if self.api_s.get_is_inv_full():
-                self.__drop_logs()
+            if api_s.get_is_inv_full():
+                self.__drop_logs(api_s)
 
             # If our mouse isn't hovering over a tree, and we can't find another tree...
             if not self.mouseover_text(contains="Chop") and not self.__move_mouse_to_nearest_tree():
@@ -86,7 +86,7 @@ class OSRSWoodcutter(OSRSBot):
             time.sleep(0.5)
 
             # While the player is chopping (or moving), wait
-            while not self.api_m.get_is_player_idle():
+            while not api_m.get_is_player_idle():
                 # Every second there is a 10% chance to move the mouse to the next tree
                 if rd.random_chance(probability=0.10):
                     self.__move_mouse_to_nearest_tree(next_nearest=True)
@@ -128,12 +128,12 @@ class OSRSWoodcutter(OSRSBot):
             self.mouse.move_to(tree.random_point())
         return True
 
-    def __drop_logs(self):
+    def __drop_logs(self, api_s: StatusSocket):
         """
         Private function for dropping logs. This code is used in multiple places, so it's been abstracted.
         Since we made the `api` and `logs` variables assigned to `self`, we can access them from this function.
         """
-        slots = self.api_s.get_inv_item_indices(ids.logs)
+        slots = api_s.get_inv_item_indices(ids.logs)
         self.drop(slots)
         self.logs += len(slots)
         self.log_msg(f"Logs cut: ~{self.logs}")
