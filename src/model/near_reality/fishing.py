@@ -4,12 +4,12 @@ import pyautogui as pag
 
 import utilities.color as clr
 from model.bot import BotStatus
-from model.osnr.osnr_bot import OSNRBot
+from model.near_reality.nr_bot import NRBot
 from utilities.api.status_socket import StatusSocket
 from utilities.geometry import Point, RuneLiteObject
 
 
-class OSNRFishing(OSNRBot):
+class NRFishing(NRBot):
     def __init__(self):
         title = "Fishing"
         description = "This bot fishes... fish. Take out a rod and bait, position your character " + "near a tagged fishing spot, and press play."

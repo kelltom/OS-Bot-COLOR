@@ -1,6 +1,4 @@
-"""
-Thieving bot for OSNR. Pickpockets from NPCs.
-"""
+
 import time
 from typing import List
 
@@ -11,14 +9,14 @@ import utilities.api.item_ids as item_ids
 import utilities.color as clr
 import utilities.imagesearch as imsearch
 from model.bot import BotStatus
-from model.osnr.osnr_bot import OSNRBot
+from model.near_reality.nr_bot import NRBot
 from utilities.api.status_socket import StatusSocket
 from utilities.geometry import Point, RuneLiteObject
 
 
-class OSNRThievingPickpocket(OSNRBot):
+class NRPickpocket(NRBot):
     def __init__(self):
-        title = "Thieving: Pickpocket"
+        title = "Pickpocket"
         description = (
             "This bot steals from NPCs in OSNR. Position your character near a tagged NPC you wish to steal from. "
             + "Start bot with > 50% HP. If you risk attacking nearby NPCs via misclick, turn NPC attack options to 'hidden'."
