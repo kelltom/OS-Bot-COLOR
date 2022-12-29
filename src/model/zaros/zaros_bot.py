@@ -1,4 +1,3 @@
-
 from abc import ABCMeta
 
 from model.runelite_bot import RuneLiteBot, RuneLiteWindow
