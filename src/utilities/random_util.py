@@ -2,7 +2,6 @@ import math
 import random
 import secrets
 from datetime import datetime
-from time import sleep
 from typing import List
 
 
@@ -89,14 +88,14 @@ def __random_from(x_min, y_min, width, height, center: bool = False) -> List[int
     return [x, y]
 
 
-def truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation) -> float:
+def truncated_normal_sample(lower_bound, upper_bound, mean=None, standard_deviation=None) -> float:
     """
     Generate a random sample from the normal distribution using the Box-Muller method.
     Args:
         lower_bound: The lower bound of the truncated normal distribution.
         upper_bound: The upper bound of the truncated normal distribution.
-        mean: The mean of the normal distribution.
-        standard_deviation: The standard deviation of the normal distribution.
+        mean: The mean of the normal distribution (default is auto-generated).
+        standard_deviation: The standard deviation of the normal distribution (default is auto-generated).
     Returns:
         A random float from the truncated normal distribution.
     """
@@ -104,6 +103,11 @@ def truncated_normal_sample(lower_bound, upper_bound, mean, standard_deviation) 
     u1 = sg.uniform(0, 1)
     u2 = sg.uniform(0, 1)
     z1 = math.sqrt(-2 * math.log(u1)) * math.cos(2 * math.pi * u2)
+
+    if mean is None:
+        mean = round((lower_bound + upper_bound) / 2)
+    if standard_deviation is None:
+        standard_deviation = round((upper_bound - lower_bound) / 6)
     sample = mean + standard_deviation * z1
 
     if sample < lower_bound:
