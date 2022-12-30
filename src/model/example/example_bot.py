@@ -105,10 +105,8 @@ class ExampleBot(Bot):
         # --- CLIENT SETUP ---
         """
         Before entering the bot loop, consider configuring the client window (E.g., setting auto-retaliate on/off,
-        zooming to a certain percentage, making sure the inventory tab is open, etc.). This is not required, but it
-        can be useful.
+        making sure the inventory tab is open, etc.). This is not required, but it can be useful.
         """
-        # self.set_camera_zoom(50) # <-- zooms the camera to 50%
         # self.set_auto_retaliate(True) # <-- turns on auto-retaliate
         # self.mouse.move_to(self.win.inventory_tabs[3].random_point()) # <-- moves the mouse to the inventory tab
 

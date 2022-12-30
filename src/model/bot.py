@@ -469,33 +469,6 @@ class Bot(ABC):
         self.mouse.move_rel(0, rel_y, 5, 2)
         self.mouse.click()
 
-    def set_camera_zoom(self, percentage: int) -> bool:
-        """
-        Sets the camera zoom level.
-        Args:
-            percentage: The percentage of the camera zoom level to set.
-        Returns:
-            True if the zoom level was set, False if an issue occured.
-        """
-        if percentage < 1:
-            percentage = 1
-        elif percentage > 100:
-            percentage = 100
-        self.log_msg(f"Setting camera zoom to {percentage}%...")
-        if not self.__open_display_settings():
-            return False
-        scroll_rect = Rectangle(
-            left=self.win.control_panel.left + 84,
-            top=self.win.control_panel.top + 146,
-            width=102,
-            height=8,
-        )
-        x = int((percentage / 100) * (scroll_rect.left + scroll_rect.width - scroll_rect.left) + scroll_rect.left)
-        p = scroll_rect.random_point()
-        self.mouse.move_to((x, p.y))
-        self.mouse.click()
-        return True
-
     def toggle_auto_retaliate(self, toggle_on: bool):
         """
         Toggles auto retaliate. Assumes client window is configured.
@@ -602,22 +575,3 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
-
-    def __open_display_settings(self) -> bool:
-        """
-        Opens the display settings for the game client.
-        Returns:
-            True if the settings were opened, False if an error occured.
-        """
-        control_panel = self.win.control_panel
-        self.mouse.move_to(self.win.cp_tabs[11].random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("settings", "display_tab.png"), control_panel)
-        if display_tab is None:
-            self.log_msg("Could not find the display settings tab.")
-            return False
-        self.mouse.move_to(display_tab.random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        return True
