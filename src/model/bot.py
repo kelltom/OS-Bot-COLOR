@@ -502,6 +502,7 @@ class Bot(ABC):
 
     def select_combat_style(self, combat_style: str, xp_type: str):
         """
+        Selects a combat style from the combat tab. This function relies on images in the `images/bot/combat` folder.
         Args:
             combat_style: the combat style ("melee" or "ranged")
             xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate", or "longrange").
