@@ -1,28 +1,31 @@
+import shutil
 import time
+from pathlib import Path
 
 import utilities.api.item_ids as item_ids
 import utilities.color as clr
+import utilities.game_launcher as launcher
 from model.bot import BotStatus
 from model.osrs.osrs_bot import OSRSBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
 
 
-class OSRSCombat(OSRSBot):
+class OSRSCombat(OSRSBot, launcher.Launchable):
     def __init__(self):
         bot_title = "Combat"
         description = (
-            "This bot kills NPCs. Position your character near some NPCs and tag them. If you want the bot to pick up "
-            + "loot, add the item name to the highlight list in the Ground Items plugin (one day this will be done automatically)."
+            "This bot kills NPCs. Position your character near some NPCs and highlight them. After setting this bot's options, please launch RuneLite with the"
+            " button on the right."
         )
         super().__init__(bot_title=bot_title, description=description)
-        self.running_time = 1
-        self.loot_items = []
-        self.hp_threshold = 0
+        self.running_time: int = 1
+        self.loot_items: str = ""
+        self.hp_threshold: int = 0
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
-        self.options_builder.add_text_edit_option("loot_items", "Loot items (comma separated):", "E.g., Coins, Dragon bones")
+        self.options_builder.add_text_edit_option("loot_items", "Loot items (requires re-launch):", "E.g., Coins, Dragon bones")
         self.options_builder.add_slider_option("hp_threshold", "Low HP threshold (0-100)?", 0, 100)
 
     def save_options(self, options: dict):
@@ -40,13 +43,35 @@ class OSRSCombat(OSRSBot):
                 return
 
         self.log_msg(f"Running time: {self.running_time} minutes.")
-        self.log_msg(f"Loot items: {self.loot_items}.")
+        self.log_msg(f'Loot items: {self.loot_items or "None"}.')
         self.log_msg(f"Bot will eat when HP is below: {self.hp_threshold}.")
-        self.log_msg("Options set successfully.")
+        self.log_msg("Options set successfully. Please launch RuneLite with the button on the right to apply settings.")
 
         self.options_set = True
 
+    def launch_game(self):
+        if launcher.is_program_running("RuneLite"):
+            self.log_msg("RuneLite is already running. Please close it and try again.")
+            return
+        # Make a copy of the default settings and save locally
+        src = launcher.runelite_settings_folder.joinpath("osrs_settings.properties")
+        dst = Path(__file__).parent.joinpath("custom_settings.properties")
+        shutil.copy(str(src), str(dst))
+        # Modify the highlight list
+        loot_items = self.capitalize_loot_list(self.loot_items, to_list=False)
+        with dst.open() as f:
+            lines = f.readlines()
+        for i, line in enumerate(lines):
+            if line.startswith("grounditems.highlightedItems="):
+                lines[i] = f"grounditems.highlightedItems={loot_items}\n"
+        with dst.open("w") as f:
+            f.writelines(lines)
+        # Launch the game
+        launcher.launch_runelite_with_settings(self, dst)
+
     def main_loop(self):
+        self.log_msg("WARNING: This script is for testing and may not be safe for personal use. Please modify it to suit your needs.")
+
         # Setup API
         api_morg = MorgHTTPSocket()
         api_status = StatusSocket()
@@ -65,7 +90,8 @@ class OSRSCombat(OSRSBot):
         while time.time() - start_time < end_time:
             # If inventory is full...
             if api_status.get_is_inv_full():
-                self.__logout("Inventory full. Logging out...")
+                self.log_msg("Inventory is full. Idk what to do.")
+                self.set_status(BotStatus.STOPPED)
                 return
 
             # While not in combat
@@ -89,7 +115,7 @@ class OSRSCombat(OSRSBot):
                 if not self.mouseover_text(contains="Attack", color=clr.OFF_WHITE):
                     continue
                 self.mouse.click()
-                time.sleep(1)
+                time.sleep(0.5)
 
             # While in combat
             while api_morg.get_is_in_combat():

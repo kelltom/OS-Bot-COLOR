@@ -322,10 +322,6 @@ class Bot(ABC):
             std: standard deviation of the random time interval (optional)
         """
         self.log_msg("Taking a break...")
-        if mean is None:
-            mean = round((min_seconds + max_seconds) / 2)
-        if std is None:
-            std = round((max_seconds - min_seconds) / 6)
         length = rd.truncated_normal_sample(min_seconds, max_seconds, mean, std)
         for i in range(int(length)):
             self.log_msg(f"Taking a break... {int(length) - i} seconds left.", overwrite=True)

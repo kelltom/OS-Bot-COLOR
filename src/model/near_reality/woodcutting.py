@@ -1,32 +1,31 @@
 import time
-from typing import List
 
 import utilities.color as clr
 from model.bot import BotStatus
-from model.osnr.osnr_bot import OSNRBot
+from model.near_reality.nr_bot import NRBot
 from utilities.api.status_socket import StatusSocket
-from utilities.geometry import Rectangle, RuneLiteObject
 
 
-class OSNRMining(OSNRBot):
+class OSNRWoodcutting(NRBot):
     def __init__(self):
-        title = "Mining"
-        description = (
-            "This bot power-mines rocks. Equip a pickaxe, place your character between some rocks and mark "
-            + "(Shift + Right-Click) the ones you want to mine."
-        )
+        title = "Woodcutting"
+        description = "This bot chops wood. Position your character near some trees, tag them, and press the play button."
         super().__init__(bot_title=title, description=description)
-        self.running_time = 2
-        self.logout_on_friends = False
+        self.running_time = 1
+        self.protect_slots = 0
+        self.logout_on_friends = True
 
     def create_options(self):
-        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
+        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
+        self.options_builder.add_slider_option("protect_slots", "When dropping, protect first x slots:", 0, 4)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
 
     def save_options(self, options: dict):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
+            elif option == "protect_slots":
+                self.protect_slots = options[option]
             elif option == "logout_on_friends":
                 self.logout_on_friends = options[option] == "Yes"
             else:
@@ -35,38 +34,30 @@ class OSNRMining(OSNRBot):
                 self.options_set = False
                 return
         self.log_msg(f"Running time: {self.running_time} minutes.")
-        self.log_msg(f'Bot will {"" if self.logout_on_friends else "not"} logout when friends are nearby.')
+        self.log_msg(f"Protect slots: {self.protect_slots}.")
+        self.log_msg("Bot will not logout when friends are nearby.")
         self.options_set = True
 
     def main_loop(self):  # sourcery skip: low-code-quality
-        # Setup
+        # Setup API
         api = StatusSocket()
-
-        # Client setup
-        self.set_camera_zoom(50)
 
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
 
-        time.sleep(0.5)
-        self.disable_private_chat()
-        time.sleep(0.5)
-
-        # Set compass
-        self.set_compass_north()
-        self.move_camera_up()
-
-        mined = 0
+        logs = 0
         failed_searches = 0
 
         # Main loop
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            # Check to drop inventory
+            # If inventory is full
             if api.get_is_inv_full():
-                self.drop_all()
+                self.drop_all(skip_slots=list(range(self.protect_slots)))
+                logs += 28 - self.protect_slots
+                self.log_msg(f"Logs cut: ~{logs}")
                 time.sleep(1)
                 continue
 
@@ -75,35 +66,38 @@ class OSNRMining(OSNRBot):
                 self.__logout("Friends nearby. Logging out.")
                 return
 
-            # Get the rocks
-            rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.game_view, clr.PINK)
-            if not rocks:
+            # Find a tree
+            tree = self.get_nearest_tag(clr.PINK)
+            if tree is None:
                 failed_searches += 1
-                if failed_searches > 5:
-                    self.__logout("Failed to find a rock to mine. Logging out.")
-                    self.set_status(BotStatus.STOPPED)
+                if failed_searches > 10:
+                    self.__logout("No tagged trees found. Logging out.")
                     return
                 time.sleep(1)
                 continue
 
-            # Whack the rock
-            failed_searches = 0
-            self.mouse.move_to(rocks[0].random_point(), mouseSpeed="fastest")
+            # Click tree and wait to start cutting
+            self.mouse.move_to(tree.random_point())
             self.mouse.click()
+            time.sleep(5)
 
-            while not api.get_is_player_idle():
-                pass
+            # Wait so long as the player is cutting
+            # -Could alternatively check the API for the player's idle status-
+            timer = 0
+            while self.is_player_doing_action("Woodcutting"):
+                self.update_progress((time.time() - start_time) / end_time)
+                if timer % 6 == 0:
+                    self.log_msg("Chopping tree...")
+                time.sleep(2)
+                timer += 2
+            self.log_msg("Idle...")
 
-            mined += 1
-            self.log_msg(f"Rocks mined: {mined}")
-
-            # Update progress
             self.update_progress((time.time() - start_time) / end_time)
 
         self.update_progress(1)
         self.__logout("Finished.")
 
-    def __logout(self, msg: str):
+    def __logout(self, msg):
         self.log_msg(msg)
         self.logout()
         self.set_status(BotStatus.STOPPED)
