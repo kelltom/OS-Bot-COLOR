@@ -2,12 +2,13 @@ import time
 
 import pyautogui as pag
 
+import utilities.api.item_ids as ids
 import utilities.color as clr
 from model.bot import BotStatus
 from model.near_reality.nr_bot import NRBot
 from utilities.api.status_socket import StatusSocket
 from utilities.geometry import Point, RuneLiteObject
-import utilities.api.item_ids as ids
+
 
 class NRFishing(NRBot):
     def __init__(self):
