@@ -42,20 +42,9 @@ class NRMining(NRBot):
         # Setup
         api = StatusSocket()
 
-        # Client setup
-        self.set_camera_zoom(50)
-
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
-
-        time.sleep(0.5)
-        self.disable_private_chat()
-        time.sleep(0.5)
-
-        # Set compass
-        self.set_compass_north()
-        self.move_camera_up()
 
         mined = 0
         failed_searches = 0

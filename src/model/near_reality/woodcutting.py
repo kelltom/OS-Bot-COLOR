@@ -42,16 +42,9 @@ class OSNRWoodcutting(NRBot):
         # Setup API
         api = StatusSocket()
 
-        # Client setup
-        self.set_camera_zoom(30)
-
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
-
-        time.sleep(0.5)
-        self.disable_private_chat()
-        time.sleep(0.5)
 
         logs = 0
         failed_searches = 0
