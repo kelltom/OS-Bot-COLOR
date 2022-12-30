@@ -1,6 +1,8 @@
 """
 This script is used to ensure that the Window properties are being set correctly.
 """
+
+import contextlib
 import time
 from pathlib import Path
 from typing import List
@@ -51,9 +53,10 @@ class WindowTestBot(Bot, launcher.Launchable):
         The program will let you know if the initialization failed."""
 
         # Here, we'll define some points on screen that we'll move the mouse to.
+        # Format: (message, Rectangle or List[Rectangle], Rectangle to click prior to moving mouse)
         spots: List[tuple] = [
             ("Moving to chatbox...", self.win.chat),
-            ("Moving to control panel...", self.win.control_panel),
+            ("Moving to control panel...", self.win.control_panel, self.win.cp_tabs[3]),
             ("Moving to minimaparea...", self.win.minimap_area),
             ("Moving to minimap...", self.win.minimap),
             ("Moving to game view...", self.win.game_view),
@@ -68,14 +71,18 @@ class WindowTestBot(Bot, launcher.Launchable):
             ("Moving to control panel tabs...", self.win.cp_tabs),
             ("Moving to inv slots...", self.win.inventory_slots),
             ("Moving to chat tabs...", self.win.chat_tabs),
+            ("Moving to normal spells...", self.win.spellbook_normal, self.win.cp_tabs[6]),
         ]
         for spot_count, spot in enumerate(spots, start=1):
             self.log_msg(spot[0])
+            with contextlib.suppress(Exception):
+                self.mouse.move_to(spot[2].get_center())
+                self.mouse.click()
             if isinstance(spot[1], Rectangle):
                 self.mouse.move_to(spot[1].get_center())
             else:
                 for rect in spot[1]:
-                    self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
+                    self.mouse.move_to(rect.get_center(), mouseSpeed="fastest")
             time.sleep(0.5)
 
             self.update_progress(spot_count / len(spots))
