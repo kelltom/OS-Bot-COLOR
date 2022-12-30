@@ -511,7 +511,7 @@ class Bot(ABC):
 
         if toggle_on:
             if auto_retal_btn := imsearch.search_img_in_rect(
-                imsearch.BOT_IMAGES.joinpath("near_reality", "cp_combat_autoretal.png"),
+                imsearch.BOT_IMAGES.joinpath("combat", "autoretal_off.png"),
                 self.win.control_panel,
             ):
                 self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
@@ -519,7 +519,7 @@ class Bot(ABC):
             else:
                 self.log_msg("Auto retaliate is already on.")
         elif auto_retal_btn := imsearch.search_img_in_rect(
-            imsearch.BOT_IMAGES.joinpath("near_reality", "cp_combat_autoretal_on.png"),
+            imsearch.BOT_IMAGES.joinpath("combat", "autoretal_on.png"),
             self.win.control_panel,
         ):
             self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
@@ -573,7 +573,9 @@ class Bot(ABC):
             img_location = imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png")
             if not os.path.exists(img_location):
                 continue
-            if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05):
+            if result := imsearch.search_img_in_rect(
+                imsearch.BOT_IMAGES.joinpath("combat", combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05
+            ):
                 self.mouse.move_to(result.random_point())
                 self.mouse.click()
                 self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' selected.")
@@ -611,7 +613,7 @@ class Bot(ABC):
         self.mouse.move_to(self.win.cp_tabs[11].random_point())
         self.mouse.click()
         time.sleep(0.5)
-        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel)
+        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("settings", "display_tab.png"), control_panel)
         if display_tab is None:
             self.log_msg("Could not find the display settings tab.")
             return False

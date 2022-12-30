@@ -243,7 +243,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         """
         self.log_msg("Logging out of RuneLite...")
         rl_login_icon = imsearch.search_img_in_rect(
-            imsearch.BOT_IMAGES.joinpath("runelite_logout.png"),
+            imsearch.BOT_IMAGES.joinpath("settings", "runelite_logout.png"),
             self.win.rectangle(),
             confidence=0.9,
         )
