@@ -1,17 +1,14 @@
-"""
-Combat bot for OSNR. Attacks tagged monsters.
-"""
 import time
 
 from model.bot import BotStatus
-from model.osnr.osnr_bot import OSNRBot
+from model.near_reality.nr_bot import NRBot
 from utilities.api.status_socket import StatusSocket
 from utilities.geometry import RuneLiteObject
 
 
-class OSNRCombat(OSNRBot):
+class NRCombat(NRBot):
     def __init__(self):
-        title = "Combat Bot"
+        title = "Combat"
         description = (
             "This bot attacks NPCs tagged using RuneLite. Position your character in the viscinity of the tagged NPCs. "
             + "In the 'Entity Hider' plugin, make sure 'Hide Local Player 2D' is OFF."
@@ -23,20 +20,12 @@ class OSNRCombat(OSNRBot):
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
-        # self.options_builder.add_checkbox_option("prefs", "Additional options", ["Loot", "Bank"])
 
     def save_options(self, options: dict):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
                 self.log_msg(f"Running time: {self.running_time} minutes.")
-            # elif option == "prefs":
-            #     if "Loot" in options[option]:
-            #         self.should_loot = True
-            #         self.log_msg("Note: Looting is not yet implemented.")
-            #     if "Bank" in options[option]:
-            #         self.should_bank = True
-            #         self.log_msg("Note: Banking is not yet implemented.")
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")

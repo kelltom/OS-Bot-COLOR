@@ -118,7 +118,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         Attempts to pick up a single purple loot item off the ground. It is your responsibility to ensure you have
         enough inventory space to pick up the item.
         Args:
-            item: The name(s) of the item(s) to pick up (E.g., "Coins", or ["Coins", "Dragon bones"]).
+            item: The name(s) of the item(s) to pick up (E.g. -> "Coins", or "coins, bones", or ["Coins", "Dragon bones"]).
         Returns:
             True if the item was clicked, False otherwise.
         """
@@ -128,7 +128,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 item = item.capitalize()
                 items[i] = item
         else:
-            items = [items.capitalize()]
+            items = self.capitalize_loot_list(items, to_list=True)
         # Locate Ground Items text
         if item_text := ocr.find_text(items, self.win.game_view, ocr.PLAIN_11, clr.PURPLE):
             self.mouse.move_to(item_text[len(item_text) // 2].get_center())
@@ -153,6 +153,25 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         elif not supress_warning:
             self.log_msg(f"Could not find '{items}' on the ground.")
             return False
+
+    def capitalize_loot_list(self, loot: str, to_list: bool):
+        """
+        Takes a comma-separated string of loot items and capitalizes each item.
+        Args:
+            loot_list: A comma-separated string of loot items.
+            to_list: Whether to return a list of capitalized loot items (or keep it as a string).
+        Returns:
+            A list of capitalized loot items.
+        """
+        if not loot:
+            return ""
+        phrases = loot.split(",")
+        capitalized_phrases = []
+        for phrase in phrases:
+            stripped_phrase = phrase.strip()
+            capitalized_phrase = stripped_phrase.capitalize()
+            capitalized_phrases.append(capitalized_phrase)
+        return capitalized_phrases if to_list else ", ".join(capitalized_phrases)
 
     # --- NPC/Object Detection ---
     def get_nearest_tagged_NPC(self, include_in_combat: bool = False) -> RuneLiteObject:
