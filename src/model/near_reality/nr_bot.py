@@ -1,6 +1,6 @@
 """
-The OSNRBot class contains properties and functions that are specific to the OSNR client. This class should
-be inherited by OSNR script classes.
+The NRBot class contains properties and functions that are specific to the NR client. This class should
+be inherited by NR script classes.
 """
 import time
 from abc import ABCMeta
@@ -11,7 +11,7 @@ from model.runelite_bot import RuneLiteBot, RuneLiteWindow
 from utilities.geometry import Point
 
 
-class OSNRBot(RuneLiteBot, metaclass=ABCMeta):
+class NRBot(RuneLiteBot, metaclass=ABCMeta):
     win: RuneLiteWindow = None
 
     def __init__(self, bot_title, description) -> None:
