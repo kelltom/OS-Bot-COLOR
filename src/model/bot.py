@@ -507,7 +507,7 @@ class Bot(ABC):
             combat_style: the attack type ("accurate", "aggressive", "defensive", "controlled", "rapid", "longrange").
         """
         # Ensuring that args are valid
-        if (combat_style not in ["accurate", "aggressive", "defensive", "controlled", "rapid", "longrange"]):
+        if combat_style not in ["accurate", "aggressive", "defensive", "controlled", "rapid", "longrange"]:
             raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
 
         # Click the combat tab
@@ -520,13 +520,18 @@ class Bot(ABC):
             "aggressive": ["Kick", "Smash", "Hack", "Swipe", "Slash", "Impale", "Lunge", "Pummel", "Chop", "Pound"],
             "defensive": ["Block", "Fend", "Focus", "Deflect"],
             "controlled": ["Spike", "Lash", "Lunge", "Jab"],
-            "rapid": ["Rapid", "Medium fuse",],
-            "longrange": ["Longrange", "Long fuse",],
+            "rapid": [
+                "Rapid",
+                "Medium fuse",
+            ],
+            "longrange": [
+                "Longrange",
+                "Long fuse",
+            ],
         }
 
-        # Try to find the attack style in question, click it if it is not selected
         for style in styles[combat_style]:
-            # try and find the center of the word with OCR
+            # Try and find the center of the word with OCR
             if result := ocr.find_text(style, self.win.control_panel, ocr.PLAIN_11, clr.OFF_ORANGE):
                 # If the word is found, draw a rectangle around it and click a random point in that rectangle
                 center = result[0].get_center()
