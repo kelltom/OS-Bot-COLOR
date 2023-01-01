@@ -3,7 +3,6 @@ A Bot is a base class for bot script models. It is abstract and cannot be instan
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
 import ctypes
-import os.path
 import platform
 import re
 import threading
@@ -469,33 +468,6 @@ class Bot(ABC):
         self.mouse.move_rel(0, rel_y, 5, 2)
         self.mouse.click()
 
-    def set_camera_zoom(self, percentage: int) -> bool:
-        """
-        Sets the camera zoom level.
-        Args:
-            percentage: The percentage of the camera zoom level to set.
-        Returns:
-            True if the zoom level was set, False if an issue occured.
-        """
-        if percentage < 1:
-            percentage = 1
-        elif percentage > 100:
-            percentage = 100
-        self.log_msg(f"Setting camera zoom to {percentage}%...")
-        if not self.__open_display_settings():
-            return False
-        scroll_rect = Rectangle(
-            left=self.win.control_panel.left + 84,
-            top=self.win.control_panel.top + 146,
-            width=102,
-            height=8,
-        )
-        x = int((percentage / 100) * (scroll_rect.left + scroll_rect.width - scroll_rect.left) + scroll_rect.left)
-        p = scroll_rect.random_point()
-        self.mouse.move_to((x, p.y))
-        self.mouse.click()
-        return True
-
     def toggle_auto_retaliate(self, toggle_on: bool):
         """
         Toggles auto retaliate. Assumes client window is configured.
@@ -511,7 +483,7 @@ class Bot(ABC):
 
         if toggle_on:
             if auto_retal_btn := imsearch.search_img_in_rect(
-                imsearch.BOT_IMAGES.joinpath("near_reality", "cp_combat_autoretal.png"),
+                imsearch.BOT_IMAGES.joinpath("combat", "autoretal_off.png"),
                 self.win.control_panel,
             ):
                 self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
@@ -519,7 +491,7 @@ class Bot(ABC):
             else:
                 self.log_msg("Auto retaliate is already on.")
         elif auto_retal_btn := imsearch.search_img_in_rect(
-            imsearch.BOT_IMAGES.joinpath("near_reality", "cp_combat_autoretal_on.png"),
+            imsearch.BOT_IMAGES.joinpath("combat", "autoretal_on.png"),
             self.win.control_panel,
         ):
             self.mouse.move_to(auto_retal_btn.random_point(), mouseSpeed="medium")
@@ -527,58 +499,47 @@ class Bot(ABC):
         else:
             self.log_msg("Auto retaliate is already off.")
 
-    def select_combat_style(self, combat_style: str, xp_type: str):
+    def select_combat_style(self, combat_style: str):
         """
+        Selects a combat style from the combat tab.
         Args:
-            combat_style: the combat style ("melee" or "ranged")
-            xp_type: the attack type ("attack", "strength", "defence", "shared", "rapid", "accurate", or "longrange").
+            combat_style: the attack type ("accurate", "aggressive", "defensive", "controlled", "rapid", "longrange").
         """
         # Ensuring that args are valid
-        if combat_style not in ["melee", "ranged"]:
+        if combat_style not in ["accurate", "aggressive", "defensive", "controlled", "rapid", "longrange"]:
             raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
-        if (combat_style == "melee" and xp_type not in ["attack", "strength", "defence", "shared"]) or (
-            combat_style == "ranged" and xp_type not in ["rapid", "accurate", "longrange"]
-        ):
-            raise ValueError(f"Invalid xp style '{xp_type}' for combat style '{combat_style}'. See function docstring for valid options.")
 
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point(), mouseSpeed="fastest")
         self.mouse.click()
 
-        # Define a list of all possible weapons
-        weapons = [
-            "longsword",
-            "axe",
-            "bulwark",
-            "claw",
-            "dagger",
-            "mace",
-            "maul",
-            "whip",
-            "banner",
-            "hally",
-            "spear",
-            "pickaxe",
-            "chins",
-            "crossbow",
-            "darts",
-            "bow",
-            "powered_staff",
-            "scythe",
-            "bladedstaff",
-            "staff",
-        ]
-        # Try to find the attack style in question, click it if it is not selected
-        for weapon in weapons:
-            img_location = imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png")
-            if not os.path.exists(img_location):
-                continue
-            if result := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath(combat_style, xp_type, f"{weapon}.png"), self.win.control_panel, 0.05):
-                self.mouse.move_to(result.random_point())
+        # It is important to keep ambiguous words at the end of the list so that they are matched as a last resort
+        styles = {
+            "accurate": ["Accurate", "Short fuse", "Punch", "Chop", "Jab", "Stab", "Spike", "Reap", "Bash", "Flick", "Pound", "Pummel"],
+            "aggressive": ["Kick", "Smash", "Hack", "Swipe", "Slash", "Impale", "Lunge", "Pummel", "Chop", "Pound"],
+            "defensive": ["Block", "Fend", "Focus", "Deflect"],
+            "controlled": ["Spike", "Lash", "Lunge", "Jab"],
+            "rapid": [
+                "Rapid",
+                "Medium fuse",
+            ],
+            "longrange": [
+                "Longrange",
+                "Long fuse",
+            ],
+        }
+
+        for style in styles[combat_style]:
+            # Try and find the center of the word with OCR
+            if result := ocr.find_text(style, self.win.control_panel, ocr.PLAIN_11, clr.OFF_ORANGE):
+                # If the word is found, draw a rectangle around it and click a random point in that rectangle
+                center = result[0].get_center()
+                rect = Rectangle.from_points(Point(center[0] - 32, center[1] - 34), Point(center[0] + 32, center[1] + 10))
+                self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
                 self.mouse.click()
-                self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' selected.")
+                self.log_msg(f"Combat style '{combat_style}' selected.")
                 return
-        self.log_msg(f"{combat_style.capitalize()} style '{xp_type}' is already selected.")
+        self.log_msg(f"{combat_style.capitalize()} style not found.")
 
     def toggle_run(self, toggle_on: bool):
         """
@@ -600,22 +561,3 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
-
-    def __open_display_settings(self) -> bool:
-        """
-        Opens the display settings for the game client.
-        Returns:
-            True if the settings were opened, False if an error occured.
-        """
-        control_panel = self.win.control_panel
-        self.mouse.move_to(self.win.cp_tabs[11].random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel)
-        if display_tab is None:
-            self.log_msg("Could not find the display settings tab.")
-            return False
-        self.mouse.move_to(display_tab.random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        return True

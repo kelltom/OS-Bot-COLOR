@@ -146,7 +146,7 @@ class Window:
         Returns:
             True if successful, False otherwise.
         """
-        if chat := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("chat.png"), client_rect):
+        if chat := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "chat.png"), client_rect):
             # Locate chat tabs
             self.chat_tabs = []
             x, y = 5, 143
@@ -166,7 +166,7 @@ class Window:
         Returns:
             True if successful, False otherwise.
         """
-        if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("inv.png"), client_rect):
+        if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "inv.png"), client_rect):
             self.__locate_inv_slots(cp)
             self.__locate_spells(cp)
             self.__locate_cp_tabs(cp)
@@ -271,7 +271,7 @@ class Window:
             True if successful, False otherwise.
         """
         # 'm' refers to minimap area
-        if m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("minimap.png"), client_rect):
+        if m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "minimap.png"), client_rect):
             self.client_fixed = False
             self.compass_orb = Rectangle(left=40 + m.left, top=7 + m.top, width=24, height=26)
             self.hp_orb_text = Rectangle(left=4 + m.left, top=60 + m.top, width=20, height=13)
@@ -283,7 +283,7 @@ class Window:
             self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
             self.spec_orb_text = Rectangle(left=36 + m.left, top=151 + m.top, width=20, height=13)
             self.total_xp = Rectangle(left=m.left - 147, top=m.top + 4, width=104, height=21)
-        elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("minimap_fixed.png"), client_rect):
+        elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "minimap_fixed.png"), client_rect):
             self.client_fixed = True
             self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
             self.hp_orb_text = Rectangle(left=4 + m.left, top=55 + m.top, width=20, height=13)

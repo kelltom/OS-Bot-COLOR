@@ -27,7 +27,6 @@ class NRPickpocket(NRBot):
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
         self.protect_rows = 5
-        self.coin_pouch_path = imsearch.BOT_IMAGES.joinpath("coin_pouch.png")
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
@@ -90,6 +89,8 @@ class NRPickpocket(NRBot):
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
         # Setup
         api = StatusSocket()
+
+        coin_pouch_path = imsearch.BOT_IMAGES.joinpath("items", "coin_pouch.png")
 
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
@@ -158,7 +159,7 @@ class NRPickpocket(NRBot):
             # Click coin pouch
             if self.should_click_coin_pouch and theft_count % 20 == 0:
                 self.log_msg("Clicking coin pouch...")
-                pouch = imsearch.search_img_in_rect(image=self.coin_pouch_path, rect=self.win.control_panel)
+                pouch = imsearch.search_img_in_rect(image=coin_pouch_path, rect=self.win.control_panel)
                 if pouch:
                     self.mouse.move_to(
                         pouch.random_point(),
