@@ -16,7 +16,7 @@ from utilities.geometry import Rectangle
 class WindowTestBot(Bot, launcher.Launchable):
     def __init__(self):
         self.win: RuneLiteWindow = None
-        game_title = "Example"
+        game_title = "Test"
         bot_title = "Window Test"
         description = (
             "This bot is for testing the new Window feature. Log in to RuneLite and run this script to see how the mouse travels around the UI. This bot also"
