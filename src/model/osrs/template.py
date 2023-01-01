@@ -11,8 +11,8 @@ from utilities.api.status_socket import StatusSocket
 
 class OSRSTemplate(OSRSBot):
     def __init__(self):
-        bot_title = "<Bot name here"
-        description = "Bot description here."
+        bot_title = "<Bot name here>"
+        description = "<Bot description here.>"
         super().__init__(bot_title=bot_title, description=description)
         # Set option variables below (initial value is only used during UI-less testing)
         self.running_time = 1
