@@ -65,7 +65,6 @@ class OSRSTemplate(OSRSBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-
             # -- Perform bot actions here --
 
             self.update_progress((time.time() - start_time) / end_time)
