@@ -3,7 +3,6 @@ A Bot is a base class for bot script models. It is abstract and cannot be instan
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
 import ctypes
-import os.path
 import platform
 import re
 import threading
