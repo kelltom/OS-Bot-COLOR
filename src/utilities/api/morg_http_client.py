@@ -6,6 +6,7 @@ Item IDs: https://www.runelocus.com/tools/osrs-item-id-list/
 import time
 from typing import List, Tuple, Union
 
+import animation_ids
 import requests
 from deprecated import deprecated
 from requests.exceptions import ConnectionError
@@ -148,7 +149,223 @@ class MorgHTTPSocket:
                 print(e)
                 return None
 
-            if data["animation"] != -1 or data["animation pose"] not in [808, 813]:
+            if data["animation"] != animation_ids.IDLE or data["animation pose"] not in [808, 813]:
+                return False
+        return True
+    
+    def get_is_player_woodcutting(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a woodcutting animation.
+        Returns:
+                True if the player is woodcutting, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.WOODCUTTING:
+                return False
+        return True
+    
+    def get_is_player_mining(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a mining animation.
+        Returns:
+                True if the player is mining, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.MINING:
+                return False
+        return True
+    
+    def get_is_player_smithing(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a smithing animation.
+        Returns:
+                True if the player is smithing, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.SMITHING:
+                return False
+        return True
+    
+    def get_is_player_fishing(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a fishing animation.
+        Returns:
+                True if the player is fishing, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.FISHING:
+                return False
+        return True
+    
+    def get_is_player_fletching(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a fletching animation.
+        Returns:
+                True if the player is fletching, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.FLETCHING:
+                return False
+        return True
+    
+    def get_is_player_cooking(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a cooking animation.
+        Returns:
+                True if the player is cooking, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.COOKING:
+                return False
+        return True
+    
+    def get_is_player_casting_magic(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a casting magic animation.
+        Returns:
+                True if the player is casting magic, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.MAGIC:
+                return False
+        return True
+    
+    def get_is_player_hunting(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a hunter animation.
+        Returns:
+                True if the player is hunter, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.HUNTER:
+                return False
+        return True
+    
+    def get_is_player_doing_herblore(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a herblore animation.
+        Returns:
+                True if the player is herblore, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.HERBLORE:
+                return False
+        return True
+    
+    def get_is_player_gem_cutting(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a gem cutting animation.
+        Returns:
+                True if the player is gem cutting, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.GEM_CUTTING:
+                return False
+        return True
+    
+    def get_is_player_farming(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a farming animation.
+        Returns:
+                True if the player is farming, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.FARMING:
+                return False
+        return True
+    
+    def get_is_player_crafting(self) -> Union[bool, None]:
+        """
+        Checks if the player is doing a crafting animation.
+        Returns:
+                True if the player is crafting, False otherwise, or None if an error occurred.
+        """
+        # run a loop for 1 second
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            try:
+                data = self.__do_get(endpoint=self.events_endpoint)
+            except SocketError as e:
+                print(e)
+                return None
+            if data["animation"] not in animation_ids.CRAFTING:
                 return False
         return True
 
