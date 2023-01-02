@@ -43,6 +43,7 @@ class Window:
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
     chat_tabs: List[Rectangle] = []  # https://i.imgur.com/2DH2SiL.png
+    prayer_book: List[Rectangle] = []  # [0] Thick skin to (28) being Augury
 
     # Minimap Area
     compass_orb: Rectangle = None
@@ -168,6 +169,7 @@ class Window:
         if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("inv.png"), client_rect):
             self.__locate_inv_slots(cp)
             self.__locate_cp_tabs(cp)
+            self.__locate_prayer_book(cp)
             self.control_panel = cp
             return True
         print("Window.__locate_control_panel(): Failed to find control panel.")
@@ -185,6 +187,21 @@ class Window:
             x = 40 + cp.left  # start x relative to cp template
             for _ in range(4):
                 self.inventory_slots.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+
+    def __locate_prayer_book(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each prayer in the prayerbook menu relative to the control panel, storing it in the class property.
+        """
+        self.prayer_book = []
+        slot_w, slot_h = 26, 23  # dimensions of the prayers
+        gap_x, gap_y = 9, 15  # pixel gap between prayers
+        y = 46 + cp.top  # start y relative to cp template
+        for _ in range(6):
+            x = 33 + cp.left  # start x relative to cp template
+            for _ in range(5):
+                self.prayer_book.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap_x
             y += slot_h + gap_y
 
