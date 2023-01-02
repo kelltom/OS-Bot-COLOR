@@ -23,6 +23,7 @@ import utilities.debug as debug
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
 import utilities.random_util as rd
+from utilities import random_util as rm
 from utilities.geometry import Point, Rectangle
 from utilities.mouse import Mouse
 from utilities.options_builder import OptionsBuilder
@@ -565,3 +566,54 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
+
+    def __open_display_settings(self) -> bool:
+        """
+        Opens the display settings for the game client.
+        Returns:
+            True if the settings were opened, False if an error occured.
+        """
+        control_panel = self.win.control_panel
+        self.mouse.move_to(self.win.cp_tabs[11].random_point())
+        self.mouse.click()
+        time.sleep(0.5)
+        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel)
+        if display_tab is None:
+            self.log_msg("Could not find the display settings tab.")
+            return False
+        self.mouse.move_to(display_tab.random_point())
+        self.mouse.click()
+        time.sleep(0.5)
+        return True
+
+    def camera_rotate(self, direction: str, degree: int):
+        """
+        Agrs:
+        direction: 'left' or 'right'
+        degree: 0 - 360
+        """
+        if direction not in ["left", "right"]:
+            raise ValueError(f"Invalid direction '{direction}'. See function docstring for valid options.")
+
+        degrees_per_seconds = 0.01027 * degree
+        pag.keyDown(direction)
+        time.sleep(degrees_per_seconds)
+        pag.keyUp(direction)
+        return
+
+    def random_camera_rotate(self, min_degree: int, max_degree: int, chance: float = 0.5):  #
+        """
+        rotates in either directions within the specified degree range.
+        default chance for either directions (right/left) 0.5 - (50%)
+        Args:
+        min_degree & max_degree: 0 - 360
+        chance:from 0 to 1
+        """
+
+        mean = (min_degree + max_degree) / 2
+        standard_deviation = (max_degree / 2) * 0.33
+        random_degree = rm.truncated_normal_sample(min_degree, max_degree, mean, standard_deviation)
+        if rm.random_chance(probability=chance):
+            self.camera_rotate(direction="right", degree=random_degree)
+        else:
+            self.camera_rotate(direction="left", degree=random_degree)
