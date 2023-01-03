@@ -1,5 +1,4 @@
 from .bot import *
-# from .test import *
 from .near_reality import *
 from .osrs import *
 from .runelite_bot import *
