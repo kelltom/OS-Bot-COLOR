@@ -15,7 +15,7 @@ class MouseUtils:
     
     def randomise_click_time(function):
         def wrapper():
-            time.sleep(truncated_normal_sample(30, 1500, 133.37, standard_deviation=None))
+            time.sleep(truncated_normal_sample(30, 1500, 133.37, standard_deviation=None)/1000)
             function()
         return wrapper
     
