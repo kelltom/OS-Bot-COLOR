@@ -1,3 +1,4 @@
+import sys
 import json
 import os
 import platform
@@ -52,7 +53,7 @@ def launch_runelite_with_settings(bot, settings_file: Path):
         bot.log_msg('''
         Macos specific: path to executable not found, please manually replace the content 
         of the file OSRS-Bot-COLOR/src/runelite_settings/executable_paths.json
-         
+
         with
         
         {"osrs": "/Applications/RuneLite.app/Contents/MacOS/RuneLite"}
