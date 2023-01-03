@@ -48,8 +48,19 @@ def launch_runelite_with_settings(bot, settings_file: Path):
     key = bot.game_title.lower()
     EXECPATH = data.get(key, "")
 
+    if not os.path.exists(EXECPATH) and sys.platform == 'darwin':
+        bot.log_msg('''
+        Macos specific: path to executable not found, please manually replace the content 
+        of the file OSRS-Bot-COLOR/src/runelite_settings/executable_paths.json
+         
+        with
+        
+        {"osrs": "/Applications/RuneLite.app/Contents/MacOS/RuneLite"}
+        
+        ''')
+
     # Check if executable file exists
-    if not os.path.exists(EXECPATH):
+    elif not os.path.exists(EXECPATH):
         bot.log_msg("Game executable not found. Please locate the executable.")
         EXECPATH = __locate_executable()
         if not EXECPATH:

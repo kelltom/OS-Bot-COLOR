@@ -183,10 +183,14 @@ class InfoFrame(customtkinter.CTkFrame):
             on_press=self.__on_press,
             on_release=self.__on_release,
         )
-        self.listener.start()
+        if sys.platform != 'darwin':
+            # this currently throws segfault on MAC M1
+            # this should be fixed by https://github.com/moses-palmer/pynput/pull/512
+            self.listener.start()
 
     def stop_keyboard_listener(self):
-        self.listener.stop()
+        if sys.platform != 'darwin':
+            self.listener.stop()
 
     def __on_press(self, key):
         if self.pressed:
