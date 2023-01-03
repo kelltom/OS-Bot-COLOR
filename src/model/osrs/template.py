@@ -58,8 +58,8 @@ class OSRSTemplate(OSRSBot):
         Visit the Wiki for more.
         """
         # Setup APIs
-        api_m = MorgHTTPSocket()
-        api_s = StatusSocket()
+        # api_m = MorgHTTPSocket()
+        # api_s = StatusSocket()
 
         # Main loop
         start_time = time.time()
