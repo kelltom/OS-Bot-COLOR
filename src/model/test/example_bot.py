@@ -16,7 +16,7 @@ from utilities.window import MockWindow
 # Next to the bot name, define the parent class so your bot can inherit its functionality
 class ExampleBot(Bot):
     def __init__(self):
-        game_title = "Example"  # This will determine the category the bot is listed under in the UI
+        game_title = "Test"  # This will determine the category the bot is listed under in the UI
         bot_title = "Example Bot"  # This is the name of the bot that will be displayed in the UI
         description = (
             "This is where the description of the bot goes. Briefly describe how the bot works "
