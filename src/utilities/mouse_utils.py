@@ -9,9 +9,16 @@ from pyclick import HumanCurve
 
 import utilities.color as clr
 from utilities.geometry import Point, Rectangle
-
+from utilities.random_util import truncated_normal_sample
 
 class MouseUtils:
+    
+    def randomise_click_time(function):
+        def wrapper():
+            time.sleep(truncated_normal_sample(30, 1500, 133.37, standard_deviation=None))
+            function()
+        return wrapper
+    
     def move_to(self, destination: tuple, **kwargs):
         # sourcery skip: use-contextlib-suppress
         """
@@ -73,6 +80,7 @@ class MouseUtils:
             y += np.random.randint(-y_var, y_var)
         self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
 
+    @randomise_click_time
     def click(self) -> bool:
         """
         Clicks on the current mouse position. Identical to pyautogui.click().
