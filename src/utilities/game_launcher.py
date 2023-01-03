@@ -1,9 +1,9 @@
-import sys
 import json
 import os
 import platform
 import shutil
 import subprocess
+import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
@@ -49,16 +49,18 @@ def launch_runelite_with_settings(bot, settings_file: Path):
     key = bot.game_title.lower()
     EXECPATH = data.get(key, "")
 
-    if not os.path.exists(EXECPATH) and sys.platform == 'darwin':
-        bot.log_msg('''
-        Macos specific: path to executable not found, please manually replace the content 
+    if not os.path.exists(EXECPATH) and sys.platform == "darwin":
+        bot.log_msg(
+            """
+        Macos specific: path to executable not found, please manually replace the content
         of the file OSRS-Bot-COLOR/src/runelite_settings/executable_paths.json
 
         with
-        
+
         {"osrs": "/Applications/RuneLite.app/Contents/MacOS/RuneLite"}
-        
-        ''')
+
+        """
+        )
 
     # Check if executable file exists
     elif not os.path.exists(EXECPATH):
