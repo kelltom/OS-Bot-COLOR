@@ -164,4 +164,3 @@ src/runelite_settings/temp.properties
 src/utilities/record_mouse/*
 !src/utilities/record_mouse/record_mouse.py
 src/runelite_settings/executable_paths.json
-custom_settings.properties
