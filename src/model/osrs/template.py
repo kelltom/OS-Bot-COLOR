@@ -4,7 +4,6 @@ import utilities.api.item_ids as ids
 import utilities.color as clr
 import utilities.random_util as rd
 from model.osrs.osrs_bot import OSRSBot
-from model.runelite_bot import BotStatus
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
 
@@ -41,7 +40,6 @@ class OSRSTemplate(OSRSBot):
                 self.options_set = False
                 return
         self.log_msg(f"Running time: {self.running_time} minutes.")
-        self.log_msg(f"Bot will{' ' if self.take_breaks else ' not '}take breaks.")
         self.log_msg("Options set successfully.")
         self.options_set = True
 
@@ -71,4 +69,4 @@ class OSRSTemplate(OSRSBot):
 
         self.update_progress(1)
         self.log_msg("Finished.")
-        self.set_status(BotStatus.STOPPED)
+        self.stop()
