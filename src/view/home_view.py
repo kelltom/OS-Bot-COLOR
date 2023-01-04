@@ -1,5 +1,3 @@
-from tkinter.filedialog import askopenfilename
-
 import customtkinter
 
 
@@ -14,7 +12,6 @@ class HomeView(customtkinter.CTkFrame):
         """
         super().__init__(parent)
         self.main = main
-        self.__game_title = game_title
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)  # Spacing

@@ -1,12 +1,15 @@
 import importlib
+import pathlib
 import tkinter
 from typing import List
 
 import customtkinter
+from PIL import Image, ImageTk
 from pynput import keyboard
 
 from controller.bot_controller import BotController, MockBotController
 from model import Bot, RuneLiteBot
+from utilities.game_launcher import Launchable
 from view import *
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -21,6 +24,11 @@ class App(customtkinter.CTk):
     def __init__(self, test: bool = False):
         super().__init__()
         if not test:
+            __rocket_img_path = pathlib.Path(__file__).parent.resolve().joinpath("images", "ui", "rocket.png")
+            self.img_rocket = ImageTk.PhotoImage(
+                Image.open(__rocket_img_path).resize((12, 12)),
+                Image.Resampling.LANCZOS,
+            )
             self.build_ui()
 
     def build_ui(self):  # sourcery skip: merge-list-append, move-assign-in-block
@@ -106,7 +114,7 @@ class App(customtkinter.CTk):
                     self.btn_map[instance.game_title] = []
                 instance.set_controller(self.controller)
                 self.models[name] = instance
-                self.btn_map[instance.game_title].append(self.__create_button(name))
+                self.btn_map[instance.game_title].append(self.__create_button(bot_key=name, launchable=isinstance(instance, Launchable)))
 
         # Dropdown menu for selecting a game
         self.menu_game_selector = customtkinter.CTkOptionMenu(
@@ -127,11 +135,12 @@ class App(customtkinter.CTk):
         self.current_btn_list: List[customtkinter.CTkButton] = None
 
     # ============ UI Creation Helpers ============
-    def __create_button(self, bot_key):
+    def __create_button(self, bot_key: str, launchable: bool = False):
         """
         Creates a preconfigured button for the bot.
         Args:
-            bot_key: str - the key of the bot as it exists in it's dictionary.
+            bot_key: the key of the bot as it exists in it's dictionary.
+            launchable: True if the button should have a little rocket icon.
         Returns:
             Tkinter.Button - the button created.
         """
@@ -139,6 +148,7 @@ class App(customtkinter.CTk):
             master=self.frame_left,
             text=self.models[bot_key].bot_title,
             fg_color=self.DEFAULT_GRAY,
+            image=self.img_rocket if launchable else None,
             command=lambda: self.__toggle_bot_by_key(bot_key, btn),
         )
         return btn
@@ -196,6 +206,7 @@ class App(customtkinter.CTk):
         self.toggle_btn_state(enabled=False)
 
     def __toggle_bot_by_key(self, bot_key, btn: customtkinter.CTkButton):
+        # sourcery skip: extract-method
         """
         Handles the event of the user selecting a bot from the dropdown menu. This function manages the state of frame_left buttons,
         the contents that appears in frame_right, and re-assigns the model to the controller.
@@ -203,45 +214,46 @@ class App(customtkinter.CTk):
             bot_key: The name/key of the bot that the user selected.
             btn: The button that the user clicked.
         """
-        if self.models[bot_key] is not None:
-            # If the script's frame is already visible, hide it
-            if self.controller.model == self.models[bot_key]:
-                self.controller.model.progress = 0
-                self.controller.update_progress()
-                self.controller.change_model(None)
-                self.views["Script"].pack_forget()
-                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
-                self.current_btn = None
-                self.current_home_view.pack(
-                    in_=self.frame_right,
-                    side=tkinter.TOP,
-                    fill=tkinter.BOTH,
-                    expand=True,
-                    padx=0,
-                    pady=0,
-                )
-            # If there is no script selected
-            elif self.controller.model is None:
-                self.current_home_view.pack_forget()
-                self.controller.change_model(self.models[bot_key])
-                self.views["Script"].pack(
-                    in_=self.frame_right,
-                    side=tkinter.TOP,
-                    fill=tkinter.BOTH,
-                    expand=True,
-                    padx=0,
-                    pady=0,
-                )
-                self.current_btn = btn
-                self.current_btn.configure(fg_color=btn.hover_color)
-            # If we are switching to a new script
-            else:
-                self.controller.model.progress = 0
-                self.controller.update_progress()
-                self.controller.change_model(self.models[bot_key])
-                self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
-                self.current_btn = btn
-                self.current_btn.configure(fg_color=btn.hover_color)
+        if self.models[bot_key] is None:
+            return
+        # If the script's frame is already visible, hide it
+        if self.controller.model == self.models[bot_key]:
+            self.controller.model.progress = 0
+            self.controller.update_progress()
+            self.controller.change_model(None)
+            self.views["Script"].pack_forget()
+            self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
+            self.current_btn = None
+            self.current_home_view.pack(
+                in_=self.frame_right,
+                side=tkinter.TOP,
+                fill=tkinter.BOTH,
+                expand=True,
+                padx=0,
+                pady=0,
+            )
+        # If there is no script selected
+        elif self.controller.model is None:
+            self.current_home_view.pack_forget()
+            self.controller.change_model(self.models[bot_key])
+            self.views["Script"].pack(
+                in_=self.frame_right,
+                side=tkinter.TOP,
+                fill=tkinter.BOTH,
+                expand=True,
+                padx=0,
+                pady=0,
+            )
+            self.current_btn = btn
+            self.current_btn.configure(fg_color=btn.hover_color)
+        # If we are switching to a new script
+        else:
+            self.controller.model.progress = 0
+            self.controller.update_progress()
+            self.controller.change_model(self.models[bot_key])
+            self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
+            self.current_btn = btn
+            self.current_btn.configure(fg_color=btn.hover_color)
 
     # ============ Misc Handlers ============
     def change_mode(self):
