@@ -76,9 +76,17 @@ class MouseUtils:
 
     def click(self) -> bool:
         """
-        Clicks on the current mouse position. Identical to pyautogui.click().
+        Clicks on the current mouse position, pausing for a random amount of time between mouseDown and mouseUp.
         """
-        pag.click(interval=(truncated_normal_sample(30, 1500, 133.37, standard_deviation=None)/1000))
+        
+        LOWER_BOUND_CLICK = 0.03 # Milliseconds
+        UPPER_BOUND_CLICK = 0.2 # Milliseconds
+        AVERAGE_CLICK = 0.06 # Milliseconds
+        
+        pag.mouseDown()
+        time.sleep(truncated_normal_sample(LOWER_BOUND_CLICK, UPPER_BOUND_CLICK, AVERAGE_CLICK, standard_deviation=None))
+        pag.mouseUp()
+        
 
     @deprecated(version="0.2.0", reason="Currently unreliable. Use click() instead.")
     def click_with_check(self) -> bool:
