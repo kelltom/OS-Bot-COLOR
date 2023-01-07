@@ -261,7 +261,7 @@ class Bot(ABC):
                 offsetBoundaryX=40,
                 tween=pytweening.easeInOutQuad,
             )
-            pag.click()
+            self.mouse.click()
         pag.keyUp("shift")
 
     def drop(self, slots: list[int]) -> None:
@@ -306,10 +306,10 @@ class Bot(ABC):
         """
         self.log_msg("Logging out...")
         self.mouse.move_to(self.win.cp_tabs[10].random_point())
-        pag.click()
+        self.mouse.click()
         time.sleep(1)
         self.mouse.move_rel(0, -53, 5, 5)
-        pag.click()
+        self.mouse.click()
 
     def take_break(self, min_seconds: int = 1, max_seconds: int = 30, mean: int = None, std: int = None):
         """
