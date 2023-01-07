@@ -40,6 +40,7 @@ class Window:
     cp_tabs: List[Rectangle] = []  # https://i.imgur.com/huwNOWa.png
     inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
     spellbook_normal: List[Rectangle] = []  # https://i.imgur.com/vkKAfV5.png
+    prayers: List[Rectangle] = []  # https://i.imgur.com/KRmC3YB.png
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
@@ -167,44 +168,14 @@ class Window:
             True if successful, False otherwise.
         """
         if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "inv.png"), client_rect):
-            self.__locate_inv_slots(cp)
-            self.__locate_spells(cp)
             self.__locate_cp_tabs(cp)
+            self.__locate_inv_slots(cp)
+            self.__locate_prayers(cp)
+            self.__locate_spells(cp)
             self.control_panel = cp
             return True
         print("Window.__locate_control_panel(): Failed to find control panel.")
         return False
-
-    def __locate_inv_slots(self, cp: Rectangle) -> None:
-        """
-        Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
-        """
-        self.inventory_slots = []
-        slot_w, slot_h = 36, 32  # dimensions of a slot
-        gap_x, gap_y = 5, 3  # pixel gap between slots
-        y = 44 + cp.top  # start y relative to cp template
-        for _ in range(7):
-            x = 40 + cp.left  # start x relative to cp template
-            for _ in range(4):
-                self.inventory_slots.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
-                x += slot_w + gap_x
-            y += slot_h + gap_y
-
-    def __locate_spells(self, cp: Rectangle) -> None:
-        """
-        Creates Rectangles for each magic spell relative to the control panel, storing it in the class property.
-        Currently only populates the normal spellbook spells.
-        """
-        self.spellbook_normal = []
-        slot_w, slot_h = 22, 22  # dimensions of a spell
-        gap_x, gap_y = 4, 2  # pixel gap between spells
-        y = 37 + cp.top  # start y relative to cp template
-        for _ in range(10):
-            x = 30 + cp.left  # start x relative to cp template
-            for _ in range(7):
-                self.spellbook_normal.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
-                x += slot_w + gap_x
-            y += slot_h + gap_y
 
     def __locate_cp_tabs(self, cp: Rectangle) -> None:
         """
@@ -221,6 +192,53 @@ class Window:
                 x += slot_w + gap
             y = 303  # 303px from top for second row
             slot_h = 28  # slightly taller tab Rectangles for second row
+
+    def __locate_inv_slots(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
+        """
+        self.inventory_slots = []
+        slot_w, slot_h = 36, 32  # dimensions of a slot
+        gap_x, gap_y = 5, 3  # pixel gap between slots
+        y = 44 + cp.top  # start y relative to cp template
+        for _ in range(7):
+            x = 40 + cp.left  # start x relative to cp template
+            for _ in range(4):
+                self.inventory_slots.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+
+    def __locate_prayers(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each prayer in the prayer book menu relative to the control panel, storing it in the class property.
+        """
+        self.prayers = []
+        slot_w, slot_h = 34, 34  # dimensions of the prayers
+        gap_x, gap_y = 3, 3  # pixel gap between prayers
+        y = 46 + cp.top  # start y relative to cp template
+        for _ in range(6):
+            x = 30 + cp.left  # start x relative to cp template
+            for _ in range(5):
+                self.prayers.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+        del self.prayers[29]  # remove the last prayer (unused)
+
+    def __locate_spells(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each magic spell relative to the control panel, storing it in the class property.
+        Currently only populates the normal spellbook spells.
+        """
+        self.spellbook_normal = []
+        slot_w, slot_h = 22, 22  # dimensions of a spell
+        gap_x, gap_y = 4, 2  # pixel gap between spells
+        y = 37 + cp.top  # start y relative to cp template
+        for _ in range(10):
+            x = 30 + cp.left  # start x relative to cp template
+            for _ in range(7):
+                self.spellbook_normal.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
 
     def __locate_game_view(self, client_rect: Rectangle) -> bool:
         """
