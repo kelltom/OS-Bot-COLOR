@@ -72,7 +72,7 @@ class InfoFrame(customtkinter.CTkFrame):
             Image.ANTIALIAS,
         )
         self.img_start = ImageTk.PhotoImage(
-            Image.open(f"{PATH}/images/ui/start.png").resize((img_size, img_size)),
+            Image.open(f"{PATH}/images/ui/rocket.png").resize((img_size, img_size)),
             Image.ANTIALIAS,
         )
 

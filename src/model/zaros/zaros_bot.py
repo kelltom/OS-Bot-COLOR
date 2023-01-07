@@ -1,7 +1,3 @@
-"""
-The OSNRBot class contains properties and functions that are specific to the OSNR client. This class should
-be inherited by OSNR script classes.
-"""
 from abc import ABCMeta
 
 from model.runelite_bot import RuneLiteBot, RuneLiteWindow
