@@ -36,3 +36,12 @@ def stop_timer(start: float):
         The time elapsed since the start time.
     """
     return time.time() - start
+
+
+def current_time():
+    """
+    Gets the current time in the format HH:MM:SS.
+    Returns:
+        The current time.
+    """
+    return time.strftime("%H:%M:%S", time.localtime())

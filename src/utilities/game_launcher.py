@@ -8,10 +8,10 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
 
+import psutil
+
 runelite_settings_folder: Path = Path(__file__).parent.parent.joinpath("runelite_settings")
 executable_paths: str = str(runelite_settings_folder.joinpath("executable_paths.json"))
-
-# TODO: add function for building a settings file
 
 
 class Launchable:
@@ -21,6 +21,18 @@ class Launchable:
 
     def launch_game():
         raise NotImplementedError()
+
+
+def is_program_running(program_name):
+    for proc in psutil.process_iter():
+        try:
+            proc_name = proc.name().split(".")[0]
+            if proc_name == program_name:
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
+            print("Failed to check if program is running: ", e)
+            print("Please report this error to the developer.")
+    return False
 
 
 def launch_runelite_with_settings(bot, settings_file: Path):

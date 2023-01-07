@@ -200,14 +200,8 @@ class OptionsUI(customtkinter.CTkFrame):
                 self.options[key] = int(value.get() * 100)
             elif isinstance(value, list):  # Checkboxes
                 self.options[key] = [checkbox.text for checkbox in value if checkbox.get()]
-            elif isinstance(value, customtkinter.CTkOptionMenu):
+            elif isinstance(value, (customtkinter.CTkOptionMenu, customtkinter.CTkEntry)):
                 self.options[key] = value.get()
-            elif isinstance(value, customtkinter.CTkEntry):
-                x = [x.strip() for x in value.get().split(",")]
-                if x == [""]:
-                    x = []
-                self.options[key] = x
-
         # Send to controller
         self.controller.save_options(self.options)
         window.destroy()

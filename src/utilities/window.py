@@ -39,6 +39,8 @@ class Window:
     control_panel: Rectangle = None  # https://i.imgur.com/BeMFCIe.png
     cp_tabs: List[Rectangle] = []  # https://i.imgur.com/huwNOWa.png
     inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
+    spellbook_normal: List[Rectangle] = []  # https://i.imgur.com/vkKAfV5.png
+    prayers: List[Rectangle] = []  # https://i.imgur.com/KRmC3YB.png
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
@@ -85,12 +87,15 @@ class Window:
         doc="A Win32Window reference to the game client and its properties.",
     )
 
-    def focus(self) -> None:
+    def focus(self) -> None:  # sourcery skip: raise-from-previous-error
         """
         Focuses the client window.
         """
         if client := self.window:
-            client.activate()
+            try:
+                client.activate()
+            except Exception:
+                raise WindowInitializationError("Failed to focus client window. Try bringing it to the foreground.")
 
     def position(self) -> Point:
         """
@@ -142,7 +147,7 @@ class Window:
         Returns:
             True if successful, False otherwise.
         """
-        if chat := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("chat.png"), client_rect):
+        if chat := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "chat.png"), client_rect):
             # Locate chat tabs
             self.chat_tabs = []
             x, y = 5, 143
@@ -162,13 +167,31 @@ class Window:
         Returns:
             True if successful, False otherwise.
         """
-        if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("inv.png"), client_rect):
-            self.__locate_inv_slots(cp)
+        if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "inv.png"), client_rect):
             self.__locate_cp_tabs(cp)
+            self.__locate_inv_slots(cp)
+            self.__locate_prayers(cp)
+            self.__locate_spells(cp)
             self.control_panel = cp
             return True
         print("Window.__locate_control_panel(): Failed to find control panel.")
         return False
+
+    def __locate_cp_tabs(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each interface tab (inventory, prayer, etc.) relative to the control panel, storing it in the class property.
+        """
+        self.cp_tabs = []
+        slot_w, slot_h = 29, 26  # top row tab dimensions
+        gap = 4  # 4px gap between tabs
+        y = 4  # 4px from top for first row
+        for _ in range(2):
+            x = 8 + cp.left
+            for _ in range(7):
+                self.cp_tabs.append(Rectangle(left=x, top=y + cp.top, width=slot_w, height=slot_h))
+                x += slot_w + gap
+            y = 303  # 303px from top for second row
+            slot_h = 28  # slightly taller tab Rectangles for second row
 
     def __locate_inv_slots(self, cp: Rectangle) -> None:
         """
@@ -185,21 +208,37 @@ class Window:
                 x += slot_w + gap_x
             y += slot_h + gap_y
 
-    def __locate_cp_tabs(self, cp: Rectangle) -> None:
+    def __locate_prayers(self, cp: Rectangle) -> None:
         """
-        Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
+        Creates Rectangles for each prayer in the prayer book menu relative to the control panel, storing it in the class property.
         """
-        self.cp_tabs = []
-        slot_w, slot_h = 29, 26  # top row tab dimensions
-        gap = 4  # 4px gap between tabs
-        y = 4  # 4px from top for first row
-        for _ in range(2):
-            x = 8 + cp.left
+        self.prayers = []
+        slot_w, slot_h = 34, 34  # dimensions of the prayers
+        gap_x, gap_y = 3, 3  # pixel gap between prayers
+        y = 46 + cp.top  # start y relative to cp template
+        for _ in range(6):
+            x = 30 + cp.left  # start x relative to cp template
+            for _ in range(5):
+                self.prayers.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+        del self.prayers[29]  # remove the last prayer (unused)
+
+    def __locate_spells(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each magic spell relative to the control panel, storing it in the class property.
+        Currently only populates the normal spellbook spells.
+        """
+        self.spellbook_normal = []
+        slot_w, slot_h = 22, 22  # dimensions of a spell
+        gap_x, gap_y = 4, 2  # pixel gap between spells
+        y = 37 + cp.top  # start y relative to cp template
+        for _ in range(10):
+            x = 30 + cp.left  # start x relative to cp template
             for _ in range(7):
-                self.cp_tabs.append(Rectangle(left=x, top=y + cp.top, width=slot_w, height=slot_h))
-                x += slot_w + gap
-            y = 303  # 303px from top for second row
-            slot_h = 28  # slightly taller tab Rectangles for second row
+                self.spellbook_normal.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
 
     def __locate_game_view(self, client_rect: Rectangle) -> bool:
         """
@@ -250,7 +289,7 @@ class Window:
             True if successful, False otherwise.
         """
         # 'm' refers to minimap area
-        if m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("minimap.png"), client_rect):
+        if m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "minimap.png"), client_rect):
             self.client_fixed = False
             self.compass_orb = Rectangle(left=40 + m.left, top=7 + m.top, width=24, height=26)
             self.hp_orb_text = Rectangle(left=4 + m.left, top=60 + m.top, width=20, height=13)
@@ -262,7 +301,7 @@ class Window:
             self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
             self.spec_orb_text = Rectangle(left=36 + m.left, top=151 + m.top, width=20, height=13)
             self.total_xp = Rectangle(left=m.left - 147, top=m.top + 4, width=104, height=21)
-        elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("minimap_fixed.png"), client_rect):
+        elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "minimap_fixed.png"), client_rect):
             self.client_fixed = True
             self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
             self.hp_orb_text = Rectangle(left=4 + m.left, top=55 + m.top, width=20, height=13)
