@@ -589,8 +589,8 @@ class Bot(ABC):
     def camera_rotate(self, direction: str, degree: int):
         """
         Agrs:
-        direction: 'left' or 'right'
-        degree: 0 - 360
+            direction: direction to rotate ("left" or "right")
+            degree: degree to rotate the camera (0-360)
         """
         if direction not in ["left", "right"]:
             raise ValueError(f"Invalid direction '{direction}'. See function docstring for valid options.")
@@ -603,11 +603,11 @@ class Bot(ABC):
 
     def random_camera_rotate(self, min_degree: int, max_degree: int, chance: float = 0.5):  #
         """
-        rotates in either directions within the specified degree range.
-        default chance for either directions (right/left) 0.5 - (50%)
+        Rotates camera left or right within the specified degree range.
         Args:
-        min_degree & max_degree: 0 - 360
-        chance:from 0 to 1
+            min_degree: minimum degree to rotate
+            max_degree: maximum degree to rotate
+            chance: chance of rotating right opposed to left (default 0.5 or 50%)
         """
 
         mean = (min_degree + max_degree) / 2
