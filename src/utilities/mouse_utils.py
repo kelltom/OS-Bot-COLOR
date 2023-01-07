@@ -73,17 +73,20 @@ class MouseUtils:
             y += np.random.randint(-y_var, y_var)
         self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
 
-    def click(self) -> bool:
+    def click(self, button="left", with_delay=True) -> bool:
         """
-        Clicks on the current mouse position, pausing for a random amount of time between mouseDown and mouseUp.
+        Clicks on the current mouse position.
+        Args:
+            button: button to click (default left)
+            with_delay: whether to add a random delay between mouse down and mouse up (default True)
         """
-        LOWER_BOUND_CLICK = 0.03  # Milliseconds
-        UPPER_BOUND_CLICK = 0.2  # Milliseconds
-        AVERAGE_CLICK = 0.06  # Milliseconds
-
-        pag.mouseDown()
-        time.sleep(truncated_normal_sample(LOWER_BOUND_CLICK, UPPER_BOUND_CLICK, AVERAGE_CLICK, standard_deviation=None))
-        pag.mouseUp()
+        pag.mouseDown(button=button)
+        if with_delay:
+            LOWER_BOUND_CLICK = 0.03  # Milliseconds
+            UPPER_BOUND_CLICK = 0.2  # Milliseconds
+            AVERAGE_CLICK = 0.06  # Milliseconds
+            time.sleep(truncated_normal_sample(LOWER_BOUND_CLICK, UPPER_BOUND_CLICK, AVERAGE_CLICK))
+        pag.mouseUp(button=button)
 
     @deprecated(version="0.2.0", reason="Currently unreliable. Use click() instead.")
     def click_with_check(self) -> bool:
@@ -95,8 +98,13 @@ class MouseUtils:
         self.click()
         return self.__is_red_click()
 
-    def right_click(self):
-        pag.rightClick()
+    def right_click(self, with_delay=True):
+        """
+        Right-clicks on the current mouse position. This is a wrapper for click(button="right").
+        Args:
+            with_delay: whether to add a random delay between mouse down and mouse up (default True)
+        """
+        self.click(button="right", with_delay=with_delay)
 
     def __is_red_click(self) -> bool:
         """
