@@ -4,6 +4,8 @@ import secrets
 from datetime import datetime
 from typing import List
 
+import numpy as np
+
 
 def random_seeds(mod: int = 0, start: int = 8, stop: int = 12):
     """
@@ -88,34 +90,46 @@ def __random_from(x_min, y_min, width, height, center: bool = False) -> List[int
     return [x, y]
 
 
-def truncated_normal_sample(lower_bound, upper_bound, mean=None, standard_deviation=None) -> float:
+def truncated_normal_sample(lower_bound, upper_bound, mean=None, std=None) -> float:
     """
-    Generate a random sample from the normal distribution using the Box-Muller method.
+    Generate a random sample from a normal distribution using the Box-Muller method.
     Args:
         lower_bound: The lower bound of the truncated normal distribution.
         upper_bound: The upper bound of the truncated normal distribution.
         mean: The mean of the normal distribution (default is auto-generated).
-        standard_deviation: The standard deviation of the normal distribution (default is auto-generated).
+        std: The standard deviation of the normal distribution (default is auto-generated).
     Returns:
         A random float from the truncated normal distribution.
+    Examples:
+        100,000 x `truncated_normal_sample(0, 100)` graphed: https://i.imgur.com/XP4Loff.png
     """
-    sg = secrets.SystemRandom()
-    u1 = sg.uniform(0, 1)
-    u2 = sg.uniform(0, 1)
-    z1 = math.sqrt(-2 * math.log(u1)) * math.cos(2 * math.pi * u2)
-
     if mean is None:
-        mean = round((lower_bound + upper_bound) / 2)
-    if standard_deviation is None:
-        standard_deviation = round((upper_bound - lower_bound) / 6)
-    sample = mean + standard_deviation * z1
+        # Default will be two means, one at 1/3rd and one at 2/3 of the range
+        mean = [lower_bound + (upper_bound - lower_bound) * 0.33, lower_bound + (upper_bound - lower_bound) * 0.66]
+    if std is None:
+        std = (upper_bound - lower_bound) / 9
 
-    if sample < lower_bound:
-        return lower_bound
-    elif sample > upper_bound:
-        return upper_bound
-    else:
-        return sample
+    if isinstance(mean, list):
+        # Generate probabilities for each mean proportional to the index
+        p = [(i + 1) ** 2 / sum((i + 1) ** 2 for i in range(len(mean))) for i in range(len(mean))][::-1]
+
+    # Keep generating samples until we get one that falls within the specified bounds
+    while True:
+        if isinstance(mean, list):
+            # Select a mean from the list with a probability proportional to the index
+            index = np.random.choice(range(len(mean)), p=p)
+            mean = mean[index]
+        # Generate two independent standard normal samples
+        x1, x2 = np.random.normal(0, 1), np.random.normal(0, 1)
+        z = x1**2 + x2**2
+        if z >= 0 and z <= 1:
+            # Use the Box-Muller transform to generate a sample from the normal distribution
+            sample = mean + std * x1 * np.sqrt(-2 * np.log(z) / z)
+            if sample < lower_bound:
+                continue
+            if sample > upper_bound:
+                continue
+            return sample
 
 
 def random_chance(probability: float) -> bool:
