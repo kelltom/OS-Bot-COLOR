@@ -212,17 +212,17 @@ class Window:
         """
         Creates Rectangles for each prayer in the prayer book menu relative to the control panel, storing it in the class property.
         """
-        self.prayer_book = []
+        self.prayers = []
         slot_w, slot_h = 34, 34  # dimensions of the prayers
         gap_x, gap_y = 3, 3  # pixel gap between prayers
         y = 46 + cp.top  # start y relative to cp template
         for _ in range(6):
             x = 30 + cp.left  # start x relative to cp template
             for _ in range(5):
-                self.prayer_book.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                self.prayers.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap_x
             y += slot_h + gap_y
-        del self.prayer_book[29]  # remove the last prayer (unused)
+        del self.prayers[29]  # remove the last prayer (unused)
 
     def __locate_spells(self, cp: Rectangle) -> None:
         """
