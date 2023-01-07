@@ -580,13 +580,3 @@ class Bot(ABC):
         self.mouse.click()
         time.sleep(0.5)
         return True
-
-    def select_prayers(self, prayer):
-        """
-        Args:
-        prayer: select a number from 0 to 28
-        with (0) being Thick skin and (28) being Augury
-        """
-        self.mouse.move_to(self.win.prayer_book[prayer].random_point())
-        time.sleep(0.5)
-        self.mouse.click()
