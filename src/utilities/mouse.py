@@ -135,17 +135,18 @@ class Mouse:
         Converts a text speed to a numeric speed for HumanCurve (targetPoints).
         """
         if speed == "slowest":
-            return rd.randint(85, 100)
+            min, max = 85, 100
         elif speed == "slow":
-            return rd.randint(65, 80)
+            min, max = 65, 80
         elif speed == "medium":
-            return rd.randint(45, 60)
+            min, max = 45, 60
         elif speed == "fast":
-            return rd.randint(20, 40)
+            min, max = 20, 40
         elif speed == "fastest":
-            return rd.randint(10, 15)
+            min, max = 10, 15
         else:
             raise ValueError("Invalid mouse speed. Try 'slowest', 'slow', 'medium', 'fast', or 'fastest'.")
+        return round(truncated_normal_sample(min, max))
 
 
 if __name__ == "__main__":
