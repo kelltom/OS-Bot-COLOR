@@ -249,7 +249,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         )
         if rl_login_icon is not None:
             self.mouse.move_to(rl_login_icon.random_point())
-            pag.click()
+            self.mouse.click()
             time.sleep(0.2)
             pag.press("enter")
             time.sleep(1)

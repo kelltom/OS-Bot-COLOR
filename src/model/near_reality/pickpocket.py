@@ -166,7 +166,7 @@ class NRPickpocket(NRBot):
                         mouseSpeed="fast",
                         tween=pytweening.easeInOutQuad,
                     )
-                    pag.click()
+                    self.mouse.click()
                     time.sleep(0.2)
                     no_pouch_count = 0
                 else:
