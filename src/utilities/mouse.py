@@ -61,16 +61,16 @@ class Mouse:
         Args:
             x: x distance to move
             y: y distance to move
-            x_var: random upper-bound pixel variance to add to the x distance (default 0)
-            y_var: random upper-bound pixel variance to add to the y distance (default 0)
+            x_var: maxiumum pixel variance that may be added to the x distance (default 0)
+            y_var: maxiumum pixel variance that may be added to the y distance (default 0)
         Kwargs:
             knotsCount: if right-click menus are being cancelled due to erratic mouse movements,
                         try setting this value to 0.
         """
         if x_var != 0:
-            x += np.random.randint(-x_var, x_var)
+            x += round(truncated_normal_sample(-x_var, x_var))
         if y_var != 0:
-            y += np.random.randint(-y_var, y_var)
+            y += round(truncated_normal_sample(-y_var, y_var))
         self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
 
     def click(self, button="left", with_delay=True) -> bool:
