@@ -18,24 +18,21 @@ def save_image(filename: str, im: cv2.Mat):
     cv2.imwrite(f"{path}.png", im)
 
 
-def start_timer():
+def timer(func):
     """
-    Starts a timer.
-    Returns:
-        The start time.
-    """
-    return time.time()
-
-
-def stop_timer(start: float):
-    """
-    Ends a timer.
+    A decorator that prints the time taken to execute a function.
     Args:
-        start: The start time.
-    Returns:
-        The time elapsed since the start time.
+        func: The function to time.
     """
-    return time.time() - start
+
+    def wrapper(*args, **kwargs):
+        start = time.time_ns() // 1_000_000
+        result = func(*args, **kwargs)
+        end = time.time_ns() // 1_000_000
+        print(f"`{func.__name__}` took {round(end - start, 2)} ms.")
+        return result
+
+    return wrapper
 
 
 def current_time():
