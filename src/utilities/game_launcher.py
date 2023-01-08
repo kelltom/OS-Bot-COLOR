@@ -109,7 +109,7 @@ def locate_executable():
             root.destroy()
             return None
         if platform.system() == "Darwin":
-            file_path += "/Contents/MacOS/RuneLite" 
+            file_path += "/Contents/MacOS/RuneLite"
         file_path = Path(file_path)
     except TypeError:
         root.destroy()

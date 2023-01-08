@@ -7,11 +7,10 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
-from utilities.game_launcher import locate_executable
 
 import customtkinter
 
-from utilities.game_launcher import executable_paths
+from utilities.game_launcher import executable_paths, locate_executable
 
 
 class RuneLiteHomeView(customtkinter.CTkFrame):
