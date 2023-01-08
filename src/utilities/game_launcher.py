@@ -60,6 +60,7 @@ def launch_runelite_with_settings(bot, settings_file: Path):
     key = bot.game_title.lower()
     EXECPATH = data.get(key, "")
 
+    # Check if executable file exists
     if not os.path.exists(EXECPATH):
         bot.log_msg("Game executable not found. Please locate the executable.")
         EXECPATH = locate_executable()
