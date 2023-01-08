@@ -24,7 +24,7 @@ import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
 import utilities.random_util as rd
 from utilities.geometry import Point, Rectangle
-from utilities.mouse_utils import MouseUtils
+from utilities.mouse import Mouse
 from utilities.options_builder import OptionsBuilder
 from utilities.window import Window, WindowInitializationError
 
@@ -79,7 +79,7 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
-    mouse = MouseUtils()
+    mouse = Mouse()
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED

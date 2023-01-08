@@ -12,7 +12,7 @@ from utilities.geometry import Point, Rectangle
 from utilities.random_util import truncated_normal_sample
 
 
-class MouseUtils:
+class Mouse:
     def move_to(self, destination: tuple, **kwargs):
         """
         Use Bezier curve to simulate human-like mouse movements.
@@ -149,7 +149,7 @@ class MouseUtils:
 
 
 if __name__ == "__main__":
-    mouse = MouseUtils()
+    mouse = Mouse()
     from geometry import Point
 
     mouse.move_to((1, 1))

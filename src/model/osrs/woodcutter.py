@@ -109,7 +109,7 @@ class OSRSWoodcutter(OSRSBot):
         Args:
             next_nearest: If True, will move the mouse to the second nearest tree. If False, will move the mouse to the
                           nearest tree.
-            mouseSpeed: The speed at which the mouse will move to the tree. See MouseUtil for options.
+            mouseSpeed: The speed at which the mouse will move to the tree. See mouse.py for options.
         Returns:
             True if success, False otherwise.
         """
