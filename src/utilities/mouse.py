@@ -88,6 +88,14 @@ class Mouse:
             time.sleep(truncated_normal_sample(LOWER_BOUND_CLICK, UPPER_BOUND_CLICK, AVERAGE_CLICK))
         pag.mouseUp(button=button)
 
+    def right_click(self, with_delay=True):
+        """
+        Right-clicks on the current mouse position. This is a wrapper for click(button="right").
+        Args:
+            with_delay: whether to add a random delay between mouse down and mouse up (default True)
+        """
+        self.click(button="right", with_delay=with_delay)
+
     @deprecated(version="0.2.0", reason="Currently unreliable. Use click() instead.")
     def click_with_check(self) -> bool:
         """
@@ -97,14 +105,6 @@ class Mouse:
         """
         self.click()
         return self.__is_red_click()
-
-    def right_click(self, with_delay=True):
-        """
-        Right-clicks on the current mouse position. This is a wrapper for click(button="right").
-        Args:
-            with_delay: whether to add a random delay between mouse down and mouse up (default True)
-        """
-        self.click(button="right", with_delay=with_delay)
 
     def __is_red_click(self) -> bool:
         """
