@@ -51,12 +51,12 @@ class MorgHTTPSocket:
         if response.status_code != 200:
             if response.status_code == 204:
                 raise SocketError(
-                    f"Endpoint not available, make sure you are fully logged in, status code: {response.status_code}",
+                    f"Endpoint not available, consider adding pauses between API calls. Status code: {response.status_code}",
                     endpoint,
                 )
             else:
                 raise SocketError(
-                    f"Unable to reach socket, status code: {response.status_code}",
+                    f"Unable to reach socket. Status code: {response.status_code}",
                     endpoint,
                 )
 
@@ -84,11 +84,7 @@ class MorgHTTPSocket:
         Returns:
                 A Tuple(current_hitpoints, maximum_hitpoints), or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
+        data = self.__do_get(endpoint=self.events_endpoint)
         hitpoints_data = data["health"]
         cur_hp, max_hp = hitpoints_data.split("/")  # hitpoints_data example = "21/21"
         return int(cur_hp), int(max_hp)
@@ -99,11 +95,7 @@ class MorgHTTPSocket:
         Returns:
                 An int representing the current run energy, or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
+        data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["run energy"])
 
     def get_animation(self) -> Union[int, None]:
@@ -112,11 +104,7 @@ class MorgHTTPSocket:
         Returns:
                 An int representing the current animation, or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
+        data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["animation"])
 
     def get_animation_id(self) -> Union[int, None]:
@@ -126,33 +114,26 @@ class MorgHTTPSocket:
         Returns:
                 An int representing the current animation ID, or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
+        data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["animation pose"])
 
-    def get_is_player_idle(self) -> Union[bool, None]:
+    def get_is_player_idle(self, poll_seconds=1) -> Union[bool, None]:
         """
         Checks if the player is doing an idle animation.
+        Args:
+                poll_seconds: The number of seconds to poll for an idle animation.
         Returns:
                 True if the player is idle, False otherwise, or None if an error occurred.
         """
-        # run a loop for 1 second
         start_time = time.time()
-        while time.time() - start_time < 1:
-            try:
-                data = self.__do_get(endpoint=self.events_endpoint)
-            except SocketError as e:
-                print(e)
-                return None
-
+        while time.time() - start_time < poll_seconds:
+            data = self.__do_get(endpoint=self.events_endpoint)
             if data["animation"] != -1 or data["animation pose"] not in [808, 813]:
                 return False
         return True
 
     def get_skill_level(self, skill: str) -> Union[int, None]:
+        # sourcery skip: class-extract-method
         """
         Gets level of inputted skill.
         Args:
@@ -160,20 +141,12 @@ class MorgHTTPSocket:
         Returns:
                 The level of the skill as an int, or None if an error occurred.
         """
-        # TODO: Make class for stat_names to make invalid names impossible
-        skill = skill.lower().capitalize()
-        try:
-            data = self.__do_get(endpoint=self.stats_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.stats_endpoint)
         try:
             level = next(int(i["level"]) for i in data[1:] if i["stat"] == skill)
         except StopIteration:
             print(f"Invalid stat name: {skill}")
             return None
-
         return level
 
     def get_skill_xp(self, skill: str) -> Union[int, None]:
@@ -184,19 +157,12 @@ class MorgHTTPSocket:
         Returns:
                 The total xp of the skill as an int, or None if an error occurred.
         """
-        skill = skill.lower().capitalize()
-        try:
-            data = self.__do_get(endpoint=self.stats_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.stats_endpoint)
         try:
             total_xp = next(int(i["xp"]) for i in data[1:] if i["stat"] == skill)
         except StopIteration:
             print(f"Invalid stat name: {skill}")
             return None
-
         return total_xp
 
     def get_skill_xp_gained(self, skill: str) -> Union[int, None]:
@@ -207,19 +173,12 @@ class MorgHTTPSocket:
         Returns:
                 The xp gained of the skill as an int, or None if an error occurred.
         """
-        skill = skill.lower().capitalize()  # Ensures str is formatted correctly for socket json key
-        try:
-            data = self.__do_get(endpoint=self.stats_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.stats_endpoint)
         try:
             xp_gained = next(int(i["xp gained"]) for i in data[1:] if i["stat"] == skill)
         except StopIteration:
             print(f"Invalid skill name: {skill}")
             return None
-
         return xp_gained
 
     def wait_til_gained_xp(self, skill: str, timeout: int = 10) -> Union[int, None]:
@@ -231,8 +190,6 @@ class MorgHTTPSocket:
         Returns:
                 The xp gained of the skill as an int, or None if an error occurred.
         """
-        skill = skill.lower().capitalize()  # Ensures str is formatted correctly for socket json key
-
         starting_xp = self.get_skill_xp(skill)
         if starting_xp is None:
             print("Failed to get starting xp.")
@@ -240,18 +197,11 @@ class MorgHTTPSocket:
 
         stop_time = time.time() + timeout
         while time.time() < stop_time:
-            try:
-                data = self.__do_get(endpoint=self.stats_endpoint)
-            except SocketError as e:
-                print(e)
-                return None
-
+            data = self.__do_get(endpoint=self.stats_endpoint)
             final_xp = next(int(i["xp"]) for i in data[1:] if i["stat"] == skill)
             if final_xp > starting_xp:
                 return final_xp
-
             time.sleep(0.2)
-
         return None
 
     def get_game_tick(self) -> Union[int, None]:
@@ -260,12 +210,7 @@ class MorgHTTPSocket:
         Returns:
                 An int representing the current game tick, or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["game tick"])
 
     def get_player_position(self) -> Union[SocketError, Tuple[int, int, int]]:
@@ -275,12 +220,7 @@ class MorgHTTPSocket:
                 A tuple of ints representing the player's world point (x, y, z),
                 or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         return (
             int(data["worldPoint"]["x"]),
             int(data["worldPoint"]["y"]),
@@ -294,12 +234,7 @@ class MorgHTTPSocket:
                 A tuple of ints representing the player's region data (region_x, region_y, region_ID),
                 or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         return (
             int(data["worldPoint"]["regionX"]),
             int(data["worldPoint"]["regionY"]),
@@ -312,12 +247,7 @@ class MorgHTTPSocket:
         Returns:
                 A dict containing the player's camera position {yaw, pitch, x, y, z, x2, y2, z2},
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         return data["camera"]
 
     def get_mouse_position(self) -> Union[Tuple[int, int], None]:
@@ -327,24 +257,14 @@ class MorgHTTPSocket:
                 A tuple of ints representing the player's mouse position (x, y),
                 or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["mouse"]["x"]), int(data["mouse"]["y"])
 
     def get_interaction_code(self) -> Union[str, None]:
         """
         Fetches the interacting code of the current interaction. (Use case unknown)
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         return data["interacting code"]
 
     def get_is_in_combat(self) -> Union[bool, None]:
@@ -353,12 +273,7 @@ class MorgHTTPSocket:
         Returns:
                 True if the player is in combat, False if not, or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         res = data["npc name"]
         return res != "null"
 
@@ -371,12 +286,7 @@ class MorgHTTPSocket:
                 An int representing the NPC's HP, or None if an error occurred.
                 If no NPC is in combat, returns 0.
         """
-        try:
-            data = self.__do_get(endpoint=self.events_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["npc health "])
 
     def get_if_item_in_inv(self, item_id: int) -> Union[bool, None]:
@@ -387,12 +297,7 @@ class MorgHTTPSocket:
         Returns:
                 True if the item is in the inventory, False if not, or None if an error occurred.
         """
-        try:
-            data = self.__do_get(endpoint=self.inv_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.inv_endpoint)
         return any(inventory_slot["id"] == item_id for inventory_slot in data)
 
     def get_inv_item_indices(self, item_id: Union[List[int], int]) -> list:
@@ -404,12 +309,7 @@ class MorgHTTPSocket:
         Returns:
                 A list of inventory slot indexes that the item(s) exists in.
         """
-        try:
-            data = self.__do_get(endpoint=self.inv_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.inv_endpoint)
         if isinstance(item_id, int):
             return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] == item_id]
         elif isinstance(item_id, list):
@@ -425,11 +325,7 @@ class MorgHTTPSocket:
         Returns:
             The total amount of that item in your inventory.
         """
-        try:
-            data = self.__do_get(endpoint=self.inv_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
+        data = self.__do_get(endpoint=self.inv_endpoint)
         if isinstance(item_id, int):
             item_id = [item_id]
         if result := next((item for item in data if item["id"] in item_id), None):
@@ -444,12 +340,7 @@ class MorgHTTPSocket:
 
         NOTE: Socket may be bugged with -1's in the middle of the data even all equipment slots are filled
         """
-        try:
-            data = self.__do_get(endpoint=self.equip_endpoint)
-        except SocketError as e:
-            print(e)
-            return None
-
+        data = self.__do_get(endpoint=self.equip_endpoint)
         return [equipment_id["id"] for equipment_id in data]
 
     def convert_player_position_to_pixels(self):
@@ -470,7 +361,7 @@ if __name__ == "__main__":
     # Note: Making API calls in succession too quickly can result in issues
     while True:
         # Player Data
-        if False:
+        if True:
             # Example of safely getting player data
             if hp := api.get_hitpoints():
                 print(f"Current HP: {hp[0]}")
@@ -482,7 +373,7 @@ if __name__ == "__main__":
             print(f"Is player idle: {api.get_is_player_idle()}")
 
         # World Data
-        if False:
+        if True:
             print(f"Game tick: {api.get_game_tick()}")
             print(f"Player position: {api.get_player_position()}")
             print(f"Player region data: {api.get_player_region_data()}")
@@ -494,7 +385,7 @@ if __name__ == "__main__":
         # Inventory Data
         if True:
             print(f"Are logs in inventory?: {api.get_if_item_in_inv(item_id=1511)}")
-            print(f"Find logs in inv: {api.find_item_in_inv(item_id=1511)}")
+            print(f"Find amount of change in inv: {api.get_inv_item_stack_amount(item_id=995)}")
             print(f"Get position of all bones in inv: {api.get_inv_item_indices(item_id=[526])}")
 
         # Wait for XP to change
