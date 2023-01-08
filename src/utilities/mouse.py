@@ -108,6 +108,7 @@ class Mouse:
         self.click()
         return self.__is_red_click()
 
+    @deprecated(version="0.2.0", reason="This function should instead perform image search using official click sprites.")
     def __is_red_click(self) -> bool:
         """
         Checks if a click was red, must be called directly after clicking.
@@ -127,7 +128,7 @@ class Mouse:
         Args:
             destination: x, y tuple of the destination point
         """
-        # calculate the distance between the start and end points
+        # Calculate the distance between the start and end points
         distance = np.sqrt((destination[0] - pag.position()[0]) ** 2 + (destination[1] - pag.position()[1]) ** 2)
         res = round(distance / 200)
         return min(res, 3)
