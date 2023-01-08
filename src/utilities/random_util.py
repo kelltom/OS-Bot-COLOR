@@ -108,29 +108,19 @@ def truncated_normal_sample(lower_bound, upper_bound, mean=None, std=None) -> fl
     Args:
         lower_bound: The lower bound of the truncated normal distribution.
         upper_bound: The upper bound of the truncated normal distribution.
-        mean: The mean of the normal distribution (default is auto-generated).
+        mean: The mean of the normal distribution (default is mid-point between bounds).
         std: The standard deviation of the normal distribution (default is auto-generated).
     Returns:
         A random float from the truncated normal distribution.
     Examples:
-        100,000 x `truncated_normal_sample(0, 100)` graphed: https://i.imgur.com/XP4Loff.png
+        100,000 x `truncated_normal_sample(0, 100)` graphed: https://i.imgur.com/8W12RZX.png
     """
     if mean is None:
-        # Default will be two means, one at 1/3rd and one at 2/3 of the range
-        mean = [lower_bound + (upper_bound - lower_bound) * 0.33, lower_bound + (upper_bound - lower_bound) * 0.66]
+        mean = (lower_bound + upper_bound) / 2
     if std is None:
         std = (upper_bound - lower_bound) / 9
-
-    if isinstance(mean, list):
-        # Generate probabilities for each mean proportional to the index
-        p = [(i + 1) ** 2 / sum((i + 1) ** 2 for i in range(len(mean))) for i in range(len(mean))][::-1]
-
     # Keep generating samples until we get one that falls within the specified bounds
     while True:
-        if isinstance(mean, list):
-            # Select a mean from the list with a probability proportional to the index
-            index = np.random.choice(range(len(mean)), p=p)
-            mean = mean[index]
         # Generate two independent standard normal samples
         x1, x2 = np.random.normal(0, 1), np.random.normal(0, 1)
         z = x1**2 + x2**2
@@ -142,6 +132,30 @@ def truncated_normal_sample(lower_bound, upper_bound, mean=None, std=None) -> fl
             if sample > upper_bound:
                 continue
             return sample
+
+
+def fancy_normal_sample(lower_bound, upper_bound) -> float:
+    """
+    Generate a random sample from a truncated normal distribution with randomly-selected means.
+    This produces a more "fancy" distribution than a standard normal distribution, which could emulate
+    randomness in human gameplay activity. This function is a work in progress.
+    Args:
+        lower_bound: The lower bound of the truncated normal distribution.
+        upper_bound: The upper bound of the truncated normal distribution.
+    Returns:
+        A random float from a truncated normal distribution with randomly-selected means.
+    Examples:
+        100,000 x `truncated_normal_sample(0, 100)` graphed: https://i.imgur.com/XP4Loff.png
+    """
+    # Default will be two means, one at 1/3rd and one at 2/3 of the range
+    means = [lower_bound + (upper_bound - lower_bound) * 0.33, lower_bound + (upper_bound - lower_bound) * 0.66]
+    # Generate probabilities for each mean proportional to the index
+    p = [(i + 1) ** 2 / sum((i + 1) ** 2 for i in range(len(means))) for i in range(len(means))][::-1]
+    # Select a mean from the list with a probability proportional to the index
+    index = np.random.choice(range(len(means)), p=p)
+    mean = means[index]
+    # Retrieve a sample from the truncated normal distribution
+    return truncated_normal_sample(lower_bound, upper_bound, mean=mean)
 
 
 def random_chance(probability: float) -> bool:
@@ -163,9 +177,8 @@ def random_chance(probability: float) -> bool:
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    # generate 1 million samples from the truncated normal distribution
-    samples = [truncated_normal_sample(0, 100) for _ in range(100000)]
+    samples = [truncated_normal_sample(0, 600) for _ in range(100000)]
 
     # plot the samples
-    plt.hist(samples, bins=100)
+    plt.hist(samples, bins=600)
     plt.show()
