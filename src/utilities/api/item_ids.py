@@ -12999,6 +12999,13 @@ axes = [
     CRYSTAL_AXE,
 ]
 
+coins = [
+    COINS,
+    COINS_995,
+    COINS_6964,
+    COINS_8890,
+]
+
 coin_pouches = [
     COIN_POUCH,
     COIN_POUCH_22522,
