@@ -395,12 +395,12 @@ class MorgHTTPSocket:
 
         return any(inventory_slot["id"] == item_id for inventory_slot in data)
 
-    def get_inv_item_indices(self, id: Union[List[int], int]) -> list:
+    def get_inv_item_indices(self, item_id: Union[List[int], int]) -> list:
         """
         For the given item ID(s), returns a list of inventory slot indexes that the item exists in.
         Useful for locating items you do not want to drop.
         Args:
-                id: The item ID to search for (an single ID, or list of IDs).
+                item_id: The item ID to search for (an single ID, or list of IDs).
         Returns:
                 A list of inventory slot indexes that the item(s) exists in.
         """
@@ -410,10 +410,10 @@ class MorgHTTPSocket:
             print(e)
             return None
 
-        if isinstance(id, int):
-            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] == id]
-        elif isinstance(id, list):
-            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in id]
+        if isinstance(item_id, int):
+            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] == item_id]
+        elif isinstance(item_id, list):
+            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in item_id]
 
     def get_inv_item_stack_amount(self, item_id: Union[int, List[int]]) -> int:
         """
@@ -495,7 +495,7 @@ if __name__ == "__main__":
         if True:
             print(f"Are logs in inventory?: {api.get_if_item_in_inv(item_id=1511)}")
             print(f"Find logs in inv: {api.find_item_in_inv(item_id=1511)}")
-            print(f"Get position of all bones in inv: {api.get_inv_item_indices(id=[526])}")
+            print(f"Get position of all bones in inv: {api.get_inv_item_indices(item_id=[526])}")
 
         # Wait for XP to change
         if False:
