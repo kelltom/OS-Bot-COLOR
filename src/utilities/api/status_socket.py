@@ -112,6 +112,23 @@ class StatusSocket:
         elif isinstance(id, list):
             return [slot["index"] for slot in inv if slot["id"] in id]
 
+    def get_inv_item_stack_amount(self, item_id: Union[int, List[int]]) -> int:
+        """
+        For the given item ID, returns the total amount of that item in your inventory.
+        This is only useful for items that stack (e.g. coins, runes, etc).
+        Args:
+                id: The item ID to search for. If a list is passed, the first matching item will be used.
+                    This is useful for items that have multiple IDs (e.g. coins, coin pouches, etc.).
+        Returns:
+                The total amount of that item in your inventory.
+        """
+        inv = player_data["inventory"]
+        if isinstance(item_id, int):
+            item_id = [item_id]
+        if result := next((item for item in inv if item["id"] in item_id), None):
+            return int(result["amount"])
+        return 0
+
     def get_is_player_idle(self) -> bool:
         """
         Checks if the player is idle. Note, this does not check if the player is moving - it only
