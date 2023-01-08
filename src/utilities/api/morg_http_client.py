@@ -415,23 +415,26 @@ class MorgHTTPSocket:
         elif isinstance(id, list):
             return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in id]
 
-    @deprecated(reason="This function needs to be rewritten, as one item can't be stacked in multiple slots. Consider get_inv_item_indices instead.")
-    def find_item_in_inv(self, item_id: int) -> Union[List[Tuple[int, int]], None]:
+    def get_inv_item_stack_amount(self, item_id: Union[int, List[int]]) -> int:
         """
-        Finds an item in the inventory and returns a list of tuples containing the slot and quantity.
+        For the given item ID, returns the total amount of that item in your inventory.
+        This is only useful for items that stack (e.g. coins, runes, etc).
         Args:
-                item_id: the id of the item to check for
+            id: The item ID to search for. If a list is passed, the first matching item will be used.
+                This is useful for items that have multiple IDs (e.g. coins, coin pouches, etc.).
         Returns:
-                A list of tuples containing the slot and quantity of the item [(index, quantity), ...],
-                or None if an error occurred.
+            The total amount of that item in your inventory.
         """
         try:
             data = self.__do_get(endpoint=self.inv_endpoint)
         except SocketError as e:
             print(e)
             return None
-
-        return [(index, inventory_slot["quantity"]) for index, inventory_slot in enumerate(data) if inventory_slot["id"] == item_id]
+        if isinstance(item_id, int):
+            item_id = [item_id]
+        if result := next((item for item in data if item["id"] in item_id), None):
+            return int(result["quantity"])
+        return 0
 
     def get_player_equipment(self) -> Union[List[int], None]:
         """
