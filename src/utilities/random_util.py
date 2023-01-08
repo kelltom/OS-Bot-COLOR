@@ -65,12 +65,12 @@ def random_point_in(x_min, y_min, width, height, seeds: List[List[int]]) -> List
     inner_inner_height = start_fix_height if start_fix_height <= end_fix_height else end_fix_height
 
     # Generate a random pixel within the bounding box within the inner bounding box.
-    return __random_from(start_x, start_y, inner_inner_width, inner_inner_height, center=True)
+    return __random_from(start_x, start_y, inner_inner_width, inner_inner_height, center=False)
 
 
-def __random_from(x_min, y_min, width, height, center: bool = False) -> List[int]:
+def __random_from(x_min, y_min, width, height, center: bool = True) -> List[int]:
     # If center is not set to True, shift x_min and y_min to the center of the region
-    if not center:
+    if center:
         x_min = x_min + math.ceil(width / 2)
         y_min = y_min + math.ceil(height / 2)
 
