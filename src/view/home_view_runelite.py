@@ -1,4 +1,3 @@
-import contextlib
 import json
 import os
 import platform
@@ -53,7 +52,8 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.note = (
             "For these scripts to work, RuneLite must be configured in a specific way. "
             + "Use the button below to launch RuneLite with pre-configured settings, or skip this "
-            + "step if you know your client is already configured. If a script has a `Launch Game` button, use that instead."
+            + "step if you know your client is already configured. If a script has a rocket icon next to its name, RuneLite should instead be launched using"
+            " the dedicated button provided by the script."
         )
         self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 12))
         self.label_note.bind(
@@ -63,10 +63,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.label_note.grid(row=2, column=0, sticky="nwes", padx=15, pady=(0, 15))
 
         # Warning label
-        self.warning = (
-            "Please only have one instance of RuneLite running at a time. \nIn your game settings, ensure that "
-            + "status orbs are enabled, shift-drop is enabled, and XP display is set to 'permanent'."
-        )
+        self.warning = "In your game settings, ensure that status orbs are enabled, shift-drop is enabled, and XP display is set to 'permanent'."
         self.label_warning = customtkinter.CTkLabel(
             master=self,
             text=self.warning,
