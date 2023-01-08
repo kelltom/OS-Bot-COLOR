@@ -39,8 +39,8 @@ def random_point_in(x_min, y_min, width, height, seeds: List[List[int]]) -> List
     """
     sg = secrets.SystemRandom()
 
-    # Generate a random pixel within the full bounding box with a 25% probability.
     if sg.randrange(0, 101) > 75:
+        # Generate a random pixel within the full bounding box.
         return __random_from(x_min, y_min, width, height)
 
     # Calculate the dimensions and position of an inner bounding box within the full bounding box.
@@ -65,12 +65,24 @@ def random_point_in(x_min, y_min, width, height, seeds: List[List[int]]) -> List
     inner_inner_height = start_fix_height if start_fix_height <= end_fix_height else end_fix_height
 
     # Generate a random pixel within the bounding box within the inner bounding box.
-    return __random_from(start_x, start_y, inner_inner_width, inner_inner_height, center=False)
+    return __random_from(start_x, start_y, inner_inner_width, inner_inner_height, centered=False)
 
 
-def __random_from(x_min, y_min, width, height, center: bool = True) -> List[int]:
-    # If center is not set to True, shift x_min and y_min to the center of the region
-    if center:
+def __random_from(x_min, y_min, width, height, centered: bool = True) -> List[int]:
+    """
+    Helper function to generate a random pixel within some bounding box. The bounding box can be
+    centered on the x_min and y_min coordinates, or the bounding box can be offset from the x_min
+    and y_min coordinates (i.e., x_min and y_min are the top-left corner of the bounding
+    box).
+    Args:
+        x_min: The left-most coordinate of the bounding box.
+        y_min: The top-most coordinate of the bounding box.
+        width: The width of the bounding box.
+        height: The height of the bounding box.
+        centered: Whether or not the bounding box is centered on the x_min and y_min coordinates.
+    """
+    if centered:
+        # The bounding box to search is to be centered on the x_min and y_min coordinates
         x_min = x_min + math.ceil(width / 2)
         y_min = y_min + math.ceil(height / 2)
 
