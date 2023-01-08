@@ -311,21 +311,25 @@ class Bot(ABC):
         self.mouse.move_rel(0, -53, 5, 5)
         self.mouse.click()
 
-    def take_break(self, min_seconds: int = 1, max_seconds: int = 30, mean: int = None, std: int = None):
+    def take_break(self, min_seconds: int = 1, max_seconds: int = 30, fancy: bool = False):
         """
         Takes a break for a random amount of time.
         Args:
             min_seconds: minimum amount of time the bot could rest
             max_seconds: maximum amount of time the bot could rest
-            mean: mean of the random time interval (optional)
-            std: standard deviation of the random time interval (optional)
+            fancy: if True, the randomly generated value will be from a truncated normal distribution
+                   with randomly selected means. This may produce more human results.
         """
         self.log_msg("Taking a break...")
-        length = rd.truncated_normal_sample(min_seconds, max_seconds, mean, std)
-        for i in range(int(length)):
+        if fancy:
+            length = rd.fancy_normal_sample(min_seconds, max_seconds)
+        else:
+            length = rd.truncated_normal_sample(min_seconds, max_seconds)
+        length = round(length)
+        for i in range(length):
             self.log_msg(f"Taking a break... {int(length) - i} seconds left.", overwrite=True)
             time.sleep(1)
-        self.log_msg("Done taking break.", overwrite=True)
+        self.log_msg(f"Done taking {length} second break.", overwrite=True)
 
     # --- Player Status Functions ---
     def has_hp_bar(self) -> bool:

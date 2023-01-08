@@ -54,9 +54,9 @@ class OSRSWoodcutter(OSRSBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            # 5% chance to take a break between clicks
+            # 5% chance to take a break between tree searches
             if rd.random_chance(probability=0.05) and self.take_breaks:
-                self.take_break(max_seconds=15)
+                self.take_break(max_seconds=30, fancy=True)
 
             # 2% chance to drop logs early
             if rd.random_chance(probability=0.02):
