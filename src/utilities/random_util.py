@@ -146,3 +146,14 @@ def random_chance(probability: float) -> bool:
     if probability < 0.000 or probability > 1.000:
         raise ValueError("Probability must be between 0 and 1")
     return secrets.SystemRandom().random() < probability
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    # generate 1 million samples from the truncated normal distribution
+    samples = [truncated_normal_sample(0, 100) for _ in range(100000)]
+
+    # plot the samples
+    plt.hist(samples, bins=100)
+    plt.show()
