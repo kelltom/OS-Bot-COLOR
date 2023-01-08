@@ -13,6 +13,8 @@ from utilities.random_util import truncated_normal_sample
 
 
 class Mouse:
+    click_delay = True
+
     def move_to(self, destination: tuple, **kwargs):
         """
         Use Bezier curve to simulate human-like mouse movements.
@@ -73,7 +75,7 @@ class Mouse:
             y += round(truncated_normal_sample(-y_var, y_var))
         self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
 
-    def click(self, button="left", with_delay=True) -> bool:
+    def click(self, button="left", force_delay=False) -> bool:
         """
         Clicks on the current mouse position.
         Args:
@@ -81,20 +83,20 @@ class Mouse:
             with_delay: whether to add a random delay between mouse down and mouse up (default True)
         """
         pag.mouseDown(button=button)
-        if with_delay:
+        if force_delay or self.click_delay:
             LOWER_BOUND_CLICK = 0.03  # Milliseconds
             UPPER_BOUND_CLICK = 0.2  # Milliseconds
             AVERAGE_CLICK = 0.06  # Milliseconds
             time.sleep(truncated_normal_sample(LOWER_BOUND_CLICK, UPPER_BOUND_CLICK, AVERAGE_CLICK))
         pag.mouseUp(button=button)
 
-    def right_click(self, with_delay=True):
+    def right_click(self, force_delay=False):
         """
         Right-clicks on the current mouse position. This is a wrapper for click(button="right").
         Args:
             with_delay: whether to add a random delay between mouse down and mouse up (default True)
         """
-        self.click(button="right", with_delay=with_delay)
+        self.click(button="right", force_delay=force_delay)
 
     @deprecated(version="0.2.0", reason="Currently unreliable. Use click() instead.")
     def click_with_check(self) -> bool:
