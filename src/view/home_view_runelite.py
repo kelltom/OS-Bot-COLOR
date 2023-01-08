@@ -8,6 +8,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
+from utilities.game_launcher import locate_executable
 
 import customtkinter
 
@@ -140,7 +141,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
                 text="RuneLite not found. Please locate the executable.",
                 text_color="orange",
             )
-            EXECPATH = self.__locate_executable()
+            EXECPATH = locate_executable()
             if not EXECPATH:
                 self.label_status.configure(text="File not selected.", text_color="orange")
                 return
@@ -165,27 +166,6 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
             subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
-
-    def __locate_executable(self):
-        """
-        Opens a file dialog to allow the user to locate the game executable.
-        """
-        root = tk.Tk()
-        root.withdraw()
-        file_path = filedialog.askopenfilename(
-            title="Select game executable file", filetypes=[("exe files", "*.exe"), ("AppImage files", "*.AppImage"), ("Java files", "*.jar")]
-        )
-        try:
-            if not file_path:
-                root.destroy()
-                return None
-            file_path = Path(file_path)
-        except TypeError:
-            root.destroy()
-            return None
-        path_str = str(file_path)
-        root.destroy()
-        return path_str
 
     def __skip(self):
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")

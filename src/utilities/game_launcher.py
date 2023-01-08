@@ -3,7 +3,6 @@ import os
 import platform
 import shutil
 import subprocess
-import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
@@ -49,23 +48,9 @@ def launch_runelite_with_settings(bot, settings_file: Path):
     key = bot.game_title.lower()
     EXECPATH = data.get(key, "")
 
-    if not os.path.exists(EXECPATH) and sys.platform == "darwin":
-        bot.log_msg(
-            """
-        Macos specific: path to executable not found, please manually replace the content
-        of the file OSRS-Bot-COLOR/src/runelite_settings/executable_paths.json
-
-        with
-
-        {"osrs": "/Applications/RuneLite.app/Contents/MacOS/RuneLite"}
-
-        """
-        )
-
-    # Check if executable file exists
-    elif not os.path.exists(EXECPATH):
+    if not os.path.exists(EXECPATH):
         bot.log_msg("Game executable not found. Please locate the executable.")
-        EXECPATH = __locate_executable()
+        EXECPATH = locate_executable()
         if not EXECPATH:
             bot.log_msg("File not selected.")
             return
@@ -96,19 +81,22 @@ def launch_runelite_with_settings(bot, settings_file: Path):
     bot.log_msg("Game launched. Please wait until you've logged into the game before starting the bot.")
 
 
-def __locate_executable():
+def locate_executable():
     """
     Opens a file dialog to allow the user to locate the game executable.
     """
     root = tk.Tk()
     root.withdraw()
-    file_path = filedialog.askopenfilename(
-        title="Select game executable file", filetypes=[("exe files", "*.exe"), ("AppImage files", "*.AppImage"), ("Java files", "*.jar")]
-    )
+    filetypes = [("exe files", "*.exe"), ("AppImage files", "*.AppImage"), ("Java files", "*.jar")]
+    if platform.system() == "Darwin":
+        filetypes = [("All files", "*")]
+    file_path = filedialog.askopenfilename(title="Select game executable file", filetypes=filetypes)
     try:
         if not file_path:
             root.destroy()
             return None
+        if platform.system() == "Darwin":
+            file_path += "/Contents/MacOS/RuneLite"  # <-- Add this line
         file_path = Path(file_path)
     except TypeError:
         root.destroy()
