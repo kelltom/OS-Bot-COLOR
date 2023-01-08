@@ -1,5 +1,6 @@
 customtkinter==4.5.10
 Deprecated==1.2.13
+matplotlib==3.6.2
 mss==7.0.1
 numpy==1.23.1
 opencv_python_headless==4.5.4.60
