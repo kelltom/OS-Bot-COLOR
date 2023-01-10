@@ -21,6 +21,9 @@ def __imagesearcharea(template: Union[cv2.Mat, str, Path], im: cv2.Mat, confiden
     Returns:
         A Rectangle outlining the found template inside the image.
     """
+    # If image doesn't have an alpha channel, convert it from BGR to BGRA
+    if len(template.shape) < 3 or template.shape[2] != 4:
+        template = cv2.cvtColor(template, cv2.COLOR_BGR2BGRA)
     # Get template dimensions
     hh, ww = template.shape[:2]
     # Extract base image and alpha channel
