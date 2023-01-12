@@ -67,7 +67,7 @@ class OSRSWoodcutter(OSRSBot):
                 self.__drop_logs(api_s)
 
             # If our mouse isn't hovering over a tree, and we can't find another tree...
-            if not self.mouseover_text(contains="Chop", color=clr.OFF_WHITE) and not self.__move_mouse_to_nearest_tree():
+            if not self.mouseover_text(contains="Chop") and not self.__move_mouse_to_nearest_tree():
                 failed_searches += 1
                 if failed_searches % 10 == 0:
                     self.log_msg("Searching for trees...")
@@ -80,18 +80,16 @@ class OSRSWoodcutter(OSRSBot):
             failed_searches = 0  # If code got here, a tree was found
 
             # Click if the mouseover text assures us we're clicking a tree
-            if not self.mouseover_text(contains="Chop", color=clr.OFF_WHITE):
+            if not self.mouseover_text(contains="Chop"):
                 continue
             self.mouse.click()
             time.sleep(0.5)
 
             # While the player is chopping (or moving), wait
-            probability = 0.10
             while not api_m.get_is_player_idle():
-                # Every second there is a chance to move the mouse to the next tree, lessen the chance as time goes on
-                if rd.random_chance(probability):
+                # Every second there is a 10% chance to move the mouse to the next tree
+                if rd.random_chance(probability=0.10):
                     self.__move_mouse_to_nearest_tree(next_nearest=True)
-                    probability /= 2
                 time.sleep(1)
 
             self.update_progress((time.time() - start_time) / end_time)
