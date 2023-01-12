@@ -617,18 +617,3 @@ class Bot(ABC):
             self.camera_rotate(direction="right", degree=random_degree)
         else:
             self.camera_rotate(direction="left", degree=random_degree)
-
-    def get_item_from_bank(self, item: str, confidence=0.05):
-        """
-        grabs an item from the bank using image recognition make sure to drop the .png image in the items folder
-        folder location : src >> bot >> items
-        Args:
-        item = name of the .png image
-        confidence = The confidence level of the search in range 0 to 1, where 0 is a perfect match.
-
-        """
-        if ocr.find_text("Rearrange", self.win.game_view, ocr.PLAIN_12, clr.OFF_ORANGE):
-            if items := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("items", f"{item}.png"), self.win.game_view, confidence):
-                self.mouse.move_to(items.random_point())
-                self.mouse.click()
-            time.sleep(1)
