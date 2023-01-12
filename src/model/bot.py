@@ -584,3 +584,64 @@ class Bot(ABC):
         self.mouse.click()
         time.sleep(0.5)
         return True
+
+    def click_targets(self, colors, text=None, text_color=None, direction="right", degree=30):
+        """
+        assign a color & mouse over text (optional) to click on
+
+        Args:
+            colors = clr.BLACK, clr.BLUE, clr.CYAN, clr.GREEN, clr.ORANGE,
+                     clr.PINK, clr.PURPLE, clr.RED, clr.WHITE, clr.YELLOW
+
+            text = (optional) The text to search for (single word, phrase, or list of words). Case sensitive.
+
+            text_color = (optional) clr.OFF_CYAN, clr.OFF_GREEN, clr.OFF_ORANGE, clr.OFF_WHITE, clr.OFF_YELLOW
+
+            direction = camera rotation direction ["right" or "left"]
+
+            degrees = rotation degrees 0 - 360
+        """
+        if text is None:
+            target = self.get_nearest_tag(colors)
+            self.mouse.move_to(target.random_point())
+            self.mouse.click()
+            time.sleep(0.2)
+        else:
+            target = self.get_nearest_tag(colors)
+            self.mouse.move_to(target.random_point())
+            if self.mouseover_text(contains=f"{text}", color=text_color):
+                self.mouse.click()
+                time.sleep(0.2)
+            if not self.mouseover_text(contains=f"{text}", color=text_color):
+                self.camera_rotate(direction, degree)
+
+    def target_search(self, color, seconds=60, lower_bound=30, upper_bound=50, odds=0.8):
+        """
+        rotates the camera while searching for the specified color if not found will log out when the timelimit is reached.
+
+        Args:
+            Color = clr.BLACK, clr.BLUE, clr.CYAN, clr.GREEN, clr.ORANGE, clr.PINK,
+                    clr.PURPLE, clr.RED, clr.WHITE, clr.YELLOW
+
+            timelimit = the number of seconds to search before logout (default 60 seconds)
+
+            lower_bound = lower degrees for the camera to rotate
+
+            upper_bound = upper degrees for the camera to rotate
+
+            odds = from 0 to 1. chance of rotating camera left or right
+                   with 1 for right & 0 for left (default 80% chance to rotate right)
+        """
+        failed_searches = 0
+        timelimit = seconds + 1
+        while failed_searches < timelimit:
+            if self.get_nearest_tag(color):
+                return
+            self.random_camera_rotate(lower_bound, upper_bound, chance=odds)
+            failed_searches += 1
+            time.sleep(1)
+            if failed_searches >= timelimit:
+                # color not found logging out
+                self.logout()
+                self.set_status(BotStatus.STOPPED)
+                return
