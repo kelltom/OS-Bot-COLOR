@@ -54,9 +54,9 @@ class OSRSWoodcutter(OSRSBot):
         start_time = time.time()
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
-            # 5% chance to take a break between clicks
+            # 5% chance to take a break between tree searches
             if rd.random_chance(probability=0.05) and self.take_breaks:
-                self.take_break(max_seconds=15)
+                self.take_break(max_seconds=30, fancy=True)
 
             # 2% chance to drop logs early
             if rd.random_chance(probability=0.02):
@@ -67,7 +67,7 @@ class OSRSWoodcutter(OSRSBot):
                 self.__drop_logs(api_s)
 
             # If our mouse isn't hovering over a tree, and we can't find another tree...
-            if not self.mouseover_text(contains="Chop") and not self.__move_mouse_to_nearest_tree():
+            if not self.mouseover_text(contains="Chop", color=clr.OFF_WHITE) and not self.__move_mouse_to_nearest_tree():
                 failed_searches += 1
                 if failed_searches % 10 == 0:
                     self.log_msg("Searching for trees...")
@@ -80,16 +80,18 @@ class OSRSWoodcutter(OSRSBot):
             failed_searches = 0  # If code got here, a tree was found
 
             # Click if the mouseover text assures us we're clicking a tree
-            if not self.mouseover_text(contains="Chop"):
+            if not self.mouseover_text(contains="Chop", color=clr.OFF_WHITE):
                 continue
             self.mouse.click()
             time.sleep(0.5)
 
             # While the player is chopping (or moving), wait
+            probability = 0.10
             while not api_m.get_is_player_idle():
-                # Every second there is a 10% chance to move the mouse to the next tree
-                if rd.random_chance(probability=0.10):
+                # Every second there is a chance to move the mouse to the next tree, lessen the chance as time goes on
+                if rd.random_chance(probability):
                     self.__move_mouse_to_nearest_tree(next_nearest=True)
+                    probability /= 2
                 time.sleep(1)
 
             self.update_progress((time.time() - start_time) / end_time)
@@ -109,7 +111,7 @@ class OSRSWoodcutter(OSRSBot):
         Args:
             next_nearest: If True, will move the mouse to the second nearest tree. If False, will move the mouse to the
                           nearest tree.
-            mouseSpeed: The speed at which the mouse will move to the tree. See MouseUtil for options.
+            mouseSpeed: The speed at which the mouse will move to the tree. See mouse.py for options.
         Returns:
             True if success, False otherwise.
         """
