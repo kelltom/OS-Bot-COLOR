@@ -86,9 +86,8 @@ class OSRSWoodcutter(OSRSBot):
             time.sleep(0.5)
 
             # While the player is chopping (or moving), wait
-            probability = 0.10
             while not api_m.get_is_player_idle():
-                 # Every second there is a 10% chance to move the mouse to the next tree
+                # Every second there is a 10% chance to move the mouse to the next tree
                 if rd.random_chance(probability=0.10):
                     self.__move_mouse_to_nearest_tree(next_nearest=True)
                     probability /= 2
