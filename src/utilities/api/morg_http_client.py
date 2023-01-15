@@ -66,7 +66,7 @@ class MorgHTTPSocket:
                 self.__do_get(endpoint=i)
             except SocketError as e:
                 print(e)
-                print(f"Endpoint '{i}' is not working.")
+                print(f"Endpoint {i} is not working.")
                 return False
         return True
 
