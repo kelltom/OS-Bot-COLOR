@@ -22,8 +22,6 @@ class SocketError(Exception):
 
 
 class MorgHTTPSocket:
-    # TODO: ID/NPC ID/Object ID conversion function/dict to get the readable name of an object
-
     def __init__(self):
         self.base_endpoint = "http://localhost:8081/"
 
@@ -189,7 +187,7 @@ class MorgHTTPSocket:
                 The xp gained of the skill as an int, or -1 if no XP was gained or an error occurred during the timeout.
         """
         starting_xp = self.get_skill_xp(skill)
-        if starting_xp is None:
+        if starting_xp == -1:
             print("Failed to get starting xp.")
             return -1
 
@@ -201,7 +199,6 @@ class MorgHTTPSocket:
                 return final_xp
             time.sleep(0.2)
         return -1
-
 
     def get_game_tick(self) -> int:
         """
@@ -268,7 +265,7 @@ class MorgHTTPSocket:
         Fetches the interacting code of the current interaction. (Use case unknown)
         """
         data = self.__do_get(endpoint=self.events_endpoint)
-        return None if data is None else data["interacting code"]
+        return data["interacting code"] if "interacting code" in data else None
 
     def get_is_in_combat(self) -> Union[bool, None]:
         """
@@ -278,7 +275,7 @@ class MorgHTTPSocket:
                 Returns None if an error occurred.
         """
         data = self.__do_get(endpoint=self.events_endpoint)
-        return None if data is None else data["npc name"] != "null"
+        return None if "npc name" not in data else data["npc name"] != "null"
 
     @deprecated(reason="This method seems to return unreliable values for the NPC's HP.")
     def get_npc_hitpoints(self) -> Union[int, None]:
