@@ -1,7 +1,5 @@
 """
 API utility for MorgHTTPClient socket plugin.
-
-Item IDs: https://www.runelocus.com/tools/osrs-item-id-list/
 """
 import time
 from typing import List, Tuple, Union
