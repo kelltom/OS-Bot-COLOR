@@ -16,7 +16,7 @@ class SocketError(Exception):
         super().__init__(self.get_error())
 
     def get_error(self):
-        return f"{self.__error_message} endpoint: '{self.__endpoint}'"
+        return f"{self.__error_message} endpoint: {self.__endpoint}"
 
 
 class MorgHTTPSocket:
