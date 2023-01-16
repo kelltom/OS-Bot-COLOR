@@ -9,6 +9,16 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automat
 
 ⭐ If you like this project, please leave a Star :)
 
+<p>
+  <a href="https://www.buymeacoffee.com/kelltom" target="_blank">
+    <img src="https://i.imgur.com/5X29MVY.png" alt="Buy Me A Coffee" height="60dp">
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.paypal.com/paypalme/kelltom" target="_blank">
+    <img src="https://i.imgur.com/6EFKj2m.png" alt="PayPal" height="60dp">
+  </a>
+</p>
+
 # Table of Contents
 - [Developer Setup ](#developer-setup-)
 - [Documentation](#documentation)
@@ -25,7 +35,6 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automat
   - [Random Click Distribution](#random-click-distribution)
   - [Efficient Image Searching](#efficient-image-searching)
   - [Lightning Fast Optical Character Recognition](#lightning-fast-optical-character-recognition)
-- [Support the Project](#support-the-project)
 
 # Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>
 1. Install [Python 3.10](https://www.python.org/downloads/release/python-3109/) *(newer versions are not compatible)*
@@ -106,10 +115,3 @@ Sometimes, your bot might need to find a specific image on screen. We've modifie
 We've ditched machine learned OCR in favor of a much faster and more reliable custom implementation. OSBC can locate text on screen in as little as **2 milliseconds**. That's **0.002 seconds**.
 
 ![ocr](https://user-images.githubusercontent.com/44652363/206808982-16f58a50-4709-4c27-9fc2-94b0c4edab21.png)
-
-# Support the Project
-<p align="center">
-  <a href="https://www.buymeacoffee.com/kelltom" target="_blank">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px">
-  </a>
-</p>
