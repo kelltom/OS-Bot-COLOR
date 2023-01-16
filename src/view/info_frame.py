@@ -192,11 +192,12 @@ class InfoFrame(customtkinter.CTkFrame):
         if self.pressed:
             return
         if key == keyboard.Key.ctrl_l:
+            self.pressed = True
             if self.status == "running":
                 self.controller.stop()
             elif self.status == "stopped":
                 self.controller.play()
-        self.pressed = True
+                self.pressed = False
 
     def __on_release(self, key):
         self.pressed = False
