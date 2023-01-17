@@ -204,7 +204,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 return obj
         return None
 
-    def get_all_tagged_in_rect(self, rect: Rectangle, color: clr.Color, direction_sort="North") -> List[RuneLiteObject]:
+    def get_all_tagged_in_rect(self, rect: Rectangle, color: clr.Color) -> List[RuneLiteObject]:
         """
         Finds all contours on screen of a particular color and returns a list of Shapes.
         Args:
@@ -216,20 +216,9 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         img_rect = rect.screenshot()
         # debug.save_image("get_all_tagged_in_rect.png", img_rect)
         isolated_colors = clr.isolate_colors(img_rect, color)
-        # debug.save_image("get_all_tagged_in_rect_white.png", isolated_colors)
         objs = rcv.extract_objects(isolated_colors)
         for obj in objs:
             obj.set_rectangle_reference(rect)
-        if direction_sort == "North":
-            objs.sort(key=lambda x: x._y_max)
-        elif direction_sort == "South":
-            objs.sort(key=lambda x: x._y_max)
-            objs.reverse()
-        elif direction_sort == "East":
-            objs.sort(key=lambda x: x._x_max)
-        elif direction_sort == "West":
-            objs.sort(key=lambda x: x._x_max)
-            objs.reverse()
         return objs
 
     def get_nearest_tag(self, color: clr.Color) -> RuneLiteObject:
