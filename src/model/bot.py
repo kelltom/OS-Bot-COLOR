@@ -511,7 +511,7 @@ class Bot(ABC):
         """
         # Ensuring that args are valid
         if combat_style not in ["accurate", "aggressive", "defensive", "controlled", "rapid", "longrange"]:
-            raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
+            raise ValueError(f"Invalid combat style: {combat_style}. See function docstring for valid options.")
 
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point(), mouseSpeed="fastest")
@@ -541,7 +541,7 @@ class Bot(ABC):
                 rect = Rectangle.from_points(Point(center[0] - 32, center[1] - 34), Point(center[0] + 32, center[1] + 10))
                 self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
                 self.mouse.click()
-                self.log_msg(f"Combat style '{combat_style}' selected.")
+                self.log_msg(f"Combat style {combat_style} selected.")
                 return
         self.log_msg(f"{combat_style.capitalize()} style not found.")
 
@@ -566,33 +566,13 @@ class Bot(ABC):
         else:
             self.log_msg("Run is already off.")
 
-    def __open_display_settings(self) -> bool:
-        """
-        Opens the display settings for the game client.
-        Returns:
-            True if the settings were opened, False if an error occured.
-        """
-        control_panel = self.win.control_panel
-        self.mouse.move_to(self.win.cp_tabs[11].random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel)
-        if display_tab is None:
-            self.log_msg("Could not find the display settings tab.")
-            return False
-        self.mouse.move_to(display_tab.random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        return True
-
     def get_item_from_bank(self, item: str, confidence=0.05):
         """
-        grabs an item from the bank using image recognition make sure to drop the .png image in the items folder
-        folder location : src >> bot >> items
+        Grabs an item from the bank using image recognition make sure to drop the .png image in the items folder.
+        Folder location : src/images/bot/items
         Args:
-        item = name of the .png image
-        confidence = The confidence level of the search in range 0 to 1, where 0 is a perfect match.
-
+            item: The image filename corresponding to the item to grab (excluding extension).
+            confidence: The confidence level of the search in range 0 to 1, where 0 is a perfect match.
         """
         if ocr.find_text("Rearrange", self.win.game_view, ocr.PLAIN_12, clr.OFF_ORANGE):
             if items := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("items", f"{item}.png"), self.win.game_view, confidence):

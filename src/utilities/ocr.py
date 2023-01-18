@@ -94,7 +94,7 @@ def find_text(
             template = font[char]
         except KeyError:
             text = text.replace(char, "")  # Remove characters that aren't in the font
-            print(f"Font does not contain character '{char}'. Omitting from search.")
+            print(f"Font does not contain character: {char}. Omitting from search.")
             continue
         correlation = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
         y_mins, x_mins = np.where(correlation >= 0.98)
