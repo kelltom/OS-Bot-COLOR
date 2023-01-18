@@ -12,7 +12,7 @@ class InfoFrame(customtkinter.CTkFrame):
     listener = None
     pressed = False
     current_keys = set()
-    combination_keys = {keyboard.Key.ctrl_l, keyboard.Key.shift, keyboard.Key.space}
+    combination_keys = {keyboard.Key.shift, keyboard.Key.enter}
     status = "stopped"
 
     def __init__(self, parent, title, info):  # sourcery skip: merge-nested-ifs
@@ -99,7 +99,8 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_play,
             command=self.play_btn_clicked,
         )
-        self.btn_play.bind("<Enter>", lambda event: event.widget.configure(text="Ctl + Shft + Space"))
+        # TODO: Replace with function that replaces text with keybind from settings
+        self.btn_play.bind("<Enter>", lambda event: event.widget.configure(text="↑ + ↵"))
         self.btn_play.bind("<Leave>", lambda event: event.widget.configure(text="Play"))
         self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
 
@@ -112,7 +113,8 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_stop,
             command=self.stop_btn_clicked,
         )
-        self.btn_stop.bind("<Enter>", lambda event: event.widget.configure(text="Ctl + Shft + Space"))
+        # TODO: Replace with function that replaces text with keybind from settings
+        self.btn_stop.bind("<Enter>", lambda event: event.widget.configure(text="↑ + ↵"))
         self.btn_stop.bind("<Leave>", lambda event: event.widget.configure(text="Stop"))
 
         self.btn_options = customtkinter.CTkButton(
