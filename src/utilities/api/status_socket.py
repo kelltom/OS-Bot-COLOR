@@ -1,7 +1,5 @@
 """
 Requires the Status Socket plugin in RuneLite. Endpoint: "http://localhost:5000".
-
-Item IDs: https://www.runelocus.com/tools/osrs-item-id-list/
 """
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -97,20 +95,37 @@ class StatusSocket:
         """
         return player_data["inventory"]
 
-    def get_inv_item_indices(self, id: Union[List[int], int]) -> list:
+    def get_inv_item_indices(self, item_id: Union[List[int], int]) -> list:
         """
         For the given item ID, returns a list of inventory slot indexes that the item exists in.
         Useful for locating items you do not want to drop.
         Args:
-                id: The item ID to search for (an single ID, or list of IDs).
+                item_id: The item ID to search for (an single ID, or list of IDs).
         Returns:
                 A list of inventory slot indexes that the item exists in.
         """
         inv = player_data["inventory"]
-        if isinstance(id, int):
-            return [slot["index"] for slot in inv if slot["id"] == id]
-        elif isinstance(id, list):
-            return [slot["index"] for slot in inv if slot["id"] in id]
+        if isinstance(item_id, int):
+            return [slot["index"] for slot in inv if slot["id"] == item_id]
+        elif isinstance(item_id, list):
+            return [slot["index"] for slot in inv if slot["id"] in item_id]
+
+    def get_inv_item_stack_amount(self, item_id: Union[int, List[int]]) -> int:
+        """
+        For the given item ID, returns the total amount of that item in your inventory.
+        This is only useful for items that stack (e.g. coins, runes, etc).
+        Args:
+                item_id: The item ID to search for. If a list is passed, the first matching item will be used.
+                         This is useful for items that have multiple IDs (e.g. coins, coin pouches, etc.).
+        Returns:
+                The total amount of that item in your inventory.
+        """
+        inv = player_data["inventory"]
+        if isinstance(item_id, int):
+            item_id = [item_id]
+        if result := next((item for item in inv if item["id"] in item_id), None):
+            return int(result["amount"])
+        return 0
 
     def get_is_player_idle(self) -> bool:
         """

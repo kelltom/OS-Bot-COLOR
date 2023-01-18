@@ -90,6 +90,8 @@ class NRPickpocket(NRBot):
         # Setup
         api = StatusSocket()
 
+        self.mouse.click_delay = False
+
         coin_pouch_path = imsearch.BOT_IMAGES.joinpath("items", "coin_pouch.png")
 
         self.log_msg("Selecting inventory...")
@@ -134,18 +136,18 @@ class NRPickpocket(NRBot):
             npc_pos: RuneLiteObject = self.get_nearest_tag(clr.CYAN)
             if npc_pos is not None:
                 self.mouse.move_to(npc_pos.random_point(), mouseSpeed="fastest")
+                if not self.mouseover_text(contains="option"):
+                    # Recalculate position if not hovering over a clickable object/NPC
+                    continue
                 if self.pickpocket_option != 0:
-                    pag.rightClick()
+                    self.mouse.right_click()
                     if self.pickpocket_option == 1:
                         delta_y = 41
                     elif self.pickpocket_option == 2:
                         delta_y = 56
-                    self.mouse.move_rel(x=0, y=delta_y, x_var=5, y_var=2, mouseSpeed="fastest")
-                red_click = self.mouse.click_with_check()
-                if self.pickpocket_option == 0 and red_click:
-                    # If we missclicked on a left-click pickpocket, wait for a second to recalculate position
-                    time.sleep(1)
-                elif self.pickpocket_option == 0:
+                    self.mouse.move_rel(x=5, y=delta_y, x_var=25, y_var=4, mouseSpeed="fastest")
+                self.mouse.click()
+                if self.pickpocket_option == 0:
                     time.sleep(0.3)
                 npc_search_fail_count = 0
                 theft_count += 1
@@ -157,7 +159,8 @@ class NRPickpocket(NRBot):
                     return
 
             # Click coin pouch
-            if self.should_click_coin_pouch and theft_count % 20 == 0:
+            stack_size = api.get_inv_item_stack_amount(item_ids.coin_pouches)
+            if self.should_click_coin_pouch and stack_size > 22:
                 self.log_msg("Clicking coin pouch...")
                 pouch = imsearch.search_img_in_rect(image=coin_pouch_path, rect=self.win.control_panel)
                 if pouch:
@@ -166,8 +169,9 @@ class NRPickpocket(NRBot):
                         mouseSpeed="fast",
                         tween=pytweening.easeInOutQuad,
                     )
-                    pag.click()
-                    time.sleep(0.2)
+                    self.mouse.click(force_delay=True)
+                    time.sleep(0.1)
+                    self.mouse.click(force_delay=True)
                     no_pouch_count = 0
                 else:
                     no_pouch_count += 1

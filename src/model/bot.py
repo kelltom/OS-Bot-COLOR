@@ -25,7 +25,7 @@ import utilities.ocr as ocr
 import utilities.random_util as rd
 from utilities import random_util as rm
 from utilities.geometry import Point, Rectangle
-from utilities.mouse_utils import MouseUtils
+from utilities.mouse import Mouse
 from utilities.options_builder import OptionsBuilder
 from utilities.window import Window, WindowInitializationError
 
@@ -80,7 +80,7 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
-    mouse = MouseUtils()
+    mouse = Mouse()
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED
@@ -262,7 +262,7 @@ class Bot(ABC):
                 offsetBoundaryX=40,
                 tween=pytweening.easeInOutQuad,
             )
-            pag.click()
+            self.mouse.click()
         pag.keyUp("shift")
 
     def drop(self, slots: list[int]) -> None:
@@ -307,26 +307,30 @@ class Bot(ABC):
         """
         self.log_msg("Logging out...")
         self.mouse.move_to(self.win.cp_tabs[10].random_point())
-        pag.click()
+        self.mouse.click()
         time.sleep(1)
         self.mouse.move_rel(0, -53, 5, 5)
-        pag.click()
+        self.mouse.click()
 
-    def take_break(self, min_seconds: int = 1, max_seconds: int = 30, mean: int = None, std: int = None):
+    def take_break(self, min_seconds: int = 1, max_seconds: int = 30, fancy: bool = False):
         """
         Takes a break for a random amount of time.
         Args:
             min_seconds: minimum amount of time the bot could rest
             max_seconds: maximum amount of time the bot could rest
-            mean: mean of the random time interval (optional)
-            std: standard deviation of the random time interval (optional)
+            fancy: if True, the randomly generated value will be from a truncated normal distribution
+                   with randomly selected means. This may produce more human results.
         """
         self.log_msg("Taking a break...")
-        length = rd.truncated_normal_sample(min_seconds, max_seconds, mean, std)
-        for i in range(int(length)):
+        if fancy:
+            length = rd.fancy_normal_sample(min_seconds, max_seconds)
+        else:
+            length = rd.truncated_normal_sample(min_seconds, max_seconds)
+        length = round(length)
+        for i in range(length):
             self.log_msg(f"Taking a break... {int(length) - i} seconds left.", overwrite=True)
             time.sleep(1)
-        self.log_msg("Done taking break.", overwrite=True)
+        self.log_msg(f"Done taking {length} second break.", overwrite=True)
 
     # --- Player Status Functions ---
     def has_hp_bar(self) -> bool:
@@ -508,7 +512,7 @@ class Bot(ABC):
         """
         # Ensuring that args are valid
         if combat_style not in ["accurate", "aggressive", "defensive", "controlled", "rapid", "longrange"]:
-            raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
+            raise ValueError(f"Invalid combat style: {combat_style}. See function docstring for valid options.")
 
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point(), mouseSpeed="fastest")
@@ -538,7 +542,7 @@ class Bot(ABC):
                 rect = Rectangle.from_points(Point(center[0] - 32, center[1] - 34), Point(center[0] + 32, center[1] + 10))
                 self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
                 self.mouse.click()
-                self.log_msg(f"Combat style '{combat_style}' selected.")
+                self.log_msg(f"Combat style {combat_style} selected.")
                 return
         self.log_msg(f"{combat_style.capitalize()} style not found.")
 

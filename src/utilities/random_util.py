@@ -39,8 +39,8 @@ def random_point_in(x_min, y_min, width, height, seeds: List[List[int]]) -> List
     """
     sg = secrets.SystemRandom()
 
-    # Generate a random pixel within the full bounding box with a 25% probability.
     if sg.randrange(0, 101) > 75:
+        # Generate a random pixel within the full bounding box.
         return __random_from(x_min, y_min, width, height)
 
     # Calculate the dimensions and position of an inner bounding box within the full bounding box.
@@ -65,12 +65,24 @@ def random_point_in(x_min, y_min, width, height, seeds: List[List[int]]) -> List
     inner_inner_height = start_fix_height if start_fix_height <= end_fix_height else end_fix_height
 
     # Generate a random pixel within the bounding box within the inner bounding box.
-    return __random_from(start_x, start_y, inner_inner_width, inner_inner_height, center=True)
+    return __random_from(start_x, start_y, inner_inner_width, inner_inner_height, centered=False)
 
 
-def __random_from(x_min, y_min, width, height, center: bool = False) -> List[int]:
-    # If center is not set to True, shift x_min and y_min to the center of the region
-    if not center:
+def __random_from(x_min, y_min, width, height, centered: bool = True) -> List[int]:
+    """
+    Helper function to generate a random pixel within some bounding box. The bounding box can be
+    centered on the x_min and y_min coordinates, or the bounding box can be offset from the x_min
+    and y_min coordinates (i.e., x_min and y_min are the top-left corner of the bounding
+    box).
+    Args:
+        x_min: The left-most coordinate of the bounding box.
+        y_min: The top-most coordinate of the bounding box.
+        width: The width of the bounding box.
+        height: The height of the bounding box.
+        centered: Whether or not the bounding box is centered on the x_min and y_min coordinates.
+    """
+    if centered:
+        # The bounding box to search is to be centered on the x_min and y_min coordinates
         x_min = x_min + math.ceil(width / 2)
         y_min = y_min + math.ceil(height / 2)
 
@@ -96,29 +108,19 @@ def truncated_normal_sample(lower_bound, upper_bound, mean=None, std=None) -> fl
     Args:
         lower_bound: The lower bound of the truncated normal distribution.
         upper_bound: The upper bound of the truncated normal distribution.
-        mean: The mean of the normal distribution (default is auto-generated).
+        mean: The mean of the normal distribution (default is mid-point between bounds).
         std: The standard deviation of the normal distribution (default is auto-generated).
     Returns:
         A random float from the truncated normal distribution.
     Examples:
-        100,000 x `truncated_normal_sample(0, 100)` graphed: https://i.imgur.com/XP4Loff.png
+        100,000 x `truncated_normal_sample(0, 100)` graphed: https://i.imgur.com/8W12RZX.png
     """
     if mean is None:
-        # Default will be two means, one at 1/3rd and one at 2/3 of the range
-        mean = [lower_bound + (upper_bound - lower_bound) * 0.33, lower_bound + (upper_bound - lower_bound) * 0.66]
+        mean = (lower_bound + upper_bound) / 2
     if std is None:
         std = (upper_bound - lower_bound) / 9
-
-    if isinstance(mean, list):
-        # Generate probabilities for each mean proportional to the index
-        p = [(i + 1) ** 2 / sum((i + 1) ** 2 for i in range(len(mean))) for i in range(len(mean))][::-1]
-
     # Keep generating samples until we get one that falls within the specified bounds
     while True:
-        if isinstance(mean, list):
-            # Select a mean from the list with a probability proportional to the index
-            index = np.random.choice(range(len(mean)), p=p)
-            mean = mean[index]
         # Generate two independent standard normal samples
         x1, x2 = np.random.normal(0, 1), np.random.normal(0, 1)
         z = x1**2 + x2**2
@@ -130,6 +132,30 @@ def truncated_normal_sample(lower_bound, upper_bound, mean=None, std=None) -> fl
             if sample > upper_bound:
                 continue
             return sample
+
+
+def fancy_normal_sample(lower_bound, upper_bound) -> float:
+    """
+    Generate a random sample from a truncated normal distribution with randomly-selected means.
+    This produces a more "fancy" distribution than a standard normal distribution, which could emulate
+    randomness in human gameplay activity. This function is a work in progress.
+    Args:
+        lower_bound: The lower bound of the truncated normal distribution.
+        upper_bound: The upper bound of the truncated normal distribution.
+    Returns:
+        A random float from a truncated normal distribution with randomly-selected means.
+    Examples:
+        100,000 x `truncated_normal_sample(0, 100)` graphed: https://i.imgur.com/XP4Loff.png
+    """
+    # Default will be two means, one at 1/3rd and one at 2/3 of the range
+    means = [lower_bound + (upper_bound - lower_bound) * 0.33, lower_bound + (upper_bound - lower_bound) * 0.66]
+    # Generate probabilities for each mean proportional to the index
+    p = [(i + 1) ** 2 / sum((i + 1) ** 2 for i in range(len(means))) for i in range(len(means))][::-1]
+    # Select a mean from the list with a probability proportional to the index
+    index = np.random.choice(range(len(means)), p=p)
+    mean = means[index]
+    # Retrieve a sample from the truncated normal distribution
+    return truncated_normal_sample(lower_bound, upper_bound, mean=mean)
 
 
 def random_chance(probability: float) -> bool:
@@ -146,3 +172,13 @@ def random_chance(probability: float) -> bool:
     if probability < 0.000 or probability > 1.000:
         raise ValueError("Probability must be between 0 and 1")
     return secrets.SystemRandom().random() < probability
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    samples = [truncated_normal_sample(0, 600) for _ in range(100000)]
+
+    # plot the samples
+    plt.hist(samples, bins=600)
+    plt.show()
