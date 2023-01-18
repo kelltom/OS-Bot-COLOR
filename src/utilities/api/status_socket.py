@@ -1,7 +1,5 @@
 """
 Requires the Status Socket plugin in RuneLite. Endpoint: "http://localhost:5000".
-
-Item IDs: https://www.runelocus.com/tools/osrs-item-id-list/
 """
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer

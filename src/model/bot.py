@@ -511,7 +511,7 @@ class Bot(ABC):
         """
         # Ensuring that args are valid
         if combat_style not in ["accurate", "aggressive", "defensive", "controlled", "rapid", "longrange"]:
-            raise ValueError(f"Invalid combat style '{combat_style}'. See function docstring for valid options.")
+            raise ValueError(f"Invalid combat style: {combat_style}. See function docstring for valid options.")
 
         # Click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point(), mouseSpeed="fastest")
@@ -541,7 +541,7 @@ class Bot(ABC):
                 rect = Rectangle.from_points(Point(center[0] - 32, center[1] - 34), Point(center[0] + 32, center[1] + 10))
                 self.mouse.move_to(rect.random_point(), mouseSpeed="fastest")
                 self.mouse.click()
-                self.log_msg(f"Combat style '{combat_style}' selected.")
+                self.log_msg(f"Combat style {combat_style} selected.")
                 return
         self.log_msg(f"{combat_style.capitalize()} style not found.")
 

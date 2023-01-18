@@ -151,7 +151,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
                 self.log_msg(f"Could not find 'Take {items}' in right-click menu.")
                 return False
         elif not supress_warning:
-            self.log_msg(f"Could not find '{items}' on the ground.")
+            self.log_msg(f"Could not find {items} on the ground.")
             return False
 
     def capitalize_loot_list(self, loot: str, to_list: bool):
