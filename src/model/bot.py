@@ -569,13 +569,13 @@ class Bot(ABC):
 
     def camera_rotate(self, direction: str, degree: int):
         """
+        Rotates the camera horizontally in a specified direction by a specified degree.
         Agrs:
             direction: direction to rotate ("left" or "right")
             degree: degree to rotate the camera (0-360)
         """
         if direction not in ["left", "right"]:
             raise ValueError(f"Invalid direction '{direction}'. See function docstring for valid options.")
-
         degrees_per_seconds = 0.01027 * degree
         pag.keyDown(direction)
         time.sleep(degrees_per_seconds)
