@@ -565,22 +565,3 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
-
-    def __open_display_settings(self) -> bool:
-        """
-        Opens the display settings for the game client.
-        Returns:
-            True if the settings were opened, False if an error occured.
-        """
-        control_panel = self.win.control_panel
-        self.mouse.move_to(self.win.cp_tabs[11].random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel)
-        if display_tab is None:
-            self.log_msg("Could not find the display settings tab.")
-            return False
-        self.mouse.move_to(display_tab.random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        return True
