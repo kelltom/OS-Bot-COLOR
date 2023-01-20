@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 class OSRSWikiScraper:
     def __init__(self):
         self.base_url = "https://oldschool.runescape.wiki"
+        self.logs = []
     
     def download_file(self, url, search_param):
         response = requests.get(url)
@@ -15,7 +16,7 @@ class OSRSWikiScraper:
         filename = url.split("/")[-1].split("?")[0]
         open(f"src/images/bot/sprites/{filename}", "wb").write(response.content)
 
-    def search_and_download(self, search_param, success_label, failure_label):
+    def search_and_download(self, search_param, search_feedback_label):
         if ',' in search_param:
             search_params = search_param.split(',')
         else:
@@ -30,6 +31,8 @@ class OSRSWikiScraper:
             if img:
                 img_url = urljoin(self.base_url, img["src"])
                 self.download_file(img_url, search_param)
-                success_label.set_text(text=f"Success: {search_param} saved.")
+                # search_feedback_label.set_text(text=f"Success: {search_param} saved.")
+                self.logs.append(f"Success: {search_param} saved.")
             else:
-                failure_label.set_text(text=f"No image found with the search parameter: {search_param}.")
+                # search_feedback_label.set_text(text=f"No image found with the search parameter: {search_param}.")
+                self.logs.append(f"No image found with the search parameter: {search_param}.")

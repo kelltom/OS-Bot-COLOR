@@ -152,14 +152,8 @@ class TitleView(customtkinter.CTkFrame):
             self.search_submit_button = customtkinter.CTkButton(self.search_window, text="Submit", command=self.on_submit)
             self.search_submit_button.pack()
 
-
-            self.success_label = customtkinter.CTkLabel(self.search_window, text="")
-            self.success_label.pack(
-                padx=10,
-                pady=10)
-
-            self.failure_label = customtkinter.CTkLabel(self.search_window, text="")
-            self.failure_label.pack(
+            self.search_feedback_label = customtkinter.CTkLabel(self.search_window, text="")
+            self.search_feedback_label.pack(
                 padx=10,
                 pady=10)
 
@@ -173,4 +167,5 @@ class TitleView(customtkinter.CTkFrame):
 
     def on_submit(self):
         search_input = self.search_entry.get()
-        scraper.search_and_download(search_input, self.success_label, self.failure_label)
+        scraper.search_and_download(search_input, self.search_feedback_label)
+        self.search_feedback_label.set_text("\n".join(scraper.logs))
