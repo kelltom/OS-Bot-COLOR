@@ -3,9 +3,9 @@ import webbrowser as wb
 
 import customtkinter
 from PIL import Image, ImageTk
-from utilities.OSRSWikiScraper import OSRSWikiScraper
+from utilities.osrs_wiki_sprite_scraper import OSRSWikiSpriteScraper
 
-scraper = OSRSWikiScraper()
+scraper = OSRSWikiSpriteScraper()
 
 class TitleView(customtkinter.CTkFrame):
     def __init__(self, parent, main):

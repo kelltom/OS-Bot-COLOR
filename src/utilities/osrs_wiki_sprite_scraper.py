@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from PIL import Image
 
-class OSRSWikiScraper:
+class OSRSWikiSpriteScraper:
     def __init__(self):
         self.base_url = "https://oldschool.runescape.wiki"
         self.logs = []
