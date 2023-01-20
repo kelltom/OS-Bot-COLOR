@@ -3,12 +3,15 @@ import webbrowser as wb
 
 import customtkinter
 from PIL import Image, ImageTk
+from utilities.OSRSWikiScraper import OSRSWikiScraper
 
+scraper = OSRSWikiScraper()
 
 class TitleView(customtkinter.CTkFrame):
     def __init__(self, parent, main):
         super().__init__(parent)
         self.main = main
+        self.search_window = None
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)  # Spacing
@@ -21,6 +24,7 @@ class TitleView(customtkinter.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
         self.grid_columnconfigure(2, weight=1)
+
 
         # Logo
         self.logo_path = pathlib.Path(__file__).parent.parent.resolve()
@@ -80,6 +84,7 @@ class TitleView(customtkinter.CTkFrame):
         )
         self.btn_feedback.grid(row=3, column=1, padx=15, pady=(15, 0))
 
+
         # -- Bug Report
         self.bug_logo = ImageTk.PhotoImage(
             Image.open(f"{self.logo_path}/images/ui/bug-report_w.png").resize((IMG_SIZE, IMG_SIZE)),
@@ -99,11 +104,73 @@ class TitleView(customtkinter.CTkFrame):
         )
         self.btn_feedback.grid(row=3, column=2, padx=15, pady=(15, 0), sticky="w")
 
+        # -- Sprite Scraper
+        self.wiki_logo = ImageTk.PhotoImage(
+            Image.open(f"{self.logo_path}/images/ui/wiki.png").resize((IMG_SIZE, IMG_SIZE)),
+            Image.LANCZOS,
+        )
+        self.btn_sprite_scraper = customtkinter.CTkButton(
+            master=self,
+            text="Sprite Scraper",
+            image=self.wiki_logo,
+            width=BTN_WIDTH,
+            height=BTN_HEIGHT,
+            corner_radius=15,
+            fg_color=DEFAULT_GRAY,
+            compound="top",
+            command=self.btn_scraper_clicked,
+        )
+        self.btn_sprite_scraper.grid(row=5, column=1, padx=15, pady=(15, 0))
+    
     def btn_github_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR")
 
     def btn_feedback_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/discussions")
 
+
     def btn_bug_report_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/issues/new/choose")
+    
+    def btn_scraper_clicked(self):
+        if not self.search_window:
+            self.search_window = customtkinter.CTkToplevel(self)
+            self.search_window.title("OSRS Wiki Sprite Search")
+            self.search_window.geometry("400x200")
+
+            self.search_label = customtkinter.CTkLabel(self.search_window, text="Search OSRS wiki for Sprites.", text_font=("Roboto Medium", 12))
+            self.search_label.pack()
+
+            self.search_info = customtkinter.CTkLabel(self.search_window, text="Supports multiple searchs by adding a ',' and another query")
+            self.search_info.pack()
+
+            self.search_entry = customtkinter.CTkEntry(self.search_window)
+            self.search_entry.pack(
+                padx=10,
+                pady=10)
+
+            self.search_submit_button = customtkinter.CTkButton(self.search_window, text="Submit", command=self.on_submit)
+            self.search_submit_button.pack()
+
+
+            self.success_label = customtkinter.CTkLabel(self.search_window, text="")
+            self.success_label.pack(
+                padx=10,
+                pady=10)
+
+            self.failure_label = customtkinter.CTkLabel(self.search_window, text="")
+            self.failure_label.pack(
+                padx=10,
+                pady=10)
+
+            self.search_window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        else:
+            self.search_window.lift()
+
+    def on_closing(self):
+        self.search_window.destroy()
+        self.search_window = None
+
+    def on_submit(self):
+        search_input = self.search_entry.get()
+        scraper.search_and_download(search_input, self.success_label, self.failure_label)
