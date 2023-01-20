@@ -8,9 +8,17 @@ from pyautogui import keyDown,keyUp
 class InvOpen(object):
     def __init__(self, osrs_bot: OSRSBot):
         self.osrs_bot = osrs_bot
-        self.tab = 3
     def __enter__(self):
-        opened = _ensure_inventory_open(self.osrs_bot, self.tab)
+        opened = _ensure_inventory_open(self.osrs_bot)
+        return opened
+    def __exit__(self, *args, **kwargs):
+        pass
+
+class MagicOpen(object):
+    def __init__(self, osrs_bot: OSRSBot):
+        self.osrs_bot = osrs_bot
+    def __enter__(self):
+        opened = _ensure_magic_tab_open(self.osrs_bot)
         return opened
     def __exit__(self, *args, **kwargs):
         pass
@@ -44,14 +52,14 @@ def _check_if_tab_active(osrs_bot: OSRSBot, tab: int) -> bool:
 
     return True if inv else False
 
-def _ensure_inventory_open(osrs_bot: OSRSBot, tab: int) -> bool:
+def _ensure_inventory_open(osrs_bot: OSRSBot) -> bool:
     """
     Ensure a specific tab is open, if not open it
 
     return: True/False whether the tab has been succesfully opened
     """
 
-    inv_open = _check_if_tab_active(osrs_bot,  tab)
+    inv_open = _check_if_tab_active(osrs_bot, 3)
 
     if inv_open == False:
 
@@ -68,4 +76,29 @@ def _ensure_inventory_open(osrs_bot: OSRSBot, tab: int) -> bool:
         inv_open = _check_if_tab_active(osrs_bot,  3)
 
     return inv_open
+
+def _ensure_magic_tab_open(osrs_bot: OSRSBot):
+    """
+    Ensure a specific tab is open, if not open it
+
+    return: True/False whether the tab has been succesfully opened
+    """
+
+    open = _check_if_tab_active(osrs_bot, 6)
+
+    if open == False:
+
+        osrs_bot.log_msg("Inventory not detected as open")
+
+        if random_chance(0.1) == True:
+            osrs_bot.mouse.move_to(osrs_bot.win.cp_tabs[6].random_point())
+            osrs_bot.mouse.click()
+
+        else:
+            keyDown('f6')
+            keyUp('f6')
+
+        open = _check_if_tab_active(osrs_bot,  6)
+
+    return open
 
