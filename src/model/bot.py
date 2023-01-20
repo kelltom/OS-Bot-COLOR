@@ -234,7 +234,7 @@ class Bot(ABC):
         self.controller.clear_log()
 
     # --- Misc Utility Functions
-    def drop_all(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
+    def drop_all(self, skip_rows: int = 0, skip_slots: List[int] = None) -> None:
         """
         Shift-clicks all items in the inventory to drop them.
         Args:
@@ -265,7 +265,7 @@ class Bot(ABC):
             self.mouse.click()
         pag.keyUp("shift")
 
-    def drop(self, slots: list[int]) -> None:
+    def drop(self, slots: List[int]) -> None:
         """
         Shift-clicks inventory slots to drop items.
         Args:
