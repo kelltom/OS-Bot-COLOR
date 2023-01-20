@@ -136,12 +136,17 @@ class TitleView(customtkinter.CTkFrame):
         if not self.search_window:
             self.search_window = customtkinter.CTkToplevel(self)
             self.search_window.title("OSRS Wiki Sprite Search")
-            self.search_window.geometry("400x200")
+            self.search_window.geometry(f"400x600")
 
-            self.search_label = customtkinter.CTkLabel(self.search_window, text="Search OSRS wiki for Sprites.", text_font=("Roboto Medium", 12))
+            self.search_label = customtkinter.CTkLabel(
+                self.search_window, 
+                text="Search OSRS wiki for Sprites.", 
+                text_font=("Roboto Medium", 12))
             self.search_label.pack()
 
-            self.search_info = customtkinter.CTkLabel(self.search_window, text="Supports multiple searchs by adding a ',' and another query")
+            self.search_info = customtkinter.CTkLabel(
+                self.search_window, 
+                text="Supports multiple searchs by adding a ',' and another query")
             self.search_info.pack()
 
             self.search_entry = customtkinter.CTkEntry(self.search_window)
@@ -149,10 +154,21 @@ class TitleView(customtkinter.CTkFrame):
                 padx=10,
                 pady=10)
 
-            self.search_submit_button = customtkinter.CTkButton(self.search_window, text="Submit", command=self.on_submit)
+            self.search_submit_button = customtkinter.CTkButton(
+                self.search_window, 
+                text="Submit", 
+                command=self.on_submit)
             self.search_submit_button.pack()
 
-            self.search_feedback_label = customtkinter.CTkLabel(self.search_window, text="")
+            self.search_log_label = customtkinter.CTkLabel(
+                self.search_window,
+                text="Logs:"
+            )
+            self.search_log_label.pack()
+
+            self.search_feedback_label = customtkinter.CTkLabel(
+                self.search_window, 
+                text="")
             self.search_feedback_label.pack(
                 padx=10,
                 pady=10)
@@ -167,5 +183,5 @@ class TitleView(customtkinter.CTkFrame):
 
     def on_submit(self):
         search_input = self.search_entry.get()
-        scraper.search_and_download(search_input, self.search_feedback_label)
+        scraper.search_and_download(search_input)
         self.search_feedback_label.set_text("\n".join(scraper.logs))
