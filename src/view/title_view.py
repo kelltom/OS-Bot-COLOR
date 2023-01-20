@@ -160,6 +160,12 @@ class TitleView(customtkinter.CTkFrame):
                 command=self.on_submit)
             self.search_submit_button.pack()
 
+            self.bank_image_checkbox = customtkinter.CTkCheckBox(
+                self.search_window,
+                text="Bank Sprite"
+            )
+            self.bank_image_checkbox.pack(pady=10)
+
             self.search_log_label = customtkinter.CTkLabel(
                 self.search_window,
                 text="Logs:"
@@ -183,5 +189,6 @@ class TitleView(customtkinter.CTkFrame):
 
     def on_submit(self):
         search_input = self.search_entry.get()
-        scraper.search_and_download(search_input)
+        bank_checkbox_input = self.bank_image_checkbox.get()
+        scraper.search_and_download(search_input, bank_checkbox_input)
         self.search_feedback_label.set_text("\n".join(scraper.logs))
