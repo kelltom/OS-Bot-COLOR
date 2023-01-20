@@ -106,7 +106,7 @@ class TitleView(customtkinter.CTkFrame):
 
         # -- Sprite Scraper
         self.wiki_logo = ImageTk.PhotoImage(
-            Image.open(f"{self.logo_path}/images/ui/wiki.png").resize((IMG_SIZE, IMG_SIZE)),
+            Image.open(f"{self.logo_path}/images/ui/scraper.png").resize((IMG_SIZE, IMG_SIZE)),
             Image.LANCZOS,
         )
         self.btn_sprite_scraper = customtkinter.CTkButton(
@@ -162,9 +162,23 @@ class TitleView(customtkinter.CTkFrame):
 
             self.bank_image_checkbox = customtkinter.CTkCheckBox(
                 self.search_window,
-                text="Bank Sprite"
+                text="Bank and Sprite"
             )
             self.bank_image_checkbox.pack(pady=10)
+
+            self.bank_only_checkbox = customtkinter.CTkCheckBox(
+                self.search_window,
+                text="Bank Only"
+            )
+            self.bank_only_checkbox.pack(pady=(10, 0))
+
+            self.bank_only_warning = customtkinter.CTkLabel(
+                self.search_window,
+                text="This option will delete previously downloaded sprites of the same name",
+                text_color="#FF0000",
+                wraplength=250
+            )
+            self.bank_only_warning.pack(pady=(0, 10))
 
             self.search_log_label = customtkinter.CTkLabel(
                 self.search_window,
@@ -190,5 +204,6 @@ class TitleView(customtkinter.CTkFrame):
     def on_submit(self):
         search_input = self.search_entry.get()
         bank_checkbox_input = self.bank_image_checkbox.get()
-        scraper.search_and_download(search_input, bank_checkbox_input)
+        bank_only_checkbox_input = self.bank_only_checkbox.get()
+        scraper.search_and_download(search_input, bank_checkbox_input, bank_only_checkbox_input)
         self.search_feedback_label.set_text("\n".join(scraper.logs))
