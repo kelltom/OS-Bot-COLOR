@@ -38,7 +38,7 @@ def __imagesearcharea(template: Union[cv2.Mat, str, Path], im: cv2.Mat, confiden
     return None
 
 
-def search_img_in_rect(image: Union[cv2.Mat, str, Path], rect: Rectangle, confidence=0.15) -> Rectangle:
+def search_img_in_rect(image: Union[cv2.Mat, str, Path], rect: Union[Rectangle, cv2.Mat], confidence=0.15) -> Rectangle:
     """
     Searches for an image in a rectangle. This function works with images containing transparency (sprites).
     Args:
@@ -52,10 +52,12 @@ def search_img_in_rect(image: Union[cv2.Mat, str, Path], rect: Rectangle, confid
         image = cv2.imread(image, cv2.IMREAD_UNCHANGED)
     elif isinstance(image, Path):
         image = cv2.imread(str(image), cv2.IMREAD_UNCHANGED)
-    im = rect.screenshot()
+    im = rect.screenshot() if isinstance(rect, Rectangle) else rect
+
     if found_rect := __imagesearcharea(image, im, confidence):
-        found_rect.left += rect.left
-        found_rect.top += rect.top
+        if isinstance(rect, Rectangle):
+            found_rect.left += rect.left
+            found_rect.top += rect.top
         return found_rect
     else:
         return None

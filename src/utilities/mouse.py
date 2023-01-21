@@ -4,12 +4,12 @@ import time
 import numpy as np
 import pyautogui as pag
 import pytweening
-from deprecated import deprecated
 from pyclick import HumanCurve
 
 import utilities.color as clr
 from utilities.geometry import Point, Rectangle
 from utilities.random_util import truncated_normal_sample
+import utilities.imagesearch as imsearch
 
 
 class Mouse:
@@ -98,29 +98,32 @@ class Mouse:
         """
         self.click(button="right", force_delay=force_delay)
 
-    @deprecated(version="0.2.0", reason="Currently unreliable. Use click() instead.")
-    def click_with_check(self) -> bool:
+    def click_with_check(self, rect: Rectangle) -> bool:
         """
-        Clicks on the current mouse position and checks if the click was red.
+        Clicks on the current mouse position and checks if the click was red in the Rectangle.
         Returns:
             True if the click was red, False if the click was yellow.
         """
         self.click()
-        return self.__is_red_click()
+        return self.__is_red_click(rect)
 
-    @deprecated(version="0.2.0", reason="This function should instead perform image search using official click sprites.")
-    def __is_red_click(self) -> bool:
+    def __is_red_click(self, rect: Rectangle) -> bool:
         """
         Checks if a click was red, must be called directly after clicking.
         Returns:
             True if the click was red, False if the click was yellow.
         """
-        mouse_x, mouse_y = pag.position()
-        # Make rect around cursor for screenshot
-        mouse_rect = Rectangle.from_points(Point(mouse_x - 5, mouse_y - 5), Point(mouse_x + 5, mouse_y + 5))
-        # Isolate red click from screenshot
-        mouse_red_click = clr.isolate_colors(mouse_rect.screenshot(), clr.RED)
-        return np.any(mouse_red_click)
+        start_time = time.time()
+
+        while time.time() <= start_time + 0.05:
+            BGRMatrix = rect.screenshot()
+
+            for click_sprite in ["red_1.png","red_3.png", "red_2.png", "red_4.png"]:
+                if imsearch.search_img_in_rect(\
+                   imsearch.BOT_IMAGES.joinpath("mouse_clicks", click_sprite), BGRMatrix):
+                       return True
+
+        return False
 
     def __calculate_knots(self, destination: tuple):
         """
