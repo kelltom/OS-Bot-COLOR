@@ -576,7 +576,8 @@ class Bot(ABC):
         """
         if direction not in ["left", "right"]:
             raise ValueError(f"Invalid direction: {direction}. See function docstring for valid options.")
-        degrees_per_seconds = 0.01027 * degree
+        full_rotation = 3.549 # seconds
+        degrees_per_seconds = full_rotation / 360 * degree
         pag.keyDown(direction)
         time.sleep(degrees_per_seconds)
         pag.keyUp(direction)
