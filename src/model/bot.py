@@ -581,19 +581,3 @@ class Bot(ABC):
         pag.keyDown(direction)
         time.sleep(degrees_per_seconds)
         pag.keyUp(direction)
-
-    def random_camera_rotate(self, min_degree: int, max_degree: int, chance: float = 0.5):  #
-        """
-        Rotates camera left or right within the specified degree range.
-        Args:
-            min_degree: minimum degree to rotate
-            max_degree: maximum degree to rotate
-            chance: chance of rotating right opposed to left (default 0.5 or 50%)
-        """
-        mean = (min_degree + max_degree) / 2
-        standard_deviation = (max_degree / 2) * 0.33
-        random_degree = rm.truncated_normal_sample(min_degree, max_degree, mean, standard_deviation)
-        if rm.random_chance(probability=chance):
-            self.camera_rotate(direction="right", degree=random_degree)
-        else:
-            self.camera_rotate(direction="left", degree=random_degree)
