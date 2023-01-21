@@ -233,7 +233,7 @@ class Bot(ABC):
         self.controller.clear_log()
 
     # --- Misc Utility Functions
-    def drop_all(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
+    def drop_all(self, skip_rows: int = 0, skip_slots: List[int] = None) -> None:
         """
         Shift-clicks all items in the inventory to drop them.
         Args:
@@ -264,7 +264,7 @@ class Bot(ABC):
             self.mouse.click()
         pag.keyUp("shift")
 
-    def drop(self, slots: list[int]) -> None:
+    def drop(self, slots: List[int]) -> None:
         """
         Shift-clicks inventory slots to drop items.
         Args:
@@ -565,22 +565,3 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
-
-    def __open_display_settings(self) -> bool:
-        """
-        Opens the display settings for the game client.
-        Returns:
-            True if the settings were opened, False if an error occured.
-        """
-        control_panel = self.win.control_panel
-        self.mouse.move_to(self.win.cp_tabs[11].random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        display_tab = imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("cp_settings_display_tab.png"), control_panel)
-        if display_tab is None:
-            self.log_msg("Could not find the display settings tab.")
-            return False
-        self.mouse.move_to(display_tab.random_point())
-        self.mouse.click()
-        time.sleep(0.5)
-        return True
