@@ -81,6 +81,14 @@ class StatusSocket:
         """
         return len(player_data["inventory"]) >= 28
 
+    def get_is_inv_empty(self) -> bool:
+        """
+        Checks if player's inventory is empty.
+        Returns:
+                True if the player's inventory is empty, False otherwise.
+        """
+        return len(player_data["inventory"]) == 0
+
     def get_inv(self) -> list:
         """
         Gets a list of dicts representing the player inventory.

@@ -344,6 +344,25 @@ class MorgHTTPSocket:
         data = self.__do_get(endpoint=self.equip_endpoint)
         return [equipment_id["id"] for equipment_id in data]
 
+    def get_is_item_equipped(self, item_id: int) -> Union[bool, None]:
+        """
+        Checks if the player has given item equipped.
+        Returns:
+                True if the item is equipped, False otherwise, or None if an error occurred.
+        """
+        try:
+            data = self.__do_get(endpoint=self.equip_endpoint)
+        except SocketError as e:
+            print(e)
+            return None
+
+        equipped = False
+        for equipment_id in data:
+            if equipment_id["id"] == item_id:
+                equipped = True
+        
+        return equipped
+
     def convert_player_position_to_pixels(self):
         """
         Convert a world point into coordinate where to click with the mouse to make it possible to move via the socket.
