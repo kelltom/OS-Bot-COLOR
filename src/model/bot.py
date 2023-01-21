@@ -461,6 +461,49 @@ class Bot(ABC):
         self.mouse.move_rel(0, rel_y, 5, 2)
         self.mouse.click()
 
+    def move_camera(self, horizontal: int = 0, vertical: int = 0):
+        """
+        Rotates the camera by specified degrees in any direction.
+        Agrs:
+            horizontal: The degree to rotate the camera (-360 to 360).
+            vertical: The degree to rotate the camera up (-90 to 90).
+        Note:
+            A negative degree will rotate the camera left or down.
+        """
+        if horizontal == 0 and vertical == 0:
+            raise ValueError("Must specify at least one argument.")
+        if horizontal < -360 or horizontal > 360:
+            raise ValueError("Horizontal degree must be between -360 and 360.")
+        if vertical < -90 or vertical > 90:
+            raise ValueError("Vertical degree must be between -90 and 90.")
+
+        rotation_time_h = 3.549  # seconds to do a full 360 degree rotation horizontally
+        rotation_time_v = 1.75  # seconds to do a full 90 degree rotation vertically
+        sleep_h = rotation_time_h / 360 * abs(horizontal)  # time to hold arrow key
+        sleep_v = rotation_time_v / 90 * abs(vertical)  # time to hold arrow key
+
+        direction_h = "right" if horizontal < 0 else "left"
+        direction_v = "down" if vertical < 0 else "up"
+
+        def keypress(direction, duration):
+            pag.keyDown(direction)
+            time.sleep(duration)
+            pag.keyUp(direction)
+
+        thread_h = threading.Thread(target=keypress, args=(direction_h, sleep_h), daemon=True)
+        thread_v = threading.Thread(target=keypress, args=(direction_v, sleep_v), daemon=True)
+        delay = rd.fancy_normal_sample(0, max(sleep_h, sleep_v))
+        if sleep_h > sleep_v:
+            thread_h.start()
+            time.sleep(delay)
+            thread_v.start()
+        else:
+            thread_v.start()
+            time.sleep(delay)
+            thread_h.start()
+        thread_h.join()
+        thread_v.join()
+
     def toggle_auto_retaliate(self, toggle_on: bool):
         """
         Toggles auto retaliate. Assumes client window is configured.
@@ -554,18 +597,3 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
-
-    def camera_rotate(self, direction: str, degree: int):
-        """
-        Rotates the camera horizontally in a specified direction by a specified degree.
-        Agrs:
-            direction: direction to rotate ("left" or "right")
-            degree: degree to rotate the camera (0-360)
-        """
-        if direction not in ["left", "right"]:
-            raise ValueError(f"Invalid direction: {direction}. See function docstring for valid options.")
-        full_rotation = 3.549  # seconds
-        degrees_per_seconds = full_rotation / 360 * degree
-        pag.keyDown(direction)
-        time.sleep(degrees_per_seconds)
-        pag.keyUp(direction)
