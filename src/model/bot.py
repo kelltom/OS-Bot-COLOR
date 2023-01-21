@@ -440,18 +440,6 @@ class Bot(ABC):
             return True
 
     # --- Client Settings ---
-    # TODO: Add anti-ban functions that move camera around randomly
-    def move_camera_up(self):
-        """
-        Moves the camera up.
-        """
-        # Position the mouse somewhere on the game view
-        self.mouse.move_to(self.win.game_view.get_center())
-        pag.keyDown("up")
-        time.sleep(2)
-        pag.keyUp("up")
-        time.sleep(0.5)
-
     def set_compass_north(self):
         self.log_msg("Setting compass North...")
         self.mouse.move_to(self.win.compass_orb.random_point())
