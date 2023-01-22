@@ -233,7 +233,7 @@ class Bot(ABC):
         self.controller.clear_log()
 
     # --- Misc Utility Functions
-    def drop_all(self, skip_rows: int = 0, skip_slots: list[int] = None) -> None:
+    def drop_all(self, skip_rows: int = 0, skip_slots: List[int] = None) -> None:
         """
         Shift-clicks all items in the inventory to drop them.
         Args:
@@ -264,7 +264,7 @@ class Bot(ABC):
             self.mouse.click()
         pag.keyUp("shift")
 
-    def drop(self, slots: list[int]) -> None:
+    def drop(self, slots: List[int]) -> None:
         """
         Shift-clicks inventory slots to drop items.
         Args:
@@ -439,18 +439,6 @@ class Bot(ABC):
             return True
 
     # --- Client Settings ---
-    # TODO: Add anti-ban functions that move camera around randomly
-    def move_camera_up(self):
-        """
-        Moves the camera up.
-        """
-        # Position the mouse somewhere on the game view
-        self.mouse.move_to(self.win.game_view.get_center())
-        pag.keyDown("up")
-        time.sleep(2)
-        pag.keyUp("up")
-        time.sleep(0.5)
-
     def set_compass_north(self):
         self.log_msg("Setting compass North...")
         self.mouse.move_to(self.win.compass_orb.random_point())
@@ -471,6 +459,49 @@ class Bot(ABC):
         pag.rightClick()
         self.mouse.move_rel(0, rel_y, 5, 2)
         self.mouse.click()
+
+    def move_camera(self, horizontal: int = 0, vertical: int = 0):
+        """
+        Rotates the camera by specified degrees in any direction.
+        Agrs:
+            horizontal: The degree to rotate the camera (-360 to 360).
+            vertical: The degree to rotate the camera up (-90 to 90).
+        Note:
+            A negative degree will rotate the camera left or down.
+        """
+        if horizontal == 0 and vertical == 0:
+            raise ValueError("Must specify at least one argument.")
+        if horizontal < -360 or horizontal > 360:
+            raise ValueError("Horizontal degree must be between -360 and 360.")
+        if vertical < -90 or vertical > 90:
+            raise ValueError("Vertical degree must be between -90 and 90.")
+
+        rotation_time_h = 3.549  # seconds to do a full 360 degree rotation horizontally
+        rotation_time_v = 1.75  # seconds to do a full 90 degree rotation vertically
+        sleep_h = rotation_time_h / 360 * abs(horizontal)  # time to hold arrow key
+        sleep_v = rotation_time_v / 90 * abs(vertical)  # time to hold arrow key
+
+        direction_h = "right" if horizontal < 0 else "left"
+        direction_v = "down" if vertical < 0 else "up"
+
+        def keypress(direction, duration):
+            pag.keyDown(direction)
+            time.sleep(duration)
+            pag.keyUp(direction)
+
+        thread_h = threading.Thread(target=keypress, args=(direction_h, sleep_h), daemon=True)
+        thread_v = threading.Thread(target=keypress, args=(direction_v, sleep_v), daemon=True)
+        delay = rd.fancy_normal_sample(0, max(sleep_h, sleep_v))
+        if sleep_h > sleep_v:
+            thread_h.start()
+            time.sleep(delay)
+            thread_v.start()
+        else:
+            thread_v.start()
+            time.sleep(delay)
+            thread_h.start()
+        thread_h.join()
+        thread_v.join()
 
     def toggle_auto_retaliate(self, toggle_on: bool):
         """
