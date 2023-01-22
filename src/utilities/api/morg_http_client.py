@@ -403,7 +403,7 @@ if __name__ == "__main__":
             print(f"get_npc_health(): {api.get_npc_hitpoints()}")
 
         # Inventory Data
-        if True:
+        if False:
             print(f"Are logs in inventory?: {api.get_if_item_in_inv(ids.logs)}")
             print(f"Find amount of change in inv: {api.get_inv_item_stack_amount(ids.coins)}")
             print(f"Get position of all bones in inv: {api.get_inv_item_indices(ids.BONES)}")
@@ -418,6 +418,11 @@ if __name__ == "__main__":
                 print("Gained xp!")
             else:
                 print("No xp gained.")
+
+        # Equipment Data
+        if True:
+            print(f"Is bronze axe equipped?: {api.get_is_item_equipped(ids.BRONZE_AXE)}")
+            print(f"How many bronze arrows equipped?: {api.get_equipped_item_quantity(ids.BRONZE_ARROW)}")
 
         time.sleep(2)
 
