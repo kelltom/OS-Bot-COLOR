@@ -360,7 +360,7 @@ class MorgHTTPSocket:
         for equipment_id in data:
             if equipment_id["id"] == item_id:
                 equipped = True
-        
+
         return equipped
 
     def convert_player_position_to_pixels(self):
