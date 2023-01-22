@@ -1,16 +1,18 @@
 """
-Not much effort is going into this Settings UI, as in the future, we'll likely transition to a 
+Not much effort is going into this Settings UI, as in the future, we'll likely transition to a
 different UI framework.
 """
 
 
 import contextlib
+
 import customtkinter
 import pynput.keyboard as keyboard
+
 import utilities.settings as settings
 
-class SettingsView(customtkinter.CTkFrame):
 
+class SettingsView(customtkinter.CTkFrame):
     def __init__(self, parent):
         # sourcery skip: merge-list-append, move-assign-in-block
         super().__init__(parent)
@@ -26,20 +28,29 @@ class SettingsView(customtkinter.CTkFrame):
 
         # Keybind Changer
         self.frame_keybinds = customtkinter.CTkFrame(master=self)
-        self.frame_keybinds.columnconfigure(0, weight=1) # lbl label
-        self.frame_keybinds.columnconfigure(1, weight=1) # lbl keybind
-        self.frame_keybinds.columnconfigure(2, weight=0) # btn set
+        self.frame_keybinds.columnconfigure(0, weight=1)  # lbl label
+        self.frame_keybinds.columnconfigure(1, weight=1)  # lbl keybind
+        self.frame_keybinds.columnconfigure(2, weight=0)  # btn set
         self.lbl_keybinds = customtkinter.CTkLabel(master=self.frame_keybinds, text="Bot start/stop keybind: ")
         self.lbl_keybinds.grid(row=0, column=0, padx=20, pady=20)
-        self.entry_keybinds = customtkinter.CTkLabel(master=self.frame_keybinds, text=f"{settings.keybind_to_text(self.current_keys) if self.current_keys else 'None'}")
+        self.entry_keybinds = customtkinter.CTkLabel(
+            master=self.frame_keybinds, text=f"{settings.keybind_to_text(self.current_keys) if self.current_keys else 'None'}"
+        )
         self.entry_keybinds.grid(row=0, column=1, padx=20, pady=20)
         self.btn_keybinds = customtkinter.CTkButton(master=self.frame_keybinds, text="Modify", command=self.__modify_keybind)
         self.btn_keybinds.grid(row=0, column=2, padx=20, pady=20)
         widget_list.append(self.frame_keybinds)
 
         # Keybind Note
-        self.note = ("Note: The keybind will not be changed until you click the Save button. Use the `Modify` button to enable keyboard input. Use `ESC` to clear input.")
+        self.note = (
+            "Use the `Modify` button to unlock keyboard input. Press `ESC` to clear input. The new keybind will not be saved until you click the Save button &"
+            " restart OSBC."
+        )
         self.lbl_keybind_note = customtkinter.CTkLabel(master=self, text=self.note)
+        self.lbl_keybind_note.bind(
+            "<Configure>",
+            lambda e: self.lbl_keybind_note.configure(wraplength=self.lbl_keybind_note.winfo_width() - 10),
+        )
         widget_list.append(self.lbl_keybind_note)
 
         # Grid layout
@@ -70,7 +81,7 @@ class SettingsView(customtkinter.CTkFrame):
         self.btn_keybinds.configure(text="Modify")
         self.btn_keybinds.configure(command=self.__modify_keybind)
         self.stop_keyboard_listener()
-    
+
     # ---- Keyboard Interrupt Handlers ----
     def start_keyboard_listener(self):
         self.listener = keyboard.Listener(
@@ -93,7 +104,7 @@ class SettingsView(customtkinter.CTkFrame):
 
     def __on_release(self, key):
         pass
-    
+
     def on_closing(self):
         self.stop_keyboard_listener()
         self.parent.destroy()
