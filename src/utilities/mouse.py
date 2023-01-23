@@ -107,14 +107,14 @@ class Mouse:
         """
         self.click(button="right", force_delay=force_delay)
 
-    def __rect_around_point(self, mouse_pos: Point) -> Rectangle:
+    def __rect_around_point(self, mouse_pos: Point, pad: int) -> Rectangle:
         # Get monitor dimensions
         max_x, max_y = pag.size()
         max_x, max_y = int(str(max_x)), int(str(max_y))
 
         # Get the rectangle around the mouse cursor with some padding, ensure it is within the screen.
         mouse_x, mouse_y = mouse_pos
-        pad = 7 # minimum size of click sprite dimensions
+
         p1 = Point(max(mouse_x - pad, 0), max(mouse_y - pad, 0))
         p2 = Point(min(mouse_x + pad, max_x), min(mouse_y + pad, max_y))
         return Rectangle.from_points(p1, p2)
@@ -127,8 +127,9 @@ class Mouse:
         Returns:
             True if the click was red, False if the click was yellow.
         """
-        rect1 = self.__rect_around_point(mouseXY_From)
-        rect2 = self.__rect_around_point(mouseXY_To)
+        CLICK_SPRITE_WIDTH_HALF = 7
+        rect1 = self.__rect_around_point(mouseXY_From, CLICK_SPRITE_WIDTH_HALF)
+        rect2 = self.__rect_around_point(mouseXY_To, CLICK_SPRITE_WIDTH_HALF)
 
         ##combine two rects into a bigger rectangle
         top_leftXY = Point(min(rect1.get_top_left().x, rect2.get_top_left().x),
