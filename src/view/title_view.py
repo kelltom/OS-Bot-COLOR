@@ -1,3 +1,4 @@
+import tkinter
 import pathlib
 import webbrowser as wb
 
@@ -186,9 +187,11 @@ class TitleView(customtkinter.CTkFrame):
             )
             self.search_log_label.pack()
 
-            self.search_feedback_label = customtkinter.CTkLabel(
-                self.search_window, 
-                text="")
+            self.search_feedback_label = tkinter.Text(
+                self.search_window,
+                font=("Roboto", 10),
+                bg="#343638",
+                fg="#ffffff",)
             self.search_feedback_label.pack(
                 padx=10,
                 pady=10)
@@ -202,8 +205,19 @@ class TitleView(customtkinter.CTkFrame):
         self.search_window = None
 
     def on_submit(self):
+        if len(scraper.logs) < 1:
+            currentLogs = scraper.logs
+        else:
+            self.search_feedback_label.configure(state=tkinter.NORMAL)
+            self.search_feedback_label.delete(1.0, tkinter.END)
+            self.search_feedback_label.configure(state=tkinter.DISABLED)
+            currentLogs = scraper.logs
+        
         search_input = self.search_entry.get()
         bank_checkbox_input = self.bank_image_checkbox.get()
         bank_only_checkbox_input = self.bank_only_checkbox.get()
         scraper.search_and_download(search_input, bank_checkbox_input, bank_only_checkbox_input)
-        self.search_feedback_label.set_text("\n".join(scraper.logs))
+        self.search_feedback_label.configure(state=tkinter.NORMAL)
+        for log in currentLogs:
+            self.search_feedback_label.insert("end", "\n" + log)
+        self.search_feedback_label.configure(state=tkinter.DISABLED)

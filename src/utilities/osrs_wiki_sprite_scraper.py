@@ -1,7 +1,8 @@
 import os
+from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 from PIL import Image
 
 class OSRSWikiSpriteScraper:
@@ -17,7 +18,7 @@ class OSRSWikiSpriteScraper:
     def search_and_download(self, search_param, bank_checkbox, bank_only_checkbox):
         try:
             if ',' in search_param:
-                search_params = search_param.split(',')
+                search_params = search_param.split(",")
             else:
                 search_params = [search_param]
             for param in search_params:
