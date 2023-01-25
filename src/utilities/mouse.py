@@ -86,10 +86,9 @@ class Mouse:
             None, unless check_red_click is True, in which case it returns a boolean indicating
             whether the click was red (i.e., successful action) or not.
         """
-        mouseXY_before = pag.position()
+        mouse_pos_before = pag.position()
         pag.mouseDown(button=button)
-        mouseXY_after = pag.position()
-
+        mouse_pos_after = pag.position()
         if force_delay or self.click_delay:
             LOWER_BOUND_CLICK = 0.03  # Milliseconds
             UPPER_BOUND_CLICK = 0.2  # Milliseconds
@@ -97,8 +96,8 @@ class Mouse:
             time.sleep(truncated_normal_sample(LOWER_BOUND_CLICK, UPPER_BOUND_CLICK, AVERAGE_CLICK))
         pag.mouseUp(button=button)
         if check_red_click:
-            return self.__is_red_click(mouseXY_before, mouseXY_after)
-        
+            return self.__is_red_click(mouse_pos_before, mouse_pos_after)
+
     def right_click(self, force_delay=False):
         """
         Right-clicks on the current mouse position. This is a wrapper for click(button="right").
@@ -108,37 +107,37 @@ class Mouse:
         self.click(button="right", force_delay=force_delay)
 
     def __rect_around_point(self, mouse_pos: Point, pad: int) -> Rectangle:
+        """
+        Returns a rectangle around a Point with some padding.
+        """
         # Get monitor dimensions
         max_x, max_y = pag.size()
         max_x, max_y = int(str(max_x)), int(str(max_y))
 
         # Get the rectangle around the mouse cursor with some padding, ensure it is within the screen.
         mouse_x, mouse_y = mouse_pos
-
         p1 = Point(max(mouse_x - pad, 0), max(mouse_y - pad, 0))
         p2 = Point(min(mouse_x + pad, max_x), min(mouse_y + pad, max_y))
         return Rectangle.from_points(p1, p2)
-    
-    def __is_red_click(self, mouseXY_From: Point, mouseXY_To: Point) -> bool:
+
+    def __is_red_click(self, mouse_pos_from: Point, mouse_pos_to: Point) -> bool:
         """
-        Checks if a click was red, must be called directly after clicking.
+        Checks if a click was red, indicating a successful action.
         Args:
-            mouse_pos: x, y tuple of the mouse position at the time of the click.
+            mouse_pos_from: mouse position before the click.
+            mouse_pos_to: mouse position after the click.
         Returns:
             True if the click was red, False if the click was yellow.
         """
         CLICK_SPRITE_WIDTH_HALF = 7
-        rect1 = self.__rect_around_point(mouseXY_From, CLICK_SPRITE_WIDTH_HALF)
-        rect2 = self.__rect_around_point(mouseXY_To, CLICK_SPRITE_WIDTH_HALF)
+        rect1 = self.__rect_around_point(mouse_pos_from, CLICK_SPRITE_WIDTH_HALF)
+        rect2 = self.__rect_around_point(mouse_pos_to, CLICK_SPRITE_WIDTH_HALF)
 
-        ##combine two rects into a bigger rectangle
-        top_leftXY = Point(min(rect1.get_top_left().x, rect2.get_top_left().x),
-                           min(rect1.get_top_left().y, rect2.get_top_left().y))
+        # Combine two rects into a bigger rectangle
+        top_left_pos = Point(min(rect1.get_top_left().x, rect2.get_top_left().x), min(rect1.get_top_left().y, rect2.get_top_left().y))
+        bottom_right_pos = Point(max(rect1.get_bottom_right().x, rect2.get_bottom_right().x), max(rect1.get_bottom_right().y, rect2.get_bottom_right().y))
+        cursor_sct = Rectangle.from_points(top_left_pos, bottom_right_pos).screenshot()
 
-        bottom_rightXY = Point(max(rect1.get_bottom_right().x, rect2.get_bottom_right().x),
-                               max(rect1.get_bottom_right().y, rect2.get_bottom_right().y))
-
-        cursor_sct = Rectangle.from_points(top_leftXY, bottom_rightXY).screenshot()
         for click_sprite in ["red_1.png", "red_3.png", "red_2.png", "red_4.png"]:
             try:
                 if imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("mouse_clicks", click_sprite), cursor_sct):
