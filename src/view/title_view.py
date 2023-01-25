@@ -106,14 +106,14 @@ class TitleView(customtkinter.CTkFrame):
         self.btn_feedback.grid(row=3, column=2, padx=15, pady=(15, 0), sticky="w")
 
         # -- Sprite Scraper
-        self.wiki_logo = ImageTk.PhotoImage(
+        self.scraper_logo = ImageTk.PhotoImage(
             Image.open(f"{self.logo_path}/images/ui/scraper.png").resize((IMG_SIZE, IMG_SIZE)),
             Image.LANCZOS,
         )
         self.btn_sprite_scraper = customtkinter.CTkButton(
             master=self,
             text="Sprite Scraper",
-            image=self.wiki_logo,
+            image=self.scraper_logo,
             width=BTN_WIDTH,
             height=BTN_HEIGHT,
             corner_radius=15,
