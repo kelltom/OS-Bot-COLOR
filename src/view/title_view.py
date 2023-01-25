@@ -1,12 +1,14 @@
-import tkinter
 import pathlib
+import tkinter
 import webbrowser as wb
 
 import customtkinter
 from PIL import Image, ImageTk
+
 from utilities.osrs_wiki_sprite_scraper import OSRSWikiSpriteScraper
 
 scraper = OSRSWikiSpriteScraper()
+
 
 class TitleView(customtkinter.CTkFrame):
     def __init__(self, parent, main):
@@ -25,7 +27,6 @@ class TitleView(customtkinter.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
         self.grid_columnconfigure(2, weight=1)
-
 
         # Logo
         self.logo_path = pathlib.Path(__file__).parent.parent.resolve()
@@ -85,7 +86,6 @@ class TitleView(customtkinter.CTkFrame):
         )
         self.btn_feedback.grid(row=3, column=1, padx=15, pady=(15, 0))
 
-
         # -- Bug Report
         self.bug_logo = ImageTk.PhotoImage(
             Image.open(f"{self.logo_path}/images/ui/bug-report_w.png").resize((IMG_SIZE, IMG_SIZE)),
@@ -122,79 +122,55 @@ class TitleView(customtkinter.CTkFrame):
             command=self.btn_scraper_clicked,
         )
         self.btn_sprite_scraper.grid(row=5, column=1, padx=15, pady=(15, 0))
-    
+
     def btn_github_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR")
 
     def btn_feedback_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/discussions")
 
-
     def btn_bug_report_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/issues/new/choose")
-    
+
     def btn_scraper_clicked(self):
         if not self.search_window:
             self.search_window = customtkinter.CTkToplevel(self)
             self.search_window.title("OSRS Wiki Sprite Search")
-            self.search_window.geometry(f"400x600")
+            self.search_window.geometry("400x600")
 
-            self.search_label = customtkinter.CTkLabel(
-                self.search_window, 
-                text="Search OSRS wiki for Sprites.", 
-                text_font=("Roboto Medium", 12))
+            self.search_label = customtkinter.CTkLabel(self.search_window, text="Search OSRS wiki for Sprites.", text_font=("Roboto Medium", 12))
             self.search_label.pack()
 
-            self.search_info = customtkinter.CTkLabel(
-                self.search_window, 
-                text="Supports multiple searchs by adding a ',' and another query")
+            self.search_info = customtkinter.CTkLabel(self.search_window, text="Supports multiple searchs by adding a ',' and another query")
             self.search_info.pack()
 
             self.search_entry = customtkinter.CTkEntry(self.search_window)
-            self.search_entry.pack(
-                padx=10,
-                pady=10)
+            self.search_entry.pack(padx=10, pady=10)
 
-            self.search_submit_button = customtkinter.CTkButton(
-                self.search_window, 
-                text="Submit", 
-                command=self.on_submit)
+            self.search_submit_button = customtkinter.CTkButton(self.search_window, text="Submit", command=self.on_submit)
             self.search_submit_button.pack()
 
-            self.bank_image_checkbox = customtkinter.CTkCheckBox(
-                self.search_window,
-                text="Bank and Sprite"
-            )
+            self.bank_image_checkbox = customtkinter.CTkCheckBox(self.search_window, text="Bank and Sprite")
             self.bank_image_checkbox.pack(pady=10)
 
-            self.bank_only_checkbox = customtkinter.CTkCheckBox(
-                self.search_window,
-                text="Bank Only"
-            )
+            self.bank_only_checkbox = customtkinter.CTkCheckBox(self.search_window, text="Bank Only")
             self.bank_only_checkbox.pack(pady=(10, 0))
 
             self.bank_only_warning = customtkinter.CTkLabel(
-                self.search_window,
-                text="This option will delete previously downloaded sprites of the same name",
-                text_color="#FF0000",
-                wraplength=250
+                self.search_window, text="This option will delete previously downloaded sprites of the same name", text_color="#FF0000", wraplength=250
             )
             self.bank_only_warning.pack(pady=(0, 10))
 
-            self.search_log_label = customtkinter.CTkLabel(
-                self.search_window,
-                text="Logs:"
-            )
+            self.search_log_label = customtkinter.CTkLabel(self.search_window, text="Logs:")
             self.search_log_label.pack()
 
             self.search_feedback_label = tkinter.Text(
                 self.search_window,
                 font=("Roboto", 10),
                 bg="#343638",
-                fg="#ffffff",)
-            self.search_feedback_label.pack(
-                padx=10,
-                pady=10)
+                fg="#ffffff",
+            )
+            self.search_feedback_label.pack(padx=10, pady=10)
 
             self.search_window.protocol("WM_DELETE_WINDOW", self.on_closing)
         else:
@@ -205,14 +181,11 @@ class TitleView(customtkinter.CTkFrame):
         self.search_window = None
 
     def on_submit(self):
-        if len(scraper.logs) < 1:
-            currentLogs = scraper.logs
-        else:
+        if len(scraper.logs) >= 1:
             self.search_feedback_label.configure(state=tkinter.NORMAL)
             self.search_feedback_label.delete(1.0, tkinter.END)
             self.search_feedback_label.configure(state=tkinter.DISABLED)
-            currentLogs = scraper.logs
-        
+        currentLogs = scraper.logs
         search_input = self.search_entry.get()
         bank_checkbox_input = self.bank_image_checkbox.get()
         bank_only_checkbox_input = self.bank_only_checkbox.get()
