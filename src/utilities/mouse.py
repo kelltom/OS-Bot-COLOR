@@ -1,13 +1,13 @@
-import random as rd
 import time
 
+import mss
 import numpy as np
 import pyautogui as pag
 import pytweening
-from deprecated import deprecated
 from pyclick import HumanCurve
 
-import utilities.color as clr
+import utilities.debug as debug
+import utilities.imagesearch as imsearch
 from utilities.geometry import Point, Rectangle
 from utilities.random_util import truncated_normal_sample
 
@@ -75,58 +75,83 @@ class Mouse:
             y += round(truncated_normal_sample(-y_var, y_var))
         self.move_to((pag.position()[0] + x, pag.position()[1] + y), **kwargs)
 
-    def click(self, button="left", force_delay=False) -> bool:
+    def click(self, button="left", force_delay=False, check_red_click=False) -> tuple:
         """
         Clicks on the current mouse position.
         Args:
-            button: button to click (default left)
-            with_delay: whether to add a random delay between mouse down and mouse up (default True)
+            button: button to click (default left).
+            force_delay: whether to force a delay between mouse button presses regardless of the Mouse property.
+            check_red_click: whether to check if the click was red (i.e., successful action) (default False).
+        Returns:
+            None, unless check_red_click is True, in which case it returns a boolean indicating
+            whether the click was red (i.e., successful action) or not.
         """
+        mouse_pos_before = pag.position()
         pag.mouseDown(button=button)
+        mouse_pos_after = pag.position()
         if force_delay or self.click_delay:
             LOWER_BOUND_CLICK = 0.03  # Milliseconds
             UPPER_BOUND_CLICK = 0.2  # Milliseconds
             AVERAGE_CLICK = 0.06  # Milliseconds
             time.sleep(truncated_normal_sample(LOWER_BOUND_CLICK, UPPER_BOUND_CLICK, AVERAGE_CLICK))
         pag.mouseUp(button=button)
+        if check_red_click:
+            return self.__is_red_click(mouse_pos_before, mouse_pos_after)
 
     def right_click(self, force_delay=False):
         """
         Right-clicks on the current mouse position. This is a wrapper for click(button="right").
         Args:
-            with_delay: whether to add a random delay between mouse down and mouse up (default True)
+            with_delay: whether to add a random delay between mouse down and mouse up (default True).
         """
         self.click(button="right", force_delay=force_delay)
 
-    @deprecated(version="0.2.0", reason="Currently unreliable. Use click() instead.")
-    def click_with_check(self) -> bool:
+    def __rect_around_point(self, mouse_pos: Point, pad: int) -> Rectangle:
         """
-        Clicks on the current mouse position and checks if the click was red.
-        Returns:
-            True if the click was red, False if the click was yellow.
+        Returns a rectangle around a Point with some padding.
         """
-        self.click()
-        return self.__is_red_click()
+        # Get monitor dimensions
+        max_x, max_y = pag.size()
+        max_x, max_y = int(str(max_x)), int(str(max_y))
 
-    @deprecated(version="0.2.0", reason="This function should instead perform image search using official click sprites.")
-    def __is_red_click(self) -> bool:
+        # Get the rectangle around the mouse cursor with some padding, ensure it is within the screen.
+        mouse_x, mouse_y = mouse_pos
+        p1 = Point(max(mouse_x - pad, 0), max(mouse_y - pad, 0))
+        p2 = Point(min(mouse_x + pad, max_x), min(mouse_y + pad, max_y))
+        return Rectangle.from_points(p1, p2)
+
+    def __is_red_click(self, mouse_pos_from: Point, mouse_pos_to: Point) -> bool:
         """
-        Checks if a click was red, must be called directly after clicking.
+        Checks if a click was red, indicating a successful action.
+        Args:
+            mouse_pos_from: mouse position before the click.
+            mouse_pos_to: mouse position after the click.
         Returns:
             True if the click was red, False if the click was yellow.
         """
-        mouse_x, mouse_y = pag.position()
-        # Make rect around cursor for screenshot
-        mouse_rect = Rectangle.from_points(Point(mouse_x - 5, mouse_y - 5), Point(mouse_x + 5, mouse_y + 5))
-        # Isolate red click from screenshot
-        mouse_red_click = clr.isolate_colors(mouse_rect.screenshot(), clr.RED)
-        return np.any(mouse_red_click)
+        CLICK_SPRITE_WIDTH_HALF = 7
+        rect1 = self.__rect_around_point(mouse_pos_from, CLICK_SPRITE_WIDTH_HALF)
+        rect2 = self.__rect_around_point(mouse_pos_to, CLICK_SPRITE_WIDTH_HALF)
+
+        # Combine two rects into a bigger rectangle
+        top_left_pos = Point(min(rect1.get_top_left().x, rect2.get_top_left().x), min(rect1.get_top_left().y, rect2.get_top_left().y))
+        bottom_right_pos = Point(max(rect1.get_bottom_right().x, rect2.get_bottom_right().x), max(rect1.get_bottom_right().y, rect2.get_bottom_right().y))
+        cursor_sct = Rectangle.from_points(top_left_pos, bottom_right_pos).screenshot()
+
+        for click_sprite in ["red_1.png", "red_3.png", "red_2.png", "red_4.png"]:
+            try:
+                if imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("mouse_clicks", click_sprite), cursor_sct):
+                    return True
+            except mss.ScreenShotError:
+                print("Failed to take screenshot of mouse cursor. Please report this error to the developer.")
+                continue
+        return False
 
     def __calculate_knots(self, destination: tuple):
         """
         Calculate the knots to use in the Bezier curve based on distance.
         Args:
-            destination: x, y tuple of the destination point
+            destination: x, y tuple of the destination point.
         """
         # Calculate the distance between the start and end points
         distance = np.sqrt((destination[0] - pag.position()[0]) ** 2 + (destination[1] - pag.position()[1]) ** 2)
