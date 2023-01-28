@@ -131,4 +131,5 @@ class SettingsView(customtkinter.CTkFrame):
             print("No keybind set, using default keybind.")
         settings.set("keybind", self.current_keys)
         print(f"Keybind set to {settings.keybind_to_text(self.current_keys)}")
+        print("Please restart OSBC for changes to take effect.")
         window.destroy()
