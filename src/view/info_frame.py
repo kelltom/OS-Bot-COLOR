@@ -5,6 +5,7 @@ import customtkinter
 from PIL import Image, ImageTk
 from pynput import keyboard
 
+import utilities.settings as settings
 from utilities.game_launcher import Launchable
 
 
@@ -12,7 +13,7 @@ class InfoFrame(customtkinter.CTkFrame):
     listener = None
     pressed = False
     current_keys = set()
-    combination_keys = {keyboard.Key.shift, keyboard.Key.enter}
+    combination_keys = settings.get("keybind") or settings.default_keybind
     status = "stopped"
 
     def __init__(self, parent, title, info):  # sourcery skip: merge-nested-ifs
@@ -99,8 +100,7 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_play,
             command=self.play_btn_clicked,
         )
-        # TODO: Replace with function that replaces text with keybind from settings
-        self.btn_play.bind("<Enter>", lambda event: event.widget.configure(text="↑ + ↵"))
+        self.btn_play.bind("<Enter>", lambda event: event.widget.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
         self.btn_play.bind("<Leave>", lambda event: event.widget.configure(text="Play"))
         self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
 
@@ -113,8 +113,7 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_stop,
             command=self.stop_btn_clicked,
         )
-        # TODO: Replace with function that replaces text with keybind from settings
-        self.btn_stop.bind("<Enter>", lambda event: event.widget.configure(text="↑ + ↵"))
+        self.btn_stop.bind("<Enter>", lambda event: event.widget.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
         self.btn_stop.bind("<Leave>", lambda event: event.widget.configure(text="Stop"))
 
         self.btn_options = customtkinter.CTkButton(
