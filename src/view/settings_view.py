@@ -5,9 +5,11 @@ different UI framework.
 
 
 import contextlib
+import pathlib
 
 import customtkinter
 import pynput.keyboard as keyboard
+from PIL import Image, ImageTk
 
 import utilities.settings as settings
 
@@ -21,6 +23,18 @@ class SettingsView(customtkinter.CTkFrame):
         self.current_keys = settings.get("keybind")
         self.combination_keys = []
 
+        # Images
+        PATH = pathlib.Path(__file__).parent.parent.joinpath("images", "ui")
+        img_size = 18
+        self.img_edit = ImageTk.PhotoImage(
+            Image.open(f"{PATH}/edit.png").resize((img_size, img_size)),
+            Image.ANTIALIAS,
+        )
+        self.img_check = ImageTk.PhotoImage(
+            Image.open(f"{PATH}/check.png").resize((img_size, img_size)),
+            Image.ANTIALIAS,
+        )
+
         # As each frame is created, it is added to this list
         widget_list = []
 
@@ -29,7 +43,7 @@ class SettingsView(customtkinter.CTkFrame):
         # Keybind Changer
         self.frame_keybinds = customtkinter.CTkFrame(master=self)
         self.frame_keybinds.columnconfigure(0, weight=1)  # lbl label
-        self.frame_keybinds.columnconfigure(1, weight=1)  # lbl keybind
+        self.frame_keybinds.columnconfigure(1, weight=0)  # lbl keybind
         self.frame_keybinds.columnconfigure(2, weight=0)  # btn set
         self.lbl_keybinds = customtkinter.CTkLabel(master=self.frame_keybinds, text="Bot start/stop keybind: ")
         self.lbl_keybinds.grid(row=0, column=0, padx=20, pady=20)
@@ -37,13 +51,15 @@ class SettingsView(customtkinter.CTkFrame):
             master=self.frame_keybinds, text=f"{settings.keybind_to_text(self.current_keys) if self.current_keys else 'None'}"
         )
         self.entry_keybinds.grid(row=0, column=1, padx=20, pady=20)
-        self.btn_keybinds = customtkinter.CTkButton(master=self.frame_keybinds, text="Modify", command=self.__modify_keybind)
+        self.btn_keybinds = customtkinter.CTkButton(
+            master=self.frame_keybinds, image=self.img_edit, text="", width=img_size + 10, command=self.__modify_keybind
+        )
         self.btn_keybinds.grid(row=0, column=2, padx=20, pady=20)
         widget_list.append(self.frame_keybinds)
 
         # Keybind Note
         self.note = (
-            "Use the `Modify` button to unlock keyboard input. Press `ESC` to clear input. The new keybind will not be saved until you click the Save button &"
+            "Use the `EDIT` button to unlock keyboard input. Press `ESC` to clear input. The new keybind will not be saved until you click the Save button &"
             " restart OSBC."
         )
         self.lbl_keybind_note = customtkinter.CTkLabel(master=self, text=self.note)
@@ -72,13 +88,13 @@ class SettingsView(customtkinter.CTkFrame):
 
     def __modify_keybind(self):
         print("Modify keybind")
-        self.btn_keybinds.configure(text="Set")
+        self.btn_keybinds.configure(image=self.img_check)
         self.btn_keybinds.configure(command=self.__set_keybind)
         self.start_keyboard_listener()
 
     def __set_keybind(self):
         print("Set keybind")
-        self.btn_keybinds.configure(text="Modify")
+        self.btn_keybinds.configure(image=self.img_edit)
         self.btn_keybinds.configure(command=self.__modify_keybind)
         self.stop_keyboard_listener()
 
