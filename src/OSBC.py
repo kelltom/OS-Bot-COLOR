@@ -137,7 +137,12 @@ class App(customtkinter.CTk):
 
         # Settings Button (in the position of the Theme Switch)
         self.btn_settings = customtkinter.CTkButton(
-            master=self.frame_left, fg_color=self.DEFAULT_GRAY, text="Settings", image=self.img_settings, command=self.__on_settings_clicked
+            master=self.frame_left,
+            fg_color="#2a2d2e",
+            hover_color=self.DEFAULT_GRAY,
+            text="Settings",
+            image=self.img_settings,
+            command=self.__on_settings_clicked,
         )
         self.btn_settings.grid(row=20, column=0, pady=(5, 10), padx=5)
 
