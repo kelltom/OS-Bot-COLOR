@@ -207,6 +207,15 @@ class MorgHTTPSocket:
         data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["game tick"]) if "game tick" in data else -1
 
+    def get_latest_chat_message(self) -> str:
+        """
+        Fetches the most recent chat message in the chat box.
+        Returns:
+                A string representing the latest chat message.
+        """
+        data = self.__do_get(endpoint=self.events_endpoint)
+        return data["latest msg"] if "latest msg" in data else ""
+
     def get_player_position(self) -> Tuple[int, int, int]:
         """
         Fetches the world point of a player.
@@ -420,9 +429,13 @@ if __name__ == "__main__":
                 print("No xp gained.")
 
         # Equipment Data
-        if True:
+        if False:
             print(f"Is bronze axe equipped?: {api.get_is_item_equipped(ids.BRONZE_AXE)}")
             print(f"How many bronze arrows equipped?: {api.get_equipped_item_quantity(ids.BRONZE_ARROW)}")
+
+        # Chatbox Data
+        if True:
+            print(f"Latest chat message: {api.get_latest_chat_message()}")
 
         time.sleep(2)
 
