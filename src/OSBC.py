@@ -197,7 +197,6 @@ class App(customtkinter.CTk):
     def __on_settings_clicked(self):
         window = customtkinter.CTkToplevel(master=self)
         window.title("Settings")
-        window.protocol("WM_DELETE_WINDOW", lambda arg=window: self.__on_settings_closing(arg))
         view = SettingsView(parent=window)
         view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
 
