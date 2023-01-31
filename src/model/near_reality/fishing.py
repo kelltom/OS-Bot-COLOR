@@ -64,8 +64,7 @@ class NRFishing(NRBot):
                     time.sleep(2)
                     if failed_searches > 10:
                         self.log_msg("Failed to find fishing spot.")
-                        self.set_status(BotStatus.STOPPED)
-                        return
+                        self.stop()
                 else:
                     self.log_msg("Clicking fishing spot...")
                     self.mouse.move_to(spot.random_point())
@@ -80,4 +79,4 @@ class NRFishing(NRBot):
         self.update_progress(1)
         self.log_msg("Finished.")
         self.logout()
-        self.set_status(BotStatus.STOPPED)
+        self.stop()
