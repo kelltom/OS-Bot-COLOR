@@ -180,7 +180,7 @@ class NRPickpocket(NRBot):
 
             # Check for mods
             if self.logout_on_friends and self.friends_nearby():
-                self.__logout(f"Friends detected nearby. Bot ran for {(time.time() - start_time) / 60} minutes.")
+                self.__logout(f"Friends detected nearby. Bot ran for {round((time.time() - start_time) / 60)} minutes.")
 
             # Update progress
             self.update_progress((time.time() - start_time) / end_time)
