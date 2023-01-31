@@ -214,7 +214,6 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             A list of RuneLiteObjects or empty list if none found.
         """
         img_rect = rect.screenshot()
-        # debug.save_image("get_all_tagged_in_rect.png", img_rect)
         isolated_colors = clr.isolate_colors(img_rect, color)
         objs = rcv.extract_objects(isolated_colors)
         for obj in objs:

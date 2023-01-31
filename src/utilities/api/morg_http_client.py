@@ -207,6 +207,15 @@ class MorgHTTPSocket:
         data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["game tick"]) if "game tick" in data else -1
 
+    def get_latest_chat_message(self) -> str:
+        """
+        Fetches the most recent chat message in the chat box.
+        Returns:
+                A string representing the latest chat message.
+        """
+        data = self.__do_get(endpoint=self.events_endpoint)
+        return data["latest msg"] if "latest msg" in data else ""
+
     def get_player_position(self) -> Tuple[int, int, int]:
         """
         Fetches the world point of a player.
@@ -333,16 +342,33 @@ class MorgHTTPSocket:
             return int(result["quantity"])
         return 0
 
-    def get_player_equipment(self) -> Union[List[int], None]:
+    def get_is_item_equipped(self, item_id: int) -> bool:
         """
-        Currently just gets the ID of the equipment until there is an easier way to convert ID to readable name
-        -1 = nothing
-        Returns: [helmet, cape, neck, weapon, chest, shield, legs, gloves, boots, ring, arrow]
-
-        NOTE: Socket may be bugged with -1's in the middle of the data even all equipment slots are filled
+        Checks if the player has given item equipped, and its quantity.
+        Args:
+                item_id: The ID of the item to check for.
+        Returns:
+                True if the item is equipped, False if not.
         """
         data = self.__do_get(endpoint=self.equip_endpoint)
-        return [equipment_id["id"] for equipment_id in data]
+        return next(
+            (True for equip_slot in data if equip_slot["id"] == item_id),
+            False,
+        )
+
+    def get_equipped_item_quantity(self, item_id: int) -> int:
+        """
+        Checks for the quantity of an equipped item.
+        Args:
+                item_id: The ID of the item to check for.
+        Returns:
+                The quantity of the item equipped, or 0 if not equipped.
+        """
+        data = self.__do_get(endpoint=self.equip_endpoint)
+        return next(
+            (int(equip_slot["quantity"]) for equip_slot in data if equip_slot["id"] == item_id),
+            0,
+        )
 
     def convert_player_position_to_pixels(self):
         """
@@ -386,7 +412,7 @@ if __name__ == "__main__":
             print(f"get_npc_health(): {api.get_npc_hitpoints()}")
 
         # Inventory Data
-        if True:
+        if False:
             print(f"Are logs in inventory?: {api.get_if_item_in_inv(ids.logs)}")
             print(f"Find amount of change in inv: {api.get_inv_item_stack_amount(ids.coins)}")
             print(f"Get position of all bones in inv: {api.get_inv_item_indices(ids.BONES)}")
@@ -401,6 +427,15 @@ if __name__ == "__main__":
                 print("Gained xp!")
             else:
                 print("No xp gained.")
+
+        # Equipment Data
+        if False:
+            print(f"Is bronze axe equipped?: {api.get_is_item_equipped(ids.BRONZE_AXE)}")
+            print(f"How many bronze arrows equipped?: {api.get_equipped_item_quantity(ids.BRONZE_ARROW)}")
+
+        # Chatbox Data
+        if True:
+            print(f"Latest chat message: {api.get_latest_chat_message()}")
 
         time.sleep(2)
 

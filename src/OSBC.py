@@ -7,6 +7,7 @@ import customtkinter
 from PIL import Image, ImageTk
 from pynput import keyboard
 
+import utilities.settings as settings
 from controller.bot_controller import BotController, MockBotController
 from model import Bot, RuneLiteBot
 from utilities.game_launcher import Launchable
@@ -23,10 +24,15 @@ class App(customtkinter.CTk):
 
     def __init__(self, test: bool = False):
         super().__init__()
+        self.__init_settings()
         if not test:
-            __rocket_img_path = pathlib.Path(__file__).parent.resolve().joinpath("images", "ui", "rocket.png")
+            ui_images_path = pathlib.Path(__file__).parent.resolve().joinpath("images", "ui")
             self.img_rocket = ImageTk.PhotoImage(
-                Image.open(__rocket_img_path).resize((12, 12)),
+                Image.open(ui_images_path.joinpath("rocket.png")).resize((12, 12)),
+                Image.Resampling.LANCZOS,
+            )
+            self.img_settings = ImageTk.PhotoImage(
+                Image.open(ui_images_path.joinpath("options.png")).resize((12, 12)),
                 Image.Resampling.LANCZOS,
             )
             self.build_ui()
@@ -59,9 +65,9 @@ class App(customtkinter.CTk):
 
         # configure grid layout
         self.frame_left.grid_rowconfigure(0, minsize=10)  # empty row with minsize as spacing (top padding above title)
-        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and theme switch)
-        self.frame_left.grid_rowconfigure(19, minsize=20)  # empty row with minsize as spacing (adds a top padding to theme switch)
-        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below theme switch)
+        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and settings btn)
+        self.frame_left.grid_rowconfigure(19, minsize=20)  # empty row with minsize as spacing (adds a top padding to settings btn)
+        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below settings btn)
 
         self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", text_font=("Roboto Medium", 14))
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
@@ -124,10 +130,21 @@ class App(customtkinter.CTk):
         )
         self.menu_game_selector.grid(row=2, column=0, sticky="we", padx=10, pady=10)
 
-        # Theme Switch
+        # Theme Switch (currently disabled)
         self.switch = customtkinter.CTkSwitch(master=self.frame_left, text="Dark Mode", command=self.change_mode)
         # self.switch.select()
         # self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
+
+        # Settings Button (in the position of the Theme Switch)
+        self.btn_settings = customtkinter.CTkButton(
+            master=self.frame_left,
+            fg_color="#2a2d2e",
+            hover_color=self.DEFAULT_GRAY,
+            text="Settings",
+            image=self.img_settings,
+            command=self.__on_settings_clicked,
+        )
+        self.btn_settings.grid(row=20, column=0, pady=(5, 10), padx=5)
 
         # Status variables to track state of views and buttons
         self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]
@@ -166,7 +183,24 @@ class App(customtkinter.CTk):
                 else:
                     btn.configure(state="disabled")
 
+    # ============ Settings Init ============
+    def __init_settings(self):
+        """
+        Initializes the settings for the application.
+        """
+        # If "keybind" doesn't exist, add default
+        keybind = settings.get("keybind")
+        if keybind is None:
+            settings.set("keybind", settings.default_keybind)
+
     # ============ Button Handlers ============
+    def __on_settings_clicked(self):
+        window = customtkinter.CTkToplevel(master=self)
+        window.geometry("540x287")
+        window.title("Settings")
+        view = SettingsView(parent=window)
+        view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
+
     def __on_game_selector_change(self, choice):
         """
         Handles the event that occurs when the user selects a game title from the dropdown menu.
