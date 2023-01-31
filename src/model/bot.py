@@ -176,9 +176,9 @@ class Bot(ABC):
         """
         self.log_msg("Stopping script.")
         if self.status != BotStatus.STOPPED:
+            self.set_status(BotStatus.STOPPED)
             self.thread.stop()
             self.thread.join()
-            self.set_status(BotStatus.STOPPED)
         else:
             self.log_msg("Bot is already stopped.")
 
