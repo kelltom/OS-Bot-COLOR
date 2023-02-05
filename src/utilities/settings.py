@@ -41,26 +41,28 @@ default_keybind = {keyboard.Key.shift, keyboard.Key.enter}
 
 
 def keybind_to_text(current_keys):
-    keys_to_display = []
+    hotkeys = []
     for key in current_keys:
-        if key == keyboard.Key.enter:
-            keys_to_display.append("↵")
-        elif key == keyboard.Key.space:
-            keys_to_display.append("␣")
-        elif key in [keyboard.Key.ctrl, keyboard.Key.ctrl_l, keyboard.Key.ctrl_r]:
-            keys_to_display.append("^")
-        elif key in [keyboard.Key.alt, keyboard.Key.alt_l, keyboard.Key.alt_r]:
-            keys_to_display.append("⌥")
-        elif key in [keyboard.Key.shift, keyboard.Key.shift_l, keyboard.Key.shift_r]:
-            keys_to_display.append("⇧")
-        elif key in [keyboard.Key.cmd, keyboard.Key.cmd_l, keyboard.Key.cmd_r]:
-            keys_to_display.append("⌘")
-        elif key in [keyboard.Key.caps_lock]:
-            keys_to_display.append("⇪")
-        elif key in [keyboard.Key.tab]:
-            keys_to_display.append("⇥")
-        elif key in [keyboard.Key.backspace]:
-            keys_to_display.append("⌫")
-        else:
-            keys_to_display.append(key)
-    return " + ".join([str(key).replace("'", "") for key in keys_to_display])
+        match key:
+            case keyboard.Key.enter:
+                hotkeys.append("↵")
+            case keyboard.Key.space:
+                hotkeys.append("␣")
+            case keyboard.Key.ctrl | keyboard.Key.ctrl_l | keyboard.Key.ctrl_r:
+                hotkeys.append("^")
+            case keyboard.Key.alt | keyboard.Key.alt_l | keyboard.Key.alt_r:
+                hotkeys.append("⌥")
+            case keyboard.Key.shift | keyboard.Key.shift_l | keyboard.Key.shift_r:
+                hotkeys.append("⇧")
+            case keyboard.Key.cmd | keyboard.Key.cmd_l | keyboard.Key.cmd_r:
+                hotkeys.append("⌘")
+            case keyboard.Key.caps_lock:
+                hotkeys.append("⇪")
+            case keyboard.Key.tab:
+                hotkeys.append("⇥")
+            case keyboard.Key.backspace:
+                hotkeys.append("⌫")
+            case _:
+                hotkeys.append(key)
+
+    return " + ".join(map(str, hotkeys)).replace("'", "")

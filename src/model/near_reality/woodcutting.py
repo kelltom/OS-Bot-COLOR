@@ -64,7 +64,6 @@ class OSNRWoodcutting(NRBot):
             # Check to logout
             if self.logout_on_friends and self.friends_nearby():
                 self.__logout("Friends nearby. Logging out.")
-                return
 
             # Find a tree
             tree = self.get_nearest_tag(clr.PINK)
@@ -72,7 +71,6 @@ class OSNRWoodcutting(NRBot):
                 failed_searches += 1
                 if failed_searches > 10:
                     self.__logout("No tagged trees found. Logging out.")
-                    return
                 time.sleep(1)
                 continue
 
@@ -100,4 +98,4 @@ class OSNRWoodcutting(NRBot):
     def __logout(self, msg):
         self.log_msg(msg)
         self.logout()
-        self.set_status(BotStatus.STOPPED)
+        self.stop()

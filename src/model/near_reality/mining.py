@@ -62,7 +62,6 @@ class NRMining(NRBot):
             # Check to logout
             if self.logout_on_friends and self.friends_nearby():
                 self.__logout("Friends nearby. Logging out.")
-                return
 
             # Get the rocks
             rocks: List[RuneLiteObject] = self.get_all_tagged_in_rect(self.win.game_view, clr.PINK)
@@ -70,8 +69,6 @@ class NRMining(NRBot):
                 failed_searches += 1
                 if failed_searches > 5:
                     self.__logout("Failed to find a rock to mine. Logging out.")
-                    self.set_status(BotStatus.STOPPED)
-                    return
                 time.sleep(1)
                 continue
 
@@ -95,4 +92,4 @@ class NRMining(NRBot):
     def __logout(self, msg: str):
         self.log_msg(msg)
         self.logout()
-        self.set_status(BotStatus.STOPPED)
+        self.stop()
