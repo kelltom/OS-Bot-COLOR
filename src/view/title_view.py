@@ -112,7 +112,7 @@ class TitleView(customtkinter.CTkFrame):
         )
         self.btn_sprite_scraper = customtkinter.CTkButton(
             master=self,
-            text="Sprite Scraper",
+            text="Scraper",
             image=self.scraper_logo,
             width=BTN_WIDTH,
             height=BTN_HEIGHT,
@@ -121,7 +121,7 @@ class TitleView(customtkinter.CTkFrame):
             compound="top",
             command=self.btn_scraper_clicked,
         )
-        self.btn_sprite_scraper.grid(row=5, column=1, padx=15, pady=(15, 0))
+        self.btn_sprite_scraper.grid(row=4, column=1, padx=15, pady=(15, 0))
 
     def btn_github_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR")
