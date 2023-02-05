@@ -1,20 +1,16 @@
 import pathlib
-import tkinter
 import webbrowser as wb
 
 import customtkinter
 from PIL import Image, ImageTk
 
-from utilities.osrs_wiki_sprite_scraper import OSRSWikiSpriteScraper
-
-scraper = OSRSWikiSpriteScraper()
+from view.sprite_scraper_view import SpriteScraperView
 
 
 class TitleView(customtkinter.CTkFrame):
     def __init__(self, parent, main):
         super().__init__(parent)
         self.main = main
-        self.search_window = None
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)  # Spacing
@@ -133,64 +129,8 @@ class TitleView(customtkinter.CTkFrame):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/issues/new/choose")
 
     def btn_scraper_clicked(self):
-        if not self.search_window:
-            self.search_window = customtkinter.CTkToplevel(self)
-            self.search_window.title("OSRS Wiki Sprite Search")
-            self.search_window.geometry("400x600")
-
-            self.search_label = customtkinter.CTkLabel(self.search_window, text="Search OSRS wiki for Sprites.", text_font=("Roboto Medium", 12))
-            self.search_label.pack()
-
-            self.search_info = customtkinter.CTkLabel(self.search_window, text="Supports multiple searchs by adding a ',' and another query")
-            self.search_info.pack()
-
-            self.search_entry = customtkinter.CTkEntry(self.search_window)
-            self.search_entry.pack(padx=10, pady=10)
-
-            self.search_submit_button = customtkinter.CTkButton(self.search_window, text="Submit", command=self.on_submit)
-            self.search_submit_button.pack()
-
-            self.bank_image_checkbox = customtkinter.CTkCheckBox(self.search_window, text="Bank and Sprite")
-            self.bank_image_checkbox.pack(pady=10)
-
-            self.bank_only_checkbox = customtkinter.CTkCheckBox(self.search_window, text="Bank Only")
-            self.bank_only_checkbox.pack(pady=(10, 0))
-
-            self.bank_only_warning = customtkinter.CTkLabel(
-                self.search_window, text="This option will delete previously downloaded sprites of the same name", text_color="#FF0000", wraplength=250
-            )
-            self.bank_only_warning.pack(pady=(0, 10))
-
-            self.search_log_label = customtkinter.CTkLabel(self.search_window, text="Logs:")
-            self.search_log_label.pack()
-
-            self.search_feedback_label = tkinter.Text(
-                self.search_window,
-                font=("Roboto", 10),
-                bg="#343638",
-                fg="#ffffff",
-            )
-            self.search_feedback_label.pack(padx=10, pady=10)
-
-            self.search_window.protocol("WM_DELETE_WINDOW", self.on_closing)
-        else:
-            self.search_window.lift()
-
-    def on_closing(self):
-        self.search_window.destroy()
-        self.search_window = None
-
-    def on_submit(self):
-        if len(scraper.logs) >= 1:
-            self.search_feedback_label.configure(state=tkinter.NORMAL)
-            self.search_feedback_label.delete(1.0, tkinter.END)
-            self.search_feedback_label.configure(state=tkinter.DISABLED)
-        currentLogs = scraper.logs
-        search_input = self.search_entry.get()
-        bank_checkbox_input = self.bank_image_checkbox.get()
-        bank_only_checkbox_input = self.bank_only_checkbox.get()
-        scraper.search_and_download(search_input, bank_checkbox_input, bank_only_checkbox_input)
-        self.search_feedback_label.configure(state=tkinter.NORMAL)
-        for log in currentLogs:
-            self.search_feedback_label.insert("end", "\n" + log)
-        self.search_feedback_label.configure(state=tkinter.DISABLED)
+        window = customtkinter.CTkToplevel(master=self)
+        window.geometry("400x600")
+        window.title("OSRS Wiki Sprite Scraper")
+        view = SpriteScraperView(parent=window)
+        view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
