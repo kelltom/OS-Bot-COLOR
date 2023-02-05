@@ -1,9 +1,11 @@
-
-import customtkinter
-from utilities.osrs_wiki_sprite_scraper import OSRSWikiSpriteScraper
 import tkinter
 
+import customtkinter
+
+from utilities.osrs_wiki_sprite_scraper import OSRSWikiSpriteScraper
+
 scraper = OSRSWikiSpriteScraper()
+
 
 class SpriteScraperView(customtkinter.CTkFrame):
     def __init__(self, parent):
@@ -11,54 +13,64 @@ class SpriteScraperView(customtkinter.CTkFrame):
         self.parent = parent
         self.parent.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        self.search_label = customtkinter.CTkLabel(self, text="Search OSRS wiki for Sprites.", text_font=("Roboto Medium", 12))
-        self.search_label.pack()
+        # Title
+        self.search_label = customtkinter.CTkLabel(self, text="Search OSRS wiki for Sprites", text_font=("Roboto Medium", 12))
+        self.search_label.pack(pady=(10, 0))
 
-        self.search_info = customtkinter.CTkLabel(self, text="Supports multiple searchs by adding a ',' and another query")
+        # Search instructions
+        self.search_info = customtkinter.CTkLabel(self, text="Enter item names separated by commas.")
         self.search_info.pack()
 
+        # Search entry
         self.search_entry = customtkinter.CTkEntry(self)
         self.search_entry.pack(padx=10, pady=10)
 
+        # Submit button
         self.search_submit_button = customtkinter.CTkButton(self, text="Submit", command=self.on_submit)
-        self.search_submit_button.pack()
+        self.search_submit_button.pack(pady=(0, 10))
 
-        self.bank_image_checkbox = customtkinter.CTkCheckBox(self, text="Bank and Sprite")
-        self.bank_image_checkbox.pack(pady=10)
+        # Radio buttons
+        self.radio_var = tkinter.IntVar(self)
+        self.radio_normal = customtkinter.CTkRadioButton(master=self, text="Normal only", variable=self.radio_var, value=0)
+        self.radio_bank = customtkinter.CTkRadioButton(master=self, text="Bank only    ", variable=self.radio_var, value=1)
+        self.radio_normal_bank = customtkinter.CTkRadioButton(master=self, text="Both             ", variable=self.radio_var, value=2)
+        self.radio_normal.pack(padx=10, pady=10)
+        self.radio_bank.pack(padx=10, pady=10)
+        self.radio_normal_bank.pack(padx=10, pady=10)
 
-        self.bank_only_checkbox = customtkinter.CTkCheckBox(self, text="Bank Only")
-        self.bank_only_checkbox.pack(pady=(10, 0))
+        # Logs
+        self.lbl_logs = customtkinter.CTkLabel(self, text="Logs:")
+        self.lbl_logs.pack(pady=(10, 0))
 
-        self.bank_only_warning = customtkinter.CTkLabel(
-            self, text="This option will delete previously downloaded sprites of the same name", text_color="#FF0000", wraplength=250
-        )
-        self.bank_only_warning.pack(pady=(0, 10))
-
-        self.search_log_label = customtkinter.CTkLabel(self, text="Logs:")
-        self.search_log_label.pack()
-
-        self.search_feedback_label = tkinter.Text(
+        self.txt_logs = tkinter.Text(
             self,
             font=("Roboto", 10),
             bg="#343638",
             fg="#ffffff",
         )
-        self.search_feedback_label.pack(padx=10, pady=10)
+        self.txt_logs.pack(padx=10, pady=10)
 
     def on_closing(self):
         self.parent.destroy()
 
     def on_submit(self):
         if len(scraper.logs) >= 1:
-            self.search_feedback_label.configure(state=tkinter.NORMAL)
-            self.search_feedback_label.delete(1.0, tkinter.END)
-            self.search_feedback_label.configure(state=tkinter.DISABLED)
+            self.txt_logs.configure(state=tkinter.NORMAL)
+            self.txt_logs.delete(1.0, tkinter.END)
+            self.txt_logs.configure(state=tkinter.DISABLED)
         currentLogs = scraper.logs
         search_input = self.search_entry.get()
-        bank_checkbox_input = self.bank_image_checkbox.get()
-        bank_only_checkbox_input = self.bank_only_checkbox.get()
-        scraper.search_and_download(search_input, bank_checkbox_input, bank_only_checkbox_input)
-        self.search_feedback_label.configure(state=tkinter.NORMAL)
+        # TODO: Adjust this function's parameters so that it can take in the radio button value.
+        scraper.search_and_download(search_input, None, None, self.update_log)
+        self.txt_logs.configure(state=tkinter.NORMAL)
         for log in currentLogs:
-            self.search_feedback_label.insert("end", "\n" + log)
-        self.search_feedback_label.configure(state=tkinter.DISABLED)
+            self.txt_logs.insert("end", "\n" + log)
+        self.txt_logs.configure(state=tkinter.DISABLED)
+
+    def update_log(self, text: str):
+        """
+        Updates the log with the given text.
+        """
+        self.txt_logs.configure(state=tkinter.NORMAL)
+        self.txt_logs.insert("end", "\n" + text)
+        self.txt_logs.configure(state=tkinter.DISABLED)

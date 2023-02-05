@@ -16,7 +16,8 @@ class OSRSWikiSpriteScraper:
         filename = url.split("/")[-1].split("?")[0]
         open(f"src/images/bot/sprites/{filename.lower()}", "wb").write(response.content)
 
-    def search_and_download(self, search_param, bank_checkbox, bank_only_checkbox):
+    # TODO: Adjust this function so it properly utilizes the notify_callback function
+    def search_and_download(self, search_param, bank_checkbox, bank_only_checkbox, notify_callback):
         try:
             if "," in search_param:
                 search_params = search_param.split(",")
