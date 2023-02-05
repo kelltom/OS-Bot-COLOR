@@ -61,8 +61,7 @@ class NRCombat(NRBot):
             while not self.is_in_combat():
                 if timeout <= 0:
                     self.log_msg("Timed out looking for NPC.")
-                    self.set_status(BotStatus.STOPPED)
-                    return
+                    self.stop()
                 npc: RuneLiteObject = self.get_nearest_tagged_NPC()
                 if npc is not None:
                     self.log_msg("Attacking NPC...")
@@ -80,8 +79,7 @@ class NRCombat(NRBot):
             while self.is_in_combat():
                 if timeout <= 0:
                     self.log_msg("Timed out fighting NPC.")
-                    self.set_status(BotStatus.STOPPED)
-                    return
+                    self.stop()
                 time.sleep(2)
                 timeout -= 2
 
@@ -92,4 +90,4 @@ class NRCombat(NRBot):
         self.update_progress(1)
         self.log_msg("Bot has completed all of its iterations.")
         self.logout()
-        self.set_status(BotStatus.STOPPED)
+        self.stop()

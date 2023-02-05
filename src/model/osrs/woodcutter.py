@@ -74,7 +74,6 @@ class OSRSWoodcutter(OSRSBot):
                 if failed_searches > 60:
                     # If we've been searching for a whole minute...
                     self.__logout("No tagged trees found. Logging out.")
-                    return
                 time.sleep(1)
                 continue
             failed_searches = 0  # If code got here, a tree was found
@@ -102,7 +101,7 @@ class OSRSWoodcutter(OSRSBot):
     def __logout(self, msg):
         self.log_msg(msg)
         self.logout()
-        self.set_status(BotStatus.STOPPED)
+        self.stop()
 
     def __move_mouse_to_nearest_tree(self, next_nearest=False):
         """

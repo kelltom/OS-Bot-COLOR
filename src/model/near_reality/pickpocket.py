@@ -120,7 +120,6 @@ class NRPickpocket(NRBot):
                         self.mouse.click()
                 else:
                     self.__logout(f"Out of food. Bot ran for {(time.time() - start_time) / 60} minutes.")
-                    return
 
             # Check if we should drop inventory
             if self.should_drop_inv and api.get_is_inv_full():
@@ -156,7 +155,6 @@ class NRPickpocket(NRBot):
                 time.sleep(1)
                 if npc_search_fail_count > 39:
                     self.__logout(f"No NPC found for {npc_search_fail_count} seconds. Bot ran for {(time.time() - start_time) / 60} minutes.")
-                    return
 
             # Click coin pouch
             stack_size = api.get_inv_item_stack_amount(item_ids.coin_pouches)
@@ -182,8 +180,7 @@ class NRPickpocket(NRBot):
 
             # Check for mods
             if self.logout_on_friends and self.friends_nearby():
-                self.__logout(f"Friends detected nearby. Bot ran for {(time.time() - start_time) / 60} minutes.")
-                return
+                self.__logout(f"Friends detected nearby. Bot ran for {round((time.time() - start_time) / 60)} minutes.")
 
             # Update progress
             self.update_progress((time.time() - start_time) / end_time)
@@ -194,4 +191,4 @@ class NRPickpocket(NRBot):
     def __logout(self, msg):
         self.log_msg(msg)
         self.logout()
-        self.set_status(BotStatus.STOPPED)
+        self.stop()
