@@ -1,52 +1,73 @@
+import functools
 import os
+from typing import Callable, List
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image
 
+import utilities.imagesearch as imsearch
+
 
 class OSRSWikiSpriteScraper:
     def __init__(self):
         self.base_url = "https://oldschool.runescape.wiki"
-        self.logs = []
+        self.images_folder = imsearch.BOT_IMAGES.joinpath("scraper")
 
-    def download_file(self, url):
+    def search_and_download(self, search_string: str, image_type: int, notify_callback: Callable):
+        """
+        Searches the OSRS Wiki for the given search parameter and downloads the image(s) to the appropriate folder.
+        Args:
+            search_string: A comma-separated list of wiki keywords to locate images for.
+            image_type: 0 = Normal, 1 = Bank, 2 = Both. Normal sprites are full-size, and bank sprites are cropped at the top
+                        to improve image search performance within the bank interface (crops out stack numbers).
+            notify_callback: A function (usually defined in the view) that takes a string as a parameter. This function is
+                             called with search results and errors.
+        """
+        # Format search args into a list of strings
+        img_names = self.__format_args(search_string)
+        # Iterate through each image name and download the image
+        for img_name in img_names:
+            url = urljoin(self.base_url, f"w/File:{img_name.capitalize()}.png")
+            response = requests.get(url)
+            soup = BeautifulSoup(response.content, "html.parser")
+            # TODO: This might fail
+            img = soup.find("img", alt=functools.partial(lambda x, name: name.lower() in x.lower(), img_name))
+            if not img:
+                notify_callback(f"No image found for: {img_name}.")
+                return
+            img_url = urljoin(self.base_url, img["src"])
+            try:
+                filepath = self.__download_file(img_url)
+            except Exception as e:
+                notify_callback(f"Error: {e}")
+                return
+            if image_type in {0, 2}:
+                notify_callback(f"Success: {img_name} sprite saved to {filepath}.")
+            if image_type in {1, 2}:
+                img = Image.open(f"{filepath}.png")
+                img_cropped = img.crop((0, 10, img.width, 30))
+                img_cropped.save(f"{filepath}_bank.png")
+                notify_callback(f"Success: {img_name} bank sprite saved to {filepath}.")
+                if image_type == 1:
+                    os.remove(f"{filepath}.png")
+
+    def __download_file(self, url: str):
+        """
+        Downloads a file from the given URL and saves it to the scraped images folder.
+        Args:
+            url: The URL of the file to download.
+        Returns:
+            The full path of the downloaded file.
+        """
         response = requests.get(url)
         filename = url.split("/")[-1].split("?")[0]
-        open(f"src/images/bot/sprites/{filename.lower()}", "wb").write(response.content)
+        print(f"__download_file, filename: {filename}")
+        full_path = self.images_folder.joinpath(filename.lower())
+        with open(f"{full_path}", "wb") as f:
+            f.write(response.content)
+        return full_path
 
-    # TODO: Adjust this function so it properly utilizes the notify_callback function
-    def search_and_download(self, search_param, bank_checkbox, bank_only_checkbox, notify_callback):
-        try:
-            if "," in search_param:
-                search_params = search_param.split(",")
-            else:
-                search_params = [search_param]
-            for param in search_params:
-                search_param = param.strip()
-                search_param_query = f"w/File:{search_param.capitalize()}.png"
-                search_url = urljoin(self.base_url, search_param_query)
-                response = requests.get(search_url)
-                soup = BeautifulSoup(response.content, "html.parser")
-                img = soup.find("img", alt=lambda x: search_param.lower() in x.lower())
-                if not img:
-                    self.logs.append(f"No image found for: {search_param}.")
-                    return
-                img_url = urljoin(self.base_url, img["src"])
-                if bank_only_checkbox == 1 & bank_checkbox == 1:
-                    self.logs.append("Error, you've selected both checkboxes. Please select one")
-                    return
-                self.download_file(img_url)
-                self.logs.append(f"Success: {search_param} saved.")
-                if bank_checkbox == 1:
-                    img = Image.open(f"src/images/bot/sprites/{search_param}.png")
-                    img_cropped = img.crop((0, 10, img.width, 30))
-                    img_cropped.save(f"src/images/bot/bank/{search_param}_bank.png")
-                if bank_only_checkbox == 1:
-                    img = Image.open(f"src/images/bot/sprites/{search_param}.png")
-                    img_cropped = img.crop((0, 10, img.width, 30))
-                    img_cropped.save(f"src/images/bot/bank/{search_param}_bank.png")
-                    os.remove(f"src/images/bot/sprites/{search_param}.png")
-        except Exception as e:
-            self.logs.append(f"An error occured: \n {e}")
+    def __format_args(self, string: str) -> List[str]:
+        return [s.strip() for s in string.split(",")]

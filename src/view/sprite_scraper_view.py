@@ -54,18 +54,9 @@ class SpriteScraperView(customtkinter.CTkFrame):
         self.parent.destroy()
 
     def on_submit(self):
-        if len(scraper.logs) >= 1:
-            self.txt_logs.configure(state=tkinter.NORMAL)
-            self.txt_logs.delete(1.0, tkinter.END)
-            self.txt_logs.configure(state=tkinter.DISABLED)
-        currentLogs = scraper.logs
         search_input = self.search_entry.get()
-        # TODO: Adjust this function's parameters so that it can take in the radio button value.
-        scraper.search_and_download(search_input, None, None, self.update_log)
-        self.txt_logs.configure(state=tkinter.NORMAL)
-        for log in currentLogs:
-            self.txt_logs.insert("end", "\n" + log)
-        self.txt_logs.configure(state=tkinter.DISABLED)
+        # TODO: Maybe run async?
+        scraper.search_and_download(search_input, self.radio_var, self.update_log)
 
     def update_log(self, text: str):
         """
