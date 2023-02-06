@@ -25,11 +25,13 @@ class OSRSWikiSpriteScraper:
             notify_callback: A function (usually defined in the view) that takes a string as a parameter. This function is
                              called with search results and errors.
         """
+        notify_callback("Beginning search...")
         # Format search args into a list of strings
         img_names = self.__format_args(search_string)
         # Iterate through each image name and download the image
         for img_name in img_names:
             url = urljoin(self.base_url, f"w/File:{img_name.capitalize()}.png")
+            notify_callback(f"Searching: {url}...")
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
             # TODO: This might fail
@@ -37,8 +39,10 @@ class OSRSWikiSpriteScraper:
             if not img:
                 notify_callback(f"No image found for: {img_name}.")
                 return
+            notify_callback(f"Found image for: {img_name}.")
             img_url = urljoin(self.base_url, img["src"])
             try:
+                notify_callback(f"Downloading: {img_url}...")
                 filepath = self.__download_file(img_url)
             except Exception as e:
                 notify_callback(f"Error: {e}")
