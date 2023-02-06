@@ -387,6 +387,17 @@ if __name__ == "__main__":
     id_logs = 1511
     id_bones = 526
 
+    id_rods = [
+        ids.RING_OF_DUELING1,
+        ids.RING_OF_DUELING2,
+        ids.RING_OF_DUELING3,
+        ids.RING_OF_DUELING4,
+        ids.RING_OF_DUELING5,
+        ids.RING_OF_DUELING6,
+        ids.RING_OF_DUELING7,
+        ids.RING_OF_DUELING8,
+    ]
+
     # Note: Making API calls in succession too quickly can result in issues
     while True:
         # Player Data
@@ -432,6 +443,8 @@ if __name__ == "__main__":
         if False:
             print(f"Is bronze axe equipped?: {api.get_is_item_equipped(ids.BRONZE_AXE)}")
             print(f"How many bronze arrows equipped?: {api.get_equipped_item_quantity(ids.BRONZE_ARROW)}")
+            # Test list of ints for equipped items
+            print(f"Are there any ring of duelings equipped? {api.get_is_item_equipped(id_rods)}")
 
         # Chatbox Data
         if True:
