@@ -342,19 +342,19 @@ class MorgHTTPSocket:
             return int(result["quantity"])
         return 0
 
-    def get_is_item_equipped(self, item_id: int) -> bool:
+    def get_is_item_equipped(self, item_id: Union[int, List[int]]) -> bool:
         """
-        Checks if the player has given item equipped, and its quantity.
+        Checks if the player has given item(s) equipped, and its quantity. Given a list of IDs, returns True on first ID found.
         Args:
-                item_id: The ID of the item to check for.
+                item_id: the id of the item to check for (an single ID, or list of IDs).
         Returns:
-                True if the item is equipped, False if not.
+                True if an item is equipped, False if not.
         """
         data = self.__do_get(endpoint=self.equip_endpoint)
-        return next(
-            (True for equip_slot in data if equip_slot["id"] == item_id),
-            False,
-        )
+        equipped_ids = [item["id"] for item in data]
+        if isinstance(item_id, int):
+            return item_id in equipped_ids
+        return any(item in item_id for item in equipped_ids)
 
     def get_equipped_item_quantity(self, item_id: int) -> int:
         """
