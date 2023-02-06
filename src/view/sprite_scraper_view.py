@@ -1,3 +1,4 @@
+import threading
 import tkinter
 
 import customtkinter
@@ -55,8 +56,8 @@ class SpriteScraperView(customtkinter.CTkFrame):
 
     def on_submit(self):
         search_input = self.search_entry.get()
-        # TODO: Maybe run async?
-        scraper.search_and_download(search_input, self.radio_var, self.update_log)
+        thread = threading.Thread(target=scraper.search_and_download, args=(search_input, self.radio_var, self.update_log), daemon=True)
+        thread.start()
 
     def update_log(self, text: str):
         """
