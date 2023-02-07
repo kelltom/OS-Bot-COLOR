@@ -22,6 +22,7 @@ class Rectangle:
     """
 
     subtract_list: List[dict] = []
+    reference_rect = None
 
     def __init__(self, left: int, top: int, width: int, height: int):
         """
@@ -39,6 +40,15 @@ class Rectangle:
         self.top = top
         self.width = width
         self.height = height
+
+    def set_rectangle_reference(self, rect):
+        """
+        Sets the rectangle reference of the object.
+        Args:
+            rect: A reference to the the rectangle that this object belongs in
+                  (E.g., Bot.win.game_view).
+        """
+        self.reference_rect = rect
 
     @classmethod
     def from_points(cls, start_point: Point, end_point: Point):
@@ -99,6 +109,17 @@ class Rectangle:
             A Point representing the center of the rectangle.
         """
         return Point(self.left + self.width // 2, self.top + self.height // 2)
+
+    def distance_from_center(self) -> Point:
+        """
+        Gets the distance between the object and it's Rectangle parent center.
+        Useful for sorting lists of Rectangles.
+        Returns:
+            The distance from the point to the center of the object.
+        """
+        center: Point = self.get_center()
+        rect_center: Point = self.reference_rect.get_center()
+        return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
 
     def get_top_left(self) -> Point:
         """
