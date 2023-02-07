@@ -116,7 +116,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
     def pick_up_loot(self, items: Union[str, List[str]], supress_warning=True) -> bool:
         """
         Attempts to pick up a single purple loot item off the ground. It is your responsibility to ensure you have
-        enough inventory space to pick up the item.
+        enough inventory space to pick up the item. The item closest to the game view center is picked up first.
         Args:
             item: The name(s) of the item(s) to pick up (E.g. -> "Coins", or "coins, bones", or ["Coins", "Dragon bones"]).
         Returns:
@@ -131,7 +131,11 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
             items = self.capitalize_loot_list(items, to_list=True)
         # Locate Ground Items text
         if item_text := ocr.find_text(items, self.win.game_view, ocr.PLAIN_11, clr.PURPLE):
-            self.mouse.move_to(item_text[len(item_text) // 2].get_center())
+            for item in item_text:
+                item.set_rectangle_reference(self.win.game_view)
+            sorted_by_closest = sorted(item_text, key=Rectangle.distance_from_center)
+            self.mouse.move_to(sorted_by_closest[0].get_center())
+
             for _ in range(5):
                 if self.mouseover_text(contains=["Take"] + items, color=[clr.OFF_WHITE, clr.OFF_ORANGE]):
                     break
