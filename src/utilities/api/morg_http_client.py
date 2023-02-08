@@ -310,14 +310,22 @@ class MorgHTTPSocket:
         elif isinstance(item_id, list):
             return any(inventory_slot["id"] in item_id for inventory_slot in data)
 
+    def get_inv_free_space(self) -> int:
+        """
+        Gets the amount of free space in the players inventory
+        Returns:
+                An int representing the amount of free spaces 
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        return len([item["id"] for item in data if item["id"] != -1])
+
     def get_is_inv_full(self) -> bool:
         """
         Checks if player's inventory is full.
         Returns:
                 True if the player's inventory is full, False otherwise.
         """
-        data = self.__do_get(endpoint=self.inv_endpoint)
-        return len([item["id"] for item in data if item["id"] != -1]) == 28
+        return self.get_inv_free_space() == 28
 
     def get_inv_item_indices(self, item_id: Union[List[int], int]) -> list:
         """
@@ -419,6 +427,7 @@ if __name__ == "__main__":
 
         # Inventory Data
         if False:
+            print(f"Amount of free space in inventory: {api.get_inv_free_space()}")
             print(f"Is inventory full: {api.get_is_inv_full()}")
             print(f"Are logs in inventory?: {api.get_if_item_in_inv(ids.logs)}")
             print(f"Find amount of change in inv: {api.get_inv_item_stack_amount(ids.coins)}")
