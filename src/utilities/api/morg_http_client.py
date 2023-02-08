@@ -319,7 +319,6 @@ class MorgHTTPSocket:
         data = self.__do_get(endpoint=self.inv_endpoint)
         return len([item["id"] for item in data if item["id"] != -1]) == 28
 
-
     def get_inv_item_indices(self, item_id: Union[List[int], int]) -> list:
         """
         For the given item ID(s), returns a list of inventory slot indexes that the item exists in.
