@@ -351,19 +351,19 @@ class MorgHTTPSocket:
             return int(result["quantity"])
         return 0
 
-    def get_is_item_equipped(self, item_id: int) -> bool:
+    def get_is_item_equipped(self, item_id: Union[int, List[int]]) -> bool:
         """
-        Checks if the player has given item equipped, and its quantity.
+        Checks if the player has given item(s) equipped. Given a list of IDs, returns True on first ID found.
         Args:
-                item_id: The ID of the item to check for.
+                item_id: the id of the item to check for (a single ID, or list of IDs).
         Returns:
-                True if the item is equipped, False if not.
+                True if an item is equipped, False if not.
         """
         data = self.__do_get(endpoint=self.equip_endpoint)
-        return next(
-            (True for equip_slot in data if equip_slot["id"] == item_id),
-            False,
-        )
+        equipped_ids = [item["id"] for item in data]
+        if isinstance(item_id, int):
+            return item_id in equipped_ids
+        return any(item in item_id for item in equipped_ids)
 
     def get_equipped_item_quantity(self, item_id: int) -> int:
         """
@@ -392,9 +392,6 @@ if __name__ == "__main__":
     import item_ids as ids
 
     api = MorgHTTPSocket()
-
-    id_logs = 1511
-    id_bones = 526
 
     # Note: Making API calls in succession too quickly can result in issues
     while True:
@@ -441,6 +438,7 @@ if __name__ == "__main__":
         # Equipment Data
         if False:
             print(f"Is bronze axe equipped?: {api.get_is_item_equipped(ids.BRONZE_AXE)}")
+            print(f"Are there any ring of duelings equipped? {api.get_is_item_equipped(ids.rods)}")
             print(f"How many bronze arrows equipped?: {api.get_equipped_item_quantity(ids.BRONZE_ARROW)}")
 
         # Chatbox Data
