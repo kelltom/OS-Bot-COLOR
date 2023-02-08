@@ -344,9 +344,9 @@ class MorgHTTPSocket:
 
     def get_is_item_equipped(self, item_id: Union[int, List[int]]) -> bool:
         """
-        Checks if the player has given item(s) equipped, and its quantity. Given a list of IDs, returns True on first ID found.
+        Checks if the player has given item(s) equipped. Given a list of IDs, returns True on first ID found.
         Args:
-                item_id: the id of the item to check for (an single ID, or list of IDs).
+                item_id: the id of the item to check for (a single ID, or list of IDs).
         Returns:
                 True if an item is equipped, False if not.
         """
