@@ -314,7 +314,7 @@ class MorgHTTPSocket:
         """
         Gets the amount of free space in the players inventory
         Returns:
-                An int representing the amount of free spaces 
+                An int representing the amount of free spaces
         """
         data = self.__do_get(endpoint=self.inv_endpoint)
         return len([item["id"] for item in data if item["id"] != -1])
