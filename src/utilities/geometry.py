@@ -117,6 +117,8 @@ class Rectangle:
         Returns:
             The distance from the point to the center of the object.
         """
+        if self.reference_rect is None:
+            raise ReferenceError("A Rectangle being sorted is missing a reference to the Rectangle it's contained in and therefore cannot be sorted.")
         center: Point = self.get_center()
         rect_center: Point = self.reference_rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
@@ -202,12 +204,12 @@ class RuneLiteObject:
 
     def center(self) -> Point:  # sourcery skip: raise-specific-error
         """
-        Gets the center of the object relative to the client.
+        Gets the center of the object relative to the containing Rectangle.
         Returns:
             A Point.
         """
         if self.rect is None:
-            raise Exception("Rectangle reference not set for object.")
+            raise ReferenceError("The RuneLiteObject is missing a reference to the Rectangle it's contained in and therefore the center cannot be determined.")
         return Point(self._center[0] + self.rect.left, self._center[1] + self.rect.top)
 
     def distance_from_rect_center(self) -> float:
@@ -216,6 +218,8 @@ class RuneLiteObject:
         Useful for sorting lists of RuneLiteObjects.
         Returns:
             The distance from the point to the center of the object.
+        Note:
+            Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
         """
         center: Point = self.center()
         rect_center: Point = self.rect.get_center()
