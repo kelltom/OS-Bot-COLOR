@@ -1,5 +1,9 @@
 """
 A set of computer vision utilities for use with RuneLite-based bots.
+
+TODO: Similarly to OCR, should these functions accept the Rect as an argument and do
+the screenshotting/color manipulation here? It would allow each RL Object to be created
+with its Rectangle reference property.
 """
 from typing import List
 
