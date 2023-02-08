@@ -110,6 +110,7 @@ class Rectangle:
         """
         return Point(self.left + self.width // 2, self.top + self.height // 2)
 
+    # TODO: Consider changing to this to accept a Point to check against; `distance_from(point: Point)`
     def distance_from_center(self) -> Point:
         """
         Gets the distance between the object and it's Rectangle parent center.
