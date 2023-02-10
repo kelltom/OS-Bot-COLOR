@@ -91,7 +91,7 @@ def find_text(
     char_list = []
     for char in chars:
         try:
-            template = font[char]
+            template = font[char][1:]
         except KeyError:
             text = text.replace(char, "")  # Remove characters that aren't in the font
             print(f"Font does not contain character: {char}. Omitting from search.")
