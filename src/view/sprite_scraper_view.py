@@ -57,6 +57,10 @@ class SpriteScraperView(customtkinter.CTkFrame):
     def on_submit(self):
         search_input = self.search_entry.get()
         thread = threading.Thread(target=scraper.search_and_download, args=(search_input, self.radio_var.get(), self.update_log), daemon=True)
+        self.search_entry.delete(0, "end")
+        self.txt_logs.configure(state=tkinter.NORMAL)
+        self.txt_logs.delete("1.0", "end")
+        self.txt_logs.configure(state=tkinter.DISABLED)
         thread.start()
 
     def update_log(self, text: str):
