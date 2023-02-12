@@ -160,6 +160,8 @@ cython_debug/
 # images
 src/images/temp/*
 !src/images/temp/.gitkeep
+src/images/bot/scraper/*
+!src/images/bot/scraper/.gitkeep
 src/runelite_settings/temp.properties
 src/utilities/record_mouse/*
 !src/utilities/record_mouse/record_mouse.py
