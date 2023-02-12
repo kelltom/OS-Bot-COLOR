@@ -110,19 +110,24 @@ class Rectangle:
         """
         return Point(self.left + self.width // 2, self.top + self.height // 2)
 
-    # TODO: Consider changing to this to accept a Point to check against; `distance_from(point: Point)`
-    def distance_from_center(self) -> Point:
+    def distance_from(self, point: Point = None) -> Point:
         """
-        Gets the distance between the object and it's Rectangle parent center.
+        Gets the distance between the object and a given Point.
         Useful for sorting lists of Rectangles.
+        `point`: Defaults to the reference_rect's center
         Returns:
             The distance from the point to the center of the object.
         """
-        if self.reference_rect is None:
+        if self.reference_rect is None and point is None:
             raise ReferenceError("A Rectangle being sorted is missing a reference to the Rectangle it's contained in and therefore cannot be sorted.")
         center: Point = self.get_center()
-        rect_center: Point = self.reference_rect.get_center()
-        return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
+        if point:
+            reference: Point = point
+        elif self.reference_rect:
+            reference: Point = self.reference_rect.get_center()
+        else:
+            raise ReferenceError("A reference is missing to measure distance from this rectangle")
+        return math.dist([center.x, center.y], [reference.x, reference.y])
 
     def get_top_left(self) -> Point:
         """

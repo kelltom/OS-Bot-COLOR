@@ -1,0 +1,22 @@
+[
+{"id":1541,"name":"Door","regionId":12850,"regionX":14,"regionY":45,"z":0,"color":"#FFFF00E7"},
+{"id":1540,"name":"Door","regionId":12850,"regionX":15,"regionY":45,"z":0,"color":"#FFFF00E7"},
+{"id":1521,"name":"Large door","regionId":12595,"regionX":30,"regionY":38,"z":0,"color":"#FFFF00E7"},
+{"id":1522,"name":"Large door","regionId":12595,"regionX":30,"regionY":39,"z":0,"color":"#FFFF00E7"},
+{"id":12988,"name":"Gate","regionId":12595,"regionX":52,"regionY":16,"z":0,"color":"#FFFF00E7"},
+{"id":1559,"name":"Gate","regionId":12595,"regionX":27,"regionY":25,"z":0,"color":"#FFFF00E7"},
+{"id":1558,"name":"Gate","regionId":12595,"regionX":27,"regionY":26,"z":0,"color":"#FFFF00E7"},
+{"id":883,"name":"Gate","regionId":12595,"regionX":40,"regionY":51,"z":0,"color":"#FFFF00E7"},
+{"id":23918,"name":"Gate","regionId":12595,"regionX":40,"regionY":52,"z":0,"color":"#FFFF00E7"},
+{"id":12986,"name":"Gate","regionId":12595,"regionX":52,"regionY":15,"z":0,"color":"#FFFF00E7"},
+{"id":12965,"name":"Ladder","regionId":12595,"regionX":28,"regionY":43,"z":1,"color":"#FFFAFF00"},
+{"id":12966,"name":"Ladder","regionId":12595,"regionX":28,"regionY":43,"z":2,"color":"#FFFAFF00"},
+{"id":12964,"name":"Ladder","regionId":12595,"regionX":28,"regionY":43,"z":0,"color":"#FFFAFF00"},
+{"id":15506,"name":"Wheat","regionId":12595,"regionX":26,"regionY":30,"z":0,"color":"#FFFF0A00"},
+{"id":15507,"name":"Wheat","regionId":12595,"regionX":25,"regionY":28,"z":0,"color":"#FFFF0A00"},
+{"id":15506,"name":"Wheat","regionId":12595,"regionX":24,"regionY":30,"z":0,"color":"#FFFF0A00"},
+{"id":24961,"name":"Hopper","regionId":12595,"regionX":31,"regionY":43,"z":2,"color":"#FFFF9A00"},
+{"id":24964,"name":"Hopper controls","regionId":12595,"regionX":30,"regionY":41,"z":2,"color":"#FFFF4D00"},
+{"id":1781,"name":"Flour bin","regionId":12595,"regionX":31,"regionY":43,"z":0,"color":"#FFFF0043"},
+{"id":8689,"name":"Dairy cow","regionId":12595,"regionX":36,"regionY":54,"z":0,"color":"#FFFF4D00"}
+]

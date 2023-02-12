@@ -184,6 +184,9 @@ class StatusSocket:
     def get_animation_id(self) -> int:
         return player_data["attack"]["animationId"]
 
+    def get_x_y_coords(self) -> tuple[int, int]:
+        return (player_data["worldPoint"]["x"], player_data["worldPoint"]["y"])
+
 
 # Test Code
 if __name__ == "__main__":

@@ -57,6 +57,7 @@ class Window:
     run_orb: Rectangle = None
     spec_orb_text: Rectangle = None
     spec_orb: Rectangle = None
+    world_map_orb: Rectangle = None
 
     # Game View Area
     game_view: Rectangle = None
@@ -301,6 +302,7 @@ class Window:
             self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
             self.spec_orb_text = Rectangle(left=36 + m.left, top=151 + m.top, width=20, height=13)
             self.total_xp = Rectangle(left=m.left - 147, top=m.top + 4, width=104, height=21)
+            self.world_map_orb = Rectangle(left=183 + m.left, top=132 + m.top, width=14, height=14)
         elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "minimap_fixed.png"), client_rect):
             self.client_fixed = True
             self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)

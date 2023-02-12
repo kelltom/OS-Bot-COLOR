@@ -133,7 +133,7 @@ class RuneLiteBot(Bot, metaclass=ABCMeta):
         if item_text := ocr.find_text(items, self.win.game_view, ocr.PLAIN_11, clr.PURPLE):
             for item in item_text:
                 item.set_rectangle_reference(self.win.game_view)
-            sorted_by_closest = sorted(item_text, key=Rectangle.distance_from_center)
+            sorted_by_closest = sorted(item_text, key=Rectangle.distance_from)
             self.mouse.move_to(sorted_by_closest[0].get_center())
             for _ in range(5):
                 if self.mouseover_text(contains=["Take"] + items, color=[clr.OFF_WHITE, clr.OFF_ORANGE]):

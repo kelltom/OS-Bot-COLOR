@@ -71,7 +71,8 @@ def find_text(
     rect: Rectangle,
     font: dict,
     color: Union[clr.Color, List[clr.Color]],
-) -> List[Rectangle]:
+    return_dict: bool = False,
+) -> Union[List[Rectangle], dict[str, List[Rectangle]]]:
     """
     Searches for exact text within a Rectangle. Input text is case sensitive.
     Args:
@@ -105,13 +106,16 @@ def find_text(
 
     haystack = "".join(char[0] for char in char_list)
 
-    words_found: List[Rectangle] = []
+    if return_dict:
+        words_found: dict[str, List[Rectangle]] = {}
+    else:
+        words_found: List[Rectangle] = []
 
     if isinstance(text, str):
         text = [text]
 
     for word in text:
-        word = word.replace(" ", "")
+        word = word.replace(" ", "")  # !
         for index, _ in enumerate(haystack):
             if haystack[index : index + len(word)] == word:
                 # get the position of the first letter
@@ -120,6 +124,9 @@ def find_text(
                 h, w = font[word[-1]].shape[:2]
                 # get the width (height is the same for all letters)
                 width = char_list[index + len(word) - 1][1] - left + w
-                words_found.append(Rectangle(left + rect.left, top + rect.top, width, h))
+                if return_dict:
+                    words_found[word] = words_found.get(word, []) + [Rectangle(left + rect.left, top + rect.top, width, h)]
+                else:
+                    words_found.append(Rectangle(left + rect.left, top + rect.top, width, h))
                 index += len(word)
     return words_found
