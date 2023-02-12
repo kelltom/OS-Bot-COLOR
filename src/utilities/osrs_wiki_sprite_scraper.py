@@ -74,7 +74,10 @@ class OSRSWikiSpriteScraper:
                 notify_callback(f"Success: {img_names[i]} sprite saved to filepath.")
             if image_type in {1, 2}:
                 img = Image.open(f"{filepath}.png")
-                img_cropped = img.crop((0, 10, img.width, img.height))
+                crop_amt = int((img.height - 16) / 2) if img.height > 16 else 0  # Crop out stack numbers, 16 is half the height of a bank slot
+                if img.height >= 28:
+                    crop_amt += 1  # Crop an additional pixel if the image is very tall
+                img_cropped = img.crop((0, crop_amt, img.width, img.height))
                 img_cropped.save(f"{filepath}_bank.png", bitmap_format="png")
                 notify_callback(f"Success: {img_names[i]} bank sprite saved to filepath.")
                 if image_type == 1:
