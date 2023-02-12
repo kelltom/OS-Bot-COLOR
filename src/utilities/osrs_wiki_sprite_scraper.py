@@ -3,9 +3,9 @@ from pathlib import Path
 from typing import Callable, List
 from urllib.parse import urljoin
 
+import cv2
 import requests
 from bs4 import BeautifulSoup
-from PIL import Image
 
 if __name__ == "__main__":
     import sys
@@ -73,12 +73,13 @@ class OSRSWikiSpriteScraper:
             if image_type in {0, 2}:
                 notify_callback(f"Success: {img_names[i]} sprite saved to filepath.")
             if image_type in {1, 2}:
-                img = Image.open(f"{filepath}.png")
-                crop_amt = int((img.height - 16) / 2) if img.height > 16 else 0  # Crop out stack numbers, 16 is half the height of a bank slot
-                if img.height >= 28:
+                img = cv2.imread(f"{filepath}.png", cv2.IMREAD_UNCHANGED)
+                height, _, _ = img.shape
+                crop_amt = int((height - 16) / 2) if height > 16 else 0  # Crop out stack numbers, 16 is half the height of a bank slot
+                if height >= 28:
                     crop_amt += 1  # Crop an additional pixel if the image is very tall
-                img_cropped = img.crop((0, crop_amt, img.width, img.height))
-                img_cropped.save(f"{filepath}_bank.png", bitmap_format="png")
+                img[:crop_amt, :] = 0  # Set the top pixels to transparent
+                cv2.imwrite(f"{filepath}_bank.png", img)
                 notify_callback(f"Success: {img_names[i]} bank sprite saved to filepath.")
                 if image_type == 1:
                     os.remove(f"{filepath}.png")
