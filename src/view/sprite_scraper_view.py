@@ -49,7 +49,7 @@ class SpriteScraperView(customtkinter.CTkFrame):
 
         # -- Radio Group Label
         self.lbl_radio_group = customtkinter.CTkLabel(master=self.radio_group, text="Select the type of sprites to download")
-        self.lbl_radio_group.grid(row=0, column=0, columnspan=4, sticky="nsew", padx=10, pady=10)
+        self.lbl_radio_group.grid(row=0, column=0, columnspan=4, sticky="nsew", padx=10, pady=(10, 0))
 
         self.radio_var = tkinter.IntVar(self)
 
@@ -64,10 +64,10 @@ class SpriteScraperView(customtkinter.CTkFrame):
         # -- Radio Button Labels
         self.lbl_radio_normal = customtkinter.CTkLabel(master=self.radio_group, text="Normal")
         self.lbl_radio_bank = customtkinter.CTkLabel(master=self.radio_group, text="Bank")
-        self.lbl_radio_normal_bank = customtkinter.CTkLabel(master=self.radio_group, text="Normal + Bank")
+        self.lbl_radio_both = customtkinter.CTkLabel(master=self.radio_group, text="Normal + Bank")
         self.lbl_radio_normal.grid(row=1, column=1, sticky="w", padx=10)
         self.lbl_radio_bank.grid(row=2, column=1, sticky="w", padx=10)
-        self.lbl_radio_normal_bank.grid(row=3, column=1, sticky="w", padx=10)
+        self.lbl_radio_both.grid(row=3, column=1, sticky="w", padx=10)
 
         self.radio_group.grid(row=5, column=0, sticky="nsew", padx=10)
 
