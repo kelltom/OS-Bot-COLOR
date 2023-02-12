@@ -3,9 +3,9 @@ import tkinter
 
 import customtkinter
 
-from utilities.osrs_wiki_sprite_scraper import OSRSWikiSpriteScraper
+from utilities.sprite_scraper import SpriteScraper
 
-scraper = OSRSWikiSpriteScraper()
+scraper = SpriteScraper()
 
 
 class SpriteScraperView(customtkinter.CTkFrame):
@@ -101,6 +101,7 @@ class SpriteScraperView(customtkinter.CTkFrame):
             daemon=True,
         )
         self.search_entry.delete(0, "end")
+        self.search_entry.clear_placeholder()
         self.txt_logs.configure(state=tkinter.NORMAL)
         self.txt_logs.delete("1.0", "end")
         self.txt_logs.configure(state=tkinter.DISABLED)
