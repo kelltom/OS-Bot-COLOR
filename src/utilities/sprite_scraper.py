@@ -98,7 +98,7 @@ class SpriteScraper:
             filepath = destination.joinpath(img_names[i])
             if image_type in {0, 2}:
                 cv2.imwrite(f"{filepath}.png", downloaded_img)
-                nl = '\n'
+                nl = "\n"
                 notify_callback(f"Success: {img_names[i]} sprite saved.{nl if image_type != 2 else ''}")
             if image_type in {1, 2}:
                 cropped_img = self.__crop_image(downloaded_img)
@@ -106,14 +106,14 @@ class SpriteScraper:
                 notify_callback(f"Success: {img_names[i]} bank sprite saved.\n")
 
         notify_callback(f"Search complete. Images saved to:\n{destination}.\n")
-    
+
     def capitalize_each_in(self, string: str) -> str:
         """
         Capitalizes the first letter of each word in a string of words separated by underscores, retaining the
         underscores.
         """
         return "_".join(word.capitalize() for word in string.split("_"))
-   
+
     def format_args(self, string: str) -> List[str]:
         """
         Formats a comma-separated list of strings into a list of strings where each string is capitalized and
@@ -138,7 +138,8 @@ class SpriteScraper:
         BANK_SLOT_HALF_HEIGHT = 16
         IMG_MAX_HEIGHT = 28
         height, _, _ = image.shape
-        crop_amt = int((height - BANK_SLOT_HALF_HEIGHT) / 2) if height > BANK_SLOT_HALF_HEIGHT else 0  # Crop out stack numbers, 16 is half the height of a bank slot
+        # Crop out stack numbers, 16 is half the height of a bank slot
+        crop_amt = int((height - BANK_SLOT_HALF_HEIGHT) / 2) if height > BANK_SLOT_HALF_HEIGHT else 0
         if height >= IMG_MAX_HEIGHT:
             crop_amt += 1  # Crop an additional pixel if the image is very tall
         image[:crop_amt, :] = 0  # Set the top pixels to transparent
@@ -156,6 +157,7 @@ class SpriteScraper:
         downloaded_img = np.frombuffer(response.content, dtype="uint8")
         downloaded_img = cv2.imdecode(downloaded_img, cv2.IMREAD_UNCHANGED)
         return downloaded_img
+
 
 if __name__ == "__main__":
     scraper = SpriteScraper()
