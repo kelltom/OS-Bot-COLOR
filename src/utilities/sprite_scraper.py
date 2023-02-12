@@ -139,7 +139,7 @@ class SpriteScraper:
         BANK_SLOT_HALF_HEIGHT = 16
         IMG_MAX_HEIGHT = 28
         height, _, _ = image.shape
-        # Crop out stack numbers, 16 is half the height of a bank slot
+        # Crop out stack numbers
         crop_amt = int((height - BANK_SLOT_HALF_HEIGHT) / 2) if height > BANK_SLOT_HALF_HEIGHT else 0
         if height >= IMG_MAX_HEIGHT:
             crop_amt += 1  # Crop an additional pixel if the image is very tall
