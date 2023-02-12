@@ -317,7 +317,7 @@ class MorgHTTPSocket:
                 An int representing the amount of free spaces
         """
         data = self.__do_get(endpoint=self.inv_endpoint)
-        return len([item["id"] for item in data if item["id"] != -1])
+        return len([item["id"] for item in data if item["id"] == -1])
 
     def get_is_inv_full(self) -> bool:
         """
@@ -325,7 +325,7 @@ class MorgHTTPSocket:
         Returns:
                 True if the player's inventory is full, False otherwise.
         """
-        return self.get_inv_free_space() == 28
+        return self.get_inv_free_space() == 0
 
     def get_inv_item_indices(self, item_id: Union[List[int], int]) -> list:
         """
