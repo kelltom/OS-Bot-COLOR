@@ -173,7 +173,7 @@ if __name__ == "__main__":
     assert scraper.capitalize_each_in("arceuus_home_teleport") == "Arceuus_Home_Teleport"
 
     scraper.search_and_download(
-        search_string=" lobster , lobster  Pot, nonexitent_sprite",
+        search_string=" lobster , lobster  Pot, arceuus home teleport, nonexitent_sprite",
         image_type=2,
     )
 
