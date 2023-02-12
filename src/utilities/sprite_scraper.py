@@ -112,7 +112,8 @@ class SpriteScraper:
         Capitalizes the first letter of each word in a string of words separated by underscores, retaining the
         underscores.
         """
-        return "_".join(word.capitalize() for word in string.split("_"))
+        exclude = ["from", "of", "to", "in", "with", "on", "at", "by", "for"]
+        return "_".join(word if word in exclude else word.capitalize() for word in string.split("_"))
 
     def format_args(self, string: str) -> List[str]:
         """
@@ -171,10 +172,18 @@ if __name__ == "__main__":
     assert scraper.capitalize_each_in("swordfish") == "Swordfish"
     assert scraper.capitalize_each_in("Lobster_pot") == "Lobster_Pot"
     assert scraper.capitalize_each_in("arceuus_home_teleport") == "Arceuus_Home_Teleport"
+    assert scraper.capitalize_each_in("protect_from_magic") == "Protect_from_Magic"
+    assert scraper.capitalize_each_in("teleport_to_house") == "Teleport_to_House"
+    assert scraper.capitalize_each_in("claws_of_guthix") == "Claws_of_Guthix"
 
     scraper.search_and_download(
-        search_string=" lobster , lobster  Pot, arceuus home teleport, nonexitent_sprite",
-        image_type=2,
+        search_string=" lobster , lobster  Pot",
+        image_type=1,
+    )
+
+    scraper.search_and_download(
+        search_string="protect from magic, arceuus home teleport, nonexitent_sprite",
+        image_type=0,
     )
 
     print("Test cleared.")

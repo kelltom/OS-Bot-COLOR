@@ -23,7 +23,7 @@ class SpriteScraperView(customtkinter.CTkFrame):
         self.grid_rowconfigure(6, weight=1)  # - Logs
 
         # Title
-        self.search_label = customtkinter.CTkLabel(self, text="Search OSRS wiki for Sprites", text_font=("Roboto Medium", 12))
+        self.search_label = customtkinter.CTkLabel(self, text="Search OSRS Wiki for Sprites", text_font=("Roboto Medium", 12))
         self.search_label.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Search instructions
