@@ -4,6 +4,8 @@ import webbrowser as wb
 import customtkinter
 from PIL import Image, ImageTk
 
+from view.sprite_scraper_view import SpriteScraperView
+
 
 class TitleView(customtkinter.CTkFrame):
     def __init__(self, parent, main):
@@ -99,6 +101,24 @@ class TitleView(customtkinter.CTkFrame):
         )
         self.btn_feedback.grid(row=3, column=2, padx=15, pady=(15, 0), sticky="w")
 
+        # -- Sprite Scraper
+        self.scraper_logo = ImageTk.PhotoImage(
+            Image.open(f"{self.logo_path}/images/ui/scraper.png").resize((IMG_SIZE, IMG_SIZE)),
+            Image.LANCZOS,
+        )
+        self.btn_sprite_scraper = customtkinter.CTkButton(
+            master=self,
+            text="Scraper",
+            image=self.scraper_logo,
+            width=BTN_WIDTH,
+            height=BTN_HEIGHT,
+            corner_radius=15,
+            fg_color=DEFAULT_GRAY,
+            compound="top",
+            command=self.btn_scraper_clicked,
+        )
+        self.btn_sprite_scraper.grid(row=4, column=1, padx=15, pady=(15, 0))
+
     def btn_github_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR")
 
@@ -107,3 +127,10 @@ class TitleView(customtkinter.CTkFrame):
 
     def btn_bug_report_clicked(self):
         wb.open_new_tab("https://github.com/kelltom/OSRS-Bot-COLOR/issues/new/choose")
+
+    def btn_scraper_clicked(self):
+        window = customtkinter.CTkToplevel(master=self)
+        window.geometry("400x660")
+        window.title("OSRS Wiki Sprite Scraper")
+        view = SpriteScraperView(parent=window)
+        view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
