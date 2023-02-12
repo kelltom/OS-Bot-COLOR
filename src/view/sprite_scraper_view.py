@@ -94,8 +94,12 @@ class SpriteScraperView(customtkinter.CTkFrame):
         self.parent.destroy()
 
     def on_submit(self):
-        search_input = self.search_entry.get()
-        thread = threading.Thread(target=scraper.search_and_download, args=(search_input, self.radio_var.get(), self.update_log), daemon=True)
+        search_string = self.search_entry.get()
+        thread = threading.Thread(
+            target=scraper.search_and_download,
+            kwargs={"search_string": search_string, "image_type": self.radio_var.get(), "notify_callback": self.update_log},
+            daemon=True,
+        )
         self.search_entry.delete(0, "end")
         self.txt_logs.configure(state=tkinter.NORMAL)
         self.txt_logs.delete("1.0", "end")

@@ -14,26 +14,31 @@ if __name__ == "__main__":
 
 import utilities.imagesearch as imsearch
 
+DEFAULT_DESTINATION = imsearch.BOT_IMAGES.joinpath("scraper")
+
 
 class OSRSWikiSpriteScraper:
     def __init__(self):
         self.base_url = "https://oldschool.runescape.wiki"
-        self.images_folder = imsearch.BOT_IMAGES.joinpath("scraper")
 
-    def set_destination_folder(self, path: Path):
-        # TODO: Maybe add code to verify that path is valid.
-        self.images_folder = path
-
-    def search_and_download(self, search_string: str, image_type: int, notify_callback: Callable):
+    def search_and_download(self, search_string: str, **kwargs):
         """
         Searches the OSRS Wiki for the given search parameter and downloads the image(s) to the appropriate folder.
         Args:
             search_string: A comma-separated list of wiki keywords to locate images for.
+        Keyword Args:
             image_type: 0 = Normal, 1 = Bank, 2 = Both. Normal sprites are full-size, and bank sprites are cropped at the top
-                        to improve image search performance within the bank interface (crops out stack numbers).
+                        to improve image search performance within the bank interface (crops out stack numbers). Default is 0.
+            destination: The folder to save the downloaded images to. Default is defined in the global `DEFAULT_DESTINATION`.
             notify_callback: A function (usually defined in the view) that takes a string as a parameter. This function is
-                             called with search results and errors.
+                             called with search results and errors. Default is print().
+        Notes:
+            Images are downloaded to the folder defined in the class property `destination_folder`.
         """
+        image_type = kwargs.get("image_type", 0)
+        destination = kwargs.get("destination", DEFAULT_DESTINATION)
+        notify_callback = kwargs.get("notify_callback", print)
+
         # Ensure the iamge_type is valid
         if image_type not in (0, 1, 2):
             notify_callback("Invalid image type argument.")
@@ -66,7 +71,7 @@ class OSRSWikiSpriteScraper:
             img_url = urljoin(self.base_url, img["src"])
             try:
                 notify_callback("Downloading...")
-                filepath = self.__download_file(img_url)
+                filepath = self.__download_file(img_url, destination)
             except Exception as e:
                 notify_callback(f"Error: {e}")
                 return
@@ -83,9 +88,9 @@ class OSRSWikiSpriteScraper:
                 notify_callback(f"Success: {img_names[i]} bank sprite saved to filepath.")
                 if image_type == 1:
                     os.remove(f"{filepath}.png")
-        notify_callback(f"\nSearch complete. Images saved to:\n{self.images_folder}.")
+        notify_callback(f"\nSearch complete. Images saved to:\n{destination}.")
 
-    def __download_file(self, url: str):
+    def __download_file(self, url: str, destination: Path):
         """
         Downloads a file from the given URL and saves it to the scraped images folder.
         Args:
@@ -95,7 +100,8 @@ class OSRSWikiSpriteScraper:
         """
         response = requests.get(url)
         filename = url.split("/")[-1].split("?")[0]
-        full_path = self.images_folder.joinpath(filename.lower())
+        print(f"Downloading {filename}...")
+        full_path = destination.joinpath(filename.lower())
         with open(f"{full_path}", "wb") as f:
             f.write(response.content)
         return full_path.with_suffix("")
