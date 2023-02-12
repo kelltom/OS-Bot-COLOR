@@ -74,12 +74,12 @@ class OSRSWikiSpriteScraper:
                 notify_callback(f"Success: {img_names[i]} sprite saved to filepath.")
             if image_type in {1, 2}:
                 img = Image.open(f"{filepath}.png")
-                img_cropped = img.crop((0, 10, img.width, 30))
+                img_cropped = img.crop((0, 10, img.width, img.height))
                 img_cropped.save(f"{filepath}_bank.png", bitmap_format="png")
                 notify_callback(f"Success: {img_names[i]} bank sprite saved to filepath.")
                 if image_type == 1:
                     os.remove(f"{filepath}.png")
-        notify_callback(f"\nSearch complete. Images saved to: {self.images_folder}`.")
+        notify_callback(f"\nSearch complete. Images saved to:\n{self.images_folder}.")
 
     def __download_file(self, url: str):
         """

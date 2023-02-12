@@ -130,7 +130,7 @@ class TitleView(customtkinter.CTkFrame):
 
     def btn_scraper_clicked(self):
         window = customtkinter.CTkToplevel(master=self)
-        window.geometry("400x600")
+        window.geometry("400x660")
         window.title("OSRS Wiki Sprite Scraper")
         view = SpriteScraperView(parent=window)
         view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
