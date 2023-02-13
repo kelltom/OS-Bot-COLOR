@@ -101,7 +101,7 @@ class SpriteScraper:
                 nl = "\n"
                 notify_callback(f"Success: {img_names[i]} sprite saved.{nl if image_type != 2 else ''}")
             if image_type in {1, 2}:
-                cropped_img = self.__crop_image(downloaded_img)
+                cropped_img = self.__bankify_image(downloaded_img)
                 cv2.imwrite(f"{filepath}_bank.png", cropped_img)
                 notify_callback(f"Success: {img_names[i]} bank sprite saved.\n")
 
@@ -128,22 +128,27 @@ class SpriteScraper:
         # Strip whitespace and replace spaces with underscores
         return [word.strip().replace(" ", "_").capitalize() for word in string.split(",")]
 
-    def __crop_image(self, image: cv2.Mat) -> cv2.Mat:
+    def __bankify_image(self, image: cv2.Mat) -> cv2.Mat:
         """
-        Makes the top of the image transparent. This is used to crop out stack numbers in bank sprites.
+        Converts a sprite into an image that is suitable for image searching within a bank interface.
+        This function centers the image in a 36x32 frame, and deletes some pixels at the top of the image to
+        remove the stack number.
         Args:
             image: The image to crop.
         Returns:
-            The cropped image.
+            The bankified image.
         """
-        BANK_SLOT_HALF_HEIGHT = 16
-        IMG_MAX_HEIGHT = 28
-        height, _, _ = image.shape
-        # Crop out stack numbers
-        crop_amt = int((height - BANK_SLOT_HALF_HEIGHT) / 2) if height > BANK_SLOT_HALF_HEIGHT else 0
-        if height >= IMG_MAX_HEIGHT:
-            crop_amt += 1  # Crop an additional pixel if the image is very tall
-        image[:crop_amt, :] = 0  # Set the top pixels to transparent
+        height, width = image.shape[:2]
+        max_height, max_width = 32, 36
+
+        if height > max_height or width > max_width:
+            print("Warning: Image is already larger than bank slot. This sprite is unlikely to be relevant for bank functions.")
+            return image
+
+        height_diff = max_height - height
+        width_diff = max_width - width
+        image = cv2.copyMakeBorder(image, height_diff // 2, height_diff // 2, width_diff // 2, width_diff // 2, cv2.BORDER_CONSTANT, value=0)
+        image[:9, :] = 0
         return image
 
     def __download_image(self, url: str) -> cv2.Mat:
