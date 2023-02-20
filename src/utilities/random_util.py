@@ -2,7 +2,7 @@ import math
 import random
 import secrets
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
@@ -156,6 +156,37 @@ def fancy_normal_sample(lower_bound, upper_bound) -> float:
     mean = means[index]
     # Retrieve a sample from the truncated normal distribution
     return truncated_normal_sample(lower_bound, upper_bound, mean=mean)
+
+
+def chisquared_sample(average, min=0.05, max=Optional[float]) -> float:
+    """
+    Generate a random sample from a Chisquared distribution. Contraining the maximum will produce abnormal means.
+    Args:
+        df: Degrees of freedom this is also what the average output would be for a sufficiently large sample.
+        min: Minimum allowable output, default 0.05
+        max: Maximum allowable output
+    Returns:
+        float
+    Examples:
+        for 10,000 samples of chisquared_sample(df = 1, min = 0.05)
+
+        average output = 1.0
+        maximum output = 19.3
+        minimum output = 0.05
+    """
+    sample = np.random.chisquare(average - min) + min
+
+    if max:
+        # fold back anything over the max back onto itself till it lies in the allowable range
+        while sample > max or sample < min:
+            if sample > max:
+                # past the max
+                sample = sample - (sample - max)
+
+            else:
+                # folded back past the min
+                sample = sample + (min - sample)
+    return sample
 
 
 def random_chance(probability: float) -> bool:
