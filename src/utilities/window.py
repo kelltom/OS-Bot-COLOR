@@ -199,7 +199,7 @@ class Window:
         """
         self.inventory_slots = []
         slot_w, slot_h = 36, 32  # dimensions of a slot
-        gap_x, gap_y = 5, 3  # pixel gap between slots
+        gap_x, gap_y = 6, 4  # pixel gap between slots
         y = 44 + cp.top  # start y relative to cp template
         for _ in range(7):
             x = 40 + cp.left  # start x relative to cp template
