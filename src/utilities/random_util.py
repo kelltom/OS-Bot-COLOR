@@ -2,7 +2,7 @@ import math
 import random
 import secrets
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Union
 
 import numpy as np
 
@@ -158,35 +158,28 @@ def fancy_normal_sample(lower_bound, upper_bound) -> float:
     return truncated_normal_sample(lower_bound, upper_bound, mean=mean)
 
 
-def chisquared_sample(average, min=0.05, max=Optional[float]) -> float:
+def chisquared_sample(df: int, min: float = 0, max: float = np.inf) -> float:
     """
     Generate a random sample from a Chisquared distribution. Contraining the maximum will produce abnormal means.
     Args:
-        df: Degrees of freedom this is also what the average output would be for a sufficiently large sample.
-        min: Minimum allowable output, default 0.05
-        max: Maximum allowable output
+        df: Degrees of freedom (approximately the average result).
+        min: Minimum allowable output (default is 0)
+        max: Maximum allowable output (default is infinity).
     Returns:
-        float
+        A random float from a Chisquared distribution.
     Examples:
-        for 10,000 samples of chisquared_sample(df = 1, min = 0.05)
-
-        average output = 1.0
-        maximum output = 19.3
-        minimum output = 0.05
+        For 100,000 samples of chisquared_sample(average = 25, min = 3):
+        - Average = 24.98367264407156
+        - Maximum = 67.39469215530804
+        - Minimum = 3.636904524316633
+        - Graphed: https://i.imgur.com/9re2ezf.png
     """
-    sample = np.random.chisquare(average - min) + min
-
-    if max:
-        # fold back anything over the max back onto itself till it lies in the allowable range
-        while sample > max or sample < min:
-            if sample > max:
-                # past the max
-                sample = sample - (sample - max)
-
-            else:
-                # folded back past the min
-                sample = sample + (min - sample)
-    return sample
+    if max is None:
+        max = np.inf
+    while True:
+        x = np.random.chisquare(df)
+        if x >= min and x <= max:
+            return x
 
 
 def random_chance(probability: float) -> bool:
