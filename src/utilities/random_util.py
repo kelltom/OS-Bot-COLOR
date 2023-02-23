@@ -201,8 +201,34 @@ def random_chance(probability: float) -> bool:
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    samples = [truncated_normal_sample(0, 600) for _ in range(100000)]
-
-    # plot the samples
+    # Truncated normal distribution
+    samples = [truncated_normal_sample(lower_bound=0, upper_bound=100) for _ in range(100000)]
+    print("Truncated normal distribution")
+    print(f"Average output = {sum(samples) / len(samples)}")
+    print(f"Maximum output = {max(samples)}")
+    print(f"Minimum output = {min(samples)}")
+    print()
     plt.hist(samples, bins=600)
+    plt.title("Truncated normal distribution")
+    plt.show()
+
+    # Fancy normal distribution
+    samples = [fancy_normal_sample(lower_bound=0, upper_bound=100) for _ in range(100000)]
+    print("Truncated normal distribution")
+    print(f"Average output = {sum(samples) / len(samples)}")
+    print(f"Maximum output = {max(samples)}")
+    print(f"Minimum output = {min(samples)}")
+    print()
+    plt.hist(samples, bins=600)
+    plt.title("Fancy normal distribution")
+    plt.show()
+
+    # Chi-squared distribution
+    samples = [chisquared_sample(df=25) for _ in range(100000)]
+    print("Chi-squared distribution")
+    print(f"Average output = {sum(samples) / len(samples)}")
+    print(f"Maximum output = {max(samples)}")
+    print(f"Minimum output = {min(samples)}")
+    plt.hist(samples, bins=600)
+    plt.title("Chi-squared distribution")
     plt.show()
