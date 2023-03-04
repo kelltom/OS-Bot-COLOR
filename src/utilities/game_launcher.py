@@ -6,6 +6,7 @@ import subprocess
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
+from typing import Callable, Union
 
 import psutil
 
@@ -34,16 +35,25 @@ def is_program_running(program_name):
     return False
 
 
-def launch_runelite_with_settings(bot, settings_file: Path):
+def launch_runelite_with_settings(settings_file: Path, game_title: str, use_profile_manager: bool, callback: Callable=print, verbose: bool=True) -> Union[bool, None]:
     """
     Launches the game with the specified RuneLite settings file. If it fails to
     find the executable, it will prompt the user to locate the executable.
     Args:
-        bot: The bot object.
         settings_file: The path to the settings file to use. If not specified, the default
                        settings file will be selected according to the bot's game_title.
                        E.g., if the game title is "OSRS", the default settings file
                        will be "osrs_settings.properties".
+        game_title: The title of the game to launch. This is used to determine which game client to launch.
+        use_profile_manager: Whether to use the RuneLite Profile Manager to load the settings file.
+                             Toggle True if using RuneLite v1.9.11 or newer.
+        callback: The function that is called with the output of the process. This function must accept a
+                  string as its only positional argument.
+        verbose: Sets the verbosity of the output sent to the callback function. If True, all details of
+                 the process will be sent to the callback function. If False, only the final output will
+                 be sent to the callback function.
+    Returns:
+        True if the game was launched successfully.
     """
     # Try to read the file and parse the JSON data
     try:
@@ -57,44 +67,101 @@ def launch_runelite_with_settings(bot, settings_file: Path):
         Path(executable_paths).touch()
 
     # Check if the game's executable path exists in the JSON file
-    key = bot.game_title.lower()
-    EXECPATH = data.get(key, "")
+    game_title = game_title.lower()
+    EXECPATH = data.get(game_title, "")
 
     # Check if executable file exists
     if not os.path.exists(EXECPATH):
-        bot.log_msg("Game executable not found. Please locate the executable.")
+        callback("Game executable not found. Please locate the executable.")
         EXECPATH = __locate_executable()
         if not EXECPATH:
-            bot.log_msg("File not selected.")
+            callback("File not selected.")
             return
-        data[key] = EXECPATH
+        data[game_title] = EXECPATH
         with open(executable_paths, "w") as f:
             json.dump(data, f)
-            bot.log_msg("Executable path saved.")
+            callback("Executable path saved.")
 
     # Save settings file to temp
-    if settings_file:
-        bot.log_msg("Launching with custom settings.")
-    else:
-        bot.log_msg(f"Launching with base {bot.game_title} settings file.")
-        settings_file = runelite_settings_folder.joinpath(f"{bot.game_title}_settings.properties")
+    if not settings_file:
+        settings_file = runelite_settings_folder.joinpath(f"{game_title}_settings.properties")
     src_path = settings_file
-    dst_path = os.path.join(runelite_settings_folder, "temp.properties")
+    if use_profile_manager:
+        # TODO: CLEAN THIS UP
+
+        # Get the profiles folder
+        profiles_folder = data.get(f"{game_title}_profiles", "")
+        if not os.path.exists(profiles_folder):
+            callback("Profile folder not found. Please locate the folder.")
+            profiles_folder = __locate_folder()
+            if not profiles_folder:
+                callback("Folder not selected.")
+                return
+            data[f"{game_title}_profiles"] = profiles_folder
+            with open(executable_paths, "w") as f:
+                json.dump(data, f)
+                callback("Profile folder saved.")
+
+        # Open the `profiles.json` file
+        profiles_json = Path(profiles_folder).joinpath("profiles.json")
+        if not os.path.exists(profiles_json):
+            callback("Profile list not found. Please create a profile in the Profile Manager.")
+            return
+        with open(profiles_json, "r") as f:
+            profiles: dict = json.load(f)
+
+        # In the key called "profiles" is a list of dictionaries. Each dictionary contains the name of the profile and an id. Iterate through all profiles and record the ids to a list. If the name of the profile is "temp", record the id in another variable.
+        profile_ids = []
+        tmp_profile_id = None
+        for profile in profiles["profiles"]:
+            profile["active"] = False
+            profile_ids.append(profile["id"])
+            if profile["name"] == "temp":
+                callback("Found temp profile. Recording id and activating profile.")
+                tmp_profile_id = profile["id"]
+                profile["active"] = True
+
+        # If tmp_profile_id is None, generate an ID and create a new record in the JSON file. Else, do nothing
+        if tmp_profile_id is None:
+            callback("Temp profile not found. Creating new profile...")
+            tmp_profile_id = "123456" # TODO: Generate a random ID that is not in the list of profile ids
+            # Create a new profile record
+            tmp_profile = {
+                "id": tmp_profile_id,
+                "name": "temp",
+                "sync": False,
+                "active": True,
+                "rev": -1
+            }
+            profiles["profiles"].append(tmp_profile)
+
+        # Save the JSON file
+        with open(profiles_json, "w") as f:
+            json.dump(profiles, f)
+            callback("Profile list updated.")
+
+        # Append the id to the name of the temp file
+        tmp_filename = f"temp-{tmp_profile_id}.properties"
+        dst_path = os.path.join(profiles_folder, tmp_filename)
+        EXECARG2 = "--profile=temp"
+    else:
+        dst_path = os.path.join(runelite_settings_folder, "temp.properties")
+        EXECARG2 = f"--config={dst_path} --sessionfile=bot_session"
     shutil.copyfile(src_path, dst_path)
 
     # Executable args for runelite to direct the client to launch with bot settings
     EXECARG1 = "--clientargs"
-    EXECARG2 = f"--config={dst_path} --sessionfile=bot_session"
 
     # Launch the game
     if platform.system() == "Windows":
         subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=subprocess.DETACHED_PROCESS)
     else:
         subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-    bot.log_msg("Game launched. Please wait until you've logged into the game before starting the bot.")
+    callback("Game launched. Please wait until you've logged into the game before starting the bot.")
+    return True
 
 
-def __locate_executable():
+def __locate_executable() -> Union[str, None]:
     """
     Opens a file dialog to allow the user to locate the game executable.
     """
@@ -112,5 +179,26 @@ def __locate_executable():
         root.destroy()
         return None
     path_str = str(file_path)
+    root.destroy()
+    return path_str
+
+
+def __locate_folder() -> Union[str, None]:
+    """
+    Opens a folder dialog to allow the user to locate the game executable.
+    """
+    root = tk.Tk()
+    root.withdraw()
+    # TODO: May need to make separate prompts for Linux
+    folder_path = filedialog.askdirectory(title="Locate the `profile2` folder")
+    try:
+        if not folder_path:
+            root.destroy()
+            return None
+        folder_path = Path(folder_path)
+    except TypeError:
+        root.destroy()
+        return None
+    path_str = str(folder_path)
     root.destroy()
     return path_str
