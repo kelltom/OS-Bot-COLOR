@@ -49,11 +49,15 @@ class OSRSTemplate(OSRSBot):
         1. If you need to halt the bot from within this function, call `self.stop()`. You'll want to do this
            when the bot has made a mistake, gets stuck, or a condition is met that requires the bot to stop.
         2. Frequently call self.update_progress() and self.log_msg() to send information to the UI.
-        3. At the end of the main loop, make sure to set the status to STOPPED.
+        3. At the end of the main loop, make sure to call `self.stop()`.
 
         Additional notes:
-        Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions.
-        Visit the Wiki for more.
+        - Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions.
+          Visit the Wiki for more.
+        - Using the available APIs is highly recommended. Some of all of the API tools may be unavailable for
+          select private servers. To see what the APIs can offer you, see here: https://github.com/kelltom/OSRS-Bot-COLOR/tree/main/src/utilities/api.
+          For usage, uncomment the `api_m` and/or `api_s` lines below, and use the `.` operator to access their
+          functions.
         """
         # Setup APIs
         # api_m = MorgHTTPSocket()
@@ -64,6 +68,7 @@ class OSRSTemplate(OSRSBot):
         end_time = self.running_time * 60
         while time.time() - start_time < end_time:
             # -- Perform bot actions here --
+            # Code within this block will LOOP until the bot is stopped.
 
             self.update_progress((time.time() - start_time) / end_time)
 
