@@ -106,10 +106,11 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         Launches the game with the default RuneLite settings file.
         """
         path = launcher.RL_SETTINGS_FOLDER_PATH.joinpath(f"{self.__game_title.lower()}_settings.properties")
+        use_profile_manager = self.__game_title.lower() in ["osrs"]  # TODO: This is a weak solution for identifying games that use the profile manager.
         success = launcher.launch_runelite(
             properties_path=path,
             game_title=self.__game_title,
-            use_profile_manager=True,  # TODO: This will only be true in OSRS view
+            use_profile_manager=use_profile_manager,
             callback=self.__update_label,
         )
         if not success:
