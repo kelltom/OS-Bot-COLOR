@@ -110,30 +110,33 @@ def launch_runelite_with_settings(settings_file: Path, game_title: str, use_prof
         with open(profiles_json, "r") as f:
             profiles: dict = json.load(f)
 
-        # In the key called "profiles" is a list of dictionaries. Each dictionary contains the name of the profile and an id. Iterate through all profiles and record the ids to a list. If the name of the profile is "temp", record the id in another variable.
-        profile_ids = []
+        # We need to record all IDs to ensure we don't create a duplicate
+        # IDs spann all profiles regardless of their name
+        all_ids = []
         tmp_profile_id = None
         for profile in profiles["profiles"]:
-            profile["active"] = False
-            profile_ids.append(profile["id"])
             if profile["name"] == "temp":
-                callback("Found temp profile. Recording id and activating profile.")
                 tmp_profile_id = profile["id"]
-                profile["active"] = True
+                callback("Removing temp profile.")
+                profiles['profiles'].remove(profile)
+                continue
+            profile["active"] = False
+            all_ids.append(profile["id"])
 
-        # If tmp_profile_id is None, generate an ID and create a new record in the JSON file. Else, do nothing
+        # Create a new profile record
+        callback("Creating new temp profile.")
         if tmp_profile_id is None:
-            callback("Temp profile not found. Creating new profile...")
-            tmp_profile_id = "123456" # TODO: Generate a random ID that is not in the list of profile ids
-            # Create a new profile record
-            tmp_profile = {
-                "id": tmp_profile_id,
-                "name": "temp",
-                "sync": False,
-                "active": True,
-                "rev": -1
-            }
-            profiles["profiles"].append(tmp_profile)
+            tmp_profile_id = 0
+        while tmp_profile_id in all_ids:
+            tmp_profile_id += 1
+        tmp_profile = {
+            "id": tmp_profile_id,
+            "name": "temp",
+            "sync": False,
+            "active": True,
+            "rev": -1
+        }
+        profiles["profiles"].append(tmp_profile)
 
         # Save the JSON file
         with open(profiles_json, "w") as f:
