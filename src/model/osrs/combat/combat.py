@@ -59,7 +59,7 @@ class OSRSCombat(OSRSBot, launcher.Launchable):
         if launcher.is_program_running("RuneLite"):
             self.log_msg("RuneLite is already running. Please close it and try again.")
             return
-        
+
         # Make a copy of the default settings and save locally
         src = launcher.RL_SETTINGS_FOLDER_PATH.joinpath("osrs_settings.properties")
         dst = Path(__file__).parent.joinpath("custom_settings.properties")
@@ -81,7 +81,8 @@ class OSRSCombat(OSRSBot, launcher.Launchable):
             game_title=self.game_title,
             use_profile_manager=True,  # Important for games that use the new Profile Manager RL feature
             profile_name="OSBCCombat",  # Supply a profile name if you'd like to save it to the Profile Manager
-            callback=self.log_msg)
+            callback=self.log_msg,
+        )
 
     def main_loop(self):
         self.log_msg("WARNING: This script is for testing and may not be safe for personal use. Please modify it to suit your needs.")
