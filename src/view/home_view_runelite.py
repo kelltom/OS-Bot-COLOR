@@ -1,13 +1,3 @@
-import json
-import os
-import platform
-import shutil
-import subprocess
-import tkinter as tk
-from pathlib import Path
-from tkinter import filedialog
-from tkinter.filedialog import askopenfilename
-
 import customtkinter
 
 import utilities.game_launcher as launcher
@@ -115,18 +105,20 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         """
         Launches the game with the default RuneLite settings file.
         """
-        success = launcher.launch_runelite_with_settings(settings_file=None,
-                                                         game_title=self.__game_title,
-                                                         use_profile_manager=True, # TODO: This will only be true in OSRS view
-                                                         callback=self.__update_label,
-                                                         verbose=True)
+        path = launcher.RL_SETTINGS_FOLDER_PATH.joinpath(f"{self.__game_title.lower()}_settings.properties")
+        success = launcher.launch_runelite(
+            properties_path=path,
+            game_title=self.__game_title,
+            use_profile_manager=True,  # TODO: This will only be true in OSRS view
+            callback=self.__update_label,
+        )
         if not success:
             return
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
 
     def __reset_saved_path(self):
-        launcher.reset_saved_path(self.__game_title, self.__update_label)
+        launcher.reset_saved_paths(self.__game_title, self.__update_label)
 
     def __skip(self):
         """

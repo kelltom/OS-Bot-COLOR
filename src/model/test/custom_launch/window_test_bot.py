@@ -42,8 +42,8 @@ class WindowTestBot(Bot, launcher.Launchable):
         Since this bot inherits from launcher.Launchable, it must implement this method. This method is called when the user clicks the "Launch Game" button.
         The launcher utility has a function that will launch RuneLite with custom settings. This is useful for bots that require lots of setup to run (E.g., minigames, agility, etc.).
         """
-        settings_path = Path(__file__).parent.joinpath("custom_settings.properties")
-        launcher.launch_runelite_with_settings(bot=self, settings_file=settings_path)
+        properties = Path(__file__).parent.joinpath("custom_settings.properties")
+        launcher.launch_runelite(properties_path=properties, game_title=self.game_title, use_profile_manager=True, callback=self.log_msg)
 
     def main_loop(
         self,
@@ -90,4 +90,4 @@ class WindowTestBot(Bot, launcher.Launchable):
         # If the bot reaches here it has completed its running time.
         self.update_progress(1)
         self.log_msg("Bot has completed all of its iterations.")
-        self.set_status(BotStatus.STOPPED)
+        self.stop()
