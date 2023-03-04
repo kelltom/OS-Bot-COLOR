@@ -125,27 +125,16 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
 
-    def __update_label(self, text: str):
-        """
-        Updates the label text to reflect the game title.
-        """
-        self.label_status.configure(text=text)
+    def __reset_saved_path(self):
+        launcher.reset_saved_path(self.__game_title, self.__update_label)
 
     def __skip(self):
+        """
+        Handler for the 'skip' button. This will simply update the status label and enable the script selection buttons,
+        bypassing the need to launch RuneLite.
+        """
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
 
-    def __reset_saved_path(self):
-        # Load the JSON file
-        try:
-            with open(launcher.executable_paths, "r") as f:
-                data = json.load(f)
-                key = self.__game_title.lower()
-                del data[key]
-                self.label_status.configure(text=f"{self.__game_title} executable path has been reset.", text_color="green")
-        except (FileNotFoundError, KeyError, json.decoder.JSONDecodeError):
-            self.label_status.configure(text="No executable path on file.", text_color="orange")
-            return
-
-        with open(launcher.executable_paths, "w") as f:
-            json.dump(data, f)
+    def __update_label(self, text: str):
+        self.label_status.configure(text=text, text_color="white")

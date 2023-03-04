@@ -161,6 +161,34 @@ def launch_runelite_with_settings(settings_file: Path, game_title: str, use_prof
     return True
 
 
+def reset_saved_path(game_title: str, callback: Callable = print):
+    """
+    Resets the saved executable/profile storage paths for the specified game title.
+    Args:
+        game_title: The title of the game to reset the executable/profile storage paths for.
+        callback: The function that is called with the output of the process. This function must accept a
+                  string as its only positional argument.
+    """
+    try:
+        with open(executable_paths, "r") as f:
+            data = json.load(f)
+            key = game_title.lower()
+            if key in data:
+                del data[key]
+            if f"{key}_profiles" in data:
+                    del data[f"{key}_profiles"]
+            callback(text=f"{game_title} executable & profile storage paths has been reset.")
+    except (FileNotFoundError):
+        callback(text="No recorded paths found. Nothing to reset.")
+        return
+    except (json.decoder.JSONDecodeError, KeyError):
+        callback(text="Executable path file may be corrupted. Please delete it and try again.")
+        return
+
+    with open(executable_paths, "w") as f:
+        json.dump(data, f)
+
+
 def __locate_executable() -> Union[str, None]:
     """
     Opens a file dialog to allow the user to locate the game executable.
