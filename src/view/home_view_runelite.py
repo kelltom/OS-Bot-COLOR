@@ -1,16 +1,6 @@
-import json
-import os
-import platform
-import shutil
-import subprocess
-import tkinter as tk
-from pathlib import Path
-from tkinter import filedialog
-from tkinter.filedialog import askopenfilename
-
 import customtkinter
 
-from utilities.game_launcher import executable_paths
+import utilities.game_launcher as launcher
 
 
 class RuneLiteHomeView(customtkinter.CTkFrame):
@@ -79,7 +69,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.btn_replace = customtkinter.CTkButton(
             master=self,
             text=f"Launch {game_title}",
-            command=self.__launch_game_with_settings,
+            command=self.__launch,
         )
         self.btn_replace.grid(row=5, column=0, sticky="nwes", padx=40, pady=(0, 15))
 
@@ -111,94 +101,33 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
             lambda e: self.label_status.configure(wraplength=self.label_status.winfo_width() - 20),
         )
 
-    def __launch_game_with_settings(self):
+    def __launch(self):
         """
-        Launches the game with the specified RuneLite settings file. If it fails to
-        find the executable, it will prompt the user to locate the executable.
+        Launches the game with the default RuneLite settings file.
         """
-        # Try to read the file and parse the JSON data
-        try:
-            with open(executable_paths, "r") as f:
-                data = json.load(f)
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            data = {}
-
-        # If the file doesn't exist, create it
-        if not os.path.exists(executable_paths):
-            Path(executable_paths).touch()
-
-        # Check if the game's executable path exists in the JSON file
-        key = self.__game_title.lower()
-        EXECPATH = data.get(key, "")
-
-        # Check if executable file exists
-        if not os.path.exists(EXECPATH):
-            self.label_status.configure(
-                text="RuneLite not found. Please locate the executable.",
-                text_color="orange",
-            )
-            EXECPATH = self.__locate_executable()
-            if not EXECPATH:
-                self.label_status.configure(text="File not selected.", text_color="orange")
-                return
-            data[key] = EXECPATH
-            with open(executable_paths, "w") as f:
-                json.dump(data, f)
-
-        # Save settings file to temp
-        PATH = Path(__file__).parent.parent.resolve()
-        src_path = os.path.join(PATH, "runelite_settings", f"{key}_settings.properties")
-        dst_path = os.path.join(PATH, "runelite_settings", "temp.properties")
-        shutil.copyfile(src_path, dst_path)
-
-        # Executable args for runelite to direct the client to launch with bot settings
-        EXECARG1 = "--clientargs"
-        EXECARG2 = f"--config={dst_path} --sessionfile=bot_session"
-
-        # Launch the game
-        if platform.system() == "Windows":
-            subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], creationflags=subprocess.DETACHED_PROCESS)
-        else:
-            subprocess.Popen([EXECPATH, EXECARG1, EXECARG2], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-        self.label_status.configure(text="You may select a script from the menu.", text_color="green")
-        self.main.toggle_btn_state(enabled=True)
-
-    def __locate_executable(self):
-        """
-        Opens a file dialog to allow the user to locate the game executable.
-        """
-        root = tk.Tk()
-        root.withdraw()
-        file_path = filedialog.askopenfilename(
-            title="Select game executable file", filetypes=[("exe files", "*.exe"), ("AppImage files", "*.AppImage"), ("Java files", "*.jar")]
+        path = launcher.RL_SETTINGS_FOLDER_PATH.joinpath(f"{self.__game_title.lower()}_settings.properties")
+        use_profile_manager = self.__game_title.lower() in ["osrs"]  # TODO: This is a weak solution for identifying games that use the profile manager.
+        success = launcher.launch_runelite(
+            properties_path=path,
+            game_title=self.__game_title,
+            use_profile_manager=use_profile_manager,
+            callback=self.__update_label,
         )
-        try:
-            if not file_path:
-                root.destroy()
-                return None
-            file_path = Path(file_path)
-        except TypeError:
-            root.destroy()
-            return None
-        path_str = str(file_path)
-        root.destroy()
-        return path_str
-
-    def __skip(self):
+        if not success:
+            return
         self.label_status.configure(text="You may select a script from the menu.", text_color="green")
         self.main.toggle_btn_state(enabled=True)
 
     def __reset_saved_path(self):
-        # Load the JSON file
-        try:
-            with open(executable_paths, "r") as f:
-                data = json.load(f)
-                key = self.__game_title.lower()
-                del data[key]
-                self.label_status.configure(text=f"{self.__game_title} executable path has been reset.", text_color="green")
-        except (FileNotFoundError, KeyError, json.decoder.JSONDecodeError):
-            self.label_status.configure(text="No executable path on file.", text_color="orange")
-            return
+        launcher.reset_saved_paths(self.__game_title, self.__update_label)
 
-        with open(executable_paths, "w") as f:
-            json.dump(data, f)
+    def __skip(self):
+        """
+        Handler for the 'skip' button. This will simply update the status label and enable the script selection buttons,
+        bypassing the need to launch RuneLite.
+        """
+        self.label_status.configure(text="You may select a script from the menu.", text_color="green")
+        self.main.toggle_btn_state(enabled=True)
+
+    def __update_label(self, text: str):
+        self.label_status.configure(text=text, text_color="white")
