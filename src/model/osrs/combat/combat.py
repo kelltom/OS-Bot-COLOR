@@ -177,4 +177,4 @@ class OSRSCombat(OSRSBot, launcher.Launchable):
     def __logout(self, msg):
         self.log_msg(msg)
         self.logout()
-        self.set_status(BotStatus.STOPPED)
+        self.stop()
