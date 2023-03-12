@@ -2,7 +2,7 @@ import math
 import random
 import secrets
 from datetime import datetime
-from typing import List
+from typing import List, Union
 
 import numpy as np
 
@@ -158,6 +158,30 @@ def fancy_normal_sample(lower_bound, upper_bound) -> float:
     return truncated_normal_sample(lower_bound, upper_bound, mean=mean)
 
 
+def chisquared_sample(df: int, min: float = 0, max: float = np.inf) -> float:
+    """
+    Generate a random sample from a Chisquared distribution. Contraining the maximum will produce abnormal means.
+    Args:
+        df: Degrees of freedom (approximately the average result).
+        min: Minimum allowable output (default is 0)
+        max: Maximum allowable output (default is infinity).
+    Returns:
+        A random float from a Chisquared distribution.
+    Examples:
+        For 100,000 samples of chisquared_sample(average = 25, min = 3):
+        - Average = 24.98367264407156
+        - Maximum = 67.39469215530804
+        - Minimum = 3.636904524316633
+        - Graphed: https://i.imgur.com/9re2ezf.png
+    """
+    if max is None:
+        max = np.inf
+    while True:
+        x = np.random.chisquare(df)
+        if x >= min and x <= max:
+            return x
+
+
 def random_chance(probability: float) -> bool:
     """
     Returns true or false based on a probability.
@@ -177,8 +201,34 @@ def random_chance(probability: float) -> bool:
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    samples = [truncated_normal_sample(0, 600) for _ in range(100000)]
-
-    # plot the samples
+    # Truncated normal distribution
+    samples = [truncated_normal_sample(lower_bound=0, upper_bound=100) for _ in range(100000)]
+    print("Truncated normal distribution")
+    print(f"Average output = {sum(samples) / len(samples)}")
+    print(f"Maximum output = {max(samples)}")
+    print(f"Minimum output = {min(samples)}")
+    print()
     plt.hist(samples, bins=600)
+    plt.title("Truncated normal distribution")
+    plt.show()
+
+    # Fancy normal distribution
+    samples = [fancy_normal_sample(lower_bound=0, upper_bound=100) for _ in range(100000)]
+    print("Truncated normal distribution")
+    print(f"Average output = {sum(samples) / len(samples)}")
+    print(f"Maximum output = {max(samples)}")
+    print(f"Minimum output = {min(samples)}")
+    print()
+    plt.hist(samples, bins=600)
+    plt.title("Fancy normal distribution")
+    plt.show()
+
+    # Chi-squared distribution
+    samples = [chisquared_sample(df=25) for _ in range(100000)]
+    print("Chi-squared distribution")
+    print(f"Average output = {sum(samples) / len(samples)}")
+    print(f"Maximum output = {max(samples)}")
+    print(f"Minimum output = {min(samples)}")
+    plt.hist(samples, bins=600)
+    plt.title("Chi-squared distribution")
     plt.show()
