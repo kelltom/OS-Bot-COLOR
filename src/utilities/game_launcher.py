@@ -78,7 +78,7 @@ def launch_runelite(properties_path: Path, game_title: str, use_profile_manager:
             json.dump(data, f)
             callback("Executable path saved.")
 
-    # Save settings file to temp
+    # Alias the path to the properties file for readability
     src_path = properties_path
 
     """
@@ -91,16 +91,16 @@ def launch_runelite(properties_path: Path, game_title: str, use_profile_manager:
         # Set up a new profile in the profile manager folder for the game
         dst_path = __configure_profile_manager(game_title, callback, profile_name)
         # Set the executable args to use the new profile manager command
+        EXECARG1 = ""
         EXECARG2 = f"--profile={profile_name}"
     else:
         # Set the destination path to a temporary location in OSBC
         dst_path = os.path.join(RL_SETTINGS_FOLDER_PATH, "temp.properties")
+        # Set the executable args to use the legacy command
+        EXECARG1 = "--clientargs"
         EXECARG2 = f"--config={dst_path} --sessionfile=bot_session"
 
     shutil.copyfile(src_path, dst_path)
-
-    # Executable args for runelite to direct the client to launch with bot settings
-    EXECARG1 = "--clientargs"
 
     # Launch the game
     if platform.system() == "Windows":
