@@ -167,3 +167,4 @@ src/utilities/record_mouse/*
 !src/utilities/record_mouse/record_mouse.py
 src/runelite_settings/executable_paths.json
 src/settings.pickle
+src/runelite_settings/profile_manager_paths.json

@@ -37,6 +37,23 @@ def get(key):
     return data.get(key)
 
 
+def delete(key):
+    """
+    Deletes a value from the settings file based on a key.
+    """
+    # Open the file and load the data
+    try:
+        with open(SETTINGS_PATH, "rb") as f:
+            data = pickle.load(f)
+    except FileNotFoundError:
+        return
+    # Delete the given key
+    del data[key]
+    # Save the data back to the file
+    with open(SETTINGS_PATH, "wb") as f:
+        pickle.dump(data, f)
+
+
 default_keybind = {keyboard.Key.shift, keyboard.Key.enter}
 
 
