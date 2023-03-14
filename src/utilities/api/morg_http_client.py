@@ -318,6 +318,15 @@ class MorgHTTPSocket:
         """
         data = self.__do_get(endpoint=self.inv_endpoint)
         return len([item["id"] for item in data if item["id"] != -1]) == 28
+    
+    def get_is_inv_empty(self) -> bool:
+        """
+        Checks if player's inventory is empty.
+        Returns:
+                True if the player's inventory is empty, False otherwise.
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        return not [item["id"] for item in data if item["id"] != -1]
 
     def get_inv_item_indices(self, item_id: Union[List[int], int]) -> list:
         """
