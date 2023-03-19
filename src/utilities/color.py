@@ -56,6 +56,7 @@ OFF_GREEN = Color([0, 100, 0], [30, 255, 255])
 OFF_ORANGE = Color([180, 100, 30], [255, 166, 103])
 OFF_WHITE = Color([190, 190, 190], [255, 255, 255])
 OFF_YELLOW = Color([190, 190, 0], [255, 255, 120])
+OFF_BROWN = Color([64, 48, 32])
 
 """Colors for use with minimap orb text"""
 ORB_GREEN = Color([0, 255, 0], [255, 255, 0])
