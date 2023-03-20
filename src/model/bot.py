@@ -2,6 +2,7 @@
 A Bot is a base class for bot script models. It is abstract and cannot be instantiated. Many of the methods in this base class are
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
+
 import ctypes
 import platform
 import re
@@ -11,13 +12,11 @@ import warnings
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, Union
-
 import customtkinter
 import numpy as np
 import pyautogui as pag
 import pytweening
 from deprecated import deprecated
-
 import utilities.color as clr
 import utilities.debug as debug
 import utilities.imagesearch as imsearch
@@ -38,8 +37,10 @@ class BotThread(threading.Thread):
 
     def run(self):
         try:
-            print("Thread started.")
+            print("Thread started.here")
+            #maybe try running mouse here
             self.target()
+            
         finally:
             print("Thread stopped successfully.")
 
@@ -79,11 +80,13 @@ class BotStatus(Enum):
 
 
 class Bot(ABC):
-    mouse = Mouse()
+    
+    #mouse = Mouse(0)
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
+    #print(mouse)
 
     @abstractmethod
     def __init__(self, game_title, bot_title, description, window: Window):
@@ -101,6 +104,7 @@ class Bot(ABC):
         self.description = description
         self.options_builder = OptionsBuilder(bot_title)
         self.win = window
+        
 
     @abstractmethod
     def main_loop(self):
@@ -152,6 +156,8 @@ class Bot(ABC):
             except WindowInitializationError as e:
                 self.log_msg(str(e))
                 return
+            #from utilities.mouse import Mouse
+            self.mouse = Mouse()
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
             self.thread = BotThread(target=self.main_loop)
