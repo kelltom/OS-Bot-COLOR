@@ -18,10 +18,14 @@ class NRMining(NRBot):
         super().__init__(bot_title=title, description=description)
         self.running_time = 2
         self.logout_on_friends = False
+        self.Client_Info = None
+        self.win_name = None
+        self.pid_number = None
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
         self.options_builder.add_dropdown_option("logout_on_friends", "Logout when friends are nearby?", ["Yes", "No"])
+        self.options_builder.add_process_selector("Client_Info")
 
     def save_options(self, options: dict):
         for option in options:
@@ -29,6 +33,14 @@ class NRMining(NRBot):
                 self.running_time = options[option]
             elif option == "logout_on_friends":
                 self.logout_on_friends = options[option] == "Yes"
+            elif option == "Client_Info":
+                self.Client_Info = options[option]
+                client_info = str(self.Client_Info)
+                win_name, pid_number = client_info.split(" : ")
+                self.win_name = win_name
+                self.pid_number = int(pid_number)
+                self.win.window_title = self.win_name
+                self.win.window_pid = self.pid_number
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
@@ -36,6 +48,8 @@ class NRMining(NRBot):
                 return
         self.log_msg(f"Running time: {self.running_time} minutes.")
         self.log_msg(f'Bot will {"" if self.logout_on_friends else "not"} logout when friends are nearby.')
+        self.log_msg(f"{self.win_name}")
+        self.log_msg(f"{self.pid_number}")
         self.options_set = True
 
     def main_loop(self):  # sourcery skip: low-code-quality

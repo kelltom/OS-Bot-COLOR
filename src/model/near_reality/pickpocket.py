@@ -27,6 +27,9 @@ class NRPickpocket(NRBot):
         self.should_click_coin_pouch = True
         self.should_drop_inv = True
         self.protect_rows = 5
+        self.Client_Info = None
+        self.win_name = None
+        self.pid_number = None
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
@@ -39,6 +42,7 @@ class NRPickpocket(NRBot):
         self.options_builder.add_dropdown_option("should_click_coin_pouch", "Does this NPC drop coin pouches?", ["Yes", "No"])
         self.options_builder.add_dropdown_option("should_drop_inv", "Drop inventory?", ["Yes", "No"])
         self.options_builder.add_slider_option("protect_rows", "If dropping, protect rows?", 0, 6)
+        self.options_builder.add_process_selector("Client_Info")
 
     def save_options(self, options: dict):  # sourcery skip: low-code-quality
         for option, res in options.items():
@@ -79,11 +83,21 @@ class NRPickpocket(NRBot):
             elif option == "protect_rows":
                 self.protect_rows = options[option]
                 self.log_msg(f"Protecting first {self.protect_rows} row(s) when dropping inventory.")
+            elif option == "Client_Info":
+                self.Client_Info = options[option]
+                client_info = str(self.Client_Info)
+                win_name, pid_number = client_info.split(" : ")
+                self.win_name = win_name
+                self.pid_number = int(pid_number)
+                self.win.window_title = self.win_name
+                self.win.window_pid = self.pid_number
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
                 return
+        self.log_msg(f"{self.win_name}")
+        self.log_msg(f"{self.pid_number}")
         self.options_set = True
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression

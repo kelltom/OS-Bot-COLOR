@@ -44,11 +44,6 @@ class OSRSWoodcutter(OSRSBot):
                 self.pid_number = int(pid_number)
                 self.win.window_title = self.win_name
                 self.win.window_pid = self.pid_number
-                
-                
-              
-               
-            
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
