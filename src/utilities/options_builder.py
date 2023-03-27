@@ -114,7 +114,7 @@ class OptionsBuilder:
                 display.close()
             return titles
 
-         processes = {}
+        processes = {}
         for proc in psutil.process_iter():
             if 'Rune' in proc.name():
                 _name = proc.name()
@@ -131,7 +131,6 @@ class OptionsBuilder:
             for pid, window_title in pids:
                 process_info.append(f"{window_title} : {pid}")
         return process_info
-
 
 
     
