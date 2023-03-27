@@ -109,7 +109,7 @@ class OptionsBuilder:
                             window_title = window.get_full_property(display.intern_atom("_NET_WM_NAME"), Xlib.X.AnyPropertyType).value
                             if window_title:
                                 titles.append(window_title.decode())
-                    except:
+                    except Exception:
                         pass
                 display.close()
             return titles
