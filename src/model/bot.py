@@ -38,7 +38,6 @@ class BotThread(threading.Thread):
     def run(self):
         try:
             print("Thread started.here")
-            #maybe try running mouse here
             self.target()
             
         finally:
@@ -81,12 +80,11 @@ class BotStatus(Enum):
 
 class Bot(ABC):
     
-    #mouse = Mouse(0)
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
-    #print(mouse)
+
 
     @abstractmethod
     def __init__(self, game_title, bot_title, description, window: Window):
@@ -290,7 +288,7 @@ class Bot(ABC):
                 offsetBoundaryX=40,
                 tween=pytweening.easeInOutQuad,
             )
-            pag.click()
+            self.mouse.click()
         pag.keyUp("shift")
 
     def friends_nearby(self) -> bool:
@@ -462,7 +460,7 @@ class Bot(ABC):
     def __compass_right_click(self, msg, rel_y):
         self.log_msg(msg)
         self.mouse.move_to(self.win.compass_orb.random_point())
-        pag.rightClick()
+        self.mouse.right_click()
         self.mouse.move_rel(0, rel_y, 5, 2)
         self.mouse.click()
 
@@ -519,7 +517,7 @@ class Bot(ABC):
         self.log_msg(f"Toggling auto retaliate {state}...")
         # click the combat tab
         self.mouse.move_to(self.win.cp_tabs[0].random_point())
-        pag.click()
+        self.mouse.click()
         time.sleep(0.5)
 
         if toggle_on:
