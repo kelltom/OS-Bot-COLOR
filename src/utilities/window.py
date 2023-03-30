@@ -1,479 +1,367 @@
-from typing import Dict, List
-import customtkinter
-import psutil
+"""
+This class contains functions for interacting with the game client window. All Bot classes have a
+Window object as a property. This class allows you to locate important points/areas on screen no
+matter where the game client is positioned. This class can be extended to add more functionality
+(See RuneLiteWindow within runelite_bot.py for an example).
+
+At the moment, it only works for 2007-style interfaces. In the future, to accomodate other interface
+styles, this class should be abstracted, then extended for each interface style.
+"""
+import time
+from typing import List
+import pywinctl
+from deprecated import deprecated
+import utilities.debug as debug
+import utilities.imagesearch as imsearch
+from utilities.geometry import Point, Rectangle
+import ctypes
 import platform
+import Xlib.display
 
 
 
-class OptionsBuilder:
+class WindowInitializationError(Exception):
     """
-    The options map is going to hold the option name, and the UI details that will map to it. An instance of this class
-    will go to the options UI class to be interpreted and built.
+    Exception raised for errors in the Window class.
     """
 
-    def __init__(self, title) -> None:
-        self.options = {}
-        self.title = title
+    def __init__(self, message=None):
+        if message is None:
+            message = (
+                "Failed to initialize window. Make sure the client is NOT in 'Resizable-Modern' "
+                "mode. Make sure you're using the default client configuration (E.g., Opaque UI, status orbs ON)."
+            )
+        super().__init__(message)
 
-    def add_slider_option(self, key, title, min, max):
-        """
-        Adds a slider option to the options menu.
-        Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            min: The minimum value of the slider.
-            max: The maximum value of the slider.
-        """
-        self.options[key] = SliderInfo(title, min, max)
 
-    def add_checkbox_option(self, key, title, values: list):
-        """
-        Adds a checkbox option to the options menu.
-        Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            values: A list of values to display for each checkbox.
-        """
-        self.options[key] = CheckboxInfo(title, values)
+class Window:
+    client_fixed: bool = None
 
-    def add_dropdown_option(self, key, title, values: list):
+    # CP Area
+    control_panel: Rectangle = None  # https://i.imgur.com/BeMFCIe.png
+    cp_tabs: List[Rectangle] = []  # https://i.imgur.com/huwNOWa.png
+    inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
+    spellbook_normal: List[Rectangle] = []  # https://i.imgur.com/vkKAfV5.png
+    prayers: List[Rectangle] = []  # https://i.imgur.com/KRmC3YB.png
+
+    # Chat Area
+    chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
+    chat_tabs: List[Rectangle] = []  # https://i.imgur.com/2DH2SiL.png
+
+    # Minimap Area
+    compass_orb: Rectangle = None
+    hp_orb_text: Rectangle = None
+    minimap_area: Rectangle = None  # https://i.imgur.com/idfcIPU.png OR https://i.imgur.com/xQ9xg1Z.png
+    minimap: Rectangle = None
+    prayer_orb_text: Rectangle = None
+    prayer_orb: Rectangle = None
+    run_orb_text: Rectangle = None
+    run_orb: Rectangle = None
+    spec_orb_text: Rectangle = None
+    spec_orb: Rectangle = None
+
+    # Game View Area
+    game_view: Rectangle = None
+    mouseover: Rectangle = None
+    total_xp: Rectangle = None
+
+    def __init__(self, window_title: str, padding_top: int, padding_left: int) -> None:
         """
-        Adds a dropdown option to the options menu.
+        Creates a Window object with various methods for interacting with the client window.
         Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            values: A list of values to display for each entry in the dropdown.
+            window_title: The title of the client window.
+            padding_top: The height of the client window's header.
+            padding_left: The width of the client window's left border.
         """
-        self.options[key] = OptionMenuInfo(title, values)
+        self.window_title = window_title
+        self.padding_top = padding_top
+        self.padding_left = padding_left
+        self.window_pid = 456456
+
+    def _get_window(self):
+        if platform.system() == "Windows":
+            import pywinctl
+
+            self._client = pywinctl.getWindowsWithTitle(self.window_title)
+            for window in self._client:
+                pid = ctypes.wintypes.DWORD()
+                ctypes.windll.user32.GetWindowThreadProcessId(window.getHandle(), ctypes.byref(pid))
+                if pid.value == self.window_pid:
+                    return window
+            raise WindowInitializationError("No client window found with matching pid.")
         
-    def add_process_selector(self, key):
-        """
-        Adds a dropdown option to the options menu.
-        Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-        """
-        process_selector = self.get_processes()
-        self.options[key] = OptionMenuInfo("Select your client", process_selector)
-
-    def add_text_edit_option(self, key, title, placeholder=None):
-        """
-        Adds a text edit option to the options menu.
-        Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            placeholder: The placeholder text to display in the text edit box (optional).
-        """
-        self.options[key] = TextEditInfo(title, placeholder)
-
-    def build_ui(self, parent, controller):
-        """
-        Returns a UI object that can be added to the parent window.
-        """
-        return OptionsUI(parent, self.title, self.options, controller)
+    # Add code here for other operating systems (e.g. Linux or macOS)
     
-    def get_processes(self):
-        def get_window_title(pid):
-            """Helper function to get the window title for a given PID."""
-            titles = []
-            if platform.system() == 'Windows':
-                import ctypes
-                EnumWindows = ctypes.windll.user32.EnumWindows
-                EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
-                GetWindowText = ctypes.windll.user32.GetWindowTextW
-                GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
-                IsWindowVisible = ctypes.windll.user32.IsWindowVisible
-                GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
-                def foreach_window(hwnd, lParam):
-                    if IsWindowVisible(hwnd):
-                        length = GetWindowTextLength(hwnd)
-                        buff = ctypes.create_unicode_buffer(length + 1)
-                        GetWindowText(hwnd, buff, length + 1)
-                        window_pid = ctypes.c_ulong()
-                        GetWindowThreadProcessId(hwnd, ctypes.byref(window_pid))
-                        if pid == window_pid.value:
-                            titles.append(buff.value)
-                    return True
-                EnumWindows(EnumWindowsProc(foreach_window), 0)
-                
-            elif platform.system() == 'Darwin' or platform.system() == 'Linux':
-                import Xlib.display
-                display = Xlib.display.Display()
-                root = display.screen().root
-                window_ids = root.get_full_property(display.intern_atom("_NET_CLIENT_LIST"), Xlib.X.AnyPropertyType).value
-                for window_id in window_ids:
-                    try:
-                        window = display.create_resource_object('window', window_id)
-                        window_pid = window.get_full_property(display.intern_atom("_NET_WM_PID"), Xlib.X.AnyPropertyType).value[0]
-                        if pid == window_pid:
-                            window_title = window.get_full_property(display.intern_atom("_NET_WM_NAME"), Xlib.X.AnyPropertyType).value
-                            if window_title:
-                                titles.append(window_title.decode())
-                    except Exception:
-                        pass
-                display.close()
-            return titles
+        elif platform.system() == 'Darwin' or platform.system() == 'Linux':
+            display = Xlib.display.Display()
+            root = display.screen().root
+            window_ids = root.get_full_property(display.intern_atom('_NET_CLIENT_LIST'), Xlib.X.AnyPropertyType).value
+            for window_id in window_ids:
+                window = display.create_resource_object('window', window_id)
+                title = window.get_wm_name()
+                if self.window_title == title:
+                    pid = window.get_full_property(display.intern_atom('_NET_WM_PID'), Xlib.X.AnyPropertyType).value[0]
+                    if pid == self.window_pid:
+                        return window
+            raise WindowInitializationError("No client window found with matching pid.")
+        
+    window = property(
+    fget=_get_window,
+    doc="A Win32Window reference to the game client and its properties.",
+)
 
-        processes = {}
-        for proc in psutil.process_iter():
-            if 'Rune' in proc.name():
-                _name = proc.name()
-                pid = proc.pid
-                window_titles = get_window_title(pid)
-                for window_title in window_titles:
-                    if _name in processes:
-                        processes[_name].append((pid, window_title))
-                    else:
-                        processes[_name] = [(pid, window_title)]
-
-        process_info = []
-        for _name, pids in processes.items():
-            for pid, window_title in pids:
-                process_info.append(f"{window_title} : {pid}")
-        return process_info
-
-
-    
-
-class SliderInfo:
-    def __init__(self, title, min, max):
-        self.title = title
-        self.min = min
-        self.max = max
-
-
-class OptionMenuInfo:
-    def __init__(self, title, values: list):
-        self.title = title
-        self.values = values
-
-
-class CheckboxInfo:
-    def __init__(self, title, values: list):
-        self.title = title
-        self.values = values
-
-
-class TextEditInfo:
-    def __init__(self, title, placeholder):
-        self.title = title
-        self.placeholder = placeholder
-
-
-class OptionsUI(customtkinter.CTkFrame):
-    def __init__(self, parent, title: str, option_info: dict, controller):
-        # sourcery skip: raise-specific-error
-        super().__init__(parent)
-        # Contains the widgets for option selection.
-        # It will be queried to get the option values selected upon save btn clicked.
-        self.widgets: Dict[str, customtkinter.CTkBaseClass] = {}
-        # The following dicts exist to hold references to UI elements so they are not destroyed
-        # by garbage collector.
-        self.labels: Dict[str, customtkinter.CTkLabel] = {}
-        self.frames: Dict[str, customtkinter.CTkFrame] = {}
-        self.slider_values: Dict[str, customtkinter.CTkLabel] = {}
-
-        self.controller = controller
-
-        # Grid layout
-        self.num_of_options = len(option_info.keys())
-        self.rowconfigure(0, weight=0)  # Title
-        for i in range(self.num_of_options):
-            self.rowconfigure(i + 1, weight=0)
-        self.rowconfigure(self.num_of_options + 1, weight=1)  # Spacing between Save btn and options
-        self.rowconfigure(self.num_of_options + 2, weight=0)  # Save btn
-        self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=1)
-
-        # Title
-        self.lbl_example_bot_options = customtkinter.CTkLabel(master=self, text=f"{title} Options", text_font=("Roboto Medium", 14))
-        self.lbl_example_bot_options.grid(row=0, column=0, padx=10, pady=20)
-
-        # Dynamically place widgets
-        for row, (key, value) in enumerate(option_info.items(), start=1):
-            if isinstance(value, SliderInfo):
-                self.create_slider(key, value, row)
-            elif isinstance(value, CheckboxInfo):
-                self.create_checkboxes(key, value, row)
-            elif isinstance(value, OptionMenuInfo):
-                self.create_menu(key, value, row)
-            elif isinstance(value, TextEditInfo):
-                self.create_text_edit(key, value, row)
-            else:
-                raise Exception("Unknown option type")
-
-        # Save button
-        self.btn_save = customtkinter.CTkButton(master=self, text="Save", command=lambda: self.save(window=parent))
-        self.btn_save.grid(row=self.num_of_options + 2, column=0, columnspan=2, pady=20, padx=20)
-
-    def change_slider_val(self, key, value):
-        self.slider_values[key].configure(text=str(int(value * 100)))
-
-    def create_slider(self, key, value: SliderInfo, row: int):
+    def focus(self) -> None:  # sourcery skip: raise-from-previous-error
         """
-        Creates a slider widget and adds it to the view.
+        Focuses the client window.
         """
-        # Slider label
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
-        # Slider frame
-        self.frames[key] = customtkinter.CTkFrame(master=self)
-        self.frames[key].columnconfigure(0, weight=1)
-        self.frames[key].columnconfigure(1, weight=0)
-        self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-        # Slider value indicator
-        self.slider_values[key] = customtkinter.CTkLabel(master=self.frames[key], text=str(value.min))
-        self.slider_values[key].grid(row=0, column=1)
-        # Slider widget
-        self.widgets[key] = customtkinter.CTkSlider(
-            master=self.frames[key],
-            from_=value.min / 100,
-            to=value.max / 100,
-            command=lambda x: self.change_slider_val(key, x),
-        )
-        self.widgets[key].grid(row=0, column=0, sticky="ew")
-        self.widgets[key].set(value.min / 100)
+        if client := self.window:
+            try:
+                client.activate()
+            except Exception:
+                raise WindowInitializationError("Failed to focus client window. Try bringing it to the foreground.")
 
-    def create_checkboxes(self, key, value: CheckboxInfo, row: int):
+    def position(self) -> Point:
         """
-        Creates checkbox widgets and adds them to the view.
+        Returns the origin of the client window as a Point.
         """
-        # Checkbox label
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, padx=10, pady=20)
-        # Checkbox frame
-        self.frames[key] = customtkinter.CTkFrame(master=self)
-        for i in range(len(value.values)):
-            self.frames[key].columnconfigure(i, weight=1)
-        self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-        # Checkbox values
-        self.widgets[key]: List[customtkinter.CTkCheckBox] = []
-        for i, value in enumerate(value.values):
-            self.widgets[key].append(customtkinter.CTkCheckBox(master=self.frames[key], text=value))
-            self.widgets[key][i].grid(row=0, column=i, sticky="ew", padx=5, pady=5)
+        if client := self.window:
+            return Point(client.left, client.top)
 
-    def create_menu(self, key, value: OptionMenuInfo, row: int):
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
-        self.widgets[key] = customtkinter.CTkOptionMenu(master=self, values=value.values, fg_color=("gray75", "gray22"))
-        self.widgets[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-
-    def create_text_edit(self, key, value: TextEditInfo, row: int):
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
-        self.widgets[key] = customtkinter.CTkEntry(master=self, corner_radius=5, placeholder_text=value.placeholder)
-        self.widgets[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-
-    def save(self, window):
+    def rectangle(self) -> Rectangle:
         """
-        Gives controller a dictionary of options to save to the model. Destroys the window.
+        Returns a Rectangle outlining the entire client window.
         """
-        self.options = {}
-        for key, value in self.widgets.items():
-            if isinstance(value, customtkinter.CTkSlider):
-                self.options[key] = int(value.get() * 100)
-            elif isinstance(value, list):  # Checkboxes
-                self.options[key] = [checkbox.text for checkbox in value if checkbox.get()]
-            elif isinstance(value, (customtkinter.CTkOptionMenu, customtkinter.CTkEntry)):
-                self.options[key] = value.get()
-        # Send to controller
-        self.controller.save_options(self.options)
-        window.destroy()
+        if client := self.window:
+            return Rectangle(client.left, client.top, client.width, client.height)
 
-
-    def __init__(self, title) -> None:
-        self.options = {}
-        self.title = title
-
-    def add_slider_option(self, key, title, min, max):
+    def resize(self, width: int, height: int) -> None:
         """
-        Adds a slider option to the options menu.
+        Resizes the client window..
         Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            min: The minimum value of the slider.
-            max: The maximum value of the slider.
+            width: The width to resize the window to.
+            height: The height to resize the window to.
         """
-        self.options[key] = SliderInfo(title, min, max)
+        if client := self.window:
+            client.size = (width, height)
 
-    def add_checkbox_option(self, key, title, values: list):
+    def initialize(self):
         """
-        Adds a checkbox option to the options menu.
+        Initializes the client window by locating critical UI regions.
+        This function should be called when the bot is started or resumed (done by default).
+        Returns:
+            True if successful, False otherwise along with an error message.
+        """
+        start_time = time.time()
+        client_rect = self.rectangle()
+        a = self.__locate_minimap(client_rect)
+        b = self.__locate_chat(client_rect)
+        c = self.__locate_control_panel(client_rect)
+        d = self.__locate_game_view(client_rect)
+        if all([a, b, c, d]):  # if all templates found
+            print(f"Window.initialize() took {time.time() - start_time} seconds.")
+            return True
+        raise WindowInitializationError()
+
+    def __locate_chat(self, client_rect: Rectangle) -> bool:
+        """
+        Locates the chat area on the client.
         Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            values: A list of values to display for each checkbox.
+            client_rect: The client area to search in.
+        Returns:
+            True if successful, False otherwise.
         """
-        self.options[key] = CheckboxInfo(title, values)
+        if chat := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "chat.png"), client_rect):
+            # Locate chat tabs
+            self.chat_tabs = []
+            x, y = 5, 143
+            for _ in range(7):
+                self.chat_tabs.append(Rectangle(left=x + chat.left, top=y + chat.top, width=52, height=19))
+                x += 62  # btn width is 52px, gap between each is 10px
+            self.chat = chat
+            return True
+        print("Window.__locate_chat(): Failed to find chatbox.")
+        return False
 
-    def add_dropdown_option(self, key, title, values: list):
+    def __locate_control_panel(self, client_rect: Rectangle) -> bool:
         """
-        Adds a dropdown option to the options menu.
+        Locates the control panel area on the client.
         Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            values: A list of values to display for each entry in the dropdown.
+            client_rect: The client area to search in.
+        Returns:
+            True if successful, False otherwise.
         """
-        self.options[key] = OptionMenuInfo(title, values)
+        if cp := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "inv.png"), client_rect):
+            self.__locate_cp_tabs(cp)
+            self.__locate_inv_slots(cp)
+            self.__locate_prayers(cp)
+            self.__locate_spells(cp)
+            self.control_panel = cp
+            return True
+        print("Window.__locate_control_panel(): Failed to find control panel.")
+        return False
 
-    def add_text_edit_option(self, key, title, placeholder=None):
+    def __locate_cp_tabs(self, cp: Rectangle) -> None:
         """
-        Adds a text edit option to the options menu.
+        Creates Rectangles for each interface tab (inventory, prayer, etc.) relative to the control panel, storing it in the class property.
+        """
+        self.cp_tabs = []
+        slot_w, slot_h = 29, 26  # top row tab dimensions
+        gap = 4  # 4px gap between tabs
+        y = 4  # 4px from top for first row
+        for _ in range(2):
+            x = 8 + cp.left
+            for _ in range(7):
+                self.cp_tabs.append(Rectangle(left=x, top=y + cp.top, width=slot_w, height=slot_h))
+                x += slot_w + gap
+            y = 303  # 303px from top for second row
+            slot_h = 28  # slightly taller tab Rectangles for second row
+
+    def __locate_inv_slots(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each inventory slot relative to the control panel, storing it in the class property.
+        """
+        self.inventory_slots = []
+        slot_w, slot_h = 36, 32  # dimensions of a slot
+        gap_x, gap_y = 6, 4  # pixel gap between slots
+        y = 44 + cp.top  # start y relative to cp template
+        for _ in range(7):
+            x = 40 + cp.left  # start x relative to cp template
+            for _ in range(4):
+                self.inventory_slots.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+
+    def __locate_prayers(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each prayer in the prayer book menu relative to the control panel, storing it in the class property.
+        """
+        self.prayers = []
+        slot_w, slot_h = 34, 34  # dimensions of the prayers
+        gap_x, gap_y = 3, 3  # pixel gap between prayers
+        y = 46 + cp.top  # start y relative to cp template
+        for _ in range(6):
+            x = 30 + cp.left  # start x relative to cp template
+            for _ in range(5):
+                self.prayers.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+        del self.prayers[29]  # remove the last prayer (unused)
+
+    def __locate_spells(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each magic spell relative to the control panel, storing it in the class property.
+        Currently only populates the normal spellbook spells.
+        """
+        self.spellbook_normal = []
+        slot_w, slot_h = 22, 22  # dimensions of a spell
+        gap_x, gap_y = 4, 2  # pixel gap between spells
+        y = 37 + cp.top  # start y relative to cp template
+        for _ in range(10):
+            x = 30 + cp.left  # start x relative to cp template
+            for _ in range(7):
+                self.spellbook_normal.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+
+    def __locate_game_view(self, client_rect: Rectangle) -> bool:
+        """
+        Locates the game view while considering the client mode (Fixed/Resizable). https://i.imgur.com/uuCQbxp.png
         Args:
-            key: The key to map the option to (use variable name in your script).
-            title: The title of the option.
-            placeholder: The placeholder text to display in the text edit box (optional).
+            client_rect: The client area to search in.
+        Returns:
+            True if successful, False otherwise.
         """
-        self.options[key] = TextEditInfo(title, placeholder)
+        if self.minimap_area is None or self.chat is None or self.control_panel is None:
+            print("Window.__locate_game_view(): Failed to locate game view. Missing minimap, chat, or control panel.")
+            return False
+        if self.client_fixed:
+            # Uses the chatbox and known fixed size of game_view to locate it in fixed mode
+            self.game_view = Rectangle(left=self.chat.left, top=self.chat.top - 337, width=517, height=337)
+        else:
+            # Uses control panel to find right-side bounds of game view in resizable mode
+            self.game_view = Rectangle.from_points(
+                Point(
+                    client_rect.left + self.padding_left,
+                    client_rect.top + self.padding_top,
+                ),
+                self.control_panel.get_bottom_right(),
+            )
+            # Locate the positions of the UI elements to be subtracted from the game_view, relative to the game_view
+            minimap = self.minimap_area.to_dict()
+            minimap["left"] -= self.game_view.left
+            minimap["top"] -= self.game_view.top
 
-    def build_ui(self, parent, controller):
+            chat = self.chat.to_dict()
+            chat["left"] -= self.game_view.left
+            chat["top"] -= self.game_view.top
+
+            control_panel = self.control_panel.to_dict()
+            control_panel["left"] -= self.game_view.left
+            control_panel["top"] -= self.game_view.top
+
+            self.game_view.subtract_list = [minimap, chat, control_panel]
+        self.mouseover = Rectangle(left=self.game_view.left, top=self.game_view.top, width=407, height=26)
+        return True
+
+    def __locate_minimap(self, client_rect: Rectangle) -> bool:
         """
-        Returns a UI object that can be added to the parent window.
+        Locates the minimap area on the clent window and all of its internal positions.
+        Args:
+            client_rect: The client area to search in.
+        Returns:
+            True if successful, False otherwise.
         """
-        return OptionsUI(parent, self.title, self.options, controller)
+        # 'm' refers to minimap area
+        if m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "minimap.png"), client_rect):
+            self.client_fixed = False
+            self.compass_orb = Rectangle(left=40 + m.left, top=7 + m.top, width=24, height=26)
+            self.hp_orb_text = Rectangle(left=4 + m.left, top=60 + m.top, width=20, height=13)
+            self.minimap = Rectangle(left=52 + m.left, top=5 + m.top, width=154, height=155)
+            self.prayer_orb = Rectangle(left=30 + m.left, top=86 + m.top, width=20, height=20)
+            self.prayer_orb_text = Rectangle(left=4 + m.left, top=94 + m.top, width=20, height=13)
+            self.run_orb = Rectangle(left=39 + m.left, top=118 + m.top, width=20, height=20)
+            self.run_orb_text = Rectangle(left=14 + m.left, top=126 + m.top, width=20, height=13)
+            self.spec_orb = Rectangle(left=62 + m.left, top=144 + m.top, width=18, height=20)
+            self.spec_orb_text = Rectangle(left=36 + m.left, top=151 + m.top, width=20, height=13)
+            self.total_xp = Rectangle(left=m.left - 147, top=m.top + 4, width=104, height=21)
+        elif m := imsearch.search_img_in_rect(imsearch.BOT_IMAGES.joinpath("ui_templates", "minimap_fixed.png"), client_rect):
+            self.client_fixed = True
+            self.compass_orb = Rectangle(left=31 + m.left, top=7 + m.top, width=24, height=25)
+            self.hp_orb_text = Rectangle(left=4 + m.left, top=55 + m.top, width=20, height=13)
+            self.minimap = Rectangle(left=52 + m.left, top=4 + m.top, width=147, height=160)
+            self.prayer_orb = Rectangle(left=30 + m.left, top=80 + m.top, width=19, height=20)
+            self.prayer_orb_text = Rectangle(left=4 + m.left, top=89 + m.top, width=20, height=13)
+            self.run_orb = Rectangle(left=40 + m.left, top=112 + m.top, width=19, height=20)
+            self.run_orb_text = Rectangle(left=14 + m.left, top=121 + m.top, width=20, height=13)
+            self.spec_orb = Rectangle(left=62 + m.left, top=137 + m.top, width=19, height=20)
+            self.spec_orb_text = Rectangle(left=36 + m.left, top=146 + m.top, width=20, height=13)
+            self.total_xp = Rectangle(left=m.left - 104, top=m.top + 6, width=104, height=21)
+        if m:
+            # Take a bite out of the bottom-left corner of the minimap to exclude orb's green numbers
+            self.minimap.subtract_list = [{"left": 0, "top": self.minimap.height - 20, "width": 20, "height": 20}]
+            self.minimap_area = m
+            return True
+        print("Window.__locate_minimap(): Failed to find minimap.")
+        return False
 
 
-class SliderInfo:
-    def __init__(self, title, min, max):
-        self.title = title
-        self.min = min
-        self.max = max
+class MockWindow(Window):
+    def __init__(self):
+        super().__init__(window_title="None", padding_left=0, padding_top=0)
 
+    def _get_window(self):
+        print("MockWindow._get_window() called.")
 
-class OptionMenuInfo:
-    def __init__(self, title, values: list):
-        self.title = title
-        self.values = values
+    window = property(
+        fget=_get_window,
+        doc="A Win32Window reference to the game client and its properties.",
+    )
 
+    def initialize(self) -> None:
+        print("MockWindow.initialize() called.")
 
-class CheckboxInfo:
-    def __init__(self, title, values: list):
-        self.title = title
-        self.values = values
+    def focus(self) -> None:
+        print("MockWindow.focus() called.")
 
-
-class TextEditInfo:
-    def __init__(self, title, placeholder):
-        self.title = title
-        self.placeholder = placeholder
-
-
-class OptionsUI(customtkinter.CTkFrame):
-    def __init__(self, parent, title: str, option_info: dict, controller):
-        # sourcery skip: raise-specific-error
-        super().__init__(parent)
-        # Contains the widgets for option selection.
-        # It will be queried to get the option values selected upon save btn clicked.
-        self.widgets: Dict[str, customtkinter.CTkBaseClass] = {}
-        # The following dicts exist to hold references to UI elements so they are not destroyed
-        # by garbage collector.
-        self.labels: Dict[str, customtkinter.CTkLabel] = {}
-        self.frames: Dict[str, customtkinter.CTkFrame] = {}
-        self.slider_values: Dict[str, customtkinter.CTkLabel] = {}
-
-        self.controller = controller
-
-        # Grid layout
-        self.num_of_options = len(option_info.keys())
-        self.rowconfigure(0, weight=0)  # Title
-        for i in range(self.num_of_options):
-            self.rowconfigure(i + 1, weight=0)
-        self.rowconfigure(self.num_of_options + 1, weight=1)  # Spacing between Save btn and options
-        self.rowconfigure(self.num_of_options + 2, weight=0)  # Save btn
-        self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=1)
-
-        # Title
-        self.lbl_example_bot_options = customtkinter.CTkLabel(master=self, text=f"{title} Options", text_font=("Roboto Medium", 14))
-        self.lbl_example_bot_options.grid(row=0, column=0, padx=10, pady=20)
-
-        # Dynamically place widgets
-        for row, (key, value) in enumerate(option_info.items(), start=1):
-            if isinstance(value, SliderInfo):
-                self.create_slider(key, value, row)
-            elif isinstance(value, CheckboxInfo):
-                self.create_checkboxes(key, value, row)
-            elif isinstance(value, OptionMenuInfo):
-                self.create_menu(key, value, row)
-            elif isinstance(value, TextEditInfo):
-                self.create_text_edit(key, value, row)
-            else:
-                raise Exception("Unknown option type")
-
-        # Save button
-        self.btn_save = customtkinter.CTkButton(master=self, text="Save", command=lambda: self.save(window=parent))
-        self.btn_save.grid(row=self.num_of_options + 2, column=0, columnspan=2, pady=20, padx=20)
-
-    def change_slider_val(self, key, value):
-        self.slider_values[key].configure(text=str(int(value * 100)))
-
-    def create_slider(self, key, value: SliderInfo, row: int):
-        """
-        Creates a slider widget and adds it to the view.
-        """
-        # Slider label
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
-        # Slider frame
-        self.frames[key] = customtkinter.CTkFrame(master=self)
-        self.frames[key].columnconfigure(0, weight=1)
-        self.frames[key].columnconfigure(1, weight=0)
-        self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-        # Slider value indicator
-        self.slider_values[key] = customtkinter.CTkLabel(master=self.frames[key], text=str(value.min))
-        self.slider_values[key].grid(row=0, column=1)
-        # Slider widget
-        self.widgets[key] = customtkinter.CTkSlider(
-            master=self.frames[key],
-            from_=value.min / 100,
-            to=value.max / 100,
-            command=lambda x: self.change_slider_val(key, x),
-        )
-        self.widgets[key].grid(row=0, column=0, sticky="ew")
-        self.widgets[key].set(value.min / 100)
-
-    def create_checkboxes(self, key, value: CheckboxInfo, row: int):
-        """
-        Creates checkbox widgets and adds them to the view.
-        """
-        # Checkbox label
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, padx=10, pady=20)
-        # Checkbox frame
-        self.frames[key] = customtkinter.CTkFrame(master=self)
-        for i in range(len(value.values)):
-            self.frames[key].columnconfigure(i, weight=1)
-        self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-        # Checkbox values
-        self.widgets[key]: List[customtkinter.CTkCheckBox] = []
-        for i, value in enumerate(value.values):
-            self.widgets[key].append(customtkinter.CTkCheckBox(master=self.frames[key], text=value))
-            self.widgets[key][i].grid(row=0, column=i, sticky="ew", padx=5, pady=5)
-
-    def create_menu(self, key, value: OptionMenuInfo, row: int):
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
-        self.widgets[key] = customtkinter.CTkOptionMenu(master=self, values=value.values, fg_color=("gray75", "gray22"))
-        self.widgets[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-
-    def create_text_edit(self, key, value: TextEditInfo, row: int):
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
-        self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
-        self.widgets[key] = customtkinter.CTkEntry(master=self, corner_radius=5, placeholder_text=value.placeholder)
-        self.widgets[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
-
-    def save(self, window):
-        """
-        Gives controller a dictionary of options to save to the model. Destroys the window.
-        """
-        self.options = {}
-        for key, value in self.widgets.items():
-            if isinstance(value, customtkinter.CTkSlider):
-                self.options[key] = int(value.get() * 100)
-            elif isinstance(value, list):  # Checkboxes
-                self.options[key] = [checkbox.text for checkbox in value if checkbox.get()]
-            elif isinstance(value, (customtkinter.CTkOptionMenu, customtkinter.CTkEntry)):
-                self.options[key] = value.get()
-        # Send to controller
-        self.controller.save_options(self.options)
-        window.destroy()
+    def position(self) -> Point:
+        print("MockWindow.position() called.")

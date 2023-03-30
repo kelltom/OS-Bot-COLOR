@@ -2,11 +2,9 @@ import importlib
 import pathlib
 import tkinter
 from typing import List
-
 import customtkinter
 from PIL import Image, ImageTk
 from pynput import keyboard
-
 import utilities.settings as settings
 from controller.bot_controller import BotController, MockBotController
 from model import Bot, RuneLiteBot
@@ -69,7 +67,7 @@ class App(customtkinter.CTk):
         self.frame_left.grid_rowconfigure(19, minsize=20)  # empty row with minsize as spacing (adds a top padding to settings btn)
         self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below settings btn)
 
-        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", text_font=("Roboto Medium", 14))
+        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", font=("Roboto Medium", 14))
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         # ============ View/Controller Configuration ============

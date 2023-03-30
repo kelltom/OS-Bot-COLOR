@@ -7,7 +7,8 @@ from model.runelite_bot import BotStatus
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
 from utilities.geometry import RuneLiteObject
-import utilities.mouse as Mouse
+import utilities.ScreenToClient  as stc
+import utilities.RIOmouse as Mouse
 
 
 
@@ -23,12 +24,15 @@ class OSRSWoodcutter(OSRSBot):
         self.Client_Info = None
         self.win_name = None
         self.pid_number = None
+        self.Input = "failed to set mouse input"
+    
         
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
         self.options_builder.add_checkbox_option("take_breaks", "Take breaks?", [" "])
         self.options_builder.add_process_selector("Client_Info")
+        self.options_builder.add_checkbox_option("Input","Choose Input Method",["Remote","PAG"])
 
     def save_options(self, options: dict):
         for option in options:
@@ -44,6 +48,16 @@ class OSRSWoodcutter(OSRSBot):
                 self.pid_number = int(pid_number)
                 self.win.window_title = self.win_name
                 self.win.window_pid = self.pid_number
+                stc.window_title = self.win_name
+                Mouse.Mouse.clientpidSet = self.pid_number
+            elif option == "Input":
+                self.Input = options[option]
+                if self.Input == ['Remote']:
+                    Mouse.Mouse.RemoteInputEnabledSet = True
+                elif self.Input == ['PAG']:
+                    Mouse.Mouse.RemoteInputEnabledSet = False
+                else:
+                    self.log_msg(f"Failed to set mouse")  
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
@@ -54,6 +68,7 @@ class OSRSWoodcutter(OSRSBot):
         self.log_msg("Options set successfully.")
         self.log_msg(f"{self.win_name}")
         self.log_msg(f"{self.pid_number}")
+        self.log_msg(f"{self.Input}")
         self.options_set = True
 
     def main_loop(self):
@@ -81,8 +96,8 @@ class OSRSWoodcutter(OSRSBot):
                 self.__drop_logs(api_s)
 
             # If inventory is full, drop logs
-            #if api_s.get_is_inv_full():
-                #self.__drop_logs(api_s)
+            if api_s.get_is_inv_full():
+                self.__drop_logs(api_s)
 
             # If our mouse isn't hovering over a tree, and we can't find another tree...
             if not self.mouseover_text(contains="Chop", color=clr.OFF_WHITE) and not self.__move_mouse_to_nearest_tree():
@@ -142,11 +157,9 @@ class OSRSWoodcutter(OSRSBot):
         trees = sorted(trees, key=RuneLiteObject.distance_from_rect_center)
         tree = trees[1] if next_nearest else trees[0]
         if next_nearest:
-            self.mouse.move_to(tree.random_point(), mouseSpeed="fastest")
-            print(tree.random_point())
+            self.mouse.move_to(tree.random_point(), mouseSpeed="slow", knotsCount=2)
         else:
             self.mouse.move_to(tree.random_point())
-            print(tree.center())
         return True
 
     def __drop_logs(self, api_s: StatusSocket):

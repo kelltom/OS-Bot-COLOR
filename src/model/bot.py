@@ -13,8 +13,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, Union
 import customtkinter
-import numpy as np
 import pyautogui as pag
+import numpy as np
 import pytweening
 from deprecated import deprecated
 import utilities.color as clr
@@ -23,7 +23,7 @@ import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
 import utilities.random_util as rd
 from utilities.geometry import Point, Rectangle
-from utilities.mouse import Mouse
+from utilities.RIOmouse import Mouse
 from utilities.options_builder import OptionsBuilder
 from utilities.window import Window, WindowInitializationError
 
@@ -38,6 +38,7 @@ class BotThread(threading.Thread):
     def run(self):
         try:
             print("Thread started.here")
+            #maybe try running mouse here
             self.target()
             
         finally:
@@ -80,11 +81,12 @@ class BotStatus(Enum):
 
 class Bot(ABC):
     
+   
     options_set: bool = False
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
-
+    
 
     @abstractmethod
     def __init__(self, game_title, bot_title, description, window: Window):
@@ -155,7 +157,10 @@ class Bot(ABC):
                 self.log_msg(str(e))
                 return
             #from utilities.mouse import Mouse
-            self.mouse = Mouse()
+            self.clientpid = Mouse.clientpidSet
+            self.RemoteInputEnabled = Mouse.RemoteInputEnabledSet
+            print(self.RemoteInputEnabled)
+            self.mouse = Mouse(self.clientpid,RemoteInputEnabled=self.RemoteInputEnabled)
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
             self.thread = BotThread(target=self.main_loop)
@@ -252,7 +257,11 @@ class Bot(ABC):
             row_skip = list(range(skip_rows * 4))
             skip_slots = np.unique(row_skip + skip_slots)
         # Start dropping
-        pag.keyDown("shift")
+        if self.RemoteInputEnabled == True:
+            self.mouse.send_modifer_key(401,"shift")
+        else:
+            pag.keyDown("shift")
+            
         for i, slot in enumerate(self.win.inventory_slots):
             if i in skip_slots:
                 continue
@@ -266,7 +275,10 @@ class Bot(ABC):
                 tween=pytweening.easeInOutQuad,
             )
             self.mouse.click()
-        pag.keyUp("shift")
+        if self.RemoteInputEnabled == True:
+            self.mouse.send_modifer_key(402,"shift")
+        else:
+            pag.keyUp("shift")
 
     def drop(self, slots: List[int]) -> None:
         """
@@ -275,7 +287,10 @@ class Bot(ABC):
             slots: The indices of slots to drop.
         """
         self.log_msg("Dropping items...")
-        pag.keyDown("shift")
+        if self.RemoteInputEnabled == True:
+            self.mouse.send_modifer_key(401,"shift")
+        else:
+            pag.keyDown("shift")
         for i, slot in enumerate(self.win.inventory_slots):
             if i not in slots:
                 continue
@@ -289,7 +304,10 @@ class Bot(ABC):
                 tween=pytweening.easeInOutQuad,
             )
             self.mouse.click()
-        pag.keyUp("shift")
+        if self.RemoteInputEnabled == True:
+            self.mouse.send_modifer_key(402,"shift")
+        else:
+            pag.keyUp("shift")
 
     def friends_nearby(self) -> bool:
         """
@@ -313,6 +331,7 @@ class Bot(ABC):
         self.mouse.click()
         time.sleep(1)
         self.mouse.move_rel(0, -53, 5, 5)
+        time.sleep(1)
         self.mouse.click()
 
     def take_break(self, min_seconds: int = 1, max_seconds: int = 30, fancy: bool = False):
@@ -489,9 +508,14 @@ class Bot(ABC):
         direction_v = "down" if vertical < 0 else "up"
 
         def keypress(direction, duration):
-            pag.keyDown(direction)
-            time.sleep(duration)
-            pag.keyUp(direction)
+            if self.RemoteInputEnabled == True:
+                self.mouse.send_arrow_key(401,direction)
+                time.sleep(duration)
+                self.mouse.send_arrow_key(402,direction)
+            else:
+                pag.keyDown(direction)
+                time.sleep(duration)
+                pag.keyUp(direction)
 
         thread_h = threading.Thread(target=keypress, args=(direction_h, sleep_h), daemon=True)
         thread_v = threading.Thread(target=keypress, args=(direction_v, sleep_v), daemon=True)
