@@ -65,6 +65,35 @@ class StatusSocket:
         """
         return player_data["tick"]
 
+    def get_real_level(self, skill_name):
+        """Fetches real level of a skill. Skill must be in all caps
+        Example:print(api_status.get_real_level("ATTACK"))
+        """
+        for skill in player_data['skills']:
+            if skill['skillName'] == skill_name:
+                return skill['realLevel']
+        return None
+    
+    def get_boosted_level(self, skill_name):
+        """Fetches boosted level of a skill. Skill must be in all caps
+        Example:print(api_status.get_boosted_level("ATTACK"))
+        """
+        for skill in player_data['skills']:
+            if skill['skillName'] == skill_name:
+                return skill['boostedLevel']
+        return None
+
+    def get_is_boosted(self, skill_name):
+        """Compares real level to boosted level of a skill. Skill must be in all caps
+        Returns True if boosted level is greater than real level
+        Example: print(api_status.get_is_boosted("ATTACK"))
+        """
+        real_level = self.get_real_level(skill_name)
+        boosted_level = self.get_boosted_level(skill_name)
+        if real_level is not None and boosted_level is not None:
+            return boosted_level > real_level
+        return False
+
     def get_run_energy(self) -> int:
         """
         Gets the player's current run energy.
