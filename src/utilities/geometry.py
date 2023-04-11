@@ -155,6 +155,38 @@ class Rectangle:
             A Point representing the bottom right of the rectangle.
         """
         return Point(self.left + self.width, self.top + self.height)
+    
+    def set_left(self, left: int):
+        """
+        Sets the left point of the rectangle.
+        Args:
+            left: An integer representing the new left point of the rectangle.
+        """
+        self.left = left
+
+    def set_top(self, top: int):
+        """
+        Sets the top point of the rectangle.
+        Args:
+            top: An integer representing the new top point of the rectangle.
+        """
+        self.top = top
+    
+    def set_width(self, width: int):
+        """
+        Sets the width of the rectangle.
+        Args:
+            width: An integer representing the new width of the rectangle.
+        """
+        self.width = width
+
+    def set_height(self, height: int):
+        """
+        Sets the height of the rectangle.
+        Args:
+            height: An integer representing the new height of the rectangle.
+        """
+        self.height = height
 
     def to_dict(self):
         return {
