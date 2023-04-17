@@ -77,6 +77,61 @@ class BotStatus(Enum):
     CONFIGURING = 4
     CONFIGURED = 5
 
+class DropOrder(Enum):
+    """
+    Contains a list of slot indexes that define the order in which to drop.
+    This provides more natural drop orders than the default 'horizontal' order.
+    Slots are 0-indexed.
+    """
+    """
+        Left to right, row by row.
+        Drop order:
+         1  2  3  4
+         5  6  7  8
+         9 10 11 12
+        13 14 15 16
+        17 18 19 20
+        21 22 23 24
+        25 26 27 28
+    """
+    HORIZONTAL = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
+    """
+        Top to bottom, column by column.
+        Drop order:
+         1  8 15 22
+         2  9 16 23
+         3 10 17 24
+         4 11 18 25
+         5 12 19 26
+         6 13 20 27
+         7 14 21 28
+    """
+    VERTICAL = [0,4,8,12,16,20,24,1,5,9,13,17,21,25,2,6,10,14,18,22,26,3,7,11,15,19,23,27]
+    """
+        Top to bottom, bottom to top, column by column.
+        Drop order:
+         1 14 15 28
+         2 13 16 27
+         3 12 17 26
+         4 11 18 25
+         5 10 19 24
+         6  9 20 23
+         7  8 21 22
+    """
+    VERTICAL_ALTERNATING = [0,4,8,12,16,20,24,25,21,17,13,9,5,1,2,6,10,14,18,22,26,27,23,19,15,11,7,3]
+    """
+        Left to right, right to left, row by row.
+        Drop order:
+         1  2  3  4
+         8  7  6  5
+         9 10 11 12
+        16 15 14 13
+        17 18 19 20
+        24 23 22 21
+        25 26 27 28
+    """
+    HORIZONTAL_ALTERNATING = [0,1,2,3,7,6,5,4,8,9,10,11,15,14,13,12,16,17,18,19,23,22,21,20,24,25,26,27]
+
 
 class Bot(ABC):
     mouse = Mouse()
@@ -265,26 +320,40 @@ class Bot(ABC):
         pag.keyUp("shift")
 
     def drop(self, slots: List[int]) -> None:
+        self.drop(slots, DropOrder.HORIZONTAL, False)
+
+    def drop(self, slots: List[int], drop_order: DropOrder, misclick_chance: bool) -> None:
         """
-        Shift-clicks inventory slots to drop items.
+        Shift-clicks inventory slots to drop items. 
         Args:
             slots: The indices of slots to drop.
+            drop_order: The overall order in which to try dropping slots
+            misclick_chance: If True provides a chance that a slot will not be dropped on the first pass.
+                             If a slot is missed then it will be reattempted after all the others have been attempted.
+                             Offers more human-like behavior if set.
         """
+        slots_to_drop = slots
+        probablity_to_miss = 0.05
         self.log_msg("Dropping items...")
         pag.keyDown("shift")
-        for i, slot in enumerate(self.win.inventory_slots):
-            if i not in slots:
-                continue
-            p = slot.random_point()
-            self.mouse.move_to(
-                (p[0], p[1]),
-                mouseSpeed="fastest",
-                knotsCount=1,
-                offsetBoundaryY=40,
-                offsetBoundaryX=40,
-                tween=pytweening.easeInOutQuad,
-            )
-            self.mouse.click()
+
+        while len(slots_to_drop) > 0:
+            for i in drop_order.value:
+                if i not in slots_to_drop:
+                    continue
+                slot = self.win.inventory_slots[i]
+                p = slot.random_point()
+                self.mouse.move_to(
+                    (p[0], p[1]),
+                    mouseSpeed="fastest",
+                    knotsCount=1,
+                    offsetBoundaryY=40,
+                    offsetBoundaryX=40,
+                    tween=pytweening.easeInOutQuad,
+                )
+                if not rd.random_chance(probability=probablity_to_miss):
+                    self.mouse.click()
+                    slots_to_drop.remove(i)
         pag.keyUp("shift")
 
     def friends_nearby(self) -> bool:
