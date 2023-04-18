@@ -320,17 +320,14 @@ class Bot(ABC):
         pag.keyUp("shift")
 
     def drop(self, slots: List[int]) -> None:
-        self.drop(slots, DropOrder.HORIZONTAL, False)
+        self.drop(slots, DropOrder.HORIZONTAL)
 
-    def drop(self, slots: List[int], drop_order: DropOrder, misclick_chance: bool) -> None:
+    def drop(self, slots: List[int], drop_order: DropOrder) -> None:
         """
         Shift-clicks inventory slots to drop items. 
         Args:
             slots: The indices of slots to drop.
             drop_order: The overall order in which to try dropping slots
-            misclick_chance: If True provides a chance that a slot will not be dropped on the first pass.
-                             If a slot is missed then it will be reattempted after all the others have been attempted.
-                             Offers more human-like behavior if set.
         """
         slots_to_drop = slots
         probablity_to_miss = 0.05
