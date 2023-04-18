@@ -22,11 +22,15 @@ class OSRSCombat(OSRSBot, launcher.Launchable):
         self.running_time: int = 1
         self.loot_items: str = ""
         self.hp_threshold: int = 0
+        self.Client_Info = None
+        self.win_name = None
+        self.pid_number = None
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
         self.options_builder.add_text_edit_option("loot_items", "Loot items (requires re-launch):", "E.g., Coins, Dragon bones")
         self.options_builder.add_slider_option("hp_threshold", "Low HP threshold (0-100)?", 0, 100)
+        self.options_builder.add_process_selector("Client_Info")
 
     def save_options(self, options: dict):
         for option in options:
@@ -36,6 +40,14 @@ class OSRSCombat(OSRSBot, launcher.Launchable):
                 self.loot_items = options[option]
             elif option == "hp_threshold":
                 self.hp_threshold = options[option]
+            elif option == "Client_Info":
+                self.Client_Info = options[option]
+                client_info = str(self.Client_Info)
+                win_name, pid_number = client_info.split(" : ")
+                self.win_name = win_name
+                self.pid_number = int(pid_number)
+                self.win.window_title = self.win_name
+                self.win.window_pid = self.pid_number
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
@@ -46,7 +58,8 @@ class OSRSCombat(OSRSBot, launcher.Launchable):
         self.log_msg(f'Loot items: {self.loot_items or "None"}.')
         self.log_msg(f"Bot will eat when HP is below: {self.hp_threshold}.")
         self.log_msg("Options set successfully. Please launch RuneLite with the button on the right to apply settings.")
-
+        self.log_msg(f"{self.win_name}")
+        self.log_msg(f"{self.pid_number}")
         self.options_set = True
 
     def launch_game(self):

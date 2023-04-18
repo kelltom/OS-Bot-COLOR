@@ -1,5 +1,4 @@
 import time
-
 import utilities.api.item_ids as ids
 import utilities.color as clr
 import utilities.random_util as rd
@@ -8,6 +7,11 @@ from model.runelite_bot import BotStatus
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
 from utilities.geometry import RuneLiteObject
+import utilities.ScreenToClient  as stc
+import utilities.RIOmouse as Mouse
+
+
+
 
 
 class OSRSWoodcutter(OSRSBot):
@@ -17,10 +21,18 @@ class OSRSWoodcutter(OSRSBot):
         super().__init__(bot_title=bot_title, description=description)
         self.running_time = 1
         self.take_breaks = False
+        self.Client_Info = None
+        self.win_name = None
+        self.pid_number = None
+        self.Input = "failed to set mouse input"
+    
+        
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
         self.options_builder.add_checkbox_option("take_breaks", "Take breaks?", [" "])
+        self.options_builder.add_process_selector("Client_Info")
+        self.options_builder.add_checkbox_option("Input","Choose Input Method",["Remote","PAG"])
 
     def save_options(self, options: dict):
         for option in options:
@@ -28,6 +40,24 @@ class OSRSWoodcutter(OSRSBot):
                 self.running_time = options[option]
             elif option == "take_breaks":
                 self.take_breaks = options[option] != []
+            elif option == "Client_Info":
+                self.Client_Info = options[option]
+                client_info = str(self.Client_Info)
+                win_name, pid_number = client_info.split(" : ")
+                self.win_name = win_name
+                self.pid_number = int(pid_number)
+                self.win.window_title = self.win_name
+                self.win.window_pid = self.pid_number
+                stc.window_title = self.win_name
+                Mouse.Mouse.clientpidSet = self.pid_number
+            elif option == "Input":
+                self.Input = options[option]
+                if self.Input == ['Remote']:
+                    Mouse.Mouse.RemoteInputEnabledSet = True
+                elif self.Input == ['PAG']:
+                    Mouse.Mouse.RemoteInputEnabledSet = False
+                else:
+                    self.log_msg(f"Failed to set mouse")  
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
@@ -36,6 +66,9 @@ class OSRSWoodcutter(OSRSBot):
         self.log_msg(f"Running time: {self.running_time} minutes.")
         self.log_msg(f"Bot will{' ' if self.take_breaks else ' not '}take breaks.")
         self.log_msg("Options set successfully.")
+        self.log_msg(f"{self.win_name}")
+        self.log_msg(f"{self.pid_number}")
+        self.log_msg(f"{self.Input}")
         self.options_set = True
 
     def main_loop(self):

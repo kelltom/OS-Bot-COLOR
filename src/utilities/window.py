@@ -9,13 +9,15 @@ styles, this class should be abstracted, then extended for each interface style.
 """
 import time
 from typing import List
-
 import pywinctl
 from deprecated import deprecated
-
 import utilities.debug as debug
 import utilities.imagesearch as imsearch
 from utilities.geometry import Point, Rectangle
+import ctypes
+import platform
+import Xlib.display
+
 
 
 class WindowInitializationError(Exception):
@@ -74,18 +76,39 @@ class Window:
         self.window_title = window_title
         self.padding_top = padding_top
         self.padding_left = padding_left
+        self.window_pid = 456456
 
     def _get_window(self):
-        self._client = pywinctl.getWindowsWithTitle(self.window_title)
-        if self._client:
-            return self._client[0]
-        else:
-            raise WindowInitializationError("No client window found.")
+        if platform.system() == "Windows":
+            import pywinctl
 
+            self._client = pywinctl.getWindowsWithTitle(self.window_title)
+            for window in self._client:
+                pid = ctypes.wintypes.DWORD()
+                ctypes.windll.user32.GetWindowThreadProcessId(window.getHandle(), ctypes.byref(pid))
+                if pid.value == self.window_pid:
+                    return window
+            raise WindowInitializationError("No client window found with matching pid.")
+        
+    # Add code here for other operating systems (e.g. Linux or macOS)
+    
+        elif platform.system() == 'Darwin' or platform.system() == 'Linux':
+            display = Xlib.display.Display()
+            root = display.screen().root
+            window_ids = root.get_full_property(display.intern_atom('_NET_CLIENT_LIST'), Xlib.X.AnyPropertyType).value
+            for window_id in window_ids:
+                window = display.create_resource_object('window', window_id)
+                title = window.get_wm_name()
+                if self.window_title == title:
+                    pid = window.get_full_property(display.intern_atom('_NET_WM_PID'), Xlib.X.AnyPropertyType).value[0]
+                    if pid == self.window_pid:
+                        return window
+            raise WindowInitializationError("No client window found with matching pid.")
+        
     window = property(
-        fget=_get_window,
-        doc="A Win32Window reference to the game client and its properties.",
-    )
+    fget=_get_window,
+    doc="A Win32Window reference to the game client and its properties.",
+)
 
     def focus(self) -> None:  # sourcery skip: raise-from-previous-error
         """

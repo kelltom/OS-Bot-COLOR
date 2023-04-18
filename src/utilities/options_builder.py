@@ -1,6 +1,8 @@
 from typing import Dict, List
-
 import customtkinter
+import psutil
+import platform
+
 
 
 class OptionsBuilder:
@@ -43,6 +45,16 @@ class OptionsBuilder:
             values: A list of values to display for each entry in the dropdown.
         """
         self.options[key] = OptionMenuInfo(title, values)
+        
+    def add_process_selector(self, key):
+        """
+        Adds a dropdown option to the options menu.
+        Args:
+            key: The key to map the option to (use variable name in your script).
+            title: The title of the option.
+        """
+        process_selector = self.get_processes()
+        self.options[key] = OptionMenuInfo("Select your client", process_selector)
 
     def add_text_edit_option(self, key, title, placeholder=None):
         """
@@ -59,7 +71,69 @@ class OptionsBuilder:
         Returns a UI object that can be added to the parent window.
         """
         return OptionsUI(parent, self.title, self.options, controller)
+    
+    def get_processes(self):
+        def get_window_title(pid):
+            """Helper function to get the window title for a given PID."""
+            titles = []
+            if platform.system() == 'Windows':
+                import ctypes
+                EnumWindows = ctypes.windll.user32.EnumWindows
+                EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
+                GetWindowText = ctypes.windll.user32.GetWindowTextW
+                GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
+                IsWindowVisible = ctypes.windll.user32.IsWindowVisible
+                GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
+                def foreach_window(hwnd, lParam):
+                    if IsWindowVisible(hwnd):
+                        length = GetWindowTextLength(hwnd)
+                        buff = ctypes.create_unicode_buffer(length + 1)
+                        GetWindowText(hwnd, buff, length + 1)
+                        window_pid = ctypes.c_ulong()
+                        GetWindowThreadProcessId(hwnd, ctypes.byref(window_pid))
+                        if pid == window_pid.value:
+                            titles.append(buff.value)
+                    return True
+                EnumWindows(EnumWindowsProc(foreach_window), 0)
+                
+            elif platform.system() == 'Darwin' or platform.system() == 'Linux':
+                import Xlib.display
+                display = Xlib.display.Display()
+                root = display.screen().root
+                window_ids = root.get_full_property(display.intern_atom("_NET_CLIENT_LIST"), Xlib.X.AnyPropertyType).value
+                for window_id in window_ids:
+                    try:
+                        window = display.create_resource_object('window', window_id)
+                        window_pid = window.get_full_property(display.intern_atom("_NET_WM_PID"), Xlib.X.AnyPropertyType).value[0]
+                        if pid == window_pid:
+                            window_title = window.get_full_property(display.intern_atom("_NET_WM_NAME"), Xlib.X.AnyPropertyType).value
+                            if window_title:
+                                titles.append(window_title.decode())
+                    except:
+                        pass
+                display.close()
+            return titles
 
+        processes = {}
+        for proc in psutil.process_iter():
+            if 'Rune' in proc.name():
+                name = proc.name()
+                pid = proc.pid
+                window_titles = get_window_title(pid)
+                for window_title in window_titles:
+                    if name in processes:
+                        processes[name].append((pid, window_title))
+                    else:
+                        processes[name] = [(pid, window_title)]
+
+        process_info = []
+        for name, pids in processes.items():
+            for pid, window_title in pids:
+                process_info.append(f"{window_title} : {pid}")
+        return process_info
+
+
+    
 
 class SliderInfo:
     def __init__(self, title, min, max):

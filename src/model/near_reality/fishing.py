@@ -16,14 +16,26 @@ class NRFishing(NRBot):
         description = "This bot fishes... fish. Position your character near a tagged fishing spot, and press play."
         super().__init__(bot_title=title, description=description)
         self.running_time = 2
+        self.Client_Info = None
+        self.win_name = None
+        self.pid_number = None
 
     def create_options(self):
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
+        self.options_builder.add_process_selector("Client_Info")
 
     def save_options(self, options: dict):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
+            elif option == "Client_Info":
+                self.Client_Info = options[option]
+                client_info = str(self.Client_Info)
+                win_name, pid_number = client_info.split(" : ")
+                self.win_name = win_name
+                self.pid_number = int(pid_number)
+                self.win.window_title = self.win_name
+                self.win.window_pid = self.pid_number
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
@@ -31,6 +43,8 @@ class NRFishing(NRBot):
                 return
         self.log_msg(f"Bot will run for {self.running_time} minutes.")
         self.log_msg("Options set successfully.")
+        self.log_msg(f"{self.win_name}")
+        self.log_msg(f"{self.pid_number}")
         self.options_set = True
 
     def main_loop(self):  # sourcery skip: low-code-quality, use-named-expression
