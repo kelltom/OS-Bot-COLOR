@@ -136,7 +136,7 @@ class OSRSWoodcutter(OSRSBot):
         Since we made the `api` and `logs` variables assigned to `self`, we can access them from this function.
         """
         slots = api_s.get_inv_item_indices(ids.logs)
-        self.drop(slots, DropOrder.VERTICAL_ALTERNATING)
+        self.drop(slots, DropOrder.VERTICAL_ALTERNATING, True)
         self.logs += len(slots)
         self.log_msg(f"Logs cut: ~{self.logs}")
         time.sleep(1)
