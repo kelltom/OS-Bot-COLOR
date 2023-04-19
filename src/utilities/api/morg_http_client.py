@@ -334,6 +334,31 @@ class MorgHTTPSocket:
         elif isinstance(item_id, list):
             return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in item_id]
 
+    def get_first_indice(self, item_id: Union[List[int], int]) -> Union[int, List[int]]:
+        """
+        For the given item ID(s), returns the first inventory slot index that the item exists in.
+        e.g. [1, 1, 2, 3, 3, 3, 4, 4, 4, 4] -> [0, 2, 3, 6]
+        Args:
+            item_id: The item ID to search for (an single ID, or list of IDs).
+        Returns:
+            The first inventory slot index that the item exists in for each unique item ID.
+            If a single item ID is provided, returns an integer.
+            If no matching item ID is found, returns -1.
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        if isinstance(item_id, int):
+            return next((i for i, inventory_slot in enumerate(data) if inventory_slot["id"] == item_id), -1)
+
+        elif isinstance(item_id, list):
+            first_occurrences = {}
+
+            for i, inventory_slot in enumerate(data):
+                item_id_in_slot = inventory_slot["id"]
+                if item_id_in_slot not in first_occurrences and item_id_in_slot in item_id:
+                    first_occurrences[item_id_in_slot] = i
+
+            return list(first_occurrences.values())        
+        
     def get_inv_item_stack_amount(self, item_id: Union[int, List[int]]) -> int:
         """
         For the given item ID, returns the total amount of that item in your inventory.
