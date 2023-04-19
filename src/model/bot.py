@@ -333,7 +333,10 @@ class Bot(ABC):
                              Offers more human-like behavior if set.
         """
         slots_to_drop = slots
-        probablity_to_miss = 0.05
+        probablity_to_miss = 0.01
+        probablity_to_drag = 0.01
+        probablity_to_click_between_slots = 0.02
+        is_dragging = False
         self.log_msg("Dropping items...")
         pag.keyDown("shift")
 
@@ -342,7 +345,22 @@ class Bot(ABC):
                 if i not in slots_to_drop:
                     continue
                 slot = self.win.inventory_slots[i]
-                p = slot.random_point()
+
+                point_in_slot = True
+
+                # Chance to choose a point on the inventory grid between items
+                if misclick_chance and rd.random_chance(probability=probablity_to_click_between_slots):
+                    self.log_msg("Clicking grid not slot.")
+                    # Find bounds of the slot grid by increasing the slot bounds by 6 pixels horizontally, and 4 pixels vertically
+                    grid = Rectangle(left=slot.left - 3, top=slot.top - 2, width=slot.width + 6, height=slot.height + 4)
+
+                    # Find a point that is on the grid boundary by looking for a random point in the grid rectangle and relooking if the point lies in the slot
+                    while(point_in_slot):
+                        p = grid.random_point()
+                        point_in_slot = (p[0] >= slot.left and p[0] <= slot.left + slot.width and p[1] >= slot.top and p[1] <= slot.top + slot.height)
+                else:
+                    p = slot.random_point()
+
                 self.mouse.move_to(
                     (p[0], p[1]),
                     mouseSpeed="fastest",
@@ -351,10 +369,28 @@ class Bot(ABC):
                     offsetBoundaryX=40,
                     tween=pytweening.easeInOutQuad,
                 )
-                if not rd.random_chance(probability=probablity_to_miss):
+                # Release button if previous iteration dragged to this position
+                if(is_dragging):
+                    pag.mouseUp()
+                    is_dragging = False
+
+                if misclick_chance and rd.random_chance(probability=probablity_to_miss):
+                    self.log_msg("Failing to click.")
+                    continue
+                elif misclick_chance and rd.random_chance(probability=probablity_to_drag):
+                    self.log_msg("Dragging instead of clicking")
+                    pag.mouseDown()
+                    is_dragging = True
+                else:
                     self.mouse.click()
-                    slots_to_drop.remove(i)
+                    # Only treat item as dropped if we clicked on the slot, not the grid
+                    if(point_in_slot):
+                        slots_to_drop.remove(i)
         pag.keyUp("shift")
+
+        # Release button if final iteration 
+        if(is_dragging):
+            pag.mouseUp()
 
     def friends_nearby(self) -> bool:
         """
