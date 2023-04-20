@@ -132,6 +132,14 @@ class Rectangle:
         """
         return Point(self.left, self.top)
 
+    def get_center_left(self) -> Point:
+        """
+        Gets the center left point of the rectangle.
+        Returns:
+            A Point representing the center left of the rectangle.
+        """
+        return Point(self.left, self.top + self.height // 2)
+
     def get_top_right(self) -> Point:
         """
         Gets the top right point of the rectangle.
@@ -225,6 +233,19 @@ class RuneLiteObject:
         center: Point = self.center()
         rect_center: Point = self.rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
+    
+    def distance_from_rect_left(self) -> float:
+        """
+        Gets the distance between the object and it's Rectangle parent left edge.
+        Useful for sorting lists of RuneLiteObjects.
+        Returns:
+            The distance from the point to the center of the object.
+        Note:
+            Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
+        """
+        left: Point = self.center()
+        rect_left: Point = self.rect.get_center_left()
+        return math.dist([left.x, left.y], [rect_left.x, rect_left.y])
 
     def random_point(self, custom_seeds: List[List[int]] = None) -> Point:
         """
