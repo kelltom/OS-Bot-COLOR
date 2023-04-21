@@ -243,9 +243,9 @@ class RuneLiteObject:
         Note:
             Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
         """
-        left: Point = self.center()
+        center: Point = self.center()
         rect_left: Point = self.rect.get_center_left()
-        return math.dist([left.x, left.y], [rect_left.x, rect_left.y])
+        return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
 
     def random_point(self, custom_seeds: List[List[int]] = None) -> Point:
         """
