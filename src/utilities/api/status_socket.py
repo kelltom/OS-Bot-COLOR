@@ -71,7 +71,7 @@ class StatusSocket:
         Args:
             skill_name: The name of the skill to check (must be all caps).
         Example:
-            print(api_status.get_real_level("ATTACK"))
+            >>> print(api_status.get_real_level("ATTACK"))
         """
         return next(
             (skill["realLevel"] for skill in player_data["skills"] if skill["skillName"] == skill_name),
@@ -84,7 +84,7 @@ class StatusSocket:
         Args:
             skill_name: The name of the skill to check (must be all caps).
         Example:
-            print(api_status.get_boosted_level("ATTACK"))
+            >>> print(api_status.get_boosted_level("ATTACK"))
         """
         return next(
             (skill["boostedLevel"] for skill in player_data["skills"] if skill["skillName"] == skill_name),
@@ -99,7 +99,7 @@ class StatusSocket:
         Returns:
             True if boosted level is greater than real level
         Example:
-            >> print(api_status.get_is_boosted("ATTACK"))
+            >>> print(api_status.get_is_boosted("ATTACK"))
         """
         real_level = self.get_real_level(skill_name)
         boosted_level = self.get_boosted_level(skill_name)
