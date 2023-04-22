@@ -66,27 +66,40 @@ class StatusSocket:
         return player_data["tick"]
 
     def get_real_level(self, skill_name):
-        """Fetches real level of a skill. Skill must be in all caps
-        Example:print(api_status.get_real_level("ATTACK"))
         """
-        for skill in player_data['skills']:
-            if skill['skillName'] == skill_name:
-                return skill['realLevel']
-        return None
-    
-    def get_boosted_level(self, skill_name):
-        """Fetches boosted level of a skill. Skill must be in all caps
-        Example:print(api_status.get_boosted_level("ATTACK"))
+        Fetches the real level of a skill.
+        Args:
+            skill_name: The name of the skill to check (must be all caps).
+        Example:
+            print(api_status.get_real_level("ATTACK"))
         """
-        for skill in player_data['skills']:
-            if skill['skillName'] == skill_name:
-                return skill['boostedLevel']
-        return None
+        return next(
+            (skill["realLevel"] for skill in player_data["skills"] if skill["skillName"] == skill_name),
+            None,
+        )
 
-    def get_is_boosted(self, skill_name):
-        """Compares real level to boosted level of a skill. Skill must be in all caps
-        Returns True if boosted level is greater than real level
-        Example: print(api_status.get_is_boosted("ATTACK"))
+    def get_boosted_level(self, skill_name):
+        """
+        Fetches boosted level of a skill.
+        Args:
+            skill_name: The name of the skill to check (must be all caps).
+        Example:
+            print(api_status.get_boosted_level("ATTACK"))
+        """
+        return next(
+            (skill["boostedLevel"] for skill in player_data["skills"] if skill["skillName"] == skill_name),
+            None,
+        )
+
+    def get_is_boosted(self, skill_name) -> bool:
+        """
+        Compares real level to boosted level of a skill.
+        Args:
+            skill_name: The name of the skill to check (must be all caps).
+        Returns:
+            True if boosted level is greater than real level
+        Example:
+            >> print(api_status.get_is_boosted("ATTACK"))
         """
         real_level = self.get_real_level(skill_name)
         boosted_level = self.get_boosted_level(skill_name)
@@ -222,6 +235,9 @@ if __name__ == "__main__":
     while True:
         # api.get_PlayerData()
         time.sleep(api.gameTick)
+        print(f"Real Strength Level: {api.get_real_level('STRENGTH')}")
+        print(f"Boosted Strength Level: {api.get_boosted_level('STRENGTH')}")
+        print(f"Is Strength boosted?: {api.get_is_boosted('STRENGTH')}")
         print(f"Run Energy: {api.get_run_energy()}")
         print(f"Is Inventory Full: {api.get_is_inv_full()}")
         print(f"Inventory: {api.get_inv()}")
