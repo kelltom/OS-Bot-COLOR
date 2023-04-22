@@ -318,7 +318,7 @@ class MorgHTTPSocket:
         """
         data = self.__do_get(endpoint=self.inv_endpoint)
         return len([item["id"] for item in data if item["id"] != -1]) == 28
-    
+
     def get_is_inv_empty(self) -> bool:
         """
         Checks if player's inventory is empty.
@@ -429,6 +429,7 @@ if __name__ == "__main__":
         # Inventory Data
         if False:
             print(f"Is inventory full: {api.get_is_inv_full()}")
+            print(f"Is inventory empty: {api.get_is_inv_empty()}")
             print(f"Are logs in inventory?: {api.get_if_item_in_inv(ids.logs)}")
             print(f"Find amount of change in inv: {api.get_inv_item_stack_amount(ids.coins)}")
             print(f"Get position of all bones in inv: {api.get_inv_item_indices(ids.BONES)}")
