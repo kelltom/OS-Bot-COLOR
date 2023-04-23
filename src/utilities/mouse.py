@@ -104,10 +104,11 @@ class Mouse:
             with_delay: whether to add a random delay between mouse down and mouse up (default True).
         """
         self.click(force_delay=force_delay)
-        LOWER_BOUND_WAIT_INTERVAL = 0.07  # Milliseconds
-        UPPER_BOUND_WAIT_INTERVAL = 0.15  # Milliseconds
-        AVERAGE_WAIT_INTERVAL = 0.09  # Milliseconds
-        time.sleep(truncated_normal_sample(LOWER_BOUND_WAIT_INTERVAL, UPPER_BOUND_WAIT_INTERVAL, AVERAGE_WAIT_INTERVAL))
+        if force_delay or self.click_delay:
+            LOWER_BOUND_WAIT_INTERVAL = 0.07  # Milliseconds
+            UPPER_BOUND_WAIT_INTERVAL = 0.15  # Milliseconds
+            AVERAGE_WAIT_INTERVAL = 0.09  # Milliseconds
+            time.sleep(truncated_normal_sample(LOWER_BOUND_WAIT_INTERVAL, UPPER_BOUND_WAIT_INTERVAL, AVERAGE_WAIT_INTERVAL))
         self.click(force_delay=force_delay)
 
     def right_click(self, force_delay=False):
