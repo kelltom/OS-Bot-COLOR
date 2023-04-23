@@ -101,7 +101,7 @@ class Mouse:
         """
         Double left-clicks on the current mouse position with a small delay between clicks.
         Args:
-            with_delay: whether to add a random delay between mouse down and mouse up (default True).
+            with_delay: whether to add a random delay between each click (default True).  This delay is on top of any additional delay in click()
         """
         self.click(force_delay=force_delay)
         if force_delay or self.click_delay:
