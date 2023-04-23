@@ -84,7 +84,7 @@ class DropOrder(Enum):
     Slots are 0-indexed.
     """
     """
-        Left to right, row by row.
+        Left to right, row by row. https://imgur.com/CksPmKe
         Drop order:
          1  2  3  4
          5  6  7  8
@@ -96,7 +96,7 @@ class DropOrder(Enum):
     """
     HORIZONTAL = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
     """
-        Top to bottom, column by column.
+        Top to bottom, column by column. https://imgur.com/R42mEcg
         Drop order:
          1  8 15 22
          2  9 16 23
@@ -108,7 +108,7 @@ class DropOrder(Enum):
     """
     VERTICAL = [0,4,8,12,16,20,24,1,5,9,13,17,21,25,2,6,10,14,18,22,26,3,7,11,15,19,23,27]
     """
-        Top to bottom, bottom to top, column by column.
+        Top to bottom, bottom to top, column by column. https://imgur.com/oorxfE2
         Drop order:
          1 14 15 28
          2 13 16 27
@@ -120,7 +120,7 @@ class DropOrder(Enum):
     """
     VERTICAL_ALTERNATING = [0,4,8,12,16,20,24,25,21,17,13,9,5,1,2,6,10,14,18,22,26,27,23,19,15,11,7,3]
     """
-        Left to right, right to left, row by row.
+        Left to right, right to left, row by row. https://imgur.com/GWKZixY
         Drop order:
          1  2  3  4
          8  7  6  5
