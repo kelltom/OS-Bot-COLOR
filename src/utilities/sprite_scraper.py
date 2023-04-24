@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 import cv2
 import numpy as np
 import requests
-from bs4 import BeautifulSoup
+import re
 
 if __name__ == "__main__":
     import sys
@@ -24,7 +24,7 @@ DEFAULT_DESTINATION = imsearch.BOT_IMAGES.joinpath("scraper")
 
 class SpriteScraper:
     def __init__(self):
-        self.base_url = "https://oldschool.runescape.wiki"
+        self.base_url = "https://oldschool.runescape.wiki/"
 
     def search_and_download(self, search_string: str, **kwargs):
         """
@@ -68,25 +68,16 @@ class SpriteScraper:
         while i < len(img_names) - 1:
             i += 1
 
-            # Locate image on webpage using the alt text
-            alt_text = f"File:{img_names[i]}.png"
-            url = urljoin(self.base_url, f"w/{alt_text}")
             notify_callback(f"Searching for {img_names[i]}...")
-            response = requests.get(url)
-            soup = BeautifulSoup(response.content, "html.parser")
-            img = soup.find("img", alt=alt_text.replace("_", " "))  # Img alt text doesn't seem to include underscores
-            if not img:
-                capitalized_name = self.capitalize_each_in(img_names[i])
-                if capitalized_name not in img_names:
-                    img_names.insert(i + 1, capitalized_name)
-                    notify_callback(f"No image found for {img_names[i]}. Trying alternative...\n")
-                else:
-                    notify_callback(f"No image found for: {img_names[i]}.\n")
+            img_url = self.sprite_url(img_names[i])
+            
+            if img_url is None:
+                notify_callback(f"No image found for {img_names[i]}.\n")
                 continue
+
             notify_callback("Found image.")
 
             # Download image
-            img_url = urljoin(self.base_url, img["src"])
             notify_callback("Downloading image...")
             try:
                 downloaded_img = self.__download_image(img_url)
@@ -127,6 +118,76 @@ class SpriteScraper:
         string = " ".join(string.split())
         # Strip whitespace and replace spaces with underscores
         return [word.strip().replace(" ", "_").capitalize() for word in string.split(",")]
+    
+    def insert_underscores(self, string: str) -> str:
+        """
+        If the item has spaces it will replace them with underscores.
+        Args:
+            string: String you want to input underscores to.
+        Return:
+            Returns the string with underscores within it.
+        """
+        if ' ' in string:
+            return string.replace(" ", "_")
+        else:
+            return string
+
+    def sprite_url(self, item: str) -> str:
+        """
+        Returns the sprite URL of the item provided.
+        Args:
+            item: The item name.
+        Returns:
+            URL of the sprite image (string)
+        """
+        info_box = self.item_info_box(item)
+        if info_box is None:
+            print("page doesn't exist")
+            return None
+        pattern = r'\[\[File:(.*?)\]\]'
+        match = re.search(pattern, info_box)
+
+        if match:
+            filename = match.group(1)
+            filename = self.insert_underscores(filename)
+            return self.base_url + "images/" + filename
+
+        else:
+            print("Sprite couldn't be found in the info box.")
+            return None
+
+
+    def item_info_box(self, item: str) -> str:
+        """
+        Returns a string of data from the info box for a specific item from the Oldschool 
+        Runescape Wiki.
+        Args:
+            item: The item name.
+        Returns:
+            String of json data of the info box.
+        """
+        params = {
+        "action": "query",
+        "prop": "revisions",
+        "rvprop": "content",
+        "format": "json",
+        "titles": item
+        }
+
+        try:
+            response = requests.get(url=self.base_url + "/api.php", params=params)
+            data = response.json()
+            pages = data["query"]["pages"]
+            page_id = list(pages.keys())[0]
+            if int(page_id) < 0:
+                return None
+            return pages[page_id]["revisions"][0]['*']
+        except requests.exceptions.ConnectionError as e:
+            print("Network error:", e)
+            return None
+        except requests.exceptions.RequestException as e:
+            print("Request failed:", e)
+            return None
 
     def __bankify_image(self, image: cv2.Mat) -> cv2.Mat:
         """
