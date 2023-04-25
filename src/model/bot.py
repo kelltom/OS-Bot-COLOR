@@ -2,6 +2,7 @@
 A Bot is a base class for bot script models. It is abstract and cannot be instantiated. Many of the methods in this base class are
 pre-implemented and can be used by subclasses, or called by the controller. Code in this class should not be modified.
 """
+import copy
 import ctypes
 import platform
 import re
@@ -332,7 +333,7 @@ class Bot(ABC):
                              If a slot is missed then it will be reattempted after all the others have been attempted.
                              Offers more human-like behavior if set.
         """
-        slots_to_drop = slots
+        slots_to_drop = copy.deepcopy(slots)
         probablity_to_miss = 0.01
         probablity_to_drag = 0.01
         probablity_to_click_between_slots = 0.02
