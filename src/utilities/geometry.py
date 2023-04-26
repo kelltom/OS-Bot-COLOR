@@ -226,20 +226,15 @@ class RuneLiteObject:
         rect_center: Point = self.rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
 
-    def random_point(self, custom_seeds: List[List[int]] = None) -> Point:
+    def random_point(self) -> Point:
         """
         Gets a random point within the object.
-        Args:
-            custom_seeds: A list of custom seeds to use for the random point. You can generate
-                          a seeds list using RandomUtil's random_seeds() function with args.
-                          Default: A random seed list based on current date and object position.
         Returns:
             A random Point within the object.
         """
-        if custom_seeds is None:
-            custom_seeds = rd.random_seeds(mod=(self._center[0] + self._center[1]))
-        x, y = rd.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
-        return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.center()
+        index = np.random.randint(len(self._axis))
+        point = self._axis[index]
+        return self.__relative_point(point) if self.__point_exists(point) else self.center()
 
     def __relative_point(self, point: List[int]) -> Point:
         """
