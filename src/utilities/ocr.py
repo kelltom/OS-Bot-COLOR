@@ -10,7 +10,6 @@ import utilities.debug as debug
 from utilities.geometry import Rectangle
 
 
-
 def __load_font(font: str) -> Dict[str, cv2.Mat]:
     """
     Loads a font's alphabet from the fonts directory into a dictionary.
@@ -124,6 +123,3 @@ def find_text(
                 words_found.append(Rectangle(left + rect.left, top + rect.top, width, h))
                 index += len(word)
     return words_found
-
-
-
