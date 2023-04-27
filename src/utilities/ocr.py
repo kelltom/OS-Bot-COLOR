@@ -36,7 +36,7 @@ QUILL = __load_font("Quill")  # Large bold quest text
 QUILL_8 = __load_font("Quill8")  # Small quest text
 
 
-def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]], exclude_chars: Union[List[str], str] = "") -> str:
+def extract_text(rect: Rectangle, font: dict, color, exclude_chars: Union[List[str], str] = "") -> str:
     """
     Extracts text from a Rectangle.
     Args:
@@ -54,8 +54,12 @@ def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.C
     for key in font:
         if key == " " or key in exclude_chars:
             continue
+        if font is PLAIN_12:
+            correlation = cv2.matchTemplate(image, font[key][2:], cv2.TM_CCOEFF_NORMED)
+        else:
+            correlation = cv2.matchTemplate(image, font[key][1:], cv2.TM_CCOEFF_NORMED)
         # Template match the character in the image
-        correlation = cv2.matchTemplate(image, font[key][2:], cv2.TM_CCOEFF_NORMED)
+        #correlation = cv2.matchTemplate(image, font[key][2:], cv2.TM_CCOEFF_NORMED)
         # Locate the start point for each instance of this character
         y_mins, x_mins = np.where(correlation >= 0.98)
         # For each instance of this character, add it to the list
@@ -91,7 +95,10 @@ def find_text(
     char_list = []
     for char in chars:
         try:
-            template = font[char][2:]
+            if font is PLAIN_12:
+                template = font[char][2:]
+            else:
+                template = font[char][1:]
         except KeyError:
             text = text.replace(char, "")  # Remove characters that aren't in the font
             print(f"Font does not contain character: {char}. Omitting from search.")
