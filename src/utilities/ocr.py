@@ -37,7 +37,7 @@ QUILL = __load_font("Quill")  # Large bold quest text
 QUILL_8 = __load_font("Quill8")  # Small quest text
 
 
-def extract_text(rect: Rectangle, font: dict, color, exclude_chars: Union[List[str], str] = "") -> str:
+def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]], exclude_chars: Union[List[str], str] = "") -> str:
     """
     Extracts text from a Rectangle.
     Args:
