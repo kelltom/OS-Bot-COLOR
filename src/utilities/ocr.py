@@ -8,7 +8,7 @@ import numpy as np
 import utilities.color as clr
 import utilities.debug as debug
 from utilities.geometry import Rectangle
-import utilities.BetterColorDetection as bcd
+
 
 
 def __load_font(font: str) -> Dict[str, cv2.Mat]:
