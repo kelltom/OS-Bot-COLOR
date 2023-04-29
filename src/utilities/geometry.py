@@ -81,6 +81,46 @@ class Rectangle:
         return Rectangle(new_left, new_top, new_width, new_height)
 
 
+    def scale(self, scale_width: float = 1, scale_height: float = 1, anchor_x: float = 0.5, anchor_y: float = 0.5):
+        """
+        Scales the rectangle by the given factors for width and height, and adjusts its position based on the anchor point.
+        Args:
+            scale_width: The scaling factor for the width of the rectangle (default 1).
+            scale_height: The scaling factor for the height of the rectangle (default 1).
+            anchor_x: The horizontal anchor point for scaling (default 0.5, which corresponds to the center).
+            anchor_y: The vertical anchor point for scaling (default 0.5, which corresponds to the center).
+        Returns:
+            The Rectangle object, after scaling.
+        Examples:
+            rect = Rectangle(left=10, top=10, width=100, height=100)
+
+            # Scale the rectangle by a factor of 2, using the center as the anchor point (default behavior).
+            rect.scale(2, 2)
+            
+            # Scale the rectangle by a factor of 2, using the top-left corner as the anchor point.
+            rect.scale(2, 2, anchor_x=0, anchor_y=0)
+            
+            # Scale the rectangle by a factor of 2, using the bottom-right corner as the anchor point.
+            rect.scale(2, 2, anchor_x=1, anchor_y=1)
+            
+            # Scale the rectangle width by a factor of 1.5 and height by a factor of 2, using the top-right corner as the anchor point.
+            rect.scale(scale_width=1.5, scale_height=2, anchor_x=1, anchor_y=0)
+        """
+        old_width = self.width
+        old_height = self.height
+
+        new_width = int(self.width * scale_width)
+        new_height = int(self.height * scale_height)
+
+        x_offset = int(old_width * (1 - scale_width) * anchor_x)
+        y_offset = int(old_height * (1 - scale_height) * anchor_y)
+
+        new_left = self.left + x_offset
+        new_top = self.top + y_offset
+
+        return Rectangle(new_left, new_top, new_width, new_height)
+
+
     def set_rectangle_reference(self, rect):
         """
         Sets the rectangle reference of the object.
@@ -171,6 +211,14 @@ class Rectangle:
             A Point representing the top left of the rectangle.
         """
         return Point(self.left, self.top)
+
+    def get_center_left(self) -> Point:
+        """
+        Gets the center left point of the rectangle.
+        Returns:
+            A Point representing the center left of the rectangle.
+        """
+        return Point(self.left, self.top + self.height // 2)
 
     def get_center_left(self) -> Point:
         """
@@ -284,23 +332,11 @@ class RuneLiteObject:
 
         new_center = (round((new_x_min + new_x_max) / 2), round((new_y_min + new_y_max) / 2))
 
-        scaled_axis = np.empty((0, 2), dtype=self._axis.dtype)
-        for point in self._axis:
-            # Calculate the scaled coordinates
-            scaled_x = int(new_x_min + (point[0] - self._x_min) * scale_width)
-            scaled_y = int(new_y_min + (point[1] - self._y_min) * scale_height)
-
-            # Calculate the intermediate points between the original and scaled coordinates
-            num_points = max(abs(scaled_x - point[0]), abs(scaled_y - point[1]))
-            if num_points > 0:
-                x_coords = np.linspace(point[0], scaled_x, num=num_points+1, dtype=int)
-                y_coords = np.linspace(point[1], scaled_y, num=num_points+1, dtype=int)
-                intermediate_points = np.column_stack((x_coords[1:], y_coords[1:]))
-                scaled_axis = np.concatenate((scaled_axis, intermediate_points), axis=0)
-
-        # Add the scaled point to the scaled axis
-        scaled_point = np.array([[scaled_x, scaled_y]], dtype=self._axis.dtype)
-        scaled_axis = np.concatenate((scaled_axis, scaled_point))
+        # Generate all possible combinations of x and y coordinates inside the bounding box
+        x_coords = np.arange(new_x_min, new_x_max + 1)
+        y_coords = np.arange(new_y_min, new_y_max + 1)
+        xx, yy = np.meshgrid(x_coords, y_coords)
+        scaled_axis = np.column_stack((xx.ravel(), yy.ravel()))
 
         newObject._x_min = new_x_min
         newObject._x_max = new_x_max
