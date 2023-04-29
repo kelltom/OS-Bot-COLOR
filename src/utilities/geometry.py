@@ -267,6 +267,7 @@ class RuneLiteObject:
             # Scale the object width by a factor of 1.5 and height by a factor of 2, using the top-right corner as the anchor point.
             obj.scale(scale_width=1.5, scale_height=2, anchor_x=1, anchor_y=0)
         """
+        newObject = self
         old_width = self._width
         old_height = self._height
 
@@ -283,7 +284,15 @@ class RuneLiteObject:
 
         new_center = (round((new_x_min + new_x_max) / 2), round((new_y_min + new_y_max) / 2))
 
-        return RuneLiteObject(new_x_min, new_x_max, new_y_min, new_y_max, new_width, new_height, new_center, self._axis)
+        newObject._x_min = new_x_min
+        newObject._x_max = new_x_max
+        newObject._y_min = new_y_min
+        newObject._y_max = new_y_max
+        newObject._width = new_width
+        newObject._height = new_height
+        newObject._center = new_center
+
+        return newObject
 
     def set_rectangle_reference(self, rect: Rectangle):
         """
