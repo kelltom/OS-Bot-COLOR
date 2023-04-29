@@ -341,7 +341,7 @@ class RuneLiteObject:
     
     def distance_from_top_left(self) -> float:
         """
-        Gets the distance between the object and it's Rectangle parent left edge.
+        Gets the distance between the object and it's Rectangle parent top left corner.
         Useful for sorting lists of RuneLiteObjects.
         Returns:
             The distance from the point to the center of the object.
@@ -350,6 +350,19 @@ class RuneLiteObject:
         """
         center: Point = self.center()
         rect_left: Point = self.rect.get_top_left()
+        return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
+    
+    def distance_from_top_right(self) -> float:
+        """
+        Gets the distance between the object and it's Rectangle parent top right corner.
+        Useful for sorting lists of RuneLiteObjects.
+        Returns:
+            The distance from the point to the center of the object.
+        Note:
+            Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
+        """
+        center: Point = self.center()
+        rect_left: Point = self.rect.get_top_right()
         return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
 
     def random_point(self, custom_seeds: List[List[int]] = None) -> Point:
