@@ -6,8 +6,6 @@ import time
 
 import cv2
 
-from model.runelite_bot import RuneLiteWindow
-
 
 def current_time():
     """
@@ -18,11 +16,15 @@ def current_time():
     return time.strftime("%H:%M:%S", time.localtime())
 
 
-def get_test_window() -> RuneLiteWindow:
+def get_test_window():
     """
     If a RuneLite window is open, initializes a Window object, focuses the window, and returns it.
     Otherwise, raises a RuntimeError.
+    Returns:
+        A RuneLiteWindow object.
     """
+    from model.runelite_bot import RuneLiteWindow
+
     # Locate RL window
     win = RuneLiteWindow("RuneLite")
 
