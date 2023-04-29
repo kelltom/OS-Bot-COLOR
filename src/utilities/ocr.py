@@ -209,7 +209,7 @@ if __name__ == "__main__":
     color = [clr.BLACK]
     text = ["Welcome", "Old", "RuneScape"]  # find_text only
 
-    method = extract_text
+    method = find_text
     # ----------------
 
     # Screenshot starting area and save it
@@ -218,10 +218,12 @@ if __name__ == "__main__":
 
     # Run the OCR method
     if method == extract_text:
-        found_text = extract_text(area, font, color)
+        timed_extract_text = debug.timer(extract_text)
+        found_text = timed_extract_text(area, font, color)
         print("Found text: ", found_text)
     elif method == find_text:
-        found_rects = find_text(text, area, font, color)
+        timed_find_text = debug.timer(find_text)
+        found_rects = timed_find_text(text, area, font, color)
         image = np.array(image)
         # Draw the found rects onto the original image
         for rect in found_rects:
