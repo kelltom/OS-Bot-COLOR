@@ -15,6 +15,64 @@ import utilities.color as clr
 import utilities.debug as debug
 from utilities.geometry import Rectangle
 
+problematic_chars = [
+    "Ì",
+    "Í",
+    "Î",
+    "Ï",
+    "ì",
+    "í",
+    "î",
+    "ï",
+    "Ĺ",
+    "Ļ",
+    "Ľ",
+    "Ŀ",
+    "Ł",
+    "ĺ",
+    "ļ",
+    "ľ",
+    "ŀ",
+    "ł",
+    "|",
+    "¦",
+    "!",
+    "1",
+    "ĵ",
+    "ǰ",
+    "ȷ",
+    "ɉ",
+    "Ĵ",
+    "Ĩ",
+    "Ī",
+    "Ĭ",
+    "Į",
+    "İ",
+    "Ɨ",
+    "Ỉ",
+    "Ị",
+    "ĩ",
+    "ī",
+    "ĭ",
+    "į",
+    "ı",
+    "ƚ",
+    "ỉ",
+    "ị",
+    "ˈ",
+    "ˌ",
+    "ʻ",
+    "ʼ",
+    "ʽ",
+    "˚",
+    "˙",
+    "ʾ",
+    "ʿ",
+    ",",
+    "˙",
+    "`",
+]
+
 
 def __load_font(font: str) -> Dict[str, cv2.Mat]:
     """
@@ -42,14 +100,15 @@ QUILL = __load_font("Quill")  # Large bold quest text
 QUILL_8 = __load_font("Quill8")  # Small quest text
 
 
-def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]], exclude_chars: Union[str, List[str]] = "") -> str:
+def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]], exclude_chars: Union[str, List[str]] = problematic_chars) -> str:
     """
     Extracts text from a Rectangle.
     Args:
         rect: The rectangle to search within.
         font: The font type to search for.
         color: The color(s) of the text to search for.
-        exclude_chars: A list of characters to exclude from the search.
+        exclude_chars: A list of characters to exclude from the search. By default, this is a list of characters that
+                       are known to cause problems.
     Returns:
         A single string containing all text found in order, no spaces.
     """
@@ -147,10 +206,10 @@ if __name__ == "__main__":
     # ----------------
     area = win.chat
     font = PLAIN_12
-    color = clr.BLACK
+    color = [clr.BLACK]
     text = ["Welcome", "Old", "RuneScape"]  # find_text only
 
-    method = find_text
+    method = extract_text
     # ----------------
 
     # Screenshot starting area and save it
