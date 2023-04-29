@@ -284,6 +284,24 @@ class RuneLiteObject:
 
         new_center = (round((new_x_min + new_x_max) / 2), round((new_y_min + new_y_max) / 2))
 
+        scaled_axis = np.empty((0, 2), dtype=self._axis.dtype)
+        for point in self._axis:
+            # Calculate the scaled coordinates
+            scaled_x = int(new_x_min + (point[0] - self._x_min) * scale_width)
+            scaled_y = int(new_y_min + (point[1] - self._y_min) * scale_height)
+
+            # Calculate the intermediate points between the original and scaled coordinates
+            num_points = max(abs(scaled_x - point[0]), abs(scaled_y - point[1]))
+            if num_points > 0:
+                x_coords = np.linspace(point[0], scaled_x, num=num_points+1, dtype=int)
+                y_coords = np.linspace(point[1], scaled_y, num=num_points+1, dtype=int)
+                intermediate_points = np.column_stack((x_coords[1:], y_coords[1:]))
+                scaled_axis = np.concatenate((scaled_axis, intermediate_points), axis=0)
+
+        # Add the scaled point to the scaled axis
+        scaled_point = np.array([[scaled_x, scaled_y]], dtype=self._axis.dtype)
+        scaled_axis = np.concatenate((scaled_axis, scaled_point))
+
         newObject._x_min = new_x_min
         newObject._x_max = new_x_max
         newObject._y_min = new_y_min
@@ -291,6 +309,7 @@ class RuneLiteObject:
         newObject._width = new_width
         newObject._height = new_height
         newObject._center = new_center
+        newObject._axis = scaled_axis
 
         return newObject
 
