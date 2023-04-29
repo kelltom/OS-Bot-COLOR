@@ -6,6 +6,36 @@ import time
 
 import cv2
 
+from model.runelite_bot import RuneLiteWindow
+
+
+def current_time():
+    """
+    Gets the current time in the format HH:MM:SS.
+    Returns:
+        The current time.
+    """
+    return time.strftime("%H:%M:%S", time.localtime())
+
+
+def get_test_window() -> RuneLiteWindow:
+    """
+    If a RuneLite window is open, initializes a Window object, focuses the window, and returns it.
+    Otherwise, raises a RuntimeError.
+    """
+    # Locate RL window
+    win = RuneLiteWindow("RuneLite")
+
+    # Focus the window
+    win.focus()
+    time.sleep(0.5)
+
+    # Initialize the window
+    if not win.initialize():
+        raise RuntimeError("RuneLite window not found.")
+
+    return win
+
 
 def save_image(filename: str, im: cv2.Mat):
     """
@@ -33,12 +63,3 @@ def timer(func):
         return result
 
     return wrapper
-
-
-def current_time():
-    """
-    Gets the current time in the format HH:MM:SS.
-    Returns:
-        The current time.
-    """
-    return time.strftime("%H:%M:%S", time.localtime())
