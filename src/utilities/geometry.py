@@ -56,13 +56,13 @@ class Rectangle:
 
             # Scale the rectangle by a factor of 2, using the center as the anchor point (default behavior).
             rect.scale(2, 2)
-            
+
             # Scale the rectangle by a factor of 2, using the top-left corner as the anchor point.
             rect.scale(2, 2, anchor_x=0, anchor_y=0)
-            
+
             # Scale the rectangle by a factor of 2, using the bottom-right corner as the anchor point.
             rect.scale(2, 2, anchor_x=1, anchor_y=1)
-            
+
             # Scale the rectangle width by a factor of 1.5 and height by a factor of 2, using the top-right corner as the anchor point.
             rect.scale(scale_width=1.5, scale_height=2, anchor_x=1, anchor_y=0)
         """
@@ -79,7 +79,6 @@ class Rectangle:
         new_top = self.top + y_offset
 
         return Rectangle(new_left, new_top, new_width, new_height)
-
 
     def scale(self, scale_width: float = 1, scale_height: float = 1, anchor_x: float = 0.5, anchor_y: float = 0.5):
         """
@@ -96,13 +95,13 @@ class Rectangle:
 
             # Scale the rectangle by a factor of 2, using the center as the anchor point (default behavior).
             rect.scale(2, 2)
-            
+
             # Scale the rectangle by a factor of 2, using the top-left corner as the anchor point.
             rect.scale(2, 2, anchor_x=0, anchor_y=0)
-            
+
             # Scale the rectangle by a factor of 2, using the bottom-right corner as the anchor point.
             rect.scale(2, 2, anchor_x=1, anchor_y=1)
-            
+
             # Scale the rectangle width by a factor of 1.5 and height by a factor of 2, using the top-right corner as the anchor point.
             rect.scale(scale_width=1.5, scale_height=2, anchor_x=1, anchor_y=0)
         """
@@ -119,7 +118,6 @@ class Rectangle:
         new_top = self.top + y_offset
 
         return Rectangle(new_left, new_top, new_width, new_height)
-
 
     def set_rectangle_reference(self, rect):
         """
@@ -380,7 +378,7 @@ class RuneLiteObject:
         center: Point = self.center()
         rect_center: Point = self.rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
-    
+
     def distance_from_rect_left(self) -> float:
         """
         Gets the distance between the object and it's Rectangle parent left edge.
@@ -393,7 +391,7 @@ class RuneLiteObject:
         center: Point = self.center()
         rect_left: Point = self.rect.get_center_left()
         return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
-    
+
     def distance_from_top_left(self) -> float:
         """
         Gets the distance between the object and it's Rectangle parent top left corner.
@@ -406,7 +404,7 @@ class RuneLiteObject:
         center: Point = self.center()
         rect_left: Point = self.rect.get_top_left()
         return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
-    
+
     def distance_from_top_right(self) -> float:
         """
         Gets the distance between the object and it's Rectangle parent top right corner.
