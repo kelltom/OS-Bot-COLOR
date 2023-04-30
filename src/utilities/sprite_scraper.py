@@ -215,12 +215,10 @@ class SpriteScraper:
             print("page doesn't exist")
             return None
         pattern = r"\[\[File:(.*?)\]\]"
-        match = re.search(pattern, info_box)
-
-        if match:
-            filename = match.group(1)
+        if match := re.search(pattern, info_box):
+            filename = match[1]
             filename = self.__insert_underscores(filename)
-            return self.base_url + "images/" + filename
+            return f"{self.base_url}images/{filename}"
 
         else:
             print("Sprite couldn't be found in the info box.")
