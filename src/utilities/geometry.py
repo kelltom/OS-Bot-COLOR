@@ -80,45 +80,6 @@ class Rectangle:
 
         return Rectangle(new_left, new_top, new_width, new_height)
 
-    def scale(self, scale_width: float = 1, scale_height: float = 1, anchor_x: float = 0.5, anchor_y: float = 0.5):
-        """
-        Scales the rectangle by the given factors for width and height, and adjusts its position based on the anchor point.
-        Args:
-            scale_width: The scaling factor for the width of the rectangle (default 1).
-            scale_height: The scaling factor for the height of the rectangle (default 1).
-            anchor_x: The horizontal anchor point for scaling (default 0.5, which corresponds to the center).
-            anchor_y: The vertical anchor point for scaling (default 0.5, which corresponds to the center).
-        Returns:
-            The Rectangle object, after scaling.
-        Examples:
-            rect = Rectangle(left=10, top=10, width=100, height=100)
-
-            # Scale the rectangle by a factor of 2, using the center as the anchor point (default behavior).
-            rect.scale(2, 2)
-
-            # Scale the rectangle by a factor of 2, using the top-left corner as the anchor point.
-            rect.scale(2, 2, anchor_x=0, anchor_y=0)
-
-            # Scale the rectangle by a factor of 2, using the bottom-right corner as the anchor point.
-            rect.scale(2, 2, anchor_x=1, anchor_y=1)
-
-            # Scale the rectangle width by a factor of 1.5 and height by a factor of 2, using the top-right corner as the anchor point.
-            rect.scale(scale_width=1.5, scale_height=2, anchor_x=1, anchor_y=0)
-        """
-        old_width = self.width
-        old_height = self.height
-
-        new_width = int(self.width * scale_width)
-        new_height = int(self.height * scale_height)
-
-        x_offset = int(old_width * (1 - scale_width) * anchor_x)
-        y_offset = int(old_height * (1 - scale_height) * anchor_y)
-
-        new_left = self.left + x_offset
-        new_top = self.top + y_offset
-
-        return Rectangle(new_left, new_top, new_width, new_height)
-
     def set_rectangle_reference(self, rect):
         """
         Sets the rectangle reference of the object.
