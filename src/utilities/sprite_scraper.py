@@ -1,6 +1,6 @@
 """
 This module contains the SpriteScraper class, which is used to download images from the OSRS Wiki.
-This utility does not work well with IPv6. If you are having issues, try disabling IPv6 on your machine.
+If you are having issues, try disabling IPv6 on your machine.
 """
 
 import os
@@ -31,9 +31,9 @@ class ImageType(IntEnum):
 
 class SpriteScraper:
     def __init__(self):
-        self.base_url = "https://oldschool.runescape.wiki/"
+        self.BASE_URL = "https://oldschool.runescape.wiki/"
 
-    def search_and_download(self, search_string: str, **kwargs):
+    def search_and_download(self, search_string: str, **kwargs) -> Path:
         """
         Searches for and downloads the image(s) specified by the search_string argument.
         Args:
@@ -41,8 +41,10 @@ class SpriteScraper:
             **kwargs: Keyword arguments.
         Keyword Args:
             image_type (ImageType): The type of image to save. Defaults to ImageType.NORMAL.
-            destination (str): The destination folder to save the image. Defaults to DEFAULT_DESTINATION.
+            destination (str or Path): The destination folder to save the image. Defaults to DEFAULT_DESTINATION.
             notify_callback (function): Callback function to notify the user. Defaults to print.
+        Returns:
+            Path: The destination folder where the images were saved.
         """
         # Extract and validate keyword arguments
         image_type, destination, notify_callback = self.__extract_kwargs(kwargs)
@@ -74,6 +76,8 @@ class SpriteScraper:
             notify_callback(f"Search completed with errors. Some images may not have been saved. See:\n{destination}.\n")
         else:
             notify_callback(f"Search complete. Images saved to:\n{destination}.\n")
+
+        return Path(destination)
 
     # -------------------
     # Region: Protected Methods
@@ -168,7 +172,7 @@ class SpriteScraper:
         params = {"action": "query", "prop": "revisions", "rvprop": "content", "format": "json", "titles": item}
 
         try:
-            response = requests.get(url=f"{self.base_url}/api.php", params=params)
+            response = requests.get(url=f"{self.BASE_URL}/api.php", params=params)
             data = response.json()
             pages = data["query"]["pages"]
             page_id = list(pages.keys())[0]
@@ -197,7 +201,7 @@ class SpriteScraper:
         if match := re.search(pattern, info_box):
             filename = match[1]
             filename = self.__insert_underscores(filename)
-            return f"{self.base_url}images/{filename}"
+            return f"{self.BASE_URL}images/{filename}"
         else:
             print(f"{item}: Sprite couldn't be found in the info box.")
             return None
@@ -300,15 +304,15 @@ if __name__ == "__main__":
     assert scraper._capitalize_each_word("teleport_to_house") == "Teleport_to_House"
     assert scraper._capitalize_each_word("claws_of_guthix") == "Claws_of_Guthix"
 
-    # Test saving to non-existent directory
-    new_destination = DEFAULT_DESTINATION.joinpath("lobster_stuff")
+    # Test saving to non-existent directory in string format
+    new_destination = str(DEFAULT_DESTINATION.joinpath("lobster_stuff"))
     scraper.search_and_download(
         search_string=" lobster , lobster  Pot",
         image_type=ImageType.BANK,
         destination=new_destination,
     )
 
-    # Test saving without using Enum
+    # Test saving without using Enum, and with a non-existent item query
     scraper.search_and_download(
         search_string="protect from magic, arceuus home teleport, nonexitent_sprite",
         image_type=0,
