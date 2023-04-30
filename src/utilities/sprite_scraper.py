@@ -6,6 +6,7 @@ This utility does not work well with IPv6. If you are having issues, try disabli
 import os
 import re
 from enum import IntEnum
+from pathlib import Path
 from typing import List, Optional
 
 import cv2
@@ -33,90 +34,50 @@ class SpriteScraper:
         self.base_url = "https://oldschool.runescape.wiki/"
 
     def search_and_download(self, search_string: str, **kwargs):
-        # sourcery skip: low-code-quality
         """
-        Searches the OSRS Wiki for the given search parameter and downloads the image(s) to the appropriate folder.
+        Searches for and downloads the image(s) specified by the search_string argument.
         Args:
-            search_string: A comma-separated list of wiki keywords to locate images for.
+            search_string (str): The search string to use.
+            **kwargs: Keyword arguments.
         Keyword Args:
-            image_type: 0 = NORMAL, 1 = BANK, 2 = ALL. Normal sprites are full-size, and bank sprites are cropped at the top
-                        to improve image search performance within the bank interface (crops out stack numbers). Default is 0.
-            destination: The folder to save the downloaded images to. Default is defined in the global `DEFAULT_DESTINATION`.
-            notify_callback: A function (usually defined in the view) that takes a string as a parameter. This function is
-                             called with search results and errors. Default is print().
-        Example:
-            This is an example of using the scraper from a Bot script to download images suitable for searching in the bank:
-            >>> scraper = SpriteScraper()
-            >>> scraper.search_and_download(
-            >>>     search_string = "molten glass, bucket of sand",
-            >>>     image_type = ImageType.BANK,
-            >>>     destination = imsearch.BOT_IMAGES.joinpath("bank"),
-            >>>     notify_callback = self.log_msg,
-            >>> )
+            image_type (ImageType): The type of image to save. Defaults to ImageType.NORMAL.
+            destination (str): The destination folder to save the image. Defaults to DEFAULT_DESTINATION.
+            notify_callback (function): Callback function to notify the user. Defaults to print.
         """
-        image_type = kwargs.get("image_type", ImageType.NORMAL)
-        destination = kwargs.get("destination", DEFAULT_DESTINATION)
-        notify_callback = kwargs.get("notify_callback", print)
-
-        # Ensure the image_type is valid
-        if image_type not in iter(ImageType):
-            notify_callback("Invalid image type argument.")
-            return
-
-        # Format search args into a list of strings
+        # Extract and validate keyword arguments
+        image_type, destination, notify_callback = self.__extract_kwargs(kwargs)
         img_names = self._format_args(search_string)
+
         if not img_names:
             notify_callback("No search terms entered.")
             return
+
         notify_callback("Beginning search...\n")
 
-        # Iterate through each image name and download the image
-        i = -1
-        while i < len(img_names) - 1:
-            i += 1
+        completed_with_errors = False
 
-            notify_callback(f"Searching for {img_names[i]}...")
-
-            # Get image URL (two attempts are made to find the image)
-            img_url = None
-            for attempt in range(2):
-                # Capitalize each word in the image name on the second attempt
-                if attempt == 1:
-                    img_names[i] = self._capitalize_each_word(img_names[i])
-                # Get image URL
-                img_url = self.__sprite_url(img_names[i])
-                if img_url is not None:
-                    notify_callback("Found image.")
-                    break
+        # Search for each image and attempt to download it
+        for img_name in img_names:
+            notify_callback(f"Searching for {img_name}...")
+            img_url = self.__find_image_url(img_name, notify_callback)
 
             if img_url is None:
-                notify_callback(f"No image found for {img_names[i]}.\n")
+                notify_callback(f"No image found for {img_name}.\n")
+                completed_with_errors = True
                 continue
 
-            # Download image
-            notify_callback("Downloading image...")
-            try:
-                downloaded_img = self.__download_image(img_url)
-            except requests.exceptions.RequestException as e:
-                notify_callback(f"Network error: {e}\n")
-                continue
-            except cv2.error as e:
-                notify_callback(f"Image decoding error: {e}\n")
-                continue
+            did_succeed = self.__download_and_save_image(img_name, img_url, image_type, destination, notify_callback)
+            if not did_succeed:
+                completed_with_errors = True
 
-            # Save image according to image_type argument
-            filepath = destination.joinpath(img_names[i])
-            if image_type in {ImageType.NORMAL, ImageType.ALL}:
-                cv2.imwrite(f"{filepath}.png", downloaded_img)
-                nl = "\n"
-                notify_callback(f"Success: {img_names[i]} sprite saved.{nl if image_type != 2 else ''}")
-            if image_type in {ImageType.BANK, ImageType.ALL}:
-                cropped_img = self._bankify_image(downloaded_img)
-                cv2.imwrite(f"{filepath}_bank.png", cropped_img)
-                notify_callback(f"Success: {img_names[i]} bank sprite saved.\n")
+        if completed_with_errors:
+            notify_callback(f"Search completed with errors. Some images may not have been saved. See:\n{destination}.\n")
+        else:
+            notify_callback(f"Search complete. Images saved to:\n{destination}.\n")
 
-        notify_callback(f"Search complete. Images saved to:\n{destination}.\n")
-
+    # -------------------
+    # Region: Protected Methods
+    # -------------------
     def _bankify_image(self, image: cv2.Mat) -> cv2.Mat:
         """
         Converts a sprite into an image that is suitable for image searching within a bank interface.
@@ -140,6 +101,24 @@ class SpriteScraper:
         image[:9, :] = 0
         return image
 
+    def _capitalize_each_word(self, string: str) -> str:
+        """
+        Capitalizes the first letter of each word in a string of words separated by underscores, retaining the
+        underscores.
+        """
+        exclude = ["from", "of", "to", "in", "with", "on", "at", "by", "for"]
+        return "_".join(word if word in exclude else word.capitalize() for word in string.split("_"))
+
+    def __insert_underscores(self, string: str) -> str:
+        """
+        If the item has spaces it will replace them with underscores.
+        Args:
+            string: String you want to input underscores to.
+        Return:
+            Returns the string with underscores within it.
+        """
+        return string.replace(" ", "_") if " " in string else string
+
     def _format_args(self, string: str) -> List[str]:
         """
         Formats a comma-separated list of strings into a list of strings where each string is capitalized and
@@ -153,27 +132,30 @@ class SpriteScraper:
         # Strip whitespace and replace spaces with underscores
         return [word.strip().replace(" ", "_").capitalize() for word in string.split(",")]
 
-    def _capitalize_each_word(self, string: str) -> str:
+    # -------------------
+    # Region: Private Methods
+    # -------------------
+    def __extract_kwargs(self, kwargs):
         """
-        Capitalizes the first letter of each word in a string of words separated by underscores, retaining the
-        underscores.
-        """
-        exclude = ["from", "of", "to", "in", "with", "on", "at", "by", "for"]
-        return "_".join(word if word in exclude else word.capitalize() for word in string.split("_"))
-
-    def __download_image(self, url: str) -> cv2.Mat:
-        """
-        Downloads an image from a URL.
+        Extracts and validates keyword arguments from the input dictionary.
         Args:
-            url: The URL of the image to download.
+            kwargs (dict): Keyword arguments dictionary.
         Returns:
-            The downloaded image as a cv2 Mat.
+            tuple: A tuple containing image_type, destination, and notify_callback.
         """
-        response = requests.get(url)
-        downloaded_img = np.frombuffer(response.content, dtype="uint8")
-        downloaded_img = cv2.imdecode(downloaded_img, cv2.IMREAD_UNCHANGED)
-        return downloaded_img
+        image_type = kwargs.get("image_type", ImageType.NORMAL)
+        destination = kwargs.get("destination", DEFAULT_DESTINATION)
+        notify_callback = kwargs.get("notify_callback", print)
 
+        if image_type not in iter(ImageType):
+            notify_callback("Invalid image type argument. Assigning default value.\n")
+            image_type = ImageType.NORMAL
+
+        return image_type, destination, notify_callback
+
+    # -------------------
+    # Subregion: API-Specific Methods
+    # -------------------
     def __get_item_infobox_data(self, item: str) -> Optional[str]:
         """
         Returns a string of data from the info box for a specific item from the Old School
@@ -197,16 +179,6 @@ class SpriteScraper:
         except requests.exceptions.RequestException as e:
             print("Request failed:", e)
             return None
-        
-    def __insert_underscores(self, string: str) -> str:
-        """
-        If the item has spaces it will replace them with underscores.
-        Args:
-            string: String you want to input underscores to.
-        Return:
-            Returns the string with underscores within it.
-        """
-        return string.replace(" ", "_") if " " in string else string
 
     def __sprite_url(self, item: str) -> str:
         """
@@ -230,6 +202,87 @@ class SpriteScraper:
             print(f"{item}: Sprite couldn't be found in the info box.")
             return None
 
+    def __find_image_url(self, img_name: str, notify_callback) -> Optional[str]:
+        """
+        Finds the image URL with two attempts. Handles capitalization of each word on the second attempt.
+        Args:
+            img_name (str): The name of the image to search for.
+            notify_callback (function): Callback function to notify the user.
+        Returns:
+            Optional[str]: The image URL, or None if not found.
+        """
+        for attempt in range(2):
+            if attempt == 1:
+                img_name = self._capitalize_each_word(img_name)
+
+            img_url = self.__sprite_url(img_name)
+
+            if img_url is not None:
+                notify_callback("Found image.")
+                return img_url
+        return None
+
+    # -------------------
+    # Subregion: Download/Saving Methods
+    # -------------------
+    def __download_and_save_image(self, img_name: str, img_url: str, image_type: ImageType, destination: str, notify_callback) -> bool:
+        """
+        Downloads the image and saves it according to the image_type argument.
+
+        Args:
+            img_name (str): The name of the image to save.
+            img_url (str): The URL of the image to download.
+            image_type (ImageType): The type of image to save.
+            destination (str): The destination folder to save the image.
+            notify_callback (function): Callback function to notify the user.
+        Returns:
+            bool: True if the image was saved successfully, False otherwise.
+        """
+        notify_callback("Downloading image...")
+        try:
+            response = requests.get(img_url)
+            downloaded_img = np.frombuffer(response.content, dtype="uint8")
+            downloaded_img = cv2.imdecode(downloaded_img, cv2.IMREAD_UNCHANGED)
+        except requests.exceptions.RequestException as e:
+            notify_callback(f"Network error: {e}\n")
+            return False
+        except cv2.error as e:
+            notify_callback(f"Image decoding error: {e}\n")
+            return False
+        self.__save_image(img_name, downloaded_img, image_type, destination, notify_callback)
+        return True
+
+    def __save_image(self, img_name: str, downloaded_img: np.ndarray, image_type: ImageType, destination: str, notify_callback) -> bool:
+        """
+        Saves the image according to the image_type argument.
+        Args:
+            img_name (str): The name of the image to save.
+            downloaded_img (np.ndarray): The image to save.
+            image_type (ImageType): The type of image to save.
+            destination (str): The destination folder to save the image.
+            notify_callback (function): Callback function to notify the user.
+        Returns:
+            bool: True if the image saving succeeded, False otherwise.
+        """
+        # Create the destination folder if it doesn't already exist
+        destination: Path = Path(destination)
+        destination.mkdir(parents=True, exist_ok=True)
+        filepath = destination.joinpath(img_name)
+
+        try:
+            if image_type in {ImageType.NORMAL, ImageType.ALL}:
+                cv2.imwrite(f"{filepath}.png", downloaded_img)
+                nl = "\n"
+                notify_callback(f"Success: {img_name} sprite saved.{nl if image_type != 2 else ''}")
+            if image_type in {ImageType.BANK, ImageType.ALL}:
+                cropped_img = self._bankify_image(downloaded_img)
+                cv2.imwrite(f"{filepath}_bank.png", cropped_img)
+                notify_callback(f"Success: {img_name} bank sprite saved.\n")
+            return True
+        except Exception as e:
+            notify_callback(f"Error saving image: {e}\n")
+            return False
+
 
 if __name__ == "__main__":
     scraper = SpriteScraper()
@@ -247,11 +300,15 @@ if __name__ == "__main__":
     assert scraper._capitalize_each_word("teleport_to_house") == "Teleport_to_House"
     assert scraper._capitalize_each_word("claws_of_guthix") == "Claws_of_Guthix"
 
+    # Test saving to non-existent directory
+    new_destination = DEFAULT_DESTINATION.joinpath("lobster_stuff")
     scraper.search_and_download(
         search_string=" lobster , lobster  Pot",
         image_type=ImageType.BANK,
+        destination=new_destination,
     )
 
+    # Test saving without using Enum
     scraper.search_and_download(
         search_string="protect from magic, arceuus home teleport, nonexitent_sprite",
         image_type=0,
