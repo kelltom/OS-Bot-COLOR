@@ -22,7 +22,7 @@ class Rectangle:
     """
 
     subtract_list: List[dict] = []
-    reference_rect = None
+    parent_rect = None
 
     def __init__(self, left: int, top: int, width: int, height: int):
         """
@@ -80,14 +80,14 @@ class Rectangle:
 
         return Rectangle(new_left, new_top, new_width, new_height)
 
-    def set_rectangle_reference(self, rect):
+    def set_parent_rectangle(self, rect):
         """
         Sets the rectangle reference of the object.
         Args:
             rect: A reference to the the rectangle that this object belongs in
                   (E.g., Bot.win.game_view).
         """
-        self.reference_rect = rect
+        self.parent_rect = rect
 
     @classmethod
     def from_points(cls, start_point: Point, end_point: Point):
@@ -149,19 +149,28 @@ class Rectangle:
         """
         return Point(self.left + self.width // 2, self.top + self.height // 2)
 
-    # TODO: Consider changing to this to accept a Point to check against; `distance_from(point: Point)`
-    def distance_from_center(self) -> Point:
+    def distance_from_point(self, reference_point: Point = None) -> float:
         """
-        Gets the distance between the object and it's Rectangle parent center.
+        Gets the distance between the object and the given reference point.
         Useful for sorting lists of Rectangles.
+        Args:
+            reference_point: A Point representing the reference point for distance calculation.
+                            Default: The center of the parent rectangle, if available.
         Returns:
             The distance from the point to the center of the object.
+        Example:
+            >>> # Sort based on an arbitrary point
+            >>> arbitrary_point = Point(100, 200)
+            >>> sorted_by_arbitrary_point = sorted(some_rectangles, key=lambda rect: rect.distance_from_point(arbitrary_point))
         """
-        if self.reference_rect is None:
-            raise ReferenceError("A Rectangle being sorted is missing a reference to the Rectangle it's contained in and therefore cannot be sorted.")
+        if reference_point is None:
+            if self.parent_rect is not None:
+                reference_point = self.parent_rect.get_center()
+            else:
+                raise ValueError("A reference point must be provided if there is no parent rectangle.")
+
         center: Point = self.get_center()
-        rect_center: Point = self.reference_rect.get_center()
-        return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
+        return math.dist([center.x, center.y], [reference_point.x, reference_point.y])
 
     def get_top_left(self) -> Point:
         """
@@ -308,9 +317,9 @@ class RuneLiteObject:
 
         return newObject
 
-    def set_rectangle_reference(self, rect: Rectangle):
+    def set_parent_rectangle(self, rect: Rectangle):
         """
-        Sets the rectangle reference of the object.
+        Sets the parent rectangle of the object.
         Args:
             rect: A reference to the the rectangle that this object belongs in
                   (E.g., Bot.win.game_view).
@@ -319,13 +328,27 @@ class RuneLiteObject:
 
     def center(self) -> Point:  # sourcery skip: raise-specific-error
         """
-        Gets the center of the object relative to the containing Rectangle.
+        Gets the center of the object relative to the screen.
         Returns:
             A Point.
         """
         if self.rect is None:
             raise ReferenceError("The RuneLiteObject is missing a reference to the Rectangle it's contained in and therefore the center cannot be determined.")
         return Point(self._center[0] + self.rect.left, self._center[1] + self.rect.top)
+
+    def distance_from_point(self, point: Point) -> float:
+        """
+        Gets the distance between the object and the given point.
+        Args:
+            point: A tuple (x, y) representing the coordinates of the point.
+        Returns:
+            The distance from the point to the center of the object.
+        Example:
+            >>> reference_point = Point(300, 200)
+            >>> sorted_by_distance = sorted(rl_objects, key=lambda obj: obj.distance_from_point(reference_point))
+        """
+        center: Point = self.center()
+        return math.dist([center.x, center.y], [point.x, point.y])
 
     def distance_from_rect_center(self) -> float:
         """
