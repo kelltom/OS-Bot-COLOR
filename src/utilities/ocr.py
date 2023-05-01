@@ -5,9 +5,72 @@ from typing import Dict, List, Union
 import cv2
 import numpy as np
 
+if __name__ == "__main__":
+    import os
+    import sys
+
+    sys.path[0] = os.path.dirname(sys.path[0])
+
 import utilities.color as clr
 import utilities.debug as debug
 from utilities.geometry import Rectangle
+
+problematic_chars = [
+    "Ì",
+    "Í",
+    "Î",
+    "Ï",
+    "ì",
+    "í",
+    "î",
+    "ï",
+    "Ĺ",
+    "Ļ",
+    "Ľ",
+    "Ŀ",
+    "Ł",
+    "ĺ",
+    "ļ",
+    "ľ",
+    "ŀ",
+    "ł",
+    "|",
+    "¦",
+    "!",
+    "ĵ",
+    "ǰ",
+    "ȷ",
+    "ɉ",
+    "Ĵ",
+    "Ĩ",
+    "Ī",
+    "Ĭ",
+    "Į",
+    "İ",
+    "Ɨ",
+    "Ỉ",
+    "Ị",
+    "ĩ",
+    "ī",
+    "ĭ",
+    "į",
+    "ı",
+    "ƚ",
+    "ỉ",
+    "ị",
+    "ˈ",
+    "ˌ",
+    "ʻ",
+    "ʼ",
+    "ʽ",
+    "˚",
+    "˙",
+    "ʾ",
+    "ʿ",
+    ",",
+    "˙",
+    "`",
+]
 
 
 def __load_font(font: str) -> Dict[str, cv2.Mat]:
@@ -36,14 +99,15 @@ QUILL = __load_font("Quill")  # Large bold quest text
 QUILL_8 = __load_font("Quill8")  # Small quest text
 
 
-def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]], exclude_chars: Union[List[str], str] = "") -> str:
+def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.Color]], exclude_chars: Union[str, List[str]] = problematic_chars) -> str:
     """
     Extracts text from a Rectangle.
     Args:
         rect: The rectangle to search within.
         font: The font type to search for.
         color: The color(s) of the text to search for.
-        exclude_chars: A list of characters to exclude from the search.
+        exclude_chars: A list of characters to exclude from the search. By default, this is a list of characters that
+                       are known to cause problems.
     Returns:
         A single string containing all text found in order, no spaces.
     """
@@ -55,7 +119,10 @@ def extract_text(rect: Rectangle, font: dict, color: Union[clr.Color, List[clr.C
         if key == " " or key in exclude_chars:
             continue
         # Template match the character in the image
-        correlation = cv2.matchTemplate(image, font[key], cv2.TM_CCOEFF_NORMED)
+        if font is PLAIN_12:
+            correlation = cv2.matchTemplate(image, font[key][2:], cv2.TM_CCOEFF_NORMED)
+        else:
+            correlation = cv2.matchTemplate(image, font[key][1:], cv2.TM_CCOEFF_NORMED)
         # Locate the start point for each instance of this character
         y_mins, x_mins = np.where(correlation >= 0.98)
         # For each instance of this character, add it to the list
@@ -91,7 +158,7 @@ def find_text(
     char_list = []
     for char in chars:
         try:
-            template = font[char][1:]
+            template = font[char][2:] if font is PLAIN_12 else font[char][1:]
         except KeyError:
             text = text.replace(char, "")  # Remove characters that aren't in the font
             print(f"Font does not contain character: {char}. Omitting from search.")
@@ -123,3 +190,48 @@ def find_text(
                 words_found.append(Rectangle(left + rect.left, top + rect.top, width, h))
                 index += len(word)
     return words_found
+
+
+if __name__ == "__main__":
+    """
+    Run this file directly to test OCR. You must have an instance of RuneLite open for this to work.
+    """
+
+    # Get/focus the RuneLite window currently running
+    win = debug.get_test_window()
+
+    # ----------------
+    # PARAMETERS
+    # ----------------
+    area = win.chat
+    font = PLAIN_12
+    color = [clr.BLACK]
+    text = ["Welcome", "Old", "RuneScape"]  # find_text only
+
+    method = find_text
+    # ----------------
+
+    # Screenshot starting area and save it
+    image = area.screenshot()
+    debug.save_image("ocr_1_initial", image)
+
+    # Run the OCR method
+    if method == extract_text:
+        timed_extract_text = debug.timer(extract_text)
+        found_text = timed_extract_text(area, font, color)
+        print("Found text: ", found_text)
+    elif method == find_text:
+        timed_find_text = debug.timer(find_text)
+        found_rects = timed_find_text(text, area, font, color)
+        image = np.array(image)
+        # Draw the found rects onto the original image
+        for rect in found_rects:
+            # Get the rectangle's coordinates relative to the image
+            x, y, w, h = rect.left - area.left, rect.top - area.top, rect.width, rect.height
+            # Draw the rectangle onto the image
+            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 1)
+        # Save the modified image
+        debug.save_image("ocr_2_result", image)
+        # Display the image
+        cv2.imshow("find_text Result", image)
+        cv2.waitKey(0)
