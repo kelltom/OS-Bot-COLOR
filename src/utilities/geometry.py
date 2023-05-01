@@ -326,7 +326,7 @@ class RuneLiteObject:
         """
         self.rect = rect
 
-    def center(self) -> Point:  # sourcery skip: raise-specific-error
+    def get_center(self) -> Point:
         """
         Gets the center of the object relative to the screen.
         Returns:
@@ -347,7 +347,7 @@ class RuneLiteObject:
             >>> reference_point = Point(300, 200)
             >>> sorted_by_distance = sorted(rl_objects, key=lambda obj: obj.distance_from_point(reference_point))
         """
-        center: Point = self.center()
+        center: Point = self.get_center()
         return math.dist([center.x, center.y], [point.x, point.y])
 
     def distance_from_rect_center(self) -> float:
@@ -359,7 +359,7 @@ class RuneLiteObject:
         Note:
             Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
         """
-        center: Point = self.center()
+        center: Point = self.get_center()
         rect_center: Point = self.rect.get_center()
         return math.dist([center.x, center.y], [rect_center.x, rect_center.y])
 
@@ -372,7 +372,7 @@ class RuneLiteObject:
         Note:
             Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
         """
-        center: Point = self.center()
+        center: Point = self.get_center()
         rect_left: Point = self.rect.get_center_left()
         return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
 
@@ -385,7 +385,7 @@ class RuneLiteObject:
         Note:
             Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
         """
-        center: Point = self.center()
+        center: Point = self.get_center()
         rect_left: Point = self.rect.get_top_left()
         return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
 
@@ -398,7 +398,7 @@ class RuneLiteObject:
         Note:
             Only use this if you're sorting a list of RuneLiteObjects that are contained in the same Rectangle.
         """
-        center: Point = self.center()
+        center: Point = self.get_center()
         rect_left: Point = self.rect.get_top_right()
         return math.dist([center.x, center.y], [rect_left.x, rect_left.y])
 
@@ -415,7 +415,7 @@ class RuneLiteObject:
         if custom_seeds is None:
             custom_seeds = rd.random_seeds(mod=(self._center[0] + self._center[1]))
         x, y = rd.random_point_in(self._x_min, self._y_min, self._width, self._height, custom_seeds)
-        return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.center()
+        return self.__relative_point([x, y]) if self.__point_exists([x, y]) else self.get_center()
 
     def __relative_point(self, point: List[int]) -> Point:
         """
