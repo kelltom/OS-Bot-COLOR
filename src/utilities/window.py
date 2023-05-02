@@ -200,11 +200,11 @@ class Window:
         Creates Rectangles for each skill box relative to the control panel, storing it in the class property.
         """
         self.skill_boxes = []
-        slot_w, slot_h = 59, 29
-        gap_x, gap_y = 2, 3
-        y = 38 + cp.top # change y rel to top
-        for _ in range(8): # value probably should change
-            x = 27 + cp.left # change value
+        slot_w, slot_h = 59, 29 # dimensions of a skill box
+        gap_x, gap_y = 2, 3 # pixel gap between skills
+        y = 38 + cp.top 
+        for _ in range(8): 
+            x = 27 + cp.left 
             for _ in range(3):
                 self.skill_boxes.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap_x
