@@ -196,7 +196,7 @@ class App(customtkinter.CTk):
     # ============ Button Handlers ============
     def __on_settings_clicked(self):
         window = customtkinter.CTkToplevel(master=self)
-        window.geometry("540x287")
+        window.geometry("540x400")
         window.title("Settings")
         view = SettingsView(parent=window)
         view.pack(side="top", fill="both", expand=True, padx=20, pady=20)

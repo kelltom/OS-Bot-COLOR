@@ -69,6 +69,18 @@ class SettingsView(customtkinter.CTkFrame):
         )
         widget_list.append(self.lbl_keybind_note)
 
+        # Pushbullet config
+        self.frame_pushbullet = customtkinter.CTkFrame(master=self)
+        self.frame_keybinds.columnconfigure(0, weight=0)  # lbl label
+        self.frame_keybinds.columnconfigure(1, weight=1)  # text input
+        self.pushbullet_label = customtkinter.CTkLabel(master=self.frame_pushbullet, text="Pushbullet API Key:")
+        self.pushbullet_label.grid(row=0, column=0)
+        self.pushbullet_widget = customtkinter.CTkEntry(master=self.frame_pushbullet, corner_radius=5, placeholder_text="Enter API Key...")
+        if settings.get("pushbullet_api_key"):
+            self.pushbullet_widget.insert(0, settings.get("pushbullet_api_key"))
+        self.pushbullet_widget.grid(row=0, column=1)
+        widget_list.append(self.frame_pushbullet)
+
         # Grid layout
         self.num_of_widgets = len(widget_list)
         for i in range(self.num_of_widgets):
@@ -130,6 +142,7 @@ class SettingsView(customtkinter.CTkFrame):
             settings.set("keybind", settings.default_keybind)
             print("No keybind set, using default keybind.")
         settings.set("keybind", self.current_keys)
+        settings.set("pushbullet_api_key", self.pushbullet_widget.get().strip())
         print(f"Keybind set to {settings.keybind_to_text(self.current_keys)}")
         print("Please restart OSBC for changes to take effect.")
         window.destroy()
