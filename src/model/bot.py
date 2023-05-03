@@ -87,7 +87,7 @@ class Bot(ABC):
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
-    api = API()
+    pushbullet = API()
 
     @abstractmethod
     def __init__(self, game_title, bot_title, description, window: Window):
@@ -159,7 +159,7 @@ class Bot(ABC):
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
             if settings.get("pushbullet_api_key"):
-                self.api.set_token(settings.get("pushbullet_api_key"))
+                self.pushbullet.set_token(settings.get("pushbullet_api_key"))
             self.thread = BotThread(target=self.main_loop)
             self.thread.setDaemon(True)
             self.thread.start()
@@ -605,4 +605,4 @@ class Bot(ABC):
 
     def send_notification(self, title, body):
         if settings.get("pushbullet_api_key"):
-            self.api.send_note(title, body)
+            self.pushbullet.send_note(title, body)
