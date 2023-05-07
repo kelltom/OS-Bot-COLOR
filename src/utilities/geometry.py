@@ -1,11 +1,18 @@
 import math
+import os
 from typing import List, NamedTuple
 
 import cv2
 import mss
 import numpy as np
 
+if __name__ == "__main__":
+    import sys
+
+    sys.path[0] = os.path.dirname(sys.path[0])
+
 import utilities.random_util as rd
+import utilities.debug as debug
 
 Point = NamedTuple("Point", x=int, y=int)
 
@@ -434,3 +441,26 @@ class RuneLiteObject:
             p: The point to check in the format [x, y].
         """
         return (self._axis == np.array(p)).all(axis=1).any()
+
+
+if __name__ == "__main__":
+    """
+    Run this file directly to test this module. You must have an instance of RuneLite open for this to work.
+    """
+    # Get/focus the RuneLite window currently running
+    win = debug.get_test_window()
+
+    # Screenshot the chat box and display it
+    img = win.chat.screenshot()
+    cv2.imshow("Chat Box", img)
+    cv2.waitKey(0)
+
+    # Screenshot control panel and display it
+    img = win.control_panel.screenshot()
+    cv2.imshow("Control Panel", img)
+    cv2.waitKey(0)
+
+    # Screenshot game view and display it
+    img = win.game_view.screenshot()
+    cv2.imshow("Game View", img)
+    cv2.waitKey(0)
