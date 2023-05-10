@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 import customtkinter
-
+from view.fonts import *
 
 class OptionsBuilder:
     """
@@ -112,7 +112,7 @@ class OptionsUI(customtkinter.CTkFrame):
         self.columnconfigure(1, weight=1)
 
         # Title
-        self.lbl_example_bot_options = customtkinter.CTkLabel(master=self, text=f"{title} Options")
+        self.lbl_example_bot_options = customtkinter.CTkLabel(master=self, text=f"{title} Options", font=subheading_font())
         self.lbl_example_bot_options.grid(row=0, column=0, padx=10, pady=20)
 
         # Dynamically place widgets
@@ -129,7 +129,7 @@ class OptionsUI(customtkinter.CTkFrame):
                 raise Exception("Unknown option type")
 
         # Save button
-        self.btn_save = customtkinter.CTkButton(master=self, text="Save", command=lambda: self.save(window=parent))
+        self.btn_save = customtkinter.CTkButton(master=self, text="Save", font=button_font(), command=lambda: self.save(window=parent))
         self.btn_save.grid(row=self.num_of_options + 2, column=0, columnspan=2, pady=20, padx=20)
 
     def change_slider_val(self, key, value):
@@ -140,7 +140,7 @@ class OptionsUI(customtkinter.CTkFrame):
         Creates a slider widget and adds it to the view.
         """
         # Slider label
-        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title)
+        self.labels[key] = customtkinter.CTkLabel(master=self, text=value.title, font=small_font())
         self.labels[key].grid(row=row, column=0, sticky="nsew", padx=10, pady=20)
         # Slider frame
         self.frames[key] = customtkinter.CTkFrame(master=self)
@@ -148,7 +148,7 @@ class OptionsUI(customtkinter.CTkFrame):
         self.frames[key].columnconfigure(1, weight=0)
         self.frames[key].grid(row=row, column=1, sticky="ew", padx=(0, 10))
         # Slider value indicator
-        self.slider_values[key] = customtkinter.CTkLabel(master=self.frames[key], text=str(value.min))
+        self.slider_values[key] = customtkinter.CTkLabel(master=self.frames[key], text=str(value.min), font=small_font())
         self.slider_values[key].grid(row=0, column=1)
         # Slider widget
         self.widgets[key] = customtkinter.CTkSlider(

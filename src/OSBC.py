@@ -12,6 +12,7 @@ from controller.bot_controller import BotController, MockBotController
 from model import Bot, RuneLiteBot
 from utilities.game_launcher import Launchable
 from view import *
+from view.fonts import *
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -69,7 +70,7 @@ class App(customtkinter.CTk):
         self.frame_left.grid_rowconfigure(19, minsize=20)  # empty row with minsize as spacing (adds a top padding to settings btn)
         self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below settings btn)
 
-        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts")
+        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", font=heading_font())
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         # ============ View/Controller Configuration ============
@@ -141,6 +142,7 @@ class App(customtkinter.CTk):
             fg_color="#2a2d2e",
             hover_color=self.DEFAULT_GRAY,
             text="Settings",
+            font=button_font(),
             image=self.img_settings,
             command=self.__on_settings_clicked,
         )
@@ -165,6 +167,7 @@ class App(customtkinter.CTk):
             master=self.frame_left,
             text=self.models[bot_key].bot_title,
             fg_color=self.DEFAULT_GRAY,
+            font=button_font(),
             image=self.img_rocket if launchable else None,
             command=lambda: self.__toggle_bot_by_key(bot_key, btn),
         )
@@ -200,6 +203,7 @@ class App(customtkinter.CTk):
         window.title("Settings")
         view = SettingsView(parent=window)
         view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
+        window.after(100, window.lift)  # Workaround for bug where main window takes focus
 
     def __on_game_selector_change(self, choice):
         """

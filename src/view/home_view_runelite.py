@@ -1,6 +1,7 @@
 import customtkinter
 
 import utilities.game_launcher as launcher
+from view.fonts import default_font
 
 
 class RuneLiteHomeView(customtkinter.CTkFrame):
@@ -34,7 +35,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         # self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Title
-        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}")
+        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}", font=default_font())
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
