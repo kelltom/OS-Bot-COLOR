@@ -69,7 +69,7 @@ class App(customtkinter.CTk):
         self.frame_left.grid_rowconfigure(19, minsize=20)  # empty row with minsize as spacing (adds a top padding to settings btn)
         self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below settings btn)
 
-        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", text_font=("Roboto Medium", 14))
+        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts")
         self.label_1.grid(row=1, column=0, pady=10, padx=10)
 
         # ============ View/Controller Configuration ============
@@ -279,7 +279,7 @@ class App(customtkinter.CTk):
                 pady=0,
             )
             self.current_btn = btn
-            self.current_btn.configure(fg_color=btn.hover_color)
+            self.current_btn.configure(fg_color=btn._hover_color)
         # If we are switching to a new script
         else:
             self.controller.model.progress = 0
@@ -287,7 +287,7 @@ class App(customtkinter.CTk):
             self.controller.change_model(self.models[bot_key])
             self.current_btn.configure(fg_color=self.DEFAULT_GRAY)
             self.current_btn = btn
-            self.current_btn.configure(fg_color=btn.hover_color)
+            self.current_btn.configure(fg_color=btn._hover_color)
 
     # ============ Misc Handlers ============
     def change_mode(self):

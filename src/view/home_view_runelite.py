@@ -34,7 +34,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         # self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Title
-        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}", text_font=("Roboto", 24))
+        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}")
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
@@ -44,7 +44,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
             + "step if you know your client is already configured. If a script has a rocket icon next to its name, RuneLite should instead be launched using"
             " the dedicated button provided by the script."
         )
-        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 12))
+        self.label_note = customtkinter.CTkLabel(master=self, text=self.note)
         self.label_note.bind(
             "<Configure>",
             lambda e: self.label_note.configure(wraplength=self.label_note.winfo_width() - 20),
@@ -56,7 +56,6 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.label_warning = customtkinter.CTkLabel(
             master=self,
             text=self.warning,
-            text_font=("Roboto", 10),
             text_color="orange",
         )
         self.label_warning.bind(

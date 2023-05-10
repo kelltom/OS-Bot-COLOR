@@ -39,7 +39,6 @@ class InfoFrame(customtkinter.CTkFrame):
             master=self,
             text=title,
             justify=tkinter.LEFT,
-            text_font=("default_theme", 12),
         )
         self.lbl_script_title.grid(column=0, row=0, sticky="wns", padx=15, pady=15)
 
@@ -83,12 +82,11 @@ class InfoFrame(customtkinter.CTkFrame):
             master=self,
             text="Controls",
             justify=tkinter.LEFT,
-            text_font=("default_theme", 12),
         )
         self.lbl_controls_title.grid(row=0, column=1, sticky="wns")
 
         # Button frame
-        self.btn_frame = customtkinter.CTkFrame(master=self, fg_color=self.fg_color)
+        self.btn_frame = customtkinter.CTkFrame(master=self, fg_color=self._fg_color)
         self.btn_frame.rowconfigure((1, 2, 3), weight=0)
         self.btn_frame.rowconfigure((0, 4), weight=1)
         self.btn_frame.grid(row=1, rowspan=4, column=1, padx=15, sticky="wns")
@@ -100,8 +98,8 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_play,
             command=self.play_btn_clicked,
         )
-        self.btn_play.bind("<Enter>", lambda event: event.widget.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
-        self.btn_play.bind("<Leave>", lambda event: event.widget.configure(text="Play"))
+        self.btn_play.bind("<Enter>", lambda event: self.btn_play.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
+        self.btn_play.bind("<Leave>", lambda event: self.btn_play.configure(text="Play"))
         self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
 
         self.btn_stop = customtkinter.CTkButton(
@@ -113,8 +111,8 @@ class InfoFrame(customtkinter.CTkFrame):
             image=self.img_stop,
             command=self.stop_btn_clicked,
         )
-        self.btn_stop.bind("<Enter>", lambda event: event.widget.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
-        self.btn_stop.bind("<Leave>", lambda event: event.widget.configure(text="Stop"))
+        self.btn_stop.bind("<Enter>", lambda event: self.btn_stop.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
+        self.btn_stop.bind("<Leave>", lambda event: self.btn_stop.configure(text="Stop"))
 
         self.btn_options = customtkinter.CTkButton(
             master=self.btn_frame,

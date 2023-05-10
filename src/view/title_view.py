@@ -35,7 +35,7 @@ class TitleView(customtkinter.CTkFrame):
 
         # Description label
         self.note = "The universal OSRS color bot.\n Select a game in the left-side menu to begin."
-        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 14))
+        self.label_note = customtkinter.CTkLabel(master=self, text=self.note)
         self.label_note.bind(
             "<Configure>",
             lambda e: self.label_note.configure(wraplength=self.label_note.winfo_width() - 20),

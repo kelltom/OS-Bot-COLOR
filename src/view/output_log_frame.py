@@ -20,7 +20,6 @@ class OutputLogFrame(customtkinter.CTkFrame):
             master=self,
             text="Script Log",
             justify=tkinter.LEFT,
-            text_font=("default_theme", 12),
         )
         self.lbl_title.grid(row=0, column=0, sticky="wns", padx=15, pady=15)
 
