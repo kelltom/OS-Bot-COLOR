@@ -33,7 +33,7 @@ class OutputLogFrame(customtkinter.CTkFrame):
             font=log_font(),
             bg="#343638",
             fg="#ffffff",
-            padx=5,
+            padx=20,
             pady=5,
             spacing1=4,  # spacing before a line
             spacing3=4,  # spacing after a line / wrapped line
