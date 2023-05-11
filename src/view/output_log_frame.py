@@ -1,7 +1,9 @@
 import tkinter
 
 import customtkinter
+
 from view.fonts import *
+
 
 class OutputLogFrame(customtkinter.CTkFrame):
     def __init__(self, parent):

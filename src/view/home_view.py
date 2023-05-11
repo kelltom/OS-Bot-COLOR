@@ -1,5 +1,7 @@
 import customtkinter
+
 from view.fonts import *
+
 
 class HomeView(customtkinter.CTkFrame):
     def __init__(self, parent, main, game_title: str):

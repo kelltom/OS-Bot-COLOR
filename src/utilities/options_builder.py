@@ -1,7 +1,9 @@
 from typing import Dict, List
 
 import customtkinter
+
 from view.fonts import *
+
 
 class OptionsBuilder:
     """
