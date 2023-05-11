@@ -3,7 +3,7 @@ from area import Tile, Area
 
 
 class Player:
-    def __int__(self):
+    def __init__(self):
         self.morg_http_client = MorgHTTPSocket()
 
 
