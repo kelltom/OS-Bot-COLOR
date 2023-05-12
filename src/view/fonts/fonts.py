@@ -1,5 +1,7 @@
 import customtkinter as ctk
 
+ctk.FontManager.load_font("CascadiaCode.ttf")
+
 default_font_family = "Trebuchet MS"
 default_font_size = 14
 
