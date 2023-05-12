@@ -1,7 +1,7 @@
 import customtkinter
 
 import utilities.game_launcher as launcher
-from view.fonts import *
+from view.fonts.fonts import *
 
 
 class RuneLiteHomeView(customtkinter.CTkFrame):
@@ -45,7 +45,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
             + "step if you know your client is already configured. If a script has a rocket icon next to its name, RuneLite should instead be launched using"
             " the dedicated button provided by the script."
         )
-        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, font=body_font())
+        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, font=body_med_font())
         self.label_note.bind(
             "<Configure>",
             lambda e: self.label_note.configure(wraplength=self.label_note.winfo_width() - 20),
@@ -57,7 +57,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.label_warning = customtkinter.CTkLabel(
             master=self,
             text=self.warning,
-            font=body_font(),
+            font=body_med_font(),
             text_color="orange",
         )
         self.label_warning.bind(
@@ -70,7 +70,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.btn_replace = customtkinter.CTkButton(
             master=self,
             text=f"Launch {game_title}",
-            font=button_font(),
+            font=button_med_font(),
             command=self.__launch,
         )
         self.btn_replace.grid(row=5, column=0, sticky="nwes", padx=40, pady=(0, 15))
@@ -79,7 +79,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.btn_skip = customtkinter.CTkButton(
             master=self,
             text="Skip",
-            font=button_font(),
+            font=button_med_font(),
             fg_color="gray40",
             hover_color="gray25",
             command=self.__skip,
@@ -90,7 +90,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.btn_skip = customtkinter.CTkButton(
             master=self,
             text="Reset Saved Path",
-            font=button_font(),
+            font=button_med_font(),
             fg_color="DarkRed",
             hover_color="red",
             command=self.__reset_saved_path,
@@ -98,7 +98,7 @@ class RuneLiteHomeView(customtkinter.CTkFrame):
         self.btn_skip.grid(row=7, column=0, sticky="ns", padx=10, pady=(0, 15))
 
         # Status label
-        self.label_status = customtkinter.CTkLabel(master=self, text="", font=body_font())
+        self.label_status = customtkinter.CTkLabel(master=self, text="", font=body_med_font())
         self.label_status.grid(row=8, column=0, sticky="nwes")
         self.label_status.bind(
             "<Configure>",

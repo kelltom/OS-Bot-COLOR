@@ -4,7 +4,7 @@ import tkinter
 import customtkinter
 
 from utilities.sprite_scraper import SpriteScraper
-from view.fonts import *
+from view.fonts.fonts import *
 
 scraper = SpriteScraper()
 

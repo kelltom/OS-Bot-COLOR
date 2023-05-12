@@ -13,14 +13,14 @@ from controller.bot_controller import BotController, MockBotController
 from model import Bot, RuneLiteBot
 from utilities.game_launcher import Launchable
 from view import *
-from view.fonts import *
+from view.fonts.fonts import *
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
 class App(customtkinter.CTk):
-    WIDTH = 650
+    WIDTH = 680
     HEIGHT = 480
     DEFAULT_GRAY = ("gray50", "gray30")
 
@@ -114,6 +114,8 @@ class App(customtkinter.CTk):
         # Dropdown menu for selecting a game
         self.menu_game_selector = customtkinter.CTkOptionMenu(
             master=self.frame_left,
+            font=body_large_font(),
+            dropdown_font=body_med_font(),
             values=list(self.btn_map.keys()),
             command=self.__on_game_selector_change,
         )
@@ -146,7 +148,7 @@ class App(customtkinter.CTk):
             fg_color="#2a2d2e",
             hover_color=self.DEFAULT_GRAY,
             text="Settings",
-            font=button_font(),
+            font=button_med_font(),
             image=self.img_settings,
             command=self.__on_settings_clicked,
         )
@@ -177,7 +179,7 @@ class App(customtkinter.CTk):
         else:
             text = text
             tooltip = False
-        font = button_font(10) if len(self.models[bot_key].bot_title) > shrink_length else button_font(12)
+        font = button_small_font() if len(self.models[bot_key].bot_title) > shrink_length else button_med_font()
 
         btn = customtkinter.CTkButton(
             master=self.scrollable_frame_left,

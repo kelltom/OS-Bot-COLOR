@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import customtkinter
 
-from view.fonts import *
+from view.fonts.fonts import *
 
 
 class OptionsBuilder:
@@ -131,7 +131,7 @@ class OptionsUI(customtkinter.CTkFrame):
                 raise Exception("Unknown option type")
 
         # Save button
-        self.btn_save = customtkinter.CTkButton(master=self, text="Save", font=button_font(), command=lambda: self.save(window=parent))
+        self.btn_save = customtkinter.CTkButton(master=self, text="Save", font=button_med_font(), command=lambda: self.save(window=parent))
         self.btn_save.grid(row=self.num_of_options + 2, column=0, columnspan=2, pady=20, padx=20)
 
     def change_slider_val(self, key, value):

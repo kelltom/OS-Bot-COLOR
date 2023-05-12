@@ -7,7 +7,7 @@ from pynput import keyboard
 
 import utilities.settings as settings
 from utilities.game_launcher import Launchable
-from view.fonts import *
+from view.fonts.fonts import *
 
 
 class InfoFrame(customtkinter.CTkFrame):
@@ -45,7 +45,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_script_title.grid(column=0, row=0, sticky="wns", padx=20, pady=15)
 
         # -- script description
-        self.lbl_script_desc = customtkinter.CTkLabel(master=self, text=info, font=small_font(), justify=tkinter.CENTER)
+        self.lbl_script_desc = customtkinter.CTkLabel(master=self, text=info, font=body_med_font(), justify=tkinter.CENTER)
         self.lbl_script_desc.grid(column=0, row=2, sticky="nwes", padx=15)
         self.lbl_script_desc.bind(
             "<Configure>",
@@ -97,7 +97,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_play = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Play",
-            font=button_font(),
+            font=button_med_font(),
             text_color="white",
             image=self.img_play,
             command=self.play_btn_clicked,
@@ -109,7 +109,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_stop = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Stop",
-            font=button_font(),
+            font=button_med_font(),
             text_color="white",
             fg_color="#910101",
             hover_color="#690101",
@@ -122,7 +122,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_options = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Options",
-            font=button_font(),
+            font=button_med_font(),
             text_color="white",
             fg_color="#d97b00",
             hover_color="#b36602",
@@ -134,7 +134,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_launch = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Launch Game",
-            font=button_font(),
+            font=button_med_font(),
             text_color="white",
             fg_color="#616161",
             image=self.img_start,

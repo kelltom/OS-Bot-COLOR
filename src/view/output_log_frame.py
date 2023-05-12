@@ -2,7 +2,7 @@ import tkinter
 
 import customtkinter
 
-from view.fonts import *
+from view.fonts.fonts import *
 
 
 class OutputLogFrame(customtkinter.CTkFrame):

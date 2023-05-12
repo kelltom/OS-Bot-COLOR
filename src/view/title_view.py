@@ -4,7 +4,7 @@ import webbrowser as wb
 import customtkinter
 from PIL import Image, ImageTk
 
-from view.fonts import *
+from view.fonts.fonts import *
 from view.sprite_scraper_view import SpriteScraperView
 
 
@@ -31,7 +31,7 @@ class TitleView(customtkinter.CTkFrame):
             Image.open(f"{self.logo_path}/images/ui/logo.png").resize((411, 64)),
             Image.ANTIALIAS,
         )
-        self.label_logo = customtkinter.CTkLabel(self, image=self.logo, text="", font=body_font())
+        self.label_logo = customtkinter.CTkLabel(self, image=self.logo, text="", font=body_med_font())
         self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
@@ -55,7 +55,7 @@ class TitleView(customtkinter.CTkFrame):
         self.btn_github = customtkinter.CTkButton(
             master=self,
             text="GitHub",
-            font=button_font(),
+            font=button_med_font(),
             image=self.github_logo,
             width=BTN_WIDTH,
             height=BTN_HEIGHT,
@@ -74,7 +74,7 @@ class TitleView(customtkinter.CTkFrame):
         self.btn_feedback = customtkinter.CTkButton(
             master=self,
             text="Feedback",
-            font=button_font(),
+            font=button_med_font(),
             image=self.feedback_logo,
             width=BTN_WIDTH,
             height=BTN_HEIGHT,
@@ -93,7 +93,7 @@ class TitleView(customtkinter.CTkFrame):
         self.btn_feedback = customtkinter.CTkButton(
             master=self,
             text="Report Bug",
-            font=button_font(),
+            font=button_med_font(),
             image=self.bug_logo,
             width=BTN_WIDTH,
             height=BTN_HEIGHT,
@@ -113,7 +113,7 @@ class TitleView(customtkinter.CTkFrame):
         self.btn_sprite_scraper = customtkinter.CTkButton(
             master=self,
             text="Scraper",
-            font=button_font(),
+            font=button_med_font(),
             image=self.scraper_logo,
             width=BTN_WIDTH,
             height=BTN_HEIGHT,
