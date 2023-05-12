@@ -177,7 +177,6 @@ class App(customtkinter.CTk):
             text = f"{text[:max_length]}..."
             tooltip = True
         else:
-            text = text
             tooltip = False
         font = button_small_font() if len(self.models[bot_key].bot_title) > shrink_length else button_med_font()
 

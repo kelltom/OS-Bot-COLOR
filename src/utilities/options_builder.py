@@ -209,7 +209,7 @@ class OptionsUI(customtkinter.CTkScrollableFrame):
             if isinstance(value, customtkinter.CTkSlider):
                 self.options[key] = int(value.get() * 100)
             elif isinstance(value, list):  # Checkboxes
-                self.options[key] = [checkbox.text for checkbox in value if checkbox.get()]
+                self.options[key] = [checkbox.cget("text") for checkbox in value if checkbox.get()]
             elif isinstance(value, (customtkinter.CTkOptionMenu, customtkinter.CTkEntry)):
                 self.options[key] = value.get()
         # Send to controller

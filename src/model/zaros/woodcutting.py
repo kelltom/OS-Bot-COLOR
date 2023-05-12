@@ -32,7 +32,7 @@ class ZarosWoodcutter(ZarosBot):
             elif option == "protect_slots":
                 self.protect_slots = options[option]
             elif option == "logout_on_friends":
-                self.logout_on_friends = options[option] == "Enable"
+                self.logout_on_friends = options[option] == ["Enable"]
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
