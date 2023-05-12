@@ -6,6 +6,7 @@ from typing import List
 import customtkinter
 from PIL import Image, ImageTk
 from pynput import keyboard
+from tktooltip import ToolTip
 
 import utilities.settings as settings
 from controller.bot_controller import BotController, MockBotController
@@ -20,7 +21,7 @@ customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "gre
 
 class App(customtkinter.CTk):
     WIDTH = 650
-    HEIGHT = 520
+    HEIGHT = 480
     DEFAULT_GRAY = ("gray50", "gray30")
 
     def __init__(self, test: bool = False):
@@ -54,7 +55,6 @@ class App(customtkinter.CTk):
 
         self.frame_left = customtkinter.CTkFrame(
             master=self,
-            width=180,  # static min-width on left-hand sidebar
             corner_radius=0,
         )
         self.frame_left.grid(row=0, column=0, sticky="nswe")
@@ -62,18 +62,7 @@ class App(customtkinter.CTk):
         self.frame_right = customtkinter.CTkFrame(master=self)
         self.frame_right.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
 
-        # ============ Left-Side Menu (frame_left) ============
-
-        # configure grid layout
-        self.frame_left.grid_rowconfigure(0, minsize=10)  # empty row with minsize as spacing (top padding above title)
-        self.frame_left.grid_rowconfigure(18, weight=1)  # empty row as spacing (resizable spacing between buttons and settings btn)
-        self.frame_left.grid_rowconfigure(19, minsize=20)  # empty row with minsize as spacing (adds a top padding to settings btn)
-        self.frame_left.grid_rowconfigure(21, minsize=10)  # empty row with minsize as spacing (bottom padding below settings btn)
-
-        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", font=heading_font())
-        self.label_1.grid(row=1, column=0, pady=10, padx=10)
-
-        # ============ View/Controller Configuration ============
+        # ============ View/Controller Configuration (frame_right) ============
         self.views: dict[str, customtkinter.CTkFrame] = {}  # A map of all views, keyed by game title
         self.models: dict[str, Bot] = {}  # A map of all models (bots), keyed by bot title
 
@@ -95,7 +84,23 @@ class App(customtkinter.CTk):
         self.controller = BotController(model=None, view=self.views["Script"])
         self.views["Script"].set_controller(self.controller)
 
-        # ============ Bot/Button Configuration ============
+        # ============ Left-Side Menu (frame_left) ============
+
+        # Configure grid layout
+        self.frame_left.grid_columnconfigure(0, weight=0)  # label
+        self.frame_left.grid_columnconfigure(1, weight=0)  # dropdown
+        self.frame_left.grid_rowconfigure(2, weight=1)  # buttons
+        self.frame_left.grid_rowconfigure(3, weight=0)  # settings
+
+        # Label and dropdown menu inside the scrollable frame
+        self.label_1 = customtkinter.CTkLabel(master=self.frame_left, text="Scripts", font=heading_font())
+        self.label_1.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+        # Create Scrollable Frame
+        self.scrollable_frame_left = customtkinter.CTkScrollableFrame(master=self.frame_left, width=160, fg_color="#2b2b2b", scrollbar_button_color="#333333")
+        self.scrollable_frame_left.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
+
+        # ============ Bot/Button Configuration (scrollable_frame_left) ============
         # Dynamically import all bots from the model folder and add them to the UI
         # If your bot is not appearing, make sure it is referenced in the __init__.py file of the folder it exists in.
 
@@ -105,6 +110,15 @@ class App(customtkinter.CTk):
         self.btn_map: dict[str, List[customtkinter.CTkButton]] = {
             "Select a game": [],
         }
+
+        # Dropdown menu for selecting a game
+        self.menu_game_selector = customtkinter.CTkOptionMenu(
+            master=self.frame_left,
+            values=list(self.btn_map.keys()),
+            command=self.__on_game_selector_change,
+        )
+        self.menu_game_selector.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
+
         module = importlib.import_module("model")
         names = dir(module)
         for name in names:
@@ -123,18 +137,8 @@ class App(customtkinter.CTk):
                 self.models[name] = instance
                 self.btn_map[instance.game_title].append(self.__create_button(bot_key=name, launchable=isinstance(instance, Launchable)))
 
-        # Dropdown menu for selecting a game
-        self.menu_game_selector = customtkinter.CTkOptionMenu(
-            master=self.frame_left,
-            values=list(self.btn_map.keys()),
-            command=self.__on_game_selector_change,
-        )
-        self.menu_game_selector.grid(row=2, column=0, sticky="we", padx=10, pady=10)
-
-        # Theme Switch (currently disabled)
-        self.switch = customtkinter.CTkSwitch(master=self.frame_left, text="Dark Mode", command=self.change_mode)
-        # self.switch.select()
-        # self.switch.grid(row=20, column=0, pady=10, padx=20, sticky="w")
+        # Configure the dropdown values to be list(self.btn_map.keys())
+        self.menu_game_selector.configure(values=list(self.btn_map.keys()))
 
         # Settings Button (in the position of the Theme Switch)
         self.btn_settings = customtkinter.CTkButton(
@@ -146,7 +150,7 @@ class App(customtkinter.CTk):
             image=self.img_settings,
             command=self.__on_settings_clicked,
         )
-        self.btn_settings.grid(row=20, column=0, pady=(5, 10), padx=5)
+        self.btn_settings.grid(row=3, column=0, pady=(5, 10), padx=5)
 
         # Status variables to track state of views and buttons
         self.current_home_view: customtkinter.CTkFrame = self.views["Select a game"]
@@ -163,14 +167,30 @@ class App(customtkinter.CTk):
         Returns:
             Tkinter.Button - the button created.
         """
+        max_length = 14 if launchable else 18
+        shrink_length = 10 if launchable else 14
+
+        text: str = self.models[bot_key].bot_title
+        if len(text) > max_length:
+            text = f"{text[:max_length]}..."
+            tooltip = True
+        else:
+            text = text
+            tooltip = False
+        font = button_font(10) if len(self.models[bot_key].bot_title) > shrink_length else button_font(12)
+
         btn = customtkinter.CTkButton(
-            master=self.frame_left,
-            text=self.models[bot_key].bot_title,
+            master=self.scrollable_frame_left,
+            text=text,
             fg_color=self.DEFAULT_GRAY,
-            font=button_font(),
+            font=font,
             image=self.img_rocket if launchable else None,
             command=lambda: self.__toggle_bot_by_key(bot_key, btn),
         )
+
+        if tooltip:
+            ToolTip(btn, delay=0.1, font=small_font(), msg=self.models[bot_key].bot_title, bg="#333333", fg="#ffffff")
+
         return btn
 
     def toggle_btn_state(self, enabled: bool):
@@ -294,12 +314,6 @@ class App(customtkinter.CTk):
             self.current_btn.configure(fg_color=btn._hover_color)
 
     # ============ Misc Handlers ============
-    def change_mode(self):
-        if self.switch.get() == 1:
-            customtkinter.set_appearance_mode("dark")
-        else:
-            customtkinter.set_appearance_mode("light")
-
     def on_closing(self, event=0):
         self.destroy()
 

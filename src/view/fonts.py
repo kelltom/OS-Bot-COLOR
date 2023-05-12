@@ -36,11 +36,11 @@ def body_font():
     return get_font(size=14)
 
 
-def button_font():
+def button_font(size=12):
     """
     Preset for button text.
     """
-    return get_font(size=12, weight="bold")
+    return get_font(size=size, weight="bold")
 
 
 def small_font():
