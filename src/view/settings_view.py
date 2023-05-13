@@ -12,6 +12,7 @@ import pynput.keyboard as keyboard
 from PIL import Image, ImageTk
 
 import utilities.settings as settings
+from view.fonts.fonts import *
 
 
 class SettingsView(customtkinter.CTkFrame):
@@ -45,7 +46,7 @@ class SettingsView(customtkinter.CTkFrame):
         self.frame_keybinds.columnconfigure(0, weight=1)  # lbl label
         self.frame_keybinds.columnconfigure(1, weight=0)  # lbl keybind
         self.frame_keybinds.columnconfigure(2, weight=0)  # btn set
-        self.lbl_keybinds = customtkinter.CTkLabel(master=self.frame_keybinds, text="Bot start/stop keybind: ")
+        self.lbl_keybinds = customtkinter.CTkLabel(master=self.frame_keybinds, text="Bot start/stop keybind: ", font=body_med_font())
         self.lbl_keybinds.grid(row=0, column=0, padx=20, pady=20)
         self.entry_keybinds = customtkinter.CTkLabel(
             master=self.frame_keybinds, text=f"{settings.keybind_to_text(self.current_keys) if self.current_keys else 'None'}"
@@ -62,7 +63,7 @@ class SettingsView(customtkinter.CTkFrame):
             "Use the `EDIT` button to unlock keyboard input. Press `ESC` to clear input. The new keybind will not be saved until you click the Save button &"
             " restart OSBC."
         )
-        self.lbl_keybind_note = customtkinter.CTkLabel(master=self, text=self.note)
+        self.lbl_keybind_note = customtkinter.CTkLabel(master=self, text=self.note, font=small_font())
         self.lbl_keybind_note.bind(
             "<Configure>",
             lambda e: self.lbl_keybind_note.configure(wraplength=self.lbl_keybind_note.winfo_width() - 10),
@@ -83,7 +84,7 @@ class SettingsView(customtkinter.CTkFrame):
             widget_list[i].grid(row=i, column=0, columnspan=2, sticky="nsew", padx=20, pady=20)
 
         # Save button
-        self.btn_save = customtkinter.CTkButton(master=self, text="Save", command=lambda: self.save(window=parent))
+        self.btn_save = customtkinter.CTkButton(master=self, text="Save", font=button_med_font(), command=lambda: self.save(window=parent))
         self.btn_save.grid(row=self.num_of_widgets + 2, column=0, columnspan=2, pady=20, padx=20)
 
     def __modify_keybind(self):

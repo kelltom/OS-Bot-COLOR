@@ -7,6 +7,7 @@ from pynput import keyboard
 
 import utilities.settings as settings
 from utilities.game_launcher import Launchable
+from view.fonts.fonts import *
 
 
 class InfoFrame(customtkinter.CTkFrame):
@@ -38,13 +39,13 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_script_title = customtkinter.CTkLabel(
             master=self,
             text=title,
+            font=subheading_font(),
             justify=tkinter.LEFT,
-            text_font=("default_theme", 12),
         )
-        self.lbl_script_title.grid(column=0, row=0, sticky="wns", padx=15, pady=15)
+        self.lbl_script_title.grid(column=0, row=0, sticky="wns", padx=20, pady=15)
 
         # -- script description
-        self.lbl_script_desc = customtkinter.CTkLabel(master=self, text=info, justify=tkinter.CENTER)
+        self.lbl_script_desc = customtkinter.CTkLabel(master=self, text=info, font=body_med_font(), justify=tkinter.CENTER)
         self.lbl_script_desc.grid(column=0, row=2, sticky="nwes", padx=15)
         self.lbl_script_desc.bind(
             "<Configure>",
@@ -52,7 +53,7 @@ class InfoFrame(customtkinter.CTkFrame):
         )
 
         # -- script progress bar
-        self.lbl_progress = customtkinter.CTkLabel(master=self, text="Progress: 0%", justify=tkinter.CENTER)
+        self.lbl_progress = customtkinter.CTkLabel(master=self, text="Progress: 0%", font=small_font(), justify=tkinter.CENTER)
         self.lbl_progress.grid(row=4, column=0, pady=(15, 0), sticky="ew")
 
         self.progressbar = customtkinter.CTkProgressBar(master=self)
@@ -82,13 +83,13 @@ class InfoFrame(customtkinter.CTkFrame):
         self.lbl_controls_title = customtkinter.CTkLabel(
             master=self,
             text="Controls",
+            font=subheading_font(),
             justify=tkinter.LEFT,
-            text_font=("default_theme", 12),
         )
-        self.lbl_controls_title.grid(row=0, column=1, sticky="wns")
+        self.lbl_controls_title.grid(row=0, column=1, sticky="wns", padx=20)
 
         # Button frame
-        self.btn_frame = customtkinter.CTkFrame(master=self, fg_color=self.fg_color)
+        self.btn_frame = customtkinter.CTkFrame(master=self, fg_color=self._fg_color)
         self.btn_frame.rowconfigure((1, 2, 3), weight=0)
         self.btn_frame.rowconfigure((0, 4), weight=1)
         self.btn_frame.grid(row=1, rowspan=4, column=1, padx=15, sticky="wns")
@@ -96,29 +97,32 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_play = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Play",
+            font=button_med_font(),
             text_color="white",
             image=self.img_play,
             command=self.play_btn_clicked,
         )
-        self.btn_play.bind("<Enter>", lambda event: event.widget.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
-        self.btn_play.bind("<Leave>", lambda event: event.widget.configure(text="Play"))
+        self.btn_play.bind("<Enter>", lambda event: self.btn_play.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
+        self.btn_play.bind("<Leave>", lambda event: self.btn_play.configure(text="Play"))
         self.btn_play.grid(row=1, column=0, pady=(0, 15), sticky="nsew")
 
         self.btn_stop = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Stop",
+            font=button_med_font(),
             text_color="white",
             fg_color="#910101",
             hover_color="#690101",
             image=self.img_stop,
             command=self.stop_btn_clicked,
         )
-        self.btn_stop.bind("<Enter>", lambda event: event.widget.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
-        self.btn_stop.bind("<Leave>", lambda event: event.widget.configure(text="Stop"))
+        self.btn_stop.bind("<Enter>", lambda event: self.btn_stop.configure(text=f"{settings.keybind_to_text(self.combination_keys)}"))
+        self.btn_stop.bind("<Leave>", lambda event: self.btn_stop.configure(text="Stop"))
 
         self.btn_options = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Options",
+            font=button_med_font(),
             text_color="white",
             fg_color="#d97b00",
             hover_color="#b36602",
@@ -130,6 +134,7 @@ class InfoFrame(customtkinter.CTkFrame):
         self.btn_launch = customtkinter.CTkButton(
             master=self.btn_frame,
             text="Launch Game",
+            font=button_med_font(),
             text_color="white",
             fg_color="#616161",
             image=self.img_start,
@@ -137,7 +142,7 @@ class InfoFrame(customtkinter.CTkFrame):
         )
         self.btn_launch.configure(state=tkinter.DISABLED)
 
-        self.lbl_status = customtkinter.CTkLabel(master=self, text="Status: Idle", justify=tkinter.CENTER)
+        self.lbl_status = customtkinter.CTkLabel(master=self, text="Status: Idle", font=small_font(), justify=tkinter.CENTER)
         self.lbl_status.grid(row=5, column=1, pady=(0, 15), sticky="we")
 
         self.controller = None
@@ -176,6 +181,7 @@ class InfoFrame(customtkinter.CTkFrame):
 
         view = self.controller.get_options_view(parent=window)
         view.pack(side="top", fill="both", expand=True, padx=20, pady=20)
+        window.after(100, window.lift)  # Workaround for bug where main window takes focus
 
     def on_options_closing(self, window):
         self.controller.abort_options()
