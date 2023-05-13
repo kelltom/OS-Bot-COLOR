@@ -1,7 +1,7 @@
 ### ⚠️ This project is in Alpha stage ⚠️
 
 # ![](documentation/media/logo.png)
-OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts (bots) for Old School RuneScape and private server alternatives. This application is paired with a custom library of tools for streamlining the development of new bots. Unlike most botting frameworks that employ code injection into the game client, OSBC uses a combination of color manipulation, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to emulate human eyes and hands, and wrap that complex logic in an easy-to-use framework.
+OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts (bots) for Old School RuneScape and private server alternatives. This application is paired with a custom library of tools for streamlining the development of new bots. Unlike most botting frameworks that employ code injection into the game client, OSBC uses a combination of color manipulation, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to provide a fun learning experience for new & seasoned developers alike!
 
 💬 [Join the Discord](https://discord.gg/Znks7Smya4) to discuss the project, ask questions, and follow development
 
