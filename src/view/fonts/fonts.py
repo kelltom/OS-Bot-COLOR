@@ -1,12 +1,16 @@
+import pathlib
+
 import customtkinter as ctk
 
-ctk.FontManager.load_font("CascadiaCode.ttf")
-
-default_font_family = "Trebuchet MS"
-default_font_size = 14
+fonts_path = pathlib.Path(__file__).parent
+ctk.FontManager.load_font(str(fonts_path.joinpath("CascadiaCode.ttf")))
 
 
-def get_font(family=default_font_family, size=default_font_size, weight="normal", slant="roman", underline=False):
+def get_font(family="Trebuchet MS", size=14, weight="normal", slant="roman", underline=False):
+    """
+    Gets a font object with the given parameters. This is a wrapper for ctk.CTkFont. Provides
+    defaults for app theme fonts.
+    """
     return ctk.CTkFont(family=family, size=size, weight=weight, slant=slant, underline=underline)
 
 
