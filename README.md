@@ -37,7 +37,7 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automat
   - [Lightning Fast Optical Character Recognition](#lightning-fast-optical-character-recognition)
 
 # Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>
-1. Install [Python 3.10](https://www.python.org/downloads/release/python-3109/) *(newer versions are not compatible)*
+1. Install [Python 3.10](https://www.python.org/downloads/release/python-3109/) *(not compatible with other major versions)*
 2. Clone/download this repository
 3. Open the project folder in your IDE (VS Code preferred)
 4. Open the repository folder in a terminal window
