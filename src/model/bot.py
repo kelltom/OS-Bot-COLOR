@@ -11,6 +11,7 @@ import warnings
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, Union
+from pushbullet import API
 
 import customtkinter
 import numpy as np
@@ -23,6 +24,8 @@ import utilities.debug as debug
 import utilities.imagesearch as imsearch
 import utilities.ocr as ocr
 import utilities.random_util as rd
+import utilities.settings as settings
+
 from utilities.geometry import Point, Rectangle
 from utilities.mouse import Mouse
 from utilities.options_builder import OptionsBuilder
@@ -84,6 +87,7 @@ class Bot(ABC):
     progress: float = 0
     status = BotStatus.STOPPED
     thread: BotThread = None
+    pushbullet = API()
 
     @abstractmethod
     def __init__(self, game_title, bot_title, description, window: Window):
@@ -154,6 +158,8 @@ class Bot(ABC):
                 return
             self.reset_progress()
             self.set_status(BotStatus.RUNNING)
+            if settings.get("pushbullet_api_key"):
+                self.pushbullet.set_token(settings.get("pushbullet_api_key"))
             self.thread = BotThread(target=self.main_loop)
             self.thread.setDaemon(True)
             self.thread.start()
@@ -596,3 +602,7 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
+
+    def send_notification(self, title, body):
+        if settings.get("pushbullet_api_key"):
+            self.pushbullet.send_note(title, body)
