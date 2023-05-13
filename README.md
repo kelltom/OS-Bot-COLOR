@@ -41,7 +41,7 @@ OSRS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automat
 2. Clone/download this repository
 3. Open the project folder in your IDE (VS Code preferred)
 4. Open the repository folder in a terminal window
-   1. Create a virtual environment ```python -m venv env``` or ```py -m venv env``` if you have multiple versions of Python installed
+   1. Create a virtual environment ```py -3.10 -m venv env```
    2. Activate the newly created virtual environment ```.\env\Scripts\activate```
    3. Install the depedencies ```pip install -r requirements.txt```
 5. Run `./src/*OSBC.py*` *(may need to restart IDE for it to recognize installed dependencies)*
