@@ -90,13 +90,13 @@ class TextEditInfo:
 
 class OptionsUI(customtkinter.CTkScrollableFrame):
     WIDTH = 500
-    HEIGHT = 500
+    HEIGHT = 400
 
     def __init__(self, parent, title: str, option_info: dict, controller):
         # sourcery skip: raise-specific-error
         super().__init__(parent)
 
-        parent.minsize(self.WIDTH, self.HEIGHT)
+        parent.geometry(f"{self.WIDTH}x{self.HEIGHT}")
 
         # Contains the widgets for option selection.
         # It will be queried to get the option values selected upon save btn clicked.
