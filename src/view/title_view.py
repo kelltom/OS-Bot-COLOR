@@ -42,7 +42,7 @@ class TitleView(customtkinter.CTkFrame):
             lambda e: self.label_note.configure(wraplength=self.label_note.winfo_width() - 20),
         )
         self.label_note.grid(row=2, column=0, columnspan=3, sticky="nwes", padx=15, pady=(0, 30))
-        
+
         # Buttons
         IMG_SIZE = 24
         BTN_WIDTH, BTN_HEIGHT = (96, 64)
