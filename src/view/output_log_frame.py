@@ -2,6 +2,8 @@ import tkinter
 
 import customtkinter
 
+from view.fonts.fonts import *
+
 
 class OutputLogFrame(customtkinter.CTkFrame):
     def __init__(self, parent):
@@ -19,8 +21,8 @@ class OutputLogFrame(customtkinter.CTkFrame):
         self.lbl_title = customtkinter.CTkLabel(
             master=self,
             text="Script Log",
+            font=subheading_font(),
             justify=tkinter.LEFT,
-            text_font=("default_theme", 12),
         )
         self.lbl_title.grid(row=0, column=0, sticky="wns", padx=15, pady=15)
 
@@ -28,10 +30,10 @@ class OutputLogFrame(customtkinter.CTkFrame):
         self.txt_log = tkinter.Text(
             master=self,
             wrap=tkinter.WORD,
-            font=("Roboto", 10),
+            font=log_font(),
             bg="#343638",
             fg="#ffffff",
-            padx=5,
+            padx=20,
             pady=5,
             spacing1=4,  # spacing before a line
             spacing3=4,  # spacing after a line / wrapped line

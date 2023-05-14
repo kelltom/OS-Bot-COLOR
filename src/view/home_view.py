@@ -1,5 +1,7 @@
 import customtkinter
 
+from view.fonts.fonts import *
+
 
 class HomeView(customtkinter.CTkFrame):
     def __init__(self, parent, main, game_title: str):
@@ -22,14 +24,8 @@ class HomeView(customtkinter.CTkFrame):
         self.grid_rowconfigure(6, weight=0)  # - Status
         self.grid_rowconfigure(9, weight=1)  # Spacing
 
-        # Logo
-        # self.logo_path = Path(__file__).parent.parent.parent.resolve()
-        # self.logo = ImageTk.PhotoImage(Image.open(f"{self.logo_path}/src/images/ui/osrs_logo.png").resize((268, 120), Image.LANCZOS))
-        # self.label_logo = customtkinter.CTkLabel(self, image=self.logo)
-        # self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
-
         # Title
-        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}", text_font=("Roboto", 24))
+        self.label_title = customtkinter.CTkLabel(self, text=f"{game_title}", font=title_font())
         self.label_title.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
@@ -37,7 +33,7 @@ class HomeView(customtkinter.CTkFrame):
             "Basic HomeViews are not fully implemented yet. Once support for non-RuneLite games is added to OSBC, this will be updated. <Game description and"
             " user instructions here>. Click the button below to unlock the scripts."
         )
-        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, text_font=("Roboto", 12))
+        self.label_note = customtkinter.CTkLabel(master=self, text=self.note, font=body_med_font())
         self.label_note.bind(
             "<Configure>",
             lambda e: self.label_note.configure(wraplength=self.label_note.winfo_width() - 20),
@@ -49,7 +45,7 @@ class HomeView(customtkinter.CTkFrame):
         self.label_warning = customtkinter.CTkLabel(
             master=self,
             text=self.warning,
-            text_font=("Roboto", 10),
+            font=body_med_font(),
             text_color="orange",
         )
         self.label_warning.bind(
@@ -62,6 +58,7 @@ class HomeView(customtkinter.CTkFrame):
         self.btn_skip = customtkinter.CTkButton(
             master=self,
             text="I Understand",
+            font=button_med_font(),
             fg_color="gray40",
             hover_color="gray25",
             command=self.__skip,
@@ -69,7 +66,7 @@ class HomeView(customtkinter.CTkFrame):
         self.btn_skip.grid(row=5, column=0, sticky="nwes", padx=40, pady=(0, 15))
 
         # Status label
-        self.label_status = customtkinter.CTkLabel(master=self, text="")
+        self.label_status = customtkinter.CTkLabel(master=self, text="", font=body_med_font())
         self.label_status.grid(row=6, column=0, sticky="nwes")
         self.label_status.bind(
             "<Configure>",

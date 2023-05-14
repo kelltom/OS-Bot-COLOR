@@ -10,7 +10,10 @@ from typing import Callable, Union
 
 import psutil
 
+# Path to the folder containing the RuneLite settings files.
 RL_SETTINGS_FOLDER_PATH: Path = Path(__file__).parent.parent.joinpath("runelite_settings")
+# Path to default profile copy location.
+TEMP_PROFILE_PATH = os.path.join(RL_SETTINGS_FOLDER_PATH, "temp.properties")
 # Path to the file containing the paths to the executables for each game title.
 EXECUTABLES_PATH: str = str(RL_SETTINGS_FOLDER_PATH.joinpath("executable_paths.json"))
 # Path to the file containing the paths to the profile manager folders for each game title.
@@ -95,10 +98,15 @@ def launch_runelite(properties_path: Path, game_title: str, use_profile_manager:
         EXECARG2 = f"--profile={profile_name}"
     else:
         # Set the destination path to a temporary location in OSBC
-        dst_path = os.path.join(RL_SETTINGS_FOLDER_PATH, "temp.properties")
+        dst_path = TEMP_PROFILE_PATH
         # Set the executable args to use the legacy command
         EXECARG1 = "--clientargs"
         EXECARG2 = f"--config={dst_path} --sessionfile=bot_session"
+
+    # If the destination path is None, the user failed to locate the profile manager folder.
+    if dst_path is None:
+        callback("Profile list not found. Reset and try again, or manually import a plugin profile into the RL Profile Manager.")
+        return False
 
     shutil.copyfile(src_path, dst_path)
 
@@ -125,11 +133,10 @@ def reset_saved_paths(game_title: str, callback: Callable = print):
             __del_key_from_json(EXECUTABLES_PATH, key)
         if os.path.exists(PM_PATH):
             __del_key_from_json(PM_PATH, key)
-    except json.decoder.JSONDecodeError:
-        callback(text=f"An error occurred while resetting the storage paths. One or more JSON file in {RL_SETTINGS_FOLDER_PATH} is corrupt.")
-        return
 
-    callback(text=f"{game_title} executable & profile storage paths has been reset.")
+        callback(text=f"{game_title} executable & profile storage paths has been reset.")
+    except Exception as e:
+        callback(text=f"An error occurred while resetting the storage paths: {str(e)}")
 
 
 def __configure_profile_manager(game_title: str, callback: Callable, profile_name: str):
@@ -157,7 +164,7 @@ def __configure_profile_manager(game_title: str, callback: Callable, profile_nam
     profiles_folder_path = pm_data.get(game_title, "")
     if not os.path.exists(profiles_folder_path):
         callback("Profile folder not found. Please locate the folder.")
-        profiles_folder_path = __locate_folder(prompt="Select the Profile Manager folder for this game (usually .runelite/profiles2/).")
+        profiles_folder_path = __locate_folder(prompt="IMPORTANT: Select the Profile Manager folder (e.g., C:\\Users\\<user>\\.runelite\\profiles2).")
         if not profiles_folder_path:
             callback("Folder not selected.")
             return
@@ -169,7 +176,10 @@ def __configure_profile_manager(game_title: str, callback: Callable, profile_nam
     # Open the `profiles.json` file
     profiles_json_path = Path(profiles_folder_path).joinpath("profiles.json")
     if not os.path.exists(profiles_json_path):
-        callback("Profile list not found. Please create a profile in the Profile Manager.")
+        callback(
+            "Profile list not found. You may have selected the wrong folder. Reset and try again, or manually import a plugin profile into the RL Profile"
+            " Manager."
+        )
         return
     with open(profiles_json_path, "r") as f:
         profiles: dict = json.load(f)
@@ -210,14 +220,24 @@ def __del_key_from_json(filename: str, key: str):
     """
     Deletes the specified key from a JSON file.
     """
-    data = None
-    with open(filename, "r") as f:
-        data = json.load(f)
+    try:
+        with open(filename, "r") as f:
+            data = json.load(f)
+
         if key in data:
             del data[key]
-    if data:
-        with open(filename, "w") as f:
-            json.dump(data, f)
+            with open(filename, "w") as f:
+                json.dump(data, f)
+            print(f"Key '{key}' deleted from file '{filename}'")
+        else:
+            print(f"Key '{key}' not found in file '{filename}'")
+
+    except FileNotFoundError:
+        print(f"File '{filename}' not found")
+    except json.JSONDecodeError:
+        print(f"File '{filename}' is not valid JSON")
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
 
 
 def __locate_executable() -> Union[str, None]:

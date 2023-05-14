@@ -4,6 +4,7 @@ import tkinter
 import customtkinter
 
 from utilities.sprite_scraper import SpriteScraper
+from view.fonts.fonts import *
 
 scraper = SpriteScraper()
 
@@ -23,7 +24,7 @@ class SpriteScraperView(customtkinter.CTkFrame):
         self.grid_rowconfigure(6, weight=1)  # - Logs
 
         # Title
-        self.search_label = customtkinter.CTkLabel(self, text="Search OSRS Wiki for Sprites", text_font=("Roboto Medium", 12))
+        self.search_label = customtkinter.CTkLabel(self, text="Search OSRS Wiki for Sprites")
         self.search_label.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Search instructions
@@ -82,7 +83,7 @@ class SpriteScraperView(customtkinter.CTkFrame):
 
         self.txt_logs = tkinter.Text(
             master=self.log_frame,
-            font=("Roboto", 10),
+            font=log_font(),
             bg="#343638",
             fg="#ffffff",
         )
@@ -101,7 +102,6 @@ class SpriteScraperView(customtkinter.CTkFrame):
             daemon=True,
         )
         self.search_entry.delete(0, "end")
-        self.search_entry.clear_placeholder()
         self.txt_logs.configure(state=tkinter.NORMAL)
         self.txt_logs.delete("1.0", "end")
         self.txt_logs.configure(state=tkinter.DISABLED)
