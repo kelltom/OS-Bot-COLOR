@@ -495,6 +495,7 @@ class Bot(ABC):
             return
         elif horizontal == 0:
             keypress(direction_v, sleep_v)
+            return
             
         thread_h = threading.Thread(target=keypress, args=(direction_h, sleep_h), daemon=True)
         thread_v = threading.Thread(target=keypress, args=(direction_v, sleep_v), daemon=True)
