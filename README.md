@@ -44,7 +44,7 @@ See the [Wiki](https://github.com/kelltom/OSRS-Bot-COLOR/wiki) for tutorials, an
 ## User Interface
 OSBC offers a clean interface for configuring, running, and monitoring your Python bots. For developers, this means that all you need to do is write a bot's logic loop, and *the UI is already built for you*.
 
-![intro_demo](https://user-images.githubusercontent.com/44652363/197059102-27a9a942-25b6-4012-b83b-90ae8399b4e8.gif)
+![intro_demo](documentation/media/intro_demo.gif)
 
 ### Script Log
 The Script Log provides a clean and simple way to track your bot's progress. No more command line clutter!
@@ -65,7 +65,7 @@ def create_options(self):
   self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
 ```
 
-![options_menu](https://user-images.githubusercontent.com/44652363/206808756-aac29140-e41d-4b6c-9f26-dc08ce0662b9.png)
+![options_menu](documentation/media/options_menu.png)
 
 ## Human-like Mouse Movement
 OSBC uses Bezier curves to create smooth, human-like mouse movements.
