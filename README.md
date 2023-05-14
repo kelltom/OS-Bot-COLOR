@@ -65,7 +65,7 @@ def create_options(self):
   self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
 ```
 
-![options_menu](https://user-images.githubusercontent.com/44652363/206808756-aac29140-e41d-4b6c-9f26-dc08ce0662b9.png)
+![options_menu](documentation/media/intro_demo.gif)
 
 ## Human-like Mouse Movement
 OSBC uses Bezier curves to create smooth, human-like mouse movements.
