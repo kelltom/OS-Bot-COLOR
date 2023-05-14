@@ -71,7 +71,7 @@ def create_options(self):
 OSBC uses Bezier curves to create smooth, human-like mouse movements.
 
 ## Object Detection
-Official RuneLite plugins exist to add quality of life to players. Many plugins offer highlighting/outlining of in-game objects with solid colors, making them easier for players to see them. Using color isolation, OSBC can quickly locate these outlined objects and extract their properties into simple data structures.
+Using color isolation, OSBC can quickly locate objects/NPCs outlined by solid colors and extract their properties into simple data structures.
 
 ## Random Click Distribution
 With the help of the OSBC community, we've created a randomization algorithm that distributes clicks in a way that is more human-like.
