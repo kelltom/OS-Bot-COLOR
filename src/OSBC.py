@@ -40,7 +40,7 @@ class App(customtkinter.CTk):
             self.build_ui()
 
     def build_ui(self):  # sourcery skip: merge-list-append, move-assign-in-block
-        self.title("OSRS Bot COLOR")
+        self.title("OS Bot COLOR")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
         self.update()
         self.minsize(self.winfo_width(), self.winfo_height())
