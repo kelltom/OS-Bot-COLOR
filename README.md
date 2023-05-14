@@ -11,21 +11,6 @@ OS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automatio
 
 ⭐ If you like this project, please leave a Star :)
 
-# Table of Contents
-- [](#)
-- [Table of Contents](#table-of-contents)
-- [Developer Setup ](#developer-setup-)
-- [Documentation](#documentation)
-- [Features](#features)
-  - [User Interface](#user-interface)
-    - [Script Log](#script-log)
-    - [Simple Option Menus](#simple-option-menus)
-  - [Human-like Mouse Movement](#human-like-mouse-movement)
-  - [Object Detection](#object-detection)
-  - [Random Click Distribution](#random-click-distribution)
-  - [Efficient Image Searching](#efficient-image-searching)
-  - [Lightning Fast Optical Character Recognition](#lightning-fast-optical-character-recognition)
-
 # Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>
 1. Install [Python 3.10](https://www.python.org/downloads/release/python-3109/) *(not compatible with other major versions)*
 2. Clone/download this repository
