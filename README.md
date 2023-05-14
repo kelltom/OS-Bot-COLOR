@@ -1,7 +1,7 @@
 ### ⚠️ This project is in Alpha stage ⚠️
 
 # ![](documentation/media/logo.png)
-07 Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts. This application is paired with a toolkit for writing new scripts. Unlike popular automation frameworks that modify/inject code into a game's client, OSBC is completely hands-off; it uses a combination of color detection, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to provide a fun and educational learning experience for new & seasoned developers alike, emphasizing the exploration of automation technologies and not to encourage or support activities that are in violation of any game's Terms of Service.
+OS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts. This application is paired with a toolkit for writing new scripts. Unlike popular automation frameworks that modify/inject code into a game's client, OSBC is completely hands-off; it uses a combination of color detection, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to provide a fun and educational learning experience for new & seasoned developers alike, emphasizing the exploration of automation technologies and not to encourage or support activities that are in violation of any game's Terms of Service.
 
 💬 [Join the Discord](https://discord.gg/Znks7Smya4) to discuss the project, ask questions, and follow development
 
