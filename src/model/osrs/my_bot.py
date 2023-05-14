@@ -10,8 +10,8 @@ from utilities.api.status_socket import StatusSocket
 
 class OSRSMyBot(OSRSBot):
     def __init__(self):
-        bot_title = "<Bot name here>"
-        description = "<Bot description here.>"
+        bot_title = "<yep cockerdoodle>"
+        description = "<cockerdoodle do.>"
         super().__init__(bot_title=bot_title, description=description)
         # Set option variables below (initial value is only used during UI-less testing)
         self.running_time = 1
@@ -69,6 +69,9 @@ class OSRSMyBot(OSRSBot):
         while time.time() - start_time < end_time:
             # -- Perform bot actions here --
             # Code within this block will LOOP until the bot is stopped.
+
+            self.log_msg("LMAOOOOOOOOOOOOO ")
+            time.sleep(1) # pause for 1 second
 
             self.update_progress((time.time() - start_time) / end_time)
 
