@@ -35,14 +35,14 @@ class TitleView(customtkinter.CTkFrame):
         self.label_logo.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=15, pady=15)
 
         # Description label
-        self.note = "The universal OSRS color bot.\n Select a game in the left-side menu to begin."
+        self.note = "Select a game in the left-side menu to begin."
         self.label_note = customtkinter.CTkLabel(master=self, text=self.note, font=subheading_font())
         self.label_note.bind(
             "<Configure>",
             lambda e: self.label_note.configure(wraplength=self.label_note.winfo_width() - 20),
         )
         self.label_note.grid(row=2, column=0, columnspan=3, sticky="nwes", padx=15, pady=(0, 30))
-
+        
         # Buttons
         IMG_SIZE = 24
         BTN_WIDTH, BTN_HEIGHT = (96, 64)
