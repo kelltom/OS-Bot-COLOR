@@ -168,3 +168,6 @@ src/utilities/record_mouse/*
 src/runelite_settings/executable_paths.json
 src/settings.pickle
 src/runelite_settings/profile_manager_paths.json
+
+# Photoshop files
+*.psd
