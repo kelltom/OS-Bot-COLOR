@@ -10,10 +10,10 @@ from utilities.api.status_socket import StatusSocket
 
 class OSRSTemplate(OSRSBot):
     def __init__(self):
-        bot_title = "<Bot name here>"
-        description = "<Bot description here.>"
+        bot_title = "<Script name here>"
+        description = "<Script description here>"
         super().__init__(bot_title=bot_title, description=description)
-        # Set option variables below (initial value is only used during UI-less testing)
+        # Set option variables below (initial value is only used during headless testing)
         self.running_time = 1
 
     def create_options(self):
@@ -24,6 +24,9 @@ class OSRSTemplate(OSRSBot):
         unpack the dictionary of options after the user has selected them.
         """
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
+        self.options_builder.add_text_edit_option("text_edit_example", "Text Edit Example", "Placeholder text here")
+        self.options_builder.add_checkbox_option("multi_select_example", "Multi-select Example", ["A", "B", "C"])
+        self.options_builder.add_dropdown_option("menu_example", "Menu Example", ["A", "B", "C"])
 
     def save_options(self, options: dict):
         """
@@ -34,6 +37,12 @@ class OSRSTemplate(OSRSBot):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
+            elif option == "text_edit_example":
+                self.log_msg(f"Text edit example: {options[option]}")
+            elif option == "multi_select_example":
+                self.log_msg(f"Multi-select example: {options[option]}")
+            elif option == "menu_example":
+                self.log_msg(f"Menu example: {options[option]}")
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
@@ -55,9 +64,8 @@ class OSRSTemplate(OSRSBot):
         - Make use of Bot/RuneLiteBot member functions. There are many functions to simplify various actions.
           Visit the Wiki for more.
         - Using the available APIs is highly recommended. Some of all of the API tools may be unavailable for
-          select private servers. To see what the APIs can offer you, see here: https://github.com/kelltom/OSRS-Bot-COLOR/tree/main/src/utilities/api.
-          For usage, uncomment the `api_m` and/or `api_s` lines below, and use the `.` operator to access their
-          functions.
+          select private servers. For usage, uncomment the `api_m` and/or `api_s` lines below, and use the `.`
+          operator to access their functions.
         """
         # Setup APIs
         # api_m = MorgHTTPSocket()

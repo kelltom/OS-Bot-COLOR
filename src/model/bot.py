@@ -578,7 +578,7 @@ class Bot(ABC):
 
     def toggle_run(self, toggle_on: bool):
         """
-        Toggles run. Assumes client window is configured.
+        Toggles run. Assumes client window is configured. Images not included.
         Args:
             toggle_on: True to turn on, False to turn off.
         """
