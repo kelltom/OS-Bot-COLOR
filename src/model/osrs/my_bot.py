@@ -25,6 +25,7 @@ class OSRSMyBot(OSRSBot):
         unpack the dictionary of options after the user has selected them.
         """
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
+        self.options_builder.add_dropdown_option("take_breaks", "Take Breaks?", ["Yes", "No"])
         
 
     def save_options(self, options: dict):
