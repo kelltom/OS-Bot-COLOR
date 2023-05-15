@@ -11,9 +11,10 @@ from utilities.api.status_socket import StatusSocket
 class OSRSMyBot(OSRSBot):
     def __init__(self):
         bot_title = "<yep cockerdoodle>"
-        description = "<cockerdoodle do.>"
+        description = "cockerdoodle do"
         super().__init__(bot_title=bot_title, description=description)
         # Set option variables below (initial value is only used during UI-less testing)
+        self.take_break = True
         self.running_time = 1
 
     def create_options(self):
@@ -24,6 +25,7 @@ class OSRSMyBot(OSRSBot):
         unpack the dictionary of options after the user has selected them.
         """
         self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 500)
+        
 
     def save_options(self, options: dict):
         """
