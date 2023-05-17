@@ -37,12 +37,15 @@ class OSRSMyBot(OSRSBot):
         for option in options:
             if option == "running_time":
                 self.running_time = options[option]
+            elif option == "take_breaks":
+                self.take_break = options[option] == "Yes"
             else:
                 self.log_msg(f"Unknown option: {option}")
                 print("Developer: ensure that the option keys are correct, and that options are being unpacked correctly.")
                 self.options_set = False
                 return
         self.log_msg(f"Running time: {self.running_time} minutes.")
+        self.log_msg(f"Bot will{' ' if self.take_break else ' not '}take breaks.")
         self.log_msg("Options set successfully.")
         self.options_set = True
 
@@ -63,7 +66,7 @@ class OSRSMyBot(OSRSBot):
           functions.
         """
         # Setup APIs
-        # api_m = MorgHTTPSocket()
+        api_m = MorgHTTPSocket()
         # api_s = StatusSocket()
 
         # Main loop
@@ -72,9 +75,25 @@ class OSRSMyBot(OSRSBot):
         while time.time() - start_time < end_time:
             # -- Perform bot actions here --
             # Code within this block will LOOP until the bot is stopped.
+            if rd.random_chance(probability=0.05) and self.take_breaks:
+                self.take_break(max_seconds=15)
 
-            self.log_msg("LMAOOOOOOOOOOOOO ")
-            time.sleep(1) # pause for 1 second
+            
+            log_slots = api_m.get_inv_item_indices(ids.logs)
+            if len(log_slots)  >= 3:
+                self.drop(log_slots)
+                time.sleep(1)
+
+            if api_m.get_is_player_idle():
+                if tree := self.get_nearest_tag(clr.PINK):
+                    self.mouse.move_to(tree.random_point())
+                    if not self.mouseover_text(contains="Chop"):
+                        continue
+                    self.mouse.click()
+            time.sleep(1)
+                
+            
+            
 
             self.update_progress((time.time() - start_time) / end_time)
 
