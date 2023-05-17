@@ -3,13 +3,13 @@
 # ![logo](https://github.com/kelltom/OS-Bot-COLOR/assets/44652363/c9b93ee8-91a7-4bb4-8e92-5944e2d9d283)
 OS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts for games. This application is paired with a toolkit for writing new scripts. Unlike popular automation frameworks that modify/inject code into a game's client, OSBC is completely hands-off; it uses a combination of color detection, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to provide a fun and educational learning experience for new & seasoned developers alike, emphasizing the exploration of automation technologies and not to encourage or support activities that are in violation of any game's Terms of Service.
 
+<!--
 💬 [Join the Discord](https://discord.gg/S6DXZfma5z) to discuss the project, ask questions, and follow development
 
-<!--
 📹 Subscribe to [Kell's Code](https://www.youtube.com/@KellsCode/featured) on YouTube for updates and tutorials
- -->
 
 ⭐ If you like this project, please leave a Star :)
+ -->
 
 # Developer Setup <img height=20 src="documentation/media/windows_logo.png"/>
 1. Install [Python 3.10](https://www.python.org/downloads/release/python-3109/) *(not compatible with other major versions)*
