@@ -1,5 +1,5 @@
 import time
-
+import utilities.imagesearch as imsearch
 import utilities.api.item_ids as ids
 import utilities.color as clr
 import utilities.random_util as rd
@@ -50,6 +50,9 @@ class OSRSMyBot(OSRSBot):
         self.options_set = True
 
     def main_loop(self):
+
+        tinderbox_img = imsearch.BOT_IMAGES.joinpath("items", "tinderbox.png")
+
         """
         When implementing this function, you have the following responsibilities:
         1. If you need to halt the bot from within this function, call `self.stop()`. You'll want to do this
@@ -75,7 +78,7 @@ class OSRSMyBot(OSRSBot):
         while time.time() - start_time < end_time:
             # -- Perform bot actions here --
             # Code within this block will LOOP until the bot is stopped.
-            if rd.random_chance(probability=0.05) and self.take_breaks:
+            if rd.random_chance(probability=0.05) and self.take_break:
                 self.take_break(max_seconds=15)
 
             
@@ -91,6 +94,9 @@ class OSRSMyBot(OSRSBot):
                         continue
                     self.mouse.click()
             time.sleep(1)
+
+            if tinderbox := imsearch.search_img_in_rect(tinderbox_img, self.win.control_panel):
+                self.mouse.move_to(tinderbox.random_point())
                 
             
             
