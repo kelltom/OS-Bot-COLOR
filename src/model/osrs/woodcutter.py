@@ -13,7 +13,9 @@ from utilities.geometry import RuneLiteObject
 class OSRSWoodcutter(OSRSBot):
     def __init__(self):
         bot_title = "Woodcutter"
-        description = "This bot power-chops wood. Position your character near some trees, tag them, and press the play button."
+        description = (
+            "This bot power-chops wood. Position your character near some trees, tag them, and press Play.\nTHIS SCRIPT IS AN EXAMPLE, DO NOT USE LONGTERM."
+        )
         super().__init__(bot_title=bot_title, description=description)
         self.running_time = 1
         self.take_breaks = False

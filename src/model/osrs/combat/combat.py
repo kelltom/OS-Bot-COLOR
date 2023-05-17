@@ -14,10 +14,7 @@ from utilities.api.status_socket import StatusSocket
 class OSRSCombat(OSRSBot, launcher.Launchable):
     def __init__(self):
         bot_title = "Combat"
-        description = (
-            "This bot kills NPCs. Position your character near some NPCs and highlight them. After setting this bot's options, please launch RuneLite with the"
-            " button on the right."
-        )
+        description = "This bot kills NPCs. Position your character near some NPCs and highlight them.\nTHIS SCRIPT IS AN EXAMPLE, DO NOT USE LONGTERM."
         super().__init__(bot_title=bot_title, description=description)
         self.running_time: int = 1
         self.loot_items: str = ""

@@ -1,5 +1,5 @@
 """
-This module contains the SpriteScraper class, which is used to download images from the OSRS Wiki.
+This module contains the SpriteScraper class, which is used to download images from the wiki API.
 If you are having issues, try disabling IPv6 on your machine.
 """
 
@@ -161,8 +161,7 @@ class SpriteScraper:
     # -------------------
     def __get_item_infobox_data(self, item: str) -> Optional[str]:
         """
-        Returns a string of data from the info box for a specific item from the Old School
-        RuneScape Wiki.
+        Returns a string of data from the info box for a specific item from the Wiki.
         Args:
             item: The item name.
         Returns:
