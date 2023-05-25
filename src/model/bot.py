@@ -423,20 +423,23 @@ class Bot(ABC):
             return ocr.extract_text(self.win.mouseover, ocr.BOLD_12, color)
         return bool(ocr.find_text(contains, self.win.mouseover, ocr.BOLD_12, color))
 
-    def chatbox_text(self, contains: str = None) -> Union[bool, str]:
+    def chatbox_text(self, contains: str = None, color: Union[clr.Color, List[clr.Color]]= clr.BLUE) -> Union[bool, str]:
         """
-        Examines the chatbox for text. Currently only captures player chat text.
+        Examines the chatbox for text.
         Args:
             contains: The text to search for (single word or phrase). Case sensitive. If left blank,
                       returns all text in the chatbox.
+            color: The color(s) of the text to search for. If left blank, defults to blue(player chat)
         Returns:
             True if exact string is found, False otherwise.
             If args are left blank, returns the text in the chatbox.
         """
         if contains is None:
             return ocr.extract_text(self.win.chat, ocr.PLAIN_12, clr.BLUE)
-        if ocr.find_text(contains, self.win.chat, ocr.PLAIN_12, clr.BLUE):
+        if ocr.find_text(contains, self.win.chat, ocr.PLAIN_12, color):
             return True
+        else:
+            return False  
 
     # --- Client Settings ---
     def set_compass_north(self):
