@@ -305,12 +305,12 @@ class MorgHTTPSocket:
         data = self.__do_get(endpoint=self.inv_endpoint)
         inventory = []
         for index, item in enumerate(data):
-            if item['quantity'] == 0:
+            if item["quantity"] == 0:
                 continue
-            item_info = {'index': index, 'id': item['id'], 'quantity': item['quantity']}
+            item_info = {"index": index, "id": item["id"], "quantity": item["quantity"]}
             inventory.append(item_info)
         return inventory
-        
+
     def get_if_item_in_inv(self, item_id: Union[List[int], int]) -> bool:
         """
         Checks if an item is in the inventory or not.
