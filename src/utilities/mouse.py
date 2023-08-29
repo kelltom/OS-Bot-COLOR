@@ -14,6 +14,14 @@ from utilities.random_util import truncated_normal_sample
 
 class Mouse:
     click_delay = True
+    custom_speeds = {}
+    DEFAULT_SPEEDS = {
+        "slowest": (85, 100),
+        "slow": (65, 80),
+        "medium": (45, 60),
+        "fast": (20, 40),
+        "fastest": (10, 15)
+    }
 
     def move_to(self, destination: tuple, **kwargs):
         """
@@ -106,6 +114,9 @@ class Mouse:
         """
         self.click(button="right", force_delay=force_delay)
 
+    def register_mouse_speed(self, speed_name: str, min_val: int, max_val: int):
+        self.__register_speed(speed_name, min_val, max_val)
+
     def __rect_around_point(self, mouse_pos: Point, pad: int) -> Rectangle:
         """
         Returns a rectangle around a Point with some padding.
@@ -157,25 +168,29 @@ class Mouse:
         distance = np.sqrt((destination[0] - pag.position()[0]) ** 2 + (destination[1] - pag.position()[1]) ** 2)
         res = round(distance / 200)
         return min(res, 3)
-
+    
     def __get_mouse_speed(self, speed: str) -> int:
         """
         Converts a text speed to a numeric speed for HumanCurve (targetPoints).
         """
-        if speed == "slowest":
-            min, max = 85, 100
-        elif speed == "slow":
-            min, max = 65, 80
-        elif speed == "medium":
-            min, max = 45, 60
-        elif speed == "fast":
-            min, max = 20, 40
-        elif speed == "fastest":
-            min, max = 10, 15
-        else:
-            raise ValueError("Invalid mouse speed. Try 'slowest', 'slow', 'medium', 'fast', or 'fastest'.")
+        speed_range = self.__get_speed(speed) or self.DEFAULT_SPEEDS.get(speed)
+        
+        if not speed_range:
+            valid_speeds = list(self.DEFAULT_SPEEDS.keys()) + list(self.custom_speeds.keys())
+            raise ValueError("Invalid mouse speed. Try one of: " + ", ".join(valid_speeds) + ".")
+    
+        min, max = speed_range
         return round(truncated_normal_sample(min, max))
+    
+    def __register_speed(self, speed_name: str, min_val: int, max_val: int):
+        if min_val < 2 or max_val < 2:
+            raise ValueError("Both min_val and max_val must be 2 or greater.")
+        if max_val < min_val:
+            raise ValueError("max_val must be greater than or equal to min_val.")
+        self.custom_speeds[speed_name] = (min_val, max_val)
 
+    def __get_speed(self, speed_name: str):
+        return self.custom_speeds.get(speed_name, None)
 
 if __name__ == "__main__":
     mouse = Mouse()
