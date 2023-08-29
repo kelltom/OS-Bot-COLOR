@@ -15,13 +15,7 @@ from utilities.random_util import truncated_normal_sample
 class Mouse:
     click_delay = True
     custom_speeds = {}
-    DEFAULT_SPEEDS = {
-        "slowest": (85, 100),
-        "slow": (65, 80),
-        "medium": (45, 60),
-        "fast": (20, 40),
-        "fastest": (10, 15)
-    }
+    DEFAULT_SPEEDS = {"slowest": (85, 100), "slow": (65, 80), "medium": (45, 60), "fast": (20, 40), "fastest": (10, 15)}
 
     def move_to(self, destination: tuple, **kwargs):
         """
@@ -190,7 +184,7 @@ class Mouse:
         self.custom_speeds[speed_name] = (min_val, max_val)
 
     def __get_speed(self, speed_name: str):
-        return self.custom_speeds.get(speed_name, None)
+        return self.custom_speeds.get(speed_name)
 
 if __name__ == "__main__":
     mouse = Mouse()
