@@ -158,6 +158,22 @@ class MorgHTTPSocket:
             print(f"Invalid stat name: {skill}. Consider using the `stat_names` utility.")
             return -1
         return total_xp
+    
+    def get_boosted_level(self, skill: str) -> int:
+        """
+        Gets the boosted level of a skill
+        Args:
+                skill: the name of the skill.
+        Returns:
+                The boosted level of the skill as an int, or -1 if an error occurred.
+        """
+        data = self.__do_get(endpoint=self.stats_endpoint)
+        try:
+            boostedlvl = next(int(i["boostedLevel"]) for i in data[1:] if i["stat"] == skill)
+        except StopIteration:
+            print(f"Invalid stat name: {skill}. Consider using the `stat_names` utility.")
+            return -1
+        return boostedlvl
 
     def get_skill_xp_gained(self, skill: str) -> int:
         """
@@ -296,21 +312,6 @@ class MorgHTTPSocket:
         data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["npc health "])
 
-    def get_inv(self):
-        """
-        Gets a list of dicts representing the player inventory.
-        Returns:
-            List of dictionaries, each containing index, ID, and quantity of an item.
-        """
-        data = self.__do_get(endpoint=self.inv_endpoint)
-        inventory = []
-        for index, item in enumerate(data):
-            if item["quantity"] == 0:
-                continue
-            item_info = {"index": index, "id": item["id"], "quantity": item["quantity"]}
-            inventory.append(item_info)
-        return inventory
-
     def get_if_item_in_inv(self, item_id: Union[List[int], int]) -> bool:
         """
         Checks if an item is in the inventory or not.
@@ -380,6 +381,29 @@ class MorgHTTPSocket:
                 if item_id_in_slot not in first_occurrences and item_id_in_slot in item_id:
                     first_occurrences[item_id_in_slot] = i
             return list(first_occurrences.values())
+        
+    def get_last_occurrence(self, item_id: Union[List[int], int]) -> Union[int, List[int]]:
+        """
+        For the given item ID(s), returns the last inventory slot index that the item exists in.
+        e.g. [1, 1, 2, 3, 3, 3, 4, 4, 4, 4] -> [1, 2, 5, 9]
+        Args:
+            item_id: The item ID to search for (an single ID, or list of IDs).
+        Returns:
+            The last inventory slot index that the item exists in for each unique item ID.
+            If a single item ID is provided, returns an integer (or -1).
+            If a list of item IDs is provided, returns a list of integers (or empty list).
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        if isinstance(item_id, int):
+            return next((i for i, inventory_slot in reversed(list(enumerate(data))) if inventory_slot["id"] == item_id), -1)
+        elif isinstance(item_id, list):
+            last_occurrences = {}
+            for i, inventory_slot in reversed(list(enumerate(data))):
+                item_id_in_slot = inventory_slot["id"]
+                if item_id_in_slot not in last_occurrences and item_id_in_slot in item_id:
+                    last_occurrences[item_id_in_slot] = i
+            return list(last_occurrences.values())
+
 
     def get_inv_item_stack_amount(self, item_id: Union[int, List[int]]) -> int:
         """
@@ -493,6 +517,9 @@ if __name__ == "__main__":
         # Chatbox Data
         if True:
             print(f"Latest chat message: {api.get_latest_chat_message()}")
+        
+        #public_attributes = [attr for attr in dir(api) if not attr.startswith('_')]
+        #print(public_attributes)
 
         time.sleep(2)
 
