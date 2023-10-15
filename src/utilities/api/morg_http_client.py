@@ -437,6 +437,20 @@ class MorgHTTPSocket:
             return int(result["quantity"])
         return 0
 
+    def get_amount_of_filled_slots(self, item_id: Union[List[int], int]) -> int:
+        """
+        For the given item ID(s), returns the total count of inventory slots that the item exists in.
+        Args:
+            item_id: The item ID to search for (a single ID, or list of IDs).
+        Returns:
+            An integer representing the total count of inventory slots that the item(s) exists in.
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        if isinstance(item_id, int):
+            return sum(1 for inventory_slot in data if inventory_slot["id"] == item_id)
+        elif isinstance(item_id, list):
+            return sum(1 for inventory_slot in data if inventory_slot["id"] in item_id)
+
     def get_is_item_equipped(self, item_id: Union[int, List[int]]) -> bool:
         """
         Checks if the player has given item(s) equipped. Given a list of IDs, returns True on first ID found.
