@@ -437,19 +437,14 @@ class MorgHTTPSocket:
             return int(result["quantity"])
         return 0
 
-    def get_amount_of_filled_slots(self, item_id: Union[List[int], int]) -> int:
+    def get_amount_of_filled_inv_slots(self) -> int:
         """
-        For the given item ID(s), returns the total count of inventory slots that the item exists in.
-        Args:
-            item_id: The item ID to search for (a single ID, or list of IDs).
+        Returns the total count of filled inventory slots.
         Returns:
-            An integer representing the total count of inventory slots that the item(s) exists in.
+            An integer representing the total count of filled inventory slots.
         """
         data = self.__do_get(endpoint=self.inv_endpoint)
-        if isinstance(item_id, int):
-            return sum(1 for inventory_slot in data if inventory_slot["id"] == item_id)
-        elif isinstance(item_id, list):
-            return sum(1 for inventory_slot in data if inventory_slot["id"] in item_id)
+        return sum(1 for inventory_slot in data if inventory_slot["id"] != -1)
 
     def get_is_item_equipped(self, item_id: Union[int, List[int]]) -> bool:
         """
