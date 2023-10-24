@@ -217,7 +217,7 @@ class Window:
         self.ext_inventory_slots = []
         slot_w, slot_h = 36, 35  # dimensions of a slot
         gap_x, gap_y = 6, 0  # pixel gap between slots
-        y = 44 + cp.top  # start y relative to cp template
+        y = 41 + cp.top  # start y relative to cp template
         for _ in range(7):
             x = 40 + cp.left  # start x relative to cp template
             for _ in range(4):
