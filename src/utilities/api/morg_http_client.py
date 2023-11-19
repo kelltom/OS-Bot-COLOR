@@ -375,6 +375,22 @@ class MorgHTTPSocket:
         elif isinstance(item_id, list):
             return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in item_id]
 
+    def get_inv_item_indices_and_empty_slots(self, item_id: Union[List[int], int]) -> list:
+        """
+        For the given item ID(s), returns a list of inventory slot indexes that the item exists in,
+        including empty slots (indicated by 'id': -1).
+        This is best used with the drop_all function to skip empty slots
+        Args:
+            item_id: The item ID to search for (a single ID, or list of IDs).
+        Returns:
+            A list of inventory slot indexes that the item(s) exists in, including empty slots.
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        if isinstance(item_id, int):
+            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] == item_id or inventory_slot["id"] == -1]
+        elif isinstance(item_id, list):
+            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in item_id or inventory_slot["id"] == -1]
+
     def get_first_occurrence(self, item_id: Union[List[int], int]) -> Union[int, List[int]]:
         """
         For the given item ID(s), returns the first inventory slot index that the item exists in.
