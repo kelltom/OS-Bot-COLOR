@@ -158,6 +158,22 @@ class MorgHTTPSocket:
             print(f"Invalid stat name: {skill}. Consider using the `stat_names` utility.")
             return -1
         return total_xp
+    
+    def get_boosted_level(self, skill: str) -> int:
+        """
+        Gets the boosted level of a skill
+        Args:
+                skill: the name of the skill.
+        Returns:
+                The boosted level of the skill as an int, or -1 if an error occurred.
+        """
+        data = self.__do_get(endpoint=self.stats_endpoint)
+        try:
+            boostedlvl = next(int(i["boostedLevel"]) for i in data[1:] if i["stat"] == skill)
+        except StopIteration:
+            print(f"Invalid stat name: {skill}. Consider using the `stat_names` utility.")
+            return -1
+        return boostedlvl
 
     def get_skill_xp_gained(self, skill: str) -> int:
         """
@@ -295,7 +311,7 @@ class MorgHTTPSocket:
         """
         data = self.__do_get(endpoint=self.events_endpoint)
         return int(data["npc health "])
-
+    
     def get_inv(self):
         """
         Gets a list of dicts representing the player inventory.
@@ -359,6 +375,22 @@ class MorgHTTPSocket:
         elif isinstance(item_id, list):
             return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in item_id]
 
+    def get_inv_item_indices_and_empty_slots(self, item_id: Union[List[int], int]) -> list:
+        """
+        For the given item ID(s), returns a list of inventory slot indexes that the item exists in,
+        including empty slots (indicated by 'id': -1).
+        This is best used with the drop_all function to skip empty slots
+        Args:
+            item_id: The item ID to search for (a single ID, or list of IDs).
+        Returns:
+            A list of inventory slot indexes that the item(s) exists in, including empty slots.
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        if isinstance(item_id, int):
+            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] == item_id or inventory_slot["id"] == -1]
+        elif isinstance(item_id, list):
+            return [i for i, inventory_slot in enumerate(data) if inventory_slot["id"] in item_id or inventory_slot["id"] == -1]
+
     def get_first_occurrence(self, item_id: Union[List[int], int]) -> Union[int, List[int]]:
         """
         For the given item ID(s), returns the first inventory slot index that the item exists in.
@@ -380,6 +412,29 @@ class MorgHTTPSocket:
                 if item_id_in_slot not in first_occurrences and item_id_in_slot in item_id:
                     first_occurrences[item_id_in_slot] = i
             return list(first_occurrences.values())
+        
+    def get_last_occurrence(self, item_id: Union[List[int], int]) -> Union[int, List[int]]:
+        """
+        For the given item ID(s), returns the last inventory slot index that the item exists in.
+        e.g. [1, 1, 2, 3, 3, 3, 4, 4, 4, 4] -> [1, 2, 5, 9]
+        Args:
+            item_id: The item ID to search for (an single ID, or list of IDs).
+        Returns:
+            The last inventory slot index that the item exists in for each unique item ID.
+            If a single item ID is provided, returns an integer (or -1).
+            If a list of item IDs is provided, returns a list of integers (or empty list).
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        if isinstance(item_id, int):
+            return next((i for i, inventory_slot in reversed(list(enumerate(data))) if inventory_slot["id"] == item_id), -1)
+        elif isinstance(item_id, list):
+            last_occurrences = {}
+            for i, inventory_slot in reversed(list(enumerate(data))):
+                item_id_in_slot = inventory_slot["id"]
+                if item_id_in_slot not in last_occurrences and item_id_in_slot in item_id:
+                    last_occurrences[item_id_in_slot] = i
+            return list(last_occurrences.values())
+
 
     def get_inv_item_stack_amount(self, item_id: Union[int, List[int]]) -> int:
         """
@@ -397,6 +452,15 @@ class MorgHTTPSocket:
         if result := next((item for item in data if item["id"] in item_id), None):
             return int(result["quantity"])
         return 0
+
+    def get_amount_of_filled_inv_slots(self) -> int:
+        """
+        Returns the total count of filled inventory slots.
+        Returns:
+            An integer representing the total count of filled inventory slots.
+        """
+        data = self.__do_get(endpoint=self.inv_endpoint)
+        return sum(1 for inventory_slot in data if inventory_slot["id"] != -1)
 
     def get_is_item_equipped(self, item_id: Union[int, List[int]]) -> bool:
         """
@@ -493,6 +557,9 @@ if __name__ == "__main__":
         # Chatbox Data
         if True:
             print(f"Latest chat message: {api.get_latest_chat_message()}")
+        
+        #public_attributes = [attr for attr in dir(api) if not attr.startswith('_')]
+        #print(public_attributes)
 
         time.sleep(2)
 
