@@ -11,6 +11,7 @@ import warnings
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, Union
+from random import uniform, choice
 
 import customtkinter
 import numpy as np
@@ -27,6 +28,7 @@ from utilities.geometry import Point, Rectangle
 from utilities.mouse import Mouse
 from utilities.options_builder import OptionsBuilder
 from utilities.window import Window, WindowInitializationError
+from utilities import constants
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -596,3 +598,24 @@ class Bot(ABC):
             self.mouse.click()
         else:
             self.log_msg("Run is already off.")
+    def check_skill_xp(self, skill: str, min_hover_time: float = 8.0, max_hover_time: float = 35.0):
+        """This method will hover over a skill in the skills tab to emulate a human checking the XP left for the training skill.
+
+        Args:
+            skill (str): Name of skill to check
+            min_hover_time (float, optional): Minimum amount of time in seconds to hover on the skill. Defaults to 8.0.
+            max_hover_time (float, optional): Maximum amount of time in seconds to hover on the skill. Defaults to 35.0.
+        """
+        skill = skill.lower()
+        sleep_time = uniform(min_hover_time, max_hover_time)
+        if skill not in constants.SKILL_TAB_MAP.keys():
+            self.log_msg(f"[WARNING] Skill specified: {skill} is not in skill list. Using random skill to hover")
+            skill = choice(constants.SKILL_TAB_MAP.keys())
+        self.log_msg(f"Opening skill tab and checking {skill} skill and hovering for: {sleep_time}s..")
+        self.mouse.move_to(self.win.cp_tabs[constants.INVENTORY_TAB_SKILL].random_point()) # Open Skill tab
+        self.mouse.click()
+        self.mouse.move_to(self.win.skill_slots[constants.SKILL_TAB_MAP[skill]].random_point()) # hover on selected skill
+        time.sleep(sleep_time)
+        self.log_msg("Selecting inventory...")
+        self.mouse.move_to(self.win.cp_tabs[constants.INVENTORY_TAB_INVENTORY].random_point())
+        self.mouse.click()
