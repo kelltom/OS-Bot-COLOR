@@ -41,6 +41,7 @@ class Window:
     inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
     spellbook_normal: List[Rectangle] = []  # https://i.imgur.com/vkKAfV5.png
     prayers: List[Rectangle] = []  # https://i.imgur.com/KRmC3YB.png
+    skill_slots: List[Rectangle] = [] # https://i.imgur.com/j83q8XC.png
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
@@ -172,6 +173,7 @@ class Window:
             self.__locate_inv_slots(cp)
             self.__locate_prayers(cp)
             self.__locate_spells(cp)
+            self.__locate_skill_slots(cp)
             self.control_panel = cp
             return True
         print("Window.__locate_control_panel(): Failed to find control panel.")
@@ -237,6 +239,21 @@ class Window:
             x = 30 + cp.left  # start x relative to cp template
             for _ in range(7):
                 self.spellbook_normal.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
+                x += slot_w + gap_x
+            y += slot_h + gap_y
+            
+    def __locate_skill_slots(self, cp: Rectangle) -> None:
+        """
+        Creates Rectangles for each skill slot relative to the control panel, storing it in the class property.
+        """
+        self.skill_slots = []
+        slot_w, slot_h = 56, 28  # dimensions of a slot
+        gap_x, gap_y = 2, 2  # pixel gap between slots
+        y = 44 + cp.top  # start y relative to cp template
+        for _ in range(8):
+            x = 40 + cp.left  # start x relative to cp template
+            for _ in range(3):
+                self.skill_slots.append(Rectangle(left=x, top=y, width=slot_w, height=slot_h))
                 x += slot_w + gap_x
             y += slot_h + gap_y
 
