@@ -41,7 +41,7 @@ class Window:
     inventory_slots: List[Rectangle] = []  # https://i.imgur.com/gBwhAwE.png
     spellbook_normal: List[Rectangle] = []  # https://i.imgur.com/vkKAfV5.png
     prayers: List[Rectangle] = []  # https://i.imgur.com/KRmC3YB.png
-    skill_slots: List[Rectangle] = [] # https://imgur.com/a/VKgHaiu
+    skill_slots: List[Rectangle] = [] # https://i.imgur.com/j83q8XC.png
 
     # Chat Area
     chat: Rectangle = None  # https://i.imgur.com/u544ouI.png
