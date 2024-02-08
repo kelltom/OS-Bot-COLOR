@@ -17,3 +17,10 @@ pywinctl==0.0.42
 requests==2.31.0
 simplejson==3.17.6
 tkinter-tooltip==2.1.0
+
+pip~=22.3.1
+wheel~=0.38.4
+setuptools~=65.5.1
+packaging~=23.2
+pyparsing~=3.1.1
+pytweening~=1.0.7
