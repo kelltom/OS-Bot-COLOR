@@ -151,20 +151,22 @@ class Walking:
     def distance(self, p1, p2):
         return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
 
-    def add_waypoints(self, coordinates):
-        new_coordinates = [coordinates[0]]  # Start with the first coordinate
-        for i in range(len(coordinates) - 1):
-            p1 = coordinates[i]
-            p2 = coordinates[i + 1]
-            d = self.distance(p1, p2)  # Calculate distance between consecutive waypoints
-            
-            if d > 10:
-                num_waypoints = math.ceil(d / 11)  # Calculate number of waypoints needed
-                dx = (p2[0] - p1[0]) / num_waypoints
-                dy = (p2[1] - p1[1]) / num_waypoints
-                for j in range(1, num_waypoints):
-                    new_coordinates.append([round(p1[0] + j*dx), round(p1[1] + j*dy)])  # Add intermediate waypoints
-            new_coordinates.append(p2)  # Add the next waypoint
+    def add_waypoints(self, coordinates = []):
+        if coordinates:
+            new_coordinates = [coordinates[0]]  # Start with the first coordinate
+            for i in range(len(coordinates) - 1):
+                p1 = coordinates[i]
+                p2 = coordinates[i + 1]
+                d = self.distance(p1, p2)  # Calculate distance between consecutive waypoints
+                
+                if d > 10:
+                    num_waypoints = math.ceil(d / 11)  # Calculate number of waypoints needed
+                    dx = (p2[0] - p1[0]) / num_waypoints
+                    dy = (p2[1] - p1[1]) / num_waypoints
+                    for j in range(1, num_waypoints):
+                        new_coordinates.append([round(p1[0] + j*dx), round(p1[1] + j*dy)])  # Add intermediate waypoints
+                new_coordinates.append(p2)  # Add the next waypoint
 
-        return new_coordinates
+            return new_coordinates
+        return []
 
