@@ -2,6 +2,7 @@ import utilities.api.locations as loc
 from model.osrs.osrs_bot import OSRSBot
 from utilities.walker import Walking
 
+
 class OSRSWalkingExample(OSRSBot):
   
     def __init__(self):
