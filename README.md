@@ -1,3 +1,7 @@
+### Extra Features
+- OSRS Walker, walk around the map with only coordinates.
+- Mouse speed can be set custom
+
 ### ⚠️ This project is in Alpha stage ⚠️
 
 # ![logo](https://github.com/kelltom/OS-Bot-COLOR/assets/44652363/c9b93ee8-91a7-4bb4-8e92-5944e2d9d283)
