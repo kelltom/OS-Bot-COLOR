@@ -1,5 +1,6 @@
 import math
 from typing import List
+
 import utilities.api.locations as loc
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.pathfinding_api import Pathfinder

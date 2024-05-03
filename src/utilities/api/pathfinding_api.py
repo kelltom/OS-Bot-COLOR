@@ -2,7 +2,6 @@ import json
 
 import requests
 
-
 # Example usage
 # start_position = (3163, 3474)
 # end_position = (2998, 3374)
