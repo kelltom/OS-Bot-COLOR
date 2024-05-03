@@ -4,7 +4,7 @@ from utilities.walker import Walking
 
 
 class OSRSWalkingExample(OSRSBot):
-  
+
     def __init__(self):
         self.walk_to = "VARROCK_SQUARE"
         super().__init__(bot_title="Walk", description="Walk almost anywhere")

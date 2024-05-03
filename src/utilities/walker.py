@@ -25,7 +25,7 @@ class Walking:
         self.camera_angle = self.api_m.get_camera_position().get("yaw")
 
     def compute_tiles(self, new_x: int, new_y: int) -> List[float]:
-        '''Returns the range to click from the minimap center in amount of tiles.'''      
+        """Returns the range to click from the minimap center in amount of tiles."""
         # Get live camera data.
         self.update_camera_angle()
         # Account for anticlockwise OSRS minimap.
@@ -42,14 +42,14 @@ class Walking:
         return [round(tiles_x, 1), round(tiles_y, 1)]
 
     def change_position(self, new_pos: List[int]) -> None:
-        '''Clicks the minimap to change position'''
+        """Clicks the minimap to change position"""
         self.update_position()
         tiles = self.compute_tiles(new_pos[0], new_pos[1])
         if tiles != []:
-            minimap_center = (self.bot.win.minimap.get_center())
+            minimap_center = self.bot.win.minimap.get_center()
             new_x = round(minimap_center[0] + tiles[0] - 1)
             new_y = round(minimap_center[1] + tiles[1] - 1)
-            self.bot.mouse.move_to([new_x, new_y], mouseSpeed='fast')
+            self.bot.mouse.move_to([new_x, new_y], mouseSpeed="fast")
             self.bot.mouse.click()
             while abs(self.position[0] - new_pos[0]) > 5 or abs(self.position[1] - new_pos[1]) > 5:
                 self.update_position()
@@ -58,7 +58,7 @@ class Walking:
     def get_target_pos(self, path) -> List[int]:
         """Returns furthest possible coord."""
         self.update_position()
-        idx = next(i for i in range(len(path) - 1 , -1, -1) if (abs(path[i][0] - self.position[0]) <= 12 and abs(path[i][1] - self.position[1]) <= 12))
+        idx = next(i for i in range(len(path) - 1, -1, -1) if (abs(path[i][0] - self.position[0]) <= 12 and abs(path[i][1] - self.position[1]) <= 12))
         self.bot.log_msg(f"Walking progress: {idx}/{len(path)}")
         new_pos = path[idx]
         return new_pos
@@ -72,8 +72,8 @@ class Walking:
         """Returns whether the player reached his destination."""
         self.update_position()
 
-        bool_x = self.position[0] in range(area_destination[0] - 1 , area_destination[2] + 1)
-        bool_y = self.position[1] in range(area_destination[1] - 1 , area_destination[3] + 1)
+        bool_x = self.position[0] in range(area_destination[0] - 1, area_destination[2] + 1)
+        bool_y = self.position[1] in range(area_destination[1] - 1, area_destination[3] + 1)
 
         return bool_x and bool_y
 
@@ -88,7 +88,7 @@ class Walking:
             self.run_bool = True
 
     def walk(self, path, area_destination) -> None:
-        '''Walks a path by clicking on the minimap'''
+        """Walks a path by clicking on the minimap"""
         while True:
             # Turn on running if needed
             self.handle_running()
@@ -122,21 +122,21 @@ class Walking:
             path = self.api_path(new_current_position, end_coordinates)
             if path == []:
                 self.bot.take_break(4, 5)
-        
+
         self.walk(path, new_end_coordinates)
 
     def api_path(self, start_coordinates, end_coordinates):
         pathfinder = Pathfinder()
-        steps = (pathfinder.get_path(start_coordinates, end_coordinates))
+        steps = pathfinder.get_path(start_coordinates, end_coordinates)
 
-        if steps.get('status') == 'success':
-            processed_data = [[item[0], item[1]] for item in steps.get('data')]
+        if steps.get("status") == "success":
+            processed_data = [[item[0], item[1]] for item in steps.get("data")]
             waypoints = self.add_waypoints(processed_data)
             return waypoints
         return []
 
     def distance(self, p1, p2):
-        return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
+        return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
     def add_waypoints(self, coordinates):
         new_coordinates = [coordinates[0]]  # Start with the first coordinate
@@ -144,7 +144,7 @@ class Walking:
             p1 = coordinates[i]
             p2 = coordinates[i + 1]
             d = self.distance(p1, p2)  # Calculate distance between consecutive waypoints
-            
+
             if d > 10:
                 num_waypoints = math.ceil(d / 11)  # Calculate number of waypoints needed
                 dx = (p2[0] - p1[0]) / num_waypoints
@@ -154,4 +154,3 @@ class Walking:
             new_coordinates.append(p2)  # Add the next waypoint
 
         return new_coordinates
-
