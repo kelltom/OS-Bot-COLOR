@@ -6,7 +6,6 @@ from utilities.api.pathfinding_api import Pathfinder
 
 
 class Walking:
-
     DEGREESPERYAW: float = 360 / 2048
     TILES_PIXELS = 4
 
