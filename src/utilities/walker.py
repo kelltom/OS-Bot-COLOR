@@ -111,10 +111,10 @@ class Walking:
         if isinstance(end_location, str):
             end_coordinates = getattr(loc, end_location)
             new_end_coordinates = [end_coordinates[0] - 1, end_coordinates[1] - 1, end_coordinates[0] + 1, end_coordinates[1] + 1]
-        elif isinstance(end_location, list):
+        if isinstance(end_location, list):
             end_coordinates = end_location
             new_end_coordinates = [end_coordinates[0] - 1, end_coordinates[1] - 1, end_coordinates[0] + 1, end_coordinates[1] + 1]
-        elif isinstance(end_location, tuple):
+        if isinstance(end_location, tuple):
             end_coordinates = end_location
             new_end_coordinates = [end_coordinates[0] - 1, end_coordinates[1] - 1, end_coordinates[0] + 1, end_coordinates[1] + 1]
         path = []
