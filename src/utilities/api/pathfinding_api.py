@@ -19,7 +19,7 @@ ERROR_MESSAGE_MAPPING = {
     "INVALID_CREDENTIALS": "Invalid credentials",
     "RATE_LIMIT_EXCEEDED": "Rate limit exceeded",
     "NO_RESPONSE_FROM_SERVER": "No response from server",
-    "UNKNOWN": "Unknown"
+    "UNKNOWN": "Unknown",
 }
 
 
@@ -31,21 +31,7 @@ class Pathfinder:
     def get_path(start, end):
         start_z = start[2] if len(start) > 2 else 0
         end_z = end[2] if len(end) > 2 else 0
-        payload = {
-            "start": {
-                "x": start[0],
-                "y": start[1],
-                "z": start_z
-            },
-            "end": {
-                "x": end[0],
-                "y": end[1],
-                "z": end_z
-            },
-            "player": {
-                "members": True
-            }
-        }
+        payload = {"start": {"x": start[0], "y": start[1], "z": start_z}, "end": {"x": end[0], "y": end[1], "z": end_z}, "player": {"members": True}}
 
         headers = {
             "Content-Type": "application/json",
@@ -54,24 +40,12 @@ class Pathfinder:
         response = requests.post(API_URL, data=json.dumps(payload), headers=headers)
         if response.status_code == 200:
             data = response.json()
-            if data['pathStatus'] != "SUCCESS":
-                error_message = ERROR_MESSAGE_MAPPING.get(data['pathStatus'], "Unknown error")
-                return {
-                    "status": "error",
-                    "data": None,
-                    "error": error_message
-                }
+            if data["pathStatus"] != "SUCCESS":
+                error_message = ERROR_MESSAGE_MAPPING.get(data["pathStatus"], "Unknown error")
+                return {"status": "error", "data": None, "error": error_message}
             else:
-                path = data['path']
-                path_positions = [(pos['x'], pos['y'], pos['z']) for pos in path]
-                return {
-                    "status": "success",
-                    "data": path_positions,
-                    "error": None
-                }
+                path = data["path"]
+                path_positions = [(pos["x"], pos["y"], pos["z"]) for pos in path]
+                return {"status": "success", "data": path_positions, "error": None}
         else:
-            return {
-                "status": "error",
-                "data": None,
-                "error": "Error occurred while communicating with the server"
-            }
+            return {"status": "error", "data": None, "error": "Error occurred while communicating with the server"}
