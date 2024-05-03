@@ -23,7 +23,7 @@ class OSRSWalkingExample(OSRSBot):
     def main_loop(self):
         while True:
             walker = Walking(self)
-            if(walker.walk_to(self.walk_to)):
+            if walker.walk_to(self.walk_to):
                 self.log_msg("Arrived at destination")
                 self.stop()
             self.stop()
