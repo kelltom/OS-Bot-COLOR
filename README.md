@@ -1,4 +1,6 @@
-### ⚠️ This project is in Alpha stage ⚠️
+### ⚠️ This project is archived ⚠️
+
+---
 
 # ![logo](https://github.com/kelltom/OS-Bot-COLOR/assets/44652363/c9b93ee8-91a7-4bb4-8e92-5944e2d9d283)
 OS Bot COLOR (OSBC) is a desktop client for controlling and monitoring automation scripts for games. This application is paired with a toolkit for writing new scripts. Unlike popular automation frameworks that modify/inject code into a game's client, OSBC is completely hands-off; it uses a combination of color detection, image recognition, and optical character recognition to navigate the game. The goal of OSBC is to provide a fun and educational learning experience for new & seasoned developers alike, emphasizing the exploration of automation technologies and not to encourage or support activities that are in violation of any game's Terms of Service.
@@ -66,9 +68,10 @@ Sometimes, your bot might need to find a specific image on screen. We've modifie
 We've ditched machine learned OCR in favor of a much faster and more reliable custom implementation. OSBC can locate text on screen in as little as **2 milliseconds**. That's **0.002 seconds**.
 
 ---
-
+<!--
 <p>
   <a href="https://www.buymeacoffee.com/kelltom" target="_blank">
     <img src="https://i.imgur.com/5X29MVY.png" alt="Buy Me A Coffee" height="60dp">
   </a>
 </p>
+-->
