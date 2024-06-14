@@ -60,3 +60,9 @@ OFF_YELLOW = Color([190, 190, 0], [255, 255, 120])
 """Colors for use with minimap orb text"""
 ORB_GREEN = Color([0, 255, 0], [255, 255, 0])
 ORB_RED = Color([255, 0, 0], [255, 255, 0])
+
+"""Colors for use with chatbox text"""
+TEXT_RED = Color([239,16,32])
+TEXT_GREEN = Color([0,95,0])
+TEXT_BLUE = Color([1,1,255])
+TEXT_BLACK = Color([1,1,0])
